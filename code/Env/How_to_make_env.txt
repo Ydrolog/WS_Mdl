@@ -1,0 +1,13 @@
+To freeze/export:
+conda activate env
+conda env export > environment.yml
+
+To import/install:
+mamba env create -f ENVIRONMENT.yml
+# Can use conda instead of mamba
+mamba env create -f Env_NBr7.yml
+
+Then pip install -e C:\OD\WS_Mdl\code
+
+
+ATTENTION! Always make a new .yml file for a run where changes have been made to the env since the previous run. Then update the env version in the RunLog/PP_Ctrl s/s.

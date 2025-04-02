@@ -1,0 +1,7 @@
+# file used to define inputs for write_mete_grid.py
+date_start = '2010-01-01' # Use '%Y-%m-%d' format
+date_end = '2018-12-31' # Use '%Y-%m-%d' format
+Mdl='NBr' # Has to be a str
+SimN=5 # Has to be an int. This will be used for the mete_grid SimN, i.e. the SimN of the Sim you want to use this mete_grid file in for the first time
+SimN_P=1 # Has to be an int. SimN for the P grids. This could be a different (prior) run to the SimN, if you want to use older grids.
+SimN_PET=1 # Has to be an int. SimN for the PET grids. This could be a different (prior) run to the SimN, if you want to use older grids.

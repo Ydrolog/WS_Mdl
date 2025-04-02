@@ -1,0 +1,6 @@
+Metadata-Version: 2.2
+Name: WS_Mdl
+Version: 0.1
+Requires-Dist: pandas
+Requires-Dist: numpy
+Dynamic: requires-dist

@@ -1,0 +1,526 @@
+25,(CHD),1, Constant Head Boundary
+2018-01-01 00:00:00
+001,019
+ 1,2, 001,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180101_L1.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 003,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180101_L3.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 005,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180101_L5.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 007,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180101_L7.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 009,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180101_L9.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 011,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180101_L11.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 013,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180101_L13.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 015,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180101_L15.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 017,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180101_L17.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 019,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180101_L19.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 021,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180101_L21.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 023,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180101_L23.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 025,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180101_L25.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 027,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180101_L27.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 029,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180101_L29.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 031,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180101_L31.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 033,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180101_L33.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 035,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180101_L35.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 037,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180101_L37.idf' >>> (chd) constant head (idf) <<<
+2018-01-14 00:00:00
+001,019
+ 1,2, 001,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180114_L1.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 003,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180114_L3.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 005,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180114_L5.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 007,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180114_L7.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 009,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180114_L9.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 011,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180114_L11.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 013,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180114_L13.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 015,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180114_L15.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 017,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180114_L17.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 019,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180114_L19.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 021,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180114_L21.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 023,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180114_L23.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 025,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180114_L25.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 027,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180114_L27.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 029,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180114_L29.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 031,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180114_L31.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 033,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180114_L33.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 035,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180114_L35.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 037,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180114_L37.idf' >>> (chd) constant head (idf) <<<
+2018-02-14 00:00:00
+001,019
+ 1,2, 001,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180214_L1.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 003,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180214_L3.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 005,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180214_L5.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 007,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180214_L7.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 009,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180214_L9.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 011,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180214_L11.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 013,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180214_L13.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 015,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180214_L15.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 017,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180214_L17.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 019,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180214_L19.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 021,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180214_L21.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 023,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180214_L23.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 025,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180214_L25.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 027,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180214_L27.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 029,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180214_L29.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 031,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180214_L31.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 033,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180214_L33.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 035,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180214_L35.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 037,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180214_L37.idf' >>> (chd) constant head (idf) <<<
+2018-03-14 00:00:00
+001,019
+ 1,2, 001,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180314_L1.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 003,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180314_L3.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 005,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180314_L5.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 007,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180314_L7.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 009,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180314_L9.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 011,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180314_L11.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 013,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180314_L13.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 015,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180314_L15.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 017,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180314_L17.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 019,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180314_L19.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 021,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180314_L21.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 023,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180314_L23.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 025,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180314_L25.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 027,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180314_L27.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 029,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180314_L29.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 031,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180314_L31.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 033,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180314_L33.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 035,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180314_L35.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 037,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180314_L37.idf' >>> (chd) constant head (idf) <<<
+2018-04-14 00:00:00
+001,019
+ 1,2, 001,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180414_L1.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 003,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180414_L3.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 005,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180414_L5.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 007,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180414_L7.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 009,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180414_L9.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 011,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180414_L11.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 013,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180414_L13.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 015,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180414_L15.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 017,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180414_L17.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 019,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180414_L19.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 021,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180414_L21.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 023,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180414_L23.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 025,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180414_L25.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 027,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180414_L27.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 029,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180414_L29.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 031,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180414_L31.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 033,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180414_L33.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 035,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180414_L35.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 037,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180414_L37.idf' >>> (chd) constant head (idf) <<<
+2018-05-14 00:00:00
+001,019
+ 1,2, 001,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180514_L1.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 003,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180514_L3.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 005,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180514_L5.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 007,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180514_L7.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 009,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180514_L9.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 011,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180514_L11.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 013,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180514_L13.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 015,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180514_L15.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 017,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180514_L17.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 019,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180514_L19.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 021,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180514_L21.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 023,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180514_L23.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 025,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180514_L25.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 027,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180514_L27.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 029,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180514_L29.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 031,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180514_L31.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 033,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180514_L33.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 035,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180514_L35.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 037,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180514_L37.idf' >>> (chd) constant head (idf) <<<
+2018-06-14 00:00:00
+001,019
+ 1,2, 001,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180614_L1.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 003,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180614_L3.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 005,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180614_L5.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 007,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180614_L7.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 009,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180614_L9.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 011,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180614_L11.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 013,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180614_L13.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 015,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180614_L15.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 017,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180614_L17.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 019,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180614_L19.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 021,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180614_L21.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 023,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180614_L23.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 025,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180614_L25.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 027,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180614_L27.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 029,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180614_L29.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 031,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180614_L31.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 033,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180614_L33.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 035,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180614_L35.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 037,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180614_L37.idf' >>> (chd) constant head (idf) <<<
+2018-07-14 00:00:00
+001,019
+ 1,2, 001,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180714_L1.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 003,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180714_L3.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 005,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180714_L5.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 007,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180714_L7.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 009,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180714_L9.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 011,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180714_L11.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 013,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180714_L13.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 015,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180714_L15.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 017,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180714_L17.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 019,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180714_L19.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 021,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180714_L21.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 023,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180714_L23.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 025,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180714_L25.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 027,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180714_L27.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 029,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180714_L29.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 031,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180714_L31.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 033,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180714_L33.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 035,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180714_L35.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 037,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180714_L37.idf' >>> (chd) constant head (idf) <<<
+2018-08-14 00:00:00
+001,019
+ 1,2, 001,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180814_L1.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 003,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180814_L3.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 005,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180814_L5.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 007,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180814_L7.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 009,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180814_L9.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 011,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180814_L11.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 013,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180814_L13.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 015,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180814_L15.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 017,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180814_L17.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 019,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180814_L19.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 021,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180814_L21.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 023,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180814_L23.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 025,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180814_L25.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 027,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180814_L27.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 029,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180814_L29.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 031,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180814_L31.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 033,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180814_L33.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 035,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180814_L35.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 037,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180814_L37.idf' >>> (chd) constant head (idf) <<<
+2018-09-14 00:00:00
+001,019
+ 1,2, 001,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180914_L1.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 003,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180914_L3.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 005,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180914_L5.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 007,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180914_L7.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 009,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180914_L9.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 011,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180914_L11.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 013,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180914_L13.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 015,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180914_L15.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 017,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180914_L17.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 019,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180914_L19.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 021,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180914_L21.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 023,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180914_L23.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 025,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180914_L25.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 027,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180914_L27.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 029,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180914_L29.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 031,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180914_L31.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 033,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180914_L33.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 035,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180914_L35.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 037,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20180914_L37.idf' >>> (chd) constant head (idf) <<<
+2018-10-14 00:00:00
+001,019
+ 1,2, 001,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181014_L1.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 003,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181014_L3.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 005,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181014_L5.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 007,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181014_L7.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 009,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181014_L9.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 011,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181014_L11.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 013,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181014_L13.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 015,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181014_L15.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 017,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181014_L17.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 019,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181014_L19.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 021,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181014_L21.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 023,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181014_L23.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 025,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181014_L25.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 027,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181014_L27.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 029,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181014_L29.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 031,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181014_L31.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 033,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181014_L33.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 035,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181014_L35.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 037,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181014_L37.idf' >>> (chd) constant head (idf) <<<
+2018-11-14 00:00:00
+001,019
+ 1,2, 001,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181114_L1.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 003,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181114_L3.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 005,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181114_L5.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 007,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181114_L7.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 009,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181114_L9.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 011,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181114_L11.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 013,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181114_L13.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 015,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181114_L15.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 017,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181114_L17.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 019,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181114_L19.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 021,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181114_L21.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 023,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181114_L23.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 025,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181114_L25.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 027,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181114_L27.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 029,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181114_L29.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 031,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181114_L31.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 033,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181114_L33.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 035,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181114_L35.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 037,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181114_L37.idf' >>> (chd) constant head (idf) <<<
+2018-12-14 00:00:00
+001,019
+ 1,2, 001,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181214_L1.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 003,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181214_L3.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 005,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181214_L5.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 007,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181214_L7.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 009,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181214_L9.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 011,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181214_L11.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 013,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181214_L13.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 015,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181214_L15.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 017,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181214_L17.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 019,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181214_L19.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 021,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181214_L21.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 023,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181214_L23.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 025,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181214_L25.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 027,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181214_L27.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 029,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181214_L29.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 031,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181214_L31.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 033,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181214_L33.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 035,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181214_L35.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 037,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20181214_L37.idf' >>> (chd) constant head (idf) <<<
+2019-01-14 00:00:00
+001,019
+ 1,2, 001,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190114_L1.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 003,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190114_L3.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 005,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190114_L5.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 007,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190114_L7.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 009,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190114_L9.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 011,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190114_L11.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 013,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190114_L13.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 015,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190114_L15.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 017,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190114_L17.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 019,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190114_L19.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 021,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190114_L21.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 023,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190114_L23.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 025,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190114_L25.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 027,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190114_L27.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 029,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190114_L29.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 031,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190114_L31.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 033,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190114_L33.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 035,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190114_L35.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 037,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190114_L37.idf' >>> (chd) constant head (idf) <<<
+2019-02-14 00:00:00
+001,019
+ 1,2, 001,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190214_L1.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 003,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190214_L3.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 005,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190214_L5.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 007,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190214_L7.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 009,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190214_L9.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 011,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190214_L11.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 013,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190214_L13.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 015,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190214_L15.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 017,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190214_L17.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 019,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190214_L19.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 021,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190214_L21.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 023,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190214_L23.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 025,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190214_L25.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 027,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190214_L27.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 029,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190214_L29.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 031,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190214_L31.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 033,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190214_L33.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 035,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190214_L35.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 037,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190214_L37.idf' >>> (chd) constant head (idf) <<<
+2019-03-14 00:00:00
+001,019
+ 1,2, 001,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190314_L1.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 003,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190314_L3.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 005,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190314_L5.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 007,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190314_L7.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 009,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190314_L9.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 011,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190314_L11.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 013,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190314_L13.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 015,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190314_L15.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 017,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190314_L17.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 019,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190314_L19.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 021,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190314_L21.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 023,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190314_L23.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 025,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190314_L25.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 027,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190314_L27.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 029,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190314_L29.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 031,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190314_L31.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 033,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190314_L33.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 035,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190314_L35.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 037,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190314_L37.idf' >>> (chd) constant head (idf) <<<
+2019-04-14 00:00:00
+001,019
+ 1,2, 001,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190414_L1.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 003,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190414_L3.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 005,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190414_L5.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 007,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190414_L7.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 009,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190414_L9.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 011,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190414_L11.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 013,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190414_L13.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 015,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190414_L15.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 017,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190414_L17.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 019,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190414_L19.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 021,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190414_L21.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 023,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190414_L23.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 025,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190414_L25.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 027,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190414_L27.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 029,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190414_L29.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 031,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190414_L31.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 033,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190414_L33.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 035,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190414_L35.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 037,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190414_L37.idf' >>> (chd) constant head (idf) <<<
+2019-05-14 00:00:00
+001,019
+ 1,2, 001,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190514_L1.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 003,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190514_L3.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 005,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190514_L5.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 007,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190514_L7.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 009,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190514_L9.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 011,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190514_L11.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 013,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190514_L13.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 015,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190514_L15.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 017,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190514_L17.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 019,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190514_L19.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 021,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190514_L21.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 023,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190514_L23.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 025,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190514_L25.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 027,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190514_L27.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 029,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190514_L29.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 031,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190514_L31.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 033,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190514_L33.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 035,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190514_L35.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 037,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190514_L37.idf' >>> (chd) constant head (idf) <<<
+2019-06-14 00:00:00
+001,019
+ 1,2, 001,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190614_L1.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 003,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190614_L3.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 005,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190614_L5.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 007,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190614_L7.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 009,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190614_L9.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 011,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190614_L11.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 013,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190614_L13.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 015,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190614_L15.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 017,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190614_L17.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 019,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190614_L19.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 021,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190614_L21.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 023,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190614_L23.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 025,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190614_L25.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 027,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190614_L27.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 029,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190614_L29.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 031,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190614_L31.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 033,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190614_L33.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 035,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190614_L35.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 037,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190614_L37.idf' >>> (chd) constant head (idf) <<<
+2019-07-14 00:00:00
+001,019
+ 1,2, 001,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190714_L1.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 003,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190714_L3.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 005,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190714_L5.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 007,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190714_L7.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 009,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190714_L9.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 011,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190714_L11.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 013,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190714_L13.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 015,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190714_L15.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 017,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190714_L17.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 019,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190714_L19.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 021,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190714_L21.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 023,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190714_L23.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 025,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190714_L25.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 027,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190714_L27.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 029,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190714_L29.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 031,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190714_L31.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 033,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190714_L33.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 035,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190714_L35.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 037,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190714_L37.idf' >>> (chd) constant head (idf) <<<
+2019-08-14 00:00:00
+001,019
+ 1,2, 001,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190814_L1.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 003,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190814_L3.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 005,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190814_L5.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 007,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190814_L7.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 009,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190814_L9.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 011,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190814_L11.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 013,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190814_L13.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 015,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190814_L15.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 017,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190814_L17.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 019,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190814_L19.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 021,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190814_L21.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 023,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190814_L23.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 025,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190814_L25.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 027,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190814_L27.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 029,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190814_L29.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 031,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190814_L31.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 033,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190814_L33.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 035,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190814_L35.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 037,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190814_L37.idf' >>> (chd) constant head (idf) <<<
+2019-09-14 00:00:00
+001,019
+ 1,2, 001,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190914_L1.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 003,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190914_L3.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 005,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190914_L5.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 007,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190914_L7.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 009,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190914_L9.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 011,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190914_L11.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 013,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190914_L13.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 015,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190914_L15.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 017,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190914_L17.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 019,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190914_L19.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 021,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190914_L21.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 023,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190914_L23.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 025,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190914_L25.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 027,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190914_L27.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 029,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190914_L29.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 031,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190914_L31.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 033,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190914_L33.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 035,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190914_L35.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 037,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20190914_L37.idf' >>> (chd) constant head (idf) <<<
+2019-10-14 00:00:00
+001,019
+ 1,2, 001,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191014_L1.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 003,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191014_L3.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 005,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191014_L5.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 007,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191014_L7.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 009,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191014_L9.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 011,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191014_L11.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 013,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191014_L13.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 015,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191014_L15.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 017,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191014_L17.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 019,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191014_L19.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 021,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191014_L21.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 023,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191014_L23.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 025,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191014_L25.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 027,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191014_L27.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 029,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191014_L29.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 031,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191014_L31.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 033,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191014_L33.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 035,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191014_L35.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 037,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191014_L37.idf' >>> (chd) constant head (idf) <<<
+2019-11-14 00:00:00
+001,019
+ 1,2, 001,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191114_L1.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 003,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191114_L3.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 005,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191114_L5.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 007,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191114_L7.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 009,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191114_L9.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 011,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191114_L11.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 013,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191114_L13.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 015,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191114_L15.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 017,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191114_L17.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 019,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191114_L19.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 021,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191114_L21.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 023,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191114_L23.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 025,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191114_L25.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 027,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191114_L27.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 029,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191114_L29.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 031,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191114_L31.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 033,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191114_L33.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 035,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191114_L35.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 037,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191114_L37.idf' >>> (chd) constant head (idf) <<<
+2019-12-14 00:00:00
+001,019
+ 1,2, 001,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191214_L1.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 003,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191214_L3.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 005,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191214_L5.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 007,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191214_L7.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 009,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191214_L9.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 011,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191214_L11.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 013,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191214_L13.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 015,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191214_L15.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 017,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191214_L17.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 019,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191214_L19.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 021,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191214_L21.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 023,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191214_L23.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 025,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191214_L25.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 027,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191214_L27.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 029,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191214_L29.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 031,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191214_L31.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 033,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191214_L33.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 035,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191214_L35.idf' >>> (chd) constant head (idf) <<<
+ 1,2, 037,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\CHD\NBr1\head_20191214_L37.idf' >>> (chd) constant head (idf) <<<

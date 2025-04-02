@@ -1,0 +1,25 @@
+## There are more .gitignore files in idividual directoreis. Those were created by DVC, so that the .dvc files get tracked, but not the actual files.
+
+models
+!models/
+
+# Unignore each model folder (NBr, ZBr, etc.)
+!models/*/
+
+# code folders
+!models/*/code/
+!models/*/code/**
+!models/*/code/**/*
+
+# doc folders
+!models/*/doc/
+!models/*/doc/**
+
+# In/PRJ folders
+!models/*/In/
+!models/*/In/*
+!models/*/In/**
+!models/*/In/PRJ/
+!models/*/In/PRJ/**
+
+*.aux.xml
