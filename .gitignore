@@ -1,5 +1,5 @@
 **.aux.xml # Those are created by QGIS, but they're auxilary, so there is no reason to track them
 
 /models/
-/software/
-**/SS/
+/software/MF6
+s**/SS/
