@@ -29,8 +29,20 @@ def main():
                         else:
                             paths.add(out)
 
-    for path in sorted(paths):
-        print(path)
+    collapsed = set()
+    for path in paths:
+        parts = os.path.normpath(path).split(os.sep)
+
+        if os.path.isfile(path) or '.' in parts[-1]:  # likely a file
+            collapsed.add(path)
+        elif len(parts) >= 2:
+            collapsed.add(os.path.join(parts[0], parts[1]))
+        elif parts:
+            collapsed.add(parts[0])
+
+    for path in sorted(collapsed):
+        print(path.replace(os.sep, "/"))
+
 
 if __name__ == "__main__":
     main()

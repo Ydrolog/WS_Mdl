@@ -1,36 +1,48 @@
 import subprocess
 from pathlib import Path
 
-def main():
-    repo_root = Path.cwd().resolve()
+class TrieNode:
+    def __init__(self):
+        self.children = {}
+        self.is_end = False
 
-    # Get .gitignore'd files
+    def insert(self, parts):
+        node = self
+        for part in parts:
+            if node.is_end:
+                return False
+            node = node.children.setdefault(part, TrieNode())
+        node.is_end = True
+        node.children.clear()
+        return True
+
+def main():
     result = subprocess.run(
         ["git", "ls-files", "--others", "--ignored", "--exclude-standard"],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-        check=True
+        stdout=subprocess.PIPE, text=True, check=True
     )
 
-    folders = set()
-    for line in result.stdout.strip().splitlines():
-        file_path = Path(line).resolve()
+    base = Path.cwd().resolve()
+    parents = {Path(p).parent.resolve() for p in result.stdout.splitlines()}
 
-        # Skip files outside the repo root
+    # Apply manual override: reduce anything under `.dvc` to `.dvc`
+    simplified = set()
+    for p in parents:
         try:
-            rel_path = file_path.relative_to(repo_root)
+            i = p.parts.index(".dvc")
+            simplified.add(Path(*p.parts[:i+1]))  # e.g., Path(".dvc")
         except ValueError:
-            continue
+            simplified.add(p)
 
-        parent = rel_path.parent
-        parts = parent.parts
+    trie = TrieNode()
+    collapsed = []
 
-        # Collapse to first 2 folder levels
-        if len(parts) >= 2:
-            folders.add(Path(parts[0]) / parts[1])
-        elif parts:
-            folders.add(Path(parts[0]))
+    for path in sorted(simplified):
+        if trie.insert(path.parts):
+            collapsed.append(path)
 
-    for folder in sorted(folders):
-        print(folder.as_posix())
+    for path in collapsed:
+        print(path.relative_to(base).as_posix())
+
+if __name__ == "__main__":
+    main()

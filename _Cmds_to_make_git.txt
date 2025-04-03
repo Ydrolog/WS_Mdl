@@ -615,3 +615,20 @@ To https://github.com/Ydrolog/WS_Mdl
 ERROR: bad DVC file name 'software\iMOD5.dvc' is git-ignored.
 (C:\mamba_envs\WS) PS C:\OD\WS_Mdl> dvc add .\software\iMOD5\
 100% Adding...|██████████████████████████████████████████████████████████████████████████|1/1 [03:39, 219.27s/file]
+
+(C:\mamba_envs\WS) PS C:\OD\WS_Mdl> git commit -am "DVC'd or gitignored files under software. Re-formatted README.md so that it appears pretty on the webpage."
+warning: in the working copy of 'README.md', LF will be replaced by CRLF the next time Git touches it
+[main f150429] DVC'd or gitignored files under software. Re-formatted README.md so that it appears pretty on the webpage.
+ 5 files changed, 620 insertions(+), 3320 deletions(-)
+ create mode 100644 software/.gitignore
+ create mode 100644 software/iMOD5.dvc
+(C:\mamba_envs\WS) PS C:\OD\WS_Mdl> git push
+Enumerating objects: 12, done.
+Counting objects: 100% (12/12), done.
+Delta compression using up to 12 threads
+Compressing objects: 100% (7/7), done.
+Writing objects: 100% (8/8), 6.12 KiB | 2.04 MiB/s, done.
+Total 8 (delta 3), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (3/3), completed with 3 local objects.
+To https://github.com/Ydrolog/WS_Mdl
+   05b661e..f150429  main -> main
