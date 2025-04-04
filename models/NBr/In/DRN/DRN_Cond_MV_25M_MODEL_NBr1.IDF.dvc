@@ -1,0 +1,5 @@
+outs:
+- md5: 12ec3a3099ff9c8f4ffc5e8eff866bb1
+  size: 108312400
+  hash: md5
+  path: DRN_Cond_MV_25M_MODEL_NBr1.IDF

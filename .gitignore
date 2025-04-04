@@ -5,17 +5,22 @@
 /software/MF6
 
 ## models requires a complicated ignore list
+# 1st line ignores files under In by default.
+# 2nd line ignores all sub-folders, but not the files inside them. This is so more rules for the files inside them can be added later.
+# 3rd line enables all PRJ files. The same idea is applied to other In types/files.
 models/*/In/**
-!models/*/In/PRJ/
+!models/*/In/**/
 !models/*/In/PRJ/**
-
+!models/*/In/CAP/
+!models/*/In/CAP/**/
 
 models/*/PoP
 models/*/PrP
 models/*/Sim
 
-## DVC files everywhere (except in SS folders) will be un-ignored.
+## DVC files everywhere (except in SS folders) will be un-ignored. Same for .inp files, they're MetaSWAP files that are very small. CAVEAT: the folders where those file reside need to be un-ignored too, otherwise this won't work.
 !**/*.dvc
+!**/*.inp
 
 # All SS folders will be ignored. This is placed at the bottom to overwrite anything else.
 **/SS/

@@ -15,7 +15,8 @@ setup(
             "Dir_Fo_size=WS_Mdl.scripts.Dir_Fo_size:main",  # Gets all directory sizes
             "map_DVC=WS_Mdl.scripts.map_DVC:main",  # Maps all DVC'd files/directories
             "map_gitignore=WS_Mdl.scripts.map_gitignore:main",  # Maps all DVC'd files/directories
-            "DVC_add_pattern=WS_Mdl.scripts.DVC_add_pattern:main"  # Maps all DVC'd files/directories
+            "DVC_add_pattern=WS_Mdl.scripts.DVC_add_pattern:main", # Runs DVC add for all files directly under provided directory.
+            "DVC_add_pattern_deep=WS_Mdl.scripts.DVC_add_pattern_deep:main", # Runs DVC add for all files directly under provided directory.
         ]
     },
 )

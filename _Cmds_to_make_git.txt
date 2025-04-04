@@ -632,3 +632,153 @@ Total 8 (delta 3), reused 0 (delta 0), pack-reused 0 (from 0)
 remote: Resolving deltas: 100% (3/3), completed with 3 local objects.
 To https://github.com/Ydrolog/WS_Mdl
    05b661e..f150429  main -> main
+   
+(C:\mamba_envs\WS) PS C:\OD\WS_Mdl> git status
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+        modified:   .gitignore
+        modified:   README.md
+        modified:   _Cmds_to_make_git.txt
+        modified:   code/WS_Mdl/scripts/__pycache__/S_from_B.cpython-312.pyc
+        modified:   code/WS_Mdl/scripts/__pycache__/map_DVC.cpython-312.pyc
+        modified:   code/WS_Mdl/scripts/__pycache__/map_gitignore.cpython-312.pyc
+        modified:   code/WS_Mdl/scripts/map_DVC.py
+        modified:   code/WS_Mdl/scripts/map_gitignore.py
+        deleted:    code/build/launch_PS_WS.bat
+        deleted:    code/build/lib/WS_Mdl/CMD_scripts/S_from_B.py
+        deleted:    code/build/lib/WS_Mdl/CMD_scripts/__init__.py
+        deleted:    code/build/lib/WS_Mdl/WS_Mdl.py
+        deleted:    code/build/lib/WS_Mdl/__init__.py
+        deleted:    code/build/scripts-3.12/S_from_B.py
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        models/
+
+(C:\mamba_envs\WS) PS C:\OD\WS_Mdl> git commit -am "Improved README & modified .gitignore to prepare for models DVCing."
+[main 5a403f5] Improved README & modified .gitignore to prepare for models DVCing.
+ 14 files changed, 99 insertions(+), 199 deletions(-)
+ delete mode 100644 code/build/launch_PS_WS.bat
+ delete mode 100644 code/build/lib/WS_Mdl/CMD_scripts/S_from_B.py
+ delete mode 100644 code/build/lib/WS_Mdl/CMD_scripts/__init__.py
+ delete mode 100644 code/build/lib/WS_Mdl/WS_Mdl.py
+ delete mode 100644 code/build/lib/WS_Mdl/__init__.py
+ delete mode 100644 code/build/scripts-3.12/S_from_B.py
+(C:\mamba_envs\WS) PS C:\OD\WS_Mdl>
+
+(C:\mamba_envs\WS) PS C:\OD\WS_Mdl> cd .\models\NBr\In\
+(C:\mamba_envs\WS) PS C:\OD\WS_Mdl\models\NBr\In> dvc add .\BND\BND_L1_NBr1.IDF
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  8.38file/s]
+(C:\mamba_envs\WS) PS C:\OD\WS_Mdl\models\NBr\In> cd BOT
+(C:\mamba_envs\WS) PS C:\OD\WS_Mdl\models\NBr\In\BOT> DVC_add_pattern.exe .idf
+Looking for '.idf' in: C:\Users\Karam014\OneDrive - Universiteit Utrecht\WS_Mdl\models\NBr\In\BOT
+(C:\mamba_envs\WS) PS C:\OD\WS_Mdl\models\NBr\In\BOT> DVC_add_pattern.exe *.idf
+Looking for '*.idf' in: C:\Users\Karam014\OneDrive - Universiteit Utrecht\WS_Mdl\models\NBr\In\BOT
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\BOT\BOT_L10_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  6.68file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\BOT\BOT_L11_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  8.57file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\BOT\BOT_L12_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  7.95file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\BOT\BOT_L13_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 10.81file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\BOT\BOT_L14_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 10.51file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\BOT\BOT_L15_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 10.64file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\BOT\BOT_L16_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 12.68file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\BOT\BOT_L17_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  1.76file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\BOT\BOT_L18_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 12.62file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\BOT\BOT_L19_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  6.34file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\BOT\BOT_L1_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 12.68file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\BOT\BOT_L20_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  7.88file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\BOT\BOT_L21_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  7.90file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\BOT\BOT_L22_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 12.60file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\BOT\BOT_L23_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 10.55file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\BOT\BOT_L24_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 12.60file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\BOT\BOT_L25_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  1.46file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\BOT\BOT_L26_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 12.46file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\BOT\BOT_L27_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 10.47file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\BOT\BOT_L28_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 12.68file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\BOT\BOT_L29_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 12.64file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\BOT\BOT_L2_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 10.55file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\BOT\BOT_L30_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 12.54file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\BOT\BOT_L31_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 12.58file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\BOT\BOT_L32_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 12.62file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\BOT\BOT_L33_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  1.66file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\BOT\BOT_L34_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 15.83file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\BOT\BOT_L35_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 15.78file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\BOT\BOT_L36_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 12.60file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\BOT\BOT_L37_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 11.33file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\BOT\BOT_L3_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 10.12file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\BOT\BOT_L4_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 12.57file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\BOT\BOT_L5_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 12.32file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\BOT\BOT_L6_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 14.10file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\BOT\BOT_L7_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 11.13file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\BOT\BOT_L8_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  9.91file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\BOT\BOT_L9_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 12.71file/s]
+(C:\mamba_envs\WS) PS C:\OD\WS_Mdl\models\NBr\In\BOT>
+
+(C:\mamba_envs\WS) PS C:\OD\WS_Mdl\models\NBr\In\BOT> cd ../CAP
+(C:\mamba_envs\WS) PS C:\OD\WS_Mdl\models\NBr\In\CAP> DVC_add_pattern_deep.exe *.idf
+Looking for '*.idf' in: C:\Users\Karam014\OneDrive - Universiteit Utrecht\WS_Mdl\models\NBr\In\CAP
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\CAP\ARL\ARL_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:02,  2.73s/file]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\CAP\ART\ART_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:01,  1.58s/file]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\CAP\LGN\LGN_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:02,  2.78s/file]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\CAP\RZN\RZN_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:02,  2.78s/file]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\CAP\SEV\SEV_NBr1.IDF
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:02,  3.00s/file]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\CAP\SFU\SFU_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:02,  2.80s/file]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\CAP\UBA\UBA_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:01,  1.63s/file]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\CAP\WTA\WTA_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:01,  1.79s/file]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\CAP\P\NBr1\PRECIPITATION_19910101.IDF
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  9.71file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\CAP\P\NBr1\PRECIPITATION_20000601.IDF
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  9.05file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\CAP\PET\NBr1\EVAPORATION_20000601.IDF
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  9.03file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\CAP\PET\NBr1\PET_20000601.IDF
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 21.12file/s]
+
+########## The terminal closed here, but I removed the P and PET .idf files (those will be DVC'd along with the other files in the same folders). Then added the whole P\NBr1 and PER\NBr1 folders, then CHD\NBr1 folders ####

@@ -1,0 +1,34 @@
+    vegetation_mdl         =          1    ! Vegetation model          (1/2/3) 1= simple, 2= WOFOST,          3=2 + feedback
+    evapotranspiration_mdl =          1    ! Evapotranspiration model  (1/2/3) 1= simple, 2= PenMon as ETref, 3= PenMon full
+    saltstress_mdl         =          0    ! Salt stress model           (0/1) 0= none    1 = Maas-Hoffman
+    oxygenstress_mdl       =          1    ! Bartholomeus , but only for WOFOST
+    surfacewater_mdl       =          0    ! Surface water model     (0/1/2/5) 0= none    1 = Surfw   2= + Sobek   5 = +SWQN
+    postmsw_opt            =          0    ! Online postmsw              (0/1) 0= not     1 = online
+    save&restore_opt       =          0    ! Enablement online restore (0/1/2) 0= not     1 = normal accuracy  2 = testing accuracy
+    unsa_svat_path         ="C:\OD\WS_Mdl\data\MetaSWAP_DB\LHM2018_v02v\"    ! Location of unsa-database
+    dtgw                   =   1.000000    ! Groundwater/soil water time step
+    dtsw                   =   1.000000    ! Time step fast processes
+*
+* Parameters for processes
+*
+    ipstep                 =        2
+    co2                    =   404.21
+*
+    iterur1                =          3    ! Outer cycle iteration for start of smoothing
+    iterur2                =          5    ! Outer cycle iteration with full smoothing
+    idbg                   =   0.000000    ! Starting julian day of simulation
+    iybg                   =       1993    ! Starting year of simulation
+    tdbgsm                 =        0.0    ! Beginning of summer water management period
+    tdedsm                 =      366.0    ! End of summer water management period
+    clocktime              =          0    ! Produces files for clocking cpu/realtime used
+    svat_gt                =          0    ! File  with 14-day gw. levels
+    svat_per               =          0    ! File  with period-info SVATs
+    svat_per_csv           =          0    ! Files with period-info selected SVATs
+    svat_dtgw              =          0    ! File  with dtgw-info SVATs
+    svat_dtgw_csv          =          1    ! Files with dtgw-info selected SVATs
+    svat2gw_dtgw           =          0    ! File  with dtgw-info flow to GW as system volume
+    svat_vg_per            =          0    ! File  with period-info vegetation model
+    svat_vg_per_csv        =          0    ! File  with period-info vegetation model selected SVATs
+    svat_vg_day            =          0    ! File  with day-info vegetation model
+    svat_vg_day_csv        =          1    ! File  with day-info vegetation model selected SVATs
+    svat_sav               =          1

@@ -15,6 +15,7 @@ WS_Mdl.egg-info/entry_points.txt
 WS_Mdl.egg-info/requires.txt
 WS_Mdl.egg-info/top_level.txt
 WS_Mdl/scripts/DVC_add_pattern.py
+WS_Mdl/scripts/DVC_add_pattern_deep.py
 WS_Mdl/scripts/Dir_Fo_size.py
 WS_Mdl/scripts/S_from_B.py
 WS_Mdl/scripts/__init__.py
