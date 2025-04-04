@@ -782,3 +782,1316 @@ Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\CAP\PET\NBr1\PET_20000601.IDF
 100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 21.12file/s]
 
 ########## The terminal closed here, but I removed the P and PET .idf files (those will be DVC'd along with the other files in the same folders). Then added the whole P\NBr1 and PER\NBr1 folders, then CHD\NBr1 folders ####
+
+
+(C:\mamba_envs\WS) PS C:\OD\WS_Mdl\models\NBr\In\CHD> dvc add .\NBr5\
+100% Adding...|██████████████████████████████████████████████████████████████████████████|1/1 [04:34, 274.71s/file]
+(C:\mamba_envs\WS) PS C:\OD\WS_Mdl\models\NBr\In\CHD> DVC_add_pattern.exe .\DRN\*.idf
+Looking for '.\DRN\*.idf' in: C:\Users\Karam014\OneDrive - Universiteit Utrecht\WS_Mdl\models\NBr\In\CHD
+(C:\mamba_envs\WS) PS C:\OD\WS_Mdl\models\NBr\In\CHD> cd ../
+(C:\mamba_envs\WS) PS C:\OD\WS_Mdl\models\NBr\In> DVC_add_pattern.exe .\DRN\*.idf
+Looking for '.\DRN\*.idf' in: C:\Users\Karam014\OneDrive - Universiteit Utrecht\WS_Mdl\models\NBr\In
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\DRN\DRN_Cond_buis_NBr1.IDF
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:02,  2.69s/file]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\DRN\DRN_Cond_MV_25M_MODEL_NBr1.IDF
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:02,  2.52s/file]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\DRN\DRN_Cond_ONTWATERING_BELGIE_NBr1.IDF
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 15.79file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\DRN\DRN_Elv_BELGIE_NBr1.IDF
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:02,  2.23s/file]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\DRN\DRN_Elv_buis_NBr1.IDF
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:02,  2.44s/file]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\DRN\DRN_Elv_MV_25M_NBr1.IDF
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:02,  2.37s/file]
+(C:\mamba_envs\WS) PS C:\OD\WS_Mdl\models\NBr\In> DVC_add_pattern.exe .\HFB\*.gen
+Looking for '.\HFB\*.gen' in: C:\Users\Karam014\OneDrive - Universiteit Utrecht\WS_Mdl\models\NBr\In
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\HFB\Feldbiss_midden_NBr1.GEN
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  8.28file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\HFB\Feldbiss_noord_NBr1.GEN
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 12.75file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\HFB\Feldbiss_zuid_NBr1.GEN
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 10.90file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\HFB\h3o_253_kempen_NBr1.GEN
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 11.72file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\HFB\Peelrandbreuk_NBr1.GEN
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 12.88file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\HFB\regis_beegden_NBr1.GEN
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 15.73file/s]
+(C:\mamba_envs\WS) PS C:\OD\WS_Mdl\models\NBr\In> DVC_add_pattern.exe .\KHV\*.idf
+Looking for '.\KHV\*.idf' in: C:\Users\Karam014\OneDrive - Universiteit Utrecht\WS_Mdl\models\NBr\In
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\KHV\KHV_L10_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 10.53file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\KHV\KHV_L11_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 10.51file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\KHV\KHV_L12_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  9.04file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\KHV\KHV_L13_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 12.00file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\KHV\KHV_L14_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 14.60file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\KHV\KHV_L15_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  9.35file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\KHV\KHV_L16_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 12.65file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\KHV\KHV_L17_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 12.12file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\KHV\KHV_L18_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 11.07file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\KHV\KHV_L19_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 11.78file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\KHV\KHV_L1_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  7.59file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\KHV\KHV_L20_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 14.13file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\KHV\KHV_L21_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  7.33file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\KHV\KHV_L22_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  9.18file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\KHV\KHV_L23_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  2.94file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\KHV\KHV_L24_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  7.41file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\KHV\KHV_L25_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  7.67file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\KHV\KHV_L26_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  9.34file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\KHV\KHV_L27_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  7.82file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\KHV\KHV_L28_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  7.18file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\KHV\KHV_L29_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 10.68file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\KHV\KHV_L2_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  9.52file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\KHV\KHV_L30_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  9.75file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\KHV\KHV_L31_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  7.32file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\KHV\KHV_L32_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  7.25file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\KHV\KHV_L33_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 14.92file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\KHV\KHV_L34_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  5.88file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\KHV\KHV_L35_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  7.27file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\KHV\KHV_L36_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  8.50file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\KHV\KHV_L37_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  9.01file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\KHV\KHV_L3_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  7.53file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\KHV\KHV_L4_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  8.18file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\KHV\KHV_L5_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  9.19file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\KHV\KHV_L6_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  6.91file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\KHV\KHV_L7_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  9.35file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\KHV\KHV_L8_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  7.78file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\KHV\KHV_L9_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  6.56file/s]
+(C:\mamba_envs\WS) PS C:\OD\WS_Mdl\models\NBr\In> dvc add .\OBS\NBr5\
+100% Adding...|██████████████████████████████████████████████████████████████████████████|1/1 [04:33, 273.91s/file]
+(C:\mamba_envs\WS) PS C:\OD\WS_Mdl\models\NBr\In> DVC_add_pattern.exe ./RIV/*.idf
+Looking for './RIV/*.idf' in: C:\Users\Karam014\OneDrive - Universiteit Utrecht\WS_Mdl\models\NBr\In
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\RIV\RIV_Bot_Detailwatergangen_NBr1.IDF
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  3.58file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\RIV\RIV_Bot_Maas_NBr1.IDF
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  7.63file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\RIV\RIV_Bot_polderpeil_NBr1.IDF
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  8.50file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\RIV\RIV_Bot_RIVER_RIVER_BOTTOM_NBr1.IDF
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:02,  2.46s/file]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\RIV\RIV_Bot_summer_NBr1.IDF
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:02,  2.48s/file]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\RIV\RIV_Bot_winter_NBr1.IDF
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:02,  2.47s/file]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\RIV\RIV_Cond_DETAILWATERGANGEN_NBr1.IDF
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:02,  2.47s/file]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\RIV\RIV_Cond_DRN_NBr1.IDF
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:02,  2.54s/file]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\RIV\RIV_Cond_Maas_NBr1.IDF
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  9.75file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\RIV\RIV_Cond_Polderpeil_NBr1.IDF
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  7.31file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\RIV\RIV_Cond_RIV_NBr1.IDF
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:02,  2.47s/file]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\RIV\RIV_Stg_Detailwatergangen_NBr1.IDF
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:02,  2.34s/file]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\RIV\RIV_Stg_Maas_NBr1.IDF
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  8.65file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\RIV\RIV_Stg_Polderpeil_summer_NBr1.IDF
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  8.55file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\RIV\RIV_Stg_summer_NBr1.IDF
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 12.64file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\RIV\RIV_Stg_winter_NBr1.IDF
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  9.00file/s]
+(C:\mamba_envs\WS) PS C:\OD\WS_Mdl\models\NBr\In> DVC_add_pattern.exe ./SHD/*.idf
+Looking for './SHD/*.idf' in: C:\Users\Karam014\OneDrive - Universiteit Utrecht\WS_Mdl\models\NBr\In
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\SHD\SHD_L10_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 12.62file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\SHD\SHD_L11_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 11.04file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\SHD\SHD_L12_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 19.22file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\SHD\SHD_L13_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 11.58file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\SHD\SHD_L14_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  9.77file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\SHD\SHD_L15_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  6.32file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\SHD\SHD_L16_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 12.61file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\SHD\SHD_L17_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  6.61file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\SHD\SHD_L18_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 13.69file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\SHD\SHD_L19_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  9.63file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\SHD\SHD_L1_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  2.02file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\SHD\SHD_L2_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 13.38file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\SHD\SHD_L3_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  8.74file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\SHD\SHD_L4_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 11.96file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\SHD\SHD_L5_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 10.72file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\SHD\SHD_L6_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 15.02file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\SHD\SHD_L7_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 10.43file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\SHD\SHD_L8_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  8.60file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\SHD\SHD_L9_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  9.30file/s]
+(C:\mamba_envs\WS) PS C:\OD\WS_Mdl\models\NBr\In> DVC_add_pattern.exe ./TOP/*.idf
+Looking for './TOP/*.idf' in: C:\Users\Karam014\OneDrive - Universiteit Utrecht\WS_Mdl\models\NBr\In
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\TOP\TOP_L10_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  9.01file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\TOP\TOP_L11_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  8.43file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\TOP\TOP_L12_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 10.46file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\TOP\TOP_L13_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  9.43file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\TOP\TOP_L14_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 10.05file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\TOP\TOP_L15_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 13.21file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\TOP\TOP_L16_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  7.76file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\TOP\TOP_L17_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 11.36file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\TOP\TOP_L18_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  9.20file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\TOP\TOP_L19_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 10.73file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\TOP\TOP_L1_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  7.67file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\TOP\TOP_L20_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 10.67file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\TOP\TOP_L21_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  8.76file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\TOP\TOP_L22_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  7.26file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\TOP\TOP_L23_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  9.23file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\TOP\TOP_L24_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  8.89file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\TOP\TOP_L25_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  5.83file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\TOP\TOP_L26_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  8.01file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\TOP\TOP_L27_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  9.87file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\TOP\TOP_L28_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  9.56file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\TOP\TOP_L29_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  8.41file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\TOP\TOP_L2_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  9.02file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\TOP\TOP_L30_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  9.93file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\TOP\TOP_L31_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  5.08file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\TOP\TOP_L32_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 12.48file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\TOP\TOP_L33_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  8.52file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\TOP\TOP_L34_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 10.51file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\TOP\TOP_L35_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 11.54file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\TOP\TOP_L36_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  9.97file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\TOP\TOP_L37_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  8.60file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\TOP\TOP_L3_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  9.64file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\TOP\TOP_L4_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  9.05file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\TOP\TOP_L5_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 10.97file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\TOP\TOP_L6_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 10.18file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\TOP\TOP_L7_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 10.17file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\TOP\TOP_L8_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 11.80file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\TOP\TOP_L9_NBr1.idf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 10.51file/s]
+(C:\mamba_envs\WS) PS C:\OD\WS_Mdl\models\NBr\In> cd WEL
+(C:\mamba_envs\WS) PS C:\OD\WS_Mdl\models\NBr\In\WEL> dvc add *.ipf
+Adding...
+ERROR: unexpected error - [WinError 123] The filename, directory name, or volume label syntax is incorrect: 'C:/OD/WS_Mdl/models/NBr/In/WEL/*.ipf'
+
+Having any troubles? Hit us up at https://dvc.org/support, we are always happy to help!
+(C:\mamba_envs\WS) PS C:\OD\WS_Mdl\models\NBr\In\WEL> DVC_add_pattern.exe *.ipf
+Looking for '*.ipf' in: C:\Users\Karam014\OneDrive - Universiteit Utrecht\WS_Mdl\models\NBr\In\WEL
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\WEL\WEL_Br_Wa_SS_NBr1.ipf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  8.10file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\WEL\WEL_Br_Wa_T_NBr1.ipf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  9.25file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\WEL\WEL_Ind_Aa_and_Maas_SS_NBr1.ipf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00,  8.99file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\WEL\WEL_Ind_Aa_and_Maas_T_NBr1.ipf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 12.04file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\WEL\WEL_Ind_Br_SS_NBr1.ipf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 10.28file/s]
+Adding to DVC: C:\OD\WS_Mdl\models\NBr\In\WEL\WEL_Ind_Br_T_NBr1.ipf
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 10.17file/s]
+(C:\mamba_envs\WS) PS C:\OD\WS_Mdl\models\NBr\In\WEL> dvc add .\Br_Wa\ .\Ind_Aa_and_Maas\ .\Ind_Br\
+100% Adding...|███████████████████████████████████████████████████████████████████████████|3/3 [00:40, 13.41s/file]
+(C:\mamba_envs\WS) PS C:\OD\WS_Mdl\models\NBr\In\WEL> cd ../
+(C:\mamba_envs\WS) PS C:\OD\WS_Mdl\models\NBr\In> dvc add .\_READ_ME.txt
+100% Adding...|███████████████████████████████████████████████████████████████████████████|1/1 [00:00, 12.67file/s]
+(C:\mamba_envs\WS) PS C:\OD\WS_Mdl\models\NBr\In> cd ../../../
+(C:\mamba_envs\WS) PS C:\OD\WS_Mdl> git add .
+warning: in the working copy of 'code/WS_Mdl.egg-info/SOURCES.txt', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'code/WS_Mdl.egg-info/entry_points.txt', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'code/Mdl_Fi_restructure/Mdl_Fi_restructure.ipynb', LF will be replaced by CRLF the next time Git touches it
+(C:\mamba_envs\WS) PS C:\OD\WS_Mdl> git status
+On branch main
+Your branch is ahead of 'origin/main' by 1 commit.
+  (use "git push" to publish your local commits)
+
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+        modified:   .gitignore
+        modified:   _Cmds_to_make_git.txt
+        new file:   code/Mdl_Fi_restructure/Mdl_Fi_restructure.ipynb
+        modified:   code/WS_Mdl.egg-info/SOURCES.txt
+        modified:   code/WS_Mdl.egg-info/entry_points.txt
+        modified:   code/WS_Mdl/scripts/DVC_add_pattern.py
+        new file:   code/WS_Mdl/scripts/DVC_add_pattern_deep.py
+        modified:   code/WS_Mdl/scripts/__pycache__/DVC_add_pattern.cpython-312.pyc
+        new file:   code/WS_Mdl/scripts/__pycache__/DVC_add_pattern_deep.cpython-312.pyc
+        new file:   code/build/launch_PS_WS.bat
+        modified:   code/setup.py
+        new file:   models/NBr/In/BND/BND_L1_NBr1.IDF.dvc
+        new file:   models/NBr/In/BOT/BOT_L10_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L11_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L12_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L13_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L14_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L15_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L16_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L17_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L18_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L19_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L1_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L20_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L21_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L22_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L23_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L24_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L25_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L26_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L27_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L28_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L29_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L2_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L30_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L31_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L32_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L33_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L34_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L35_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L36_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L37_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L3_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L4_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L5_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L6_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L7_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L8_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L9_NBr1.idf.dvc
+        new file:   models/NBr/In/CAP/ARL/ARL_NBr1.idf.dvc
+        new file:   models/NBr/In/CAP/ART/ART_NBr1.idf.dvc
+        new file:   models/NBr/In/CAP/LGN/LGN_NBr1.idf.dvc
+        new file:   models/NBr/In/CAP/P/NBr1.dvc
+        new file:   models/NBr/In/CAP/PET/NBr1.dvc
+        new file:   models/NBr/In/CAP/RZN/RZN_NBr1.idf.dvc
+        new file:   models/NBr/In/CAP/SEV/SEV_NBr1.IDF.dvc
+        new file:   models/NBr/In/CAP/SFU/SFU_NBr1.idf.dvc
+        new file:   models/NBr/In/CAP/UBA/UBA_NBr1.idf.dvc
+        new file:   models/NBr/In/CAP/WTA/WTA_NBr1.idf.dvc
+        new file:   models/NBr/In/CAP/fact_svat/NBr1/fact_svat.inp
+        new file:   models/NBr/In/CAP/init_svat/NBr1/init_svat.inp
+        new file:   models/NBr/In/CAP/luse_svat/NBr1/luse_svat.inp
+        new file:   models/NBr/In/CAP/mete_grid/NBr1/mete_grid.inp
+        new file:   models/NBr/In/CAP/mete_grid/NBr2/mete_grid.inp
+        new file:   models/NBr/In/CAP/mete_grid/NBr3/mete_grid.inp
+        new file:   models/NBr/In/CAP/mete_grid/NBr5/mete_grid.inp
+        new file:   models/NBr/In/CAP/para_sim/NBr1/para_sim.inp
+        new file:   models/NBr/In/CAP/para_sim/NBr2/para_sim.inp
+        new file:   models/NBr/In/CAP/para_sim/NBr5/para_sim.inp
+        new file:   models/NBr/In/CAP/sel_key_svat_per/NBr1/sel_key_svat_per.inp
+        new file:   models/NBr/In/CAP/tiop_sim/NBr1/tiop_sim.inp
+        new file:   models/NBr/In/CAP/tiop_sim/NBr2/tiop_sim.inp
+        new file:   models/NBr/In/CHD/NBr1.dvc
+        new file:   models/NBr/In/CHD/NBr5.dvc
+        new file:   models/NBr/In/DRN/DRN_Cond_MV_25M_MODEL_NBr1.IDF.dvc
+        new file:   models/NBr/In/DRN/DRN_Cond_ONTWATERING_BELGIE_NBr1.IDF.dvc
+        new file:   models/NBr/In/DRN/DRN_Cond_buis_NBr1.IDF.dvc
+        new file:   models/NBr/In/DRN/DRN_Elv_BELGIE_NBr1.IDF.dvc
+        new file:   models/NBr/In/DRN/DRN_Elv_MV_25M_NBr1.IDF.dvc
+        new file:   models/NBr/In/DRN/DRN_Elv_buis_NBr1.IDF.dvc
+        new file:   models/NBr/In/HFB/Feldbiss_midden_NBr1.GEN.dvc
+        new file:   models/NBr/In/HFB/Feldbiss_noord_NBr1.GEN.dvc
+        new file:   models/NBr/In/HFB/Feldbiss_zuid_NBr1.GEN.dvc
+        new file:   models/NBr/In/HFB/Peelrandbreuk_NBr1.GEN.dvc
+        new file:   models/NBr/In/HFB/h3o_253_kempen_NBr1.GEN.dvc
+        new file:   models/NBr/In/HFB/regis_beegden_NBr1.GEN.dvc
+        new file:   models/NBr/In/KHV/KHV_L10_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L11_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L12_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L13_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L14_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L15_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L16_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L17_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L18_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L19_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L1_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L20_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L21_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L22_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L23_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L24_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L25_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L26_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L27_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L28_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L29_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L2_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L30_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L31_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L32_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L33_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L34_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L35_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L36_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L37_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L3_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L4_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L5_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L6_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L7_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L8_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L9_NBr1.idf.dvc
+        new file:   models/NBr/In/OBS/NBr5.dvc
+        new file:   models/NBr/In/PRJ/NBr7.prj
+        new file:   models/NBr/In/PRJ/NBr8.prj
+        new file:   models/NBr/In/PRJ/NBr9.prj
+        new file:   models/NBr/In/PRJ/Nbr1.prj
+        new file:   models/NBr/In/PRJ/Nbr2.prj
+        new file:   models/NBr/In/PRJ/Nbr3.prj
+        new file:   models/NBr/In/PRJ/Nbr4.prj
+        new file:   models/NBr/In/PRJ/Nbr5.prj
+        new file:   models/NBr/In/PRJ/Nbr6.prj
+        new file:   models/NBr/In/RIV/RIV_Bot_Detailwatergangen_NBr1.IDF.dvc
+        new file:   models/NBr/In/RIV/RIV_Bot_Maas_NBr1.IDF.dvc
+        new file:   models/NBr/In/RIV/RIV_Bot_RIVER_RIVER_BOTTOM_NBr1.IDF.dvc
+        new file:   models/NBr/In/RIV/RIV_Bot_polderpeil_NBr1.IDF.dvc
+        new file:   models/NBr/In/RIV/RIV_Bot_summer_NBr1.IDF.dvc
+        new file:   models/NBr/In/RIV/RIV_Bot_winter_NBr1.IDF.dvc
+        new file:   models/NBr/In/RIV/RIV_Cond_DETAILWATERGANGEN_NBr1.IDF.dvc
+        new file:   models/NBr/In/RIV/RIV_Cond_DRN_NBr1.IDF.dvc
+        new file:   models/NBr/In/RIV/RIV_Cond_Maas_NBr1.IDF.dvc
+        new file:   models/NBr/In/RIV/RIV_Cond_Polderpeil_NBr1.IDF.dvc
+        new file:   models/NBr/In/RIV/RIV_Cond_RIV_NBr1.IDF.dvc
+        new file:   models/NBr/In/RIV/RIV_Stg_Detailwatergangen_NBr1.IDF.dvc
+        new file:   models/NBr/In/RIV/RIV_Stg_Maas_NBr1.IDF.dvc
+        new file:   models/NBr/In/RIV/RIV_Stg_Polderpeil_summer_NBr1.IDF.dvc
+        new file:   models/NBr/In/RIV/RIV_Stg_summer_NBr1.IDF.dvc
+        new file:   models/NBr/In/RIV/RIV_Stg_winter_NBr1.IDF.dvc
+        new file:   models/NBr/In/SHD/SHD_L10_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L11_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L12_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L13_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L14_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L15_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L16_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L17_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L18_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L19_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L1_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L2_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L3_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L4_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L5_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L6_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L7_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L8_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L9_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L10_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L11_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L12_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L13_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L14_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L15_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L16_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L17_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L18_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L19_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L1_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L20_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L21_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L22_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L23_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L24_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L25_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L26_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L27_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L28_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L29_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L2_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L30_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L31_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L32_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L33_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L34_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L35_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L36_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L37_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L3_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L4_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L5_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L6_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L7_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L8_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L9_NBr1.idf.dvc
+        new file:   models/NBr/In/WEL/Br_Wa.dvc
+        new file:   models/NBr/In/WEL/Ind_Aa_and_Maas.dvc
+        new file:   models/NBr/In/WEL/Ind_Br.dvc
+        new file:   models/NBr/In/WEL/WEL_Br_Wa_SS_NBr1.ipf.dvc
+        new file:   models/NBr/In/WEL/WEL_Br_Wa_T_NBr1.ipf.dvc
+        new file:   models/NBr/In/WEL/WEL_Ind_Aa_and_Maas_SS_NBr1.ipf.dvc
+        new file:   models/NBr/In/WEL/WEL_Ind_Aa_and_Maas_T_NBr1.ipf.dvc
+        new file:   models/NBr/In/WEL/WEL_Ind_Br_SS_NBr1.ipf.dvc
+        new file:   models/NBr/In/WEL/WEL_Ind_Br_T_NBr1.ipf.dvc
+        new file:   models/NBr/In/_READ_ME.txt.dvc
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr1.bat
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr1.ini
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr2.bat
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr2.ini
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr3.bat
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr3.ini
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr4.bat
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr4.ini
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr5.bat
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr5.ini
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr6.bat
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr6.ini
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr7.bat
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr7.ini
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr8.bat
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr8.ini
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr9.bat
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr9.ini
+        new file:   models/NBr/doc/BF3823WATRP1902061020WM Hydrologisch Gereedsch.pdf
+        new file:   models/NBr/doc/Grondwaterinstrumentarium iMOD Brabantse Delta_v5.docx
+        new file:   models/NBr/doc/Grondwaterinstrumentarium iMOD Brabantse Delta_v5_EN_translation.docx
+
+(C:\mamba_envs\WS) PS C:\OD\WS_Mdl> dvc remove .\models\NBr\In\_READ_ME.txt
+ERROR: '.\models\NBr\In\_READ_ME.txt' is not a .dvc file. Do you mean '.\models\NBr\In\_READ_ME.txt.dvc'?: 'dvc.yaml' does not exist
+(C:\mamba_envs\WS) PS C:\OD\WS_Mdl> dvc remove .\models\NBr\In\_READ_ME.txt.dvc
+(C:\mamba_envs\WS) PS C:\OD\WS_Mdl> git add -f .\models\NBr\In\_READ_ME.txt
+(C:\mamba_envs\WS) PS C:\OD\WS_Mdl> git status
+On branch main
+Your branch is ahead of 'origin/main' by 1 commit.
+  (use "git push" to publish your local commits)
+
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+        modified:   .gitignore
+        modified:   _Cmds_to_make_git.txt
+        new file:   code/Mdl_Fi_restructure/Mdl_Fi_restructure.ipynb
+        modified:   code/WS_Mdl.egg-info/SOURCES.txt
+        modified:   code/WS_Mdl.egg-info/entry_points.txt
+        modified:   code/WS_Mdl/scripts/DVC_add_pattern.py
+        new file:   code/WS_Mdl/scripts/DVC_add_pattern_deep.py
+        modified:   code/WS_Mdl/scripts/__pycache__/DVC_add_pattern.cpython-312.pyc
+        new file:   code/WS_Mdl/scripts/__pycache__/DVC_add_pattern_deep.cpython-312.pyc
+        new file:   code/build/launch_PS_WS.bat
+        modified:   code/setup.py
+        new file:   models/NBr/In/BND/BND_L1_NBr1.IDF.dvc
+        new file:   models/NBr/In/BOT/BOT_L10_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L11_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L12_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L13_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L14_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L15_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L16_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L17_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L18_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L19_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L1_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L20_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L21_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L22_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L23_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L24_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L25_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L26_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L27_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L28_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L29_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L2_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L30_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L31_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L32_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L33_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L34_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L35_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L36_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L37_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L3_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L4_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L5_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L6_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L7_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L8_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L9_NBr1.idf.dvc
+        new file:   models/NBr/In/CAP/ARL/ARL_NBr1.idf.dvc
+        new file:   models/NBr/In/CAP/ART/ART_NBr1.idf.dvc
+        new file:   models/NBr/In/CAP/LGN/LGN_NBr1.idf.dvc
+        new file:   models/NBr/In/CAP/P/NBr1.dvc
+        new file:   models/NBr/In/CAP/PET/NBr1.dvc
+        new file:   models/NBr/In/CAP/RZN/RZN_NBr1.idf.dvc
+        new file:   models/NBr/In/CAP/SEV/SEV_NBr1.IDF.dvc
+        new file:   models/NBr/In/CAP/SFU/SFU_NBr1.idf.dvc
+        new file:   models/NBr/In/CAP/UBA/UBA_NBr1.idf.dvc
+        new file:   models/NBr/In/CAP/WTA/WTA_NBr1.idf.dvc
+        new file:   models/NBr/In/CAP/fact_svat/NBr1/fact_svat.inp
+        new file:   models/NBr/In/CAP/init_svat/NBr1/init_svat.inp
+        new file:   models/NBr/In/CAP/luse_svat/NBr1/luse_svat.inp
+        new file:   models/NBr/In/CAP/mete_grid/NBr1/mete_grid.inp
+        new file:   models/NBr/In/CAP/mete_grid/NBr2/mete_grid.inp
+        new file:   models/NBr/In/CAP/mete_grid/NBr3/mete_grid.inp
+        new file:   models/NBr/In/CAP/mete_grid/NBr5/mete_grid.inp
+        new file:   models/NBr/In/CAP/para_sim/NBr1/para_sim.inp
+        new file:   models/NBr/In/CAP/para_sim/NBr2/para_sim.inp
+        new file:   models/NBr/In/CAP/para_sim/NBr5/para_sim.inp
+        new file:   models/NBr/In/CAP/sel_key_svat_per/NBr1/sel_key_svat_per.inp
+        new file:   models/NBr/In/CAP/tiop_sim/NBr1/tiop_sim.inp
+        new file:   models/NBr/In/CAP/tiop_sim/NBr2/tiop_sim.inp
+        new file:   models/NBr/In/CHD/NBr1.dvc
+        new file:   models/NBr/In/CHD/NBr5.dvc
+        new file:   models/NBr/In/DRN/DRN_Cond_MV_25M_MODEL_NBr1.IDF.dvc
+        new file:   models/NBr/In/DRN/DRN_Cond_ONTWATERING_BELGIE_NBr1.IDF.dvc
+        new file:   models/NBr/In/DRN/DRN_Cond_buis_NBr1.IDF.dvc
+        new file:   models/NBr/In/DRN/DRN_Elv_BELGIE_NBr1.IDF.dvc
+        new file:   models/NBr/In/DRN/DRN_Elv_MV_25M_NBr1.IDF.dvc
+        new file:   models/NBr/In/DRN/DRN_Elv_buis_NBr1.IDF.dvc
+        new file:   models/NBr/In/HFB/Feldbiss_midden_NBr1.GEN.dvc
+        new file:   models/NBr/In/HFB/Feldbiss_noord_NBr1.GEN.dvc
+        new file:   models/NBr/In/HFB/Feldbiss_zuid_NBr1.GEN.dvc
+        new file:   models/NBr/In/HFB/Peelrandbreuk_NBr1.GEN.dvc
+        new file:   models/NBr/In/HFB/h3o_253_kempen_NBr1.GEN.dvc
+        new file:   models/NBr/In/HFB/regis_beegden_NBr1.GEN.dvc
+        new file:   models/NBr/In/KHV/KHV_L10_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L11_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L12_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L13_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L14_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L15_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L16_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L17_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L18_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L19_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L1_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L20_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L21_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L22_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L23_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L24_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L25_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L26_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L27_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L28_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L29_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L2_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L30_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L31_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L32_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L33_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L34_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L35_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L36_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L37_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L3_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L4_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L5_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L6_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L7_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L8_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L9_NBr1.idf.dvc
+        new file:   models/NBr/In/OBS/NBr5.dvc
+        new file:   models/NBr/In/PRJ/NBr7.prj
+        new file:   models/NBr/In/PRJ/NBr8.prj
+        new file:   models/NBr/In/PRJ/NBr9.prj
+        new file:   models/NBr/In/PRJ/Nbr1.prj
+        new file:   models/NBr/In/PRJ/Nbr2.prj
+        new file:   models/NBr/In/PRJ/Nbr3.prj
+        new file:   models/NBr/In/PRJ/Nbr4.prj
+        new file:   models/NBr/In/PRJ/Nbr5.prj
+        new file:   models/NBr/In/PRJ/Nbr6.prj
+        new file:   models/NBr/In/RIV/RIV_Bot_Detailwatergangen_NBr1.IDF.dvc
+        new file:   models/NBr/In/RIV/RIV_Bot_Maas_NBr1.IDF.dvc
+        new file:   models/NBr/In/RIV/RIV_Bot_RIVER_RIVER_BOTTOM_NBr1.IDF.dvc
+        new file:   models/NBr/In/RIV/RIV_Bot_polderpeil_NBr1.IDF.dvc
+        new file:   models/NBr/In/RIV/RIV_Bot_summer_NBr1.IDF.dvc
+        new file:   models/NBr/In/RIV/RIV_Bot_winter_NBr1.IDF.dvc
+        new file:   models/NBr/In/RIV/RIV_Cond_DETAILWATERGANGEN_NBr1.IDF.dvc
+        new file:   models/NBr/In/RIV/RIV_Cond_DRN_NBr1.IDF.dvc
+        new file:   models/NBr/In/RIV/RIV_Cond_Maas_NBr1.IDF.dvc
+        new file:   models/NBr/In/RIV/RIV_Cond_Polderpeil_NBr1.IDF.dvc
+        new file:   models/NBr/In/RIV/RIV_Cond_RIV_NBr1.IDF.dvc
+        new file:   models/NBr/In/RIV/RIV_Stg_Detailwatergangen_NBr1.IDF.dvc
+        new file:   models/NBr/In/RIV/RIV_Stg_Maas_NBr1.IDF.dvc
+        new file:   models/NBr/In/RIV/RIV_Stg_Polderpeil_summer_NBr1.IDF.dvc
+        new file:   models/NBr/In/RIV/RIV_Stg_summer_NBr1.IDF.dvc
+        new file:   models/NBr/In/RIV/RIV_Stg_winter_NBr1.IDF.dvc
+        new file:   models/NBr/In/SHD/SHD_L10_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L11_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L12_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L13_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L14_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L15_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L16_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L17_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L18_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L19_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L1_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L2_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L3_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L4_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L5_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L6_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L7_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L8_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L9_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L10_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L11_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L12_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L13_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L14_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L15_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L16_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L17_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L18_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L19_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L1_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L20_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L21_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L22_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L23_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L24_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L25_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L26_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L27_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L28_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L29_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L2_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L30_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L31_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L32_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L33_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L34_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L35_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L36_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L37_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L3_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L4_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L5_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L6_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L7_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L8_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L9_NBr1.idf.dvc
+        new file:   models/NBr/In/WEL/Br_Wa.dvc
+        new file:   models/NBr/In/WEL/Ind_Aa_and_Maas.dvc
+        new file:   models/NBr/In/WEL/Ind_Br.dvc
+        new file:   models/NBr/In/WEL/WEL_Br_Wa_SS_NBr1.ipf.dvc
+        new file:   models/NBr/In/WEL/WEL_Br_Wa_T_NBr1.ipf.dvc
+        new file:   models/NBr/In/WEL/WEL_Ind_Aa_and_Maas_SS_NBr1.ipf.dvc
+        new file:   models/NBr/In/WEL/WEL_Ind_Aa_and_Maas_T_NBr1.ipf.dvc
+        new file:   models/NBr/In/WEL/WEL_Ind_Br_SS_NBr1.ipf.dvc
+        new file:   models/NBr/In/WEL/WEL_Ind_Br_T_NBr1.ipf.dvc
+        new file:   models/NBr/In/_READ_ME.txt
+        new file:   models/NBr/In/_READ_ME.txt.dvc
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr1.bat
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr1.ini
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr2.bat
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr2.ini
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr3.bat
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr3.ini
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr4.bat
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr4.ini
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr5.bat
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr5.ini
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr6.bat
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr6.ini
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr7.bat
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr7.ini
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr8.bat
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr8.ini
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr9.bat
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr9.ini
+        new file:   models/NBr/doc/BF3823WATRP1902061020WM Hydrologisch Gereedsch.pdf
+        new file:   models/NBr/doc/Grondwaterinstrumentarium iMOD Brabantse Delta_v5.docx
+        new file:   models/NBr/doc/Grondwaterinstrumentarium iMOD Brabantse Delta_v5_EN_translation.docx
+
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        deleted:    models/NBr/In/_READ_ME.txt.dvc
+
+(C:\mamba_envs\WS) PS C:\OD\WS_Mdl> git status --staged
+error: unknown option `staged'
+usage: git status [<options>] [--] [<pathspec>...]
+
+    -v, --[no-]verbose    be verbose
+    -s, --[no-]short      show status concisely
+    -b, --[no-]branch     show branch information
+    --[no-]show-stash     show stash information
+    --[no-]ahead-behind   compute full ahead/behind values
+    --[no-]porcelain[=<version>]
+                          machine-readable output
+    --[no-]long           show status in long format (default)
+    -z, --[no-]null       terminate entries with NUL
+    -u, --[no-]untracked-files[=<mode>]
+                          show untracked files, optional modes: all, normal, no. (Default: all)
+    --[no-]ignored[=<mode>]
+                          show ignored files, optional modes: traditional, matching, no. (Default: traditional)
+    --[no-]ignore-submodules[=<when>]
+                          ignore changes to submodules, optional when: all, dirty, untracked. (Default: all)
+    --[no-]column[=<style>]
+                          list untracked files in columns
+    --no-renames          do not detect renames
+    --renames             opposite of --no-renames
+    -M, --find-renames[=<n>]
+                          detect renames, optionally set similarity index
+
+(C:\mamba_envs\WS) PS C:\OD\WS_Mdl> git restore --staged .\models\NBr\In\_READ_ME.txt.dvc
+(C:\mamba_envs\WS) PS C:\OD\WS_Mdl> git stats
+git: 'stats' is not a git command. See 'git --help'.
+
+The most similar command is
+        status
+(C:\mamba_envs\WS) PS C:\OD\WS_Mdl> git status
+On branch main
+Your branch is ahead of 'origin/main' by 1 commit.
+  (use "git push" to publish your local commits)
+
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+        modified:   .gitignore
+        modified:   _Cmds_to_make_git.txt
+        new file:   code/Mdl_Fi_restructure/Mdl_Fi_restructure.ipynb
+        modified:   code/WS_Mdl.egg-info/SOURCES.txt
+        modified:   code/WS_Mdl.egg-info/entry_points.txt
+        modified:   code/WS_Mdl/scripts/DVC_add_pattern.py
+        new file:   code/WS_Mdl/scripts/DVC_add_pattern_deep.py
+        modified:   code/WS_Mdl/scripts/__pycache__/DVC_add_pattern.cpython-312.pyc
+        new file:   code/WS_Mdl/scripts/__pycache__/DVC_add_pattern_deep.cpython-312.pyc
+        new file:   code/build/launch_PS_WS.bat
+        modified:   code/setup.py
+        new file:   models/NBr/In/BND/BND_L1_NBr1.IDF.dvc
+        new file:   models/NBr/In/BOT/BOT_L10_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L11_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L12_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L13_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L14_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L15_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L16_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L17_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L18_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L19_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L1_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L20_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L21_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L22_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L23_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L24_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L25_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L26_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L27_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L28_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L29_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L2_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L30_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L31_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L32_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L33_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L34_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L35_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L36_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L37_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L3_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L4_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L5_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L6_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L7_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L8_NBr1.idf.dvc
+        new file:   models/NBr/In/BOT/BOT_L9_NBr1.idf.dvc
+        new file:   models/NBr/In/CAP/ARL/ARL_NBr1.idf.dvc
+        new file:   models/NBr/In/CAP/ART/ART_NBr1.idf.dvc
+        new file:   models/NBr/In/CAP/LGN/LGN_NBr1.idf.dvc
+        new file:   models/NBr/In/CAP/P/NBr1.dvc
+        new file:   models/NBr/In/CAP/PET/NBr1.dvc
+        new file:   models/NBr/In/CAP/RZN/RZN_NBr1.idf.dvc
+        new file:   models/NBr/In/CAP/SEV/SEV_NBr1.IDF.dvc
+        new file:   models/NBr/In/CAP/SFU/SFU_NBr1.idf.dvc
+        new file:   models/NBr/In/CAP/UBA/UBA_NBr1.idf.dvc
+        new file:   models/NBr/In/CAP/WTA/WTA_NBr1.idf.dvc
+        new file:   models/NBr/In/CAP/fact_svat/NBr1/fact_svat.inp
+        new file:   models/NBr/In/CAP/init_svat/NBr1/init_svat.inp
+        new file:   models/NBr/In/CAP/luse_svat/NBr1/luse_svat.inp
+        new file:   models/NBr/In/CAP/mete_grid/NBr1/mete_grid.inp
+        new file:   models/NBr/In/CAP/mete_grid/NBr2/mete_grid.inp
+        new file:   models/NBr/In/CAP/mete_grid/NBr3/mete_grid.inp
+        new file:   models/NBr/In/CAP/mete_grid/NBr5/mete_grid.inp
+        new file:   models/NBr/In/CAP/para_sim/NBr1/para_sim.inp
+        new file:   models/NBr/In/CAP/para_sim/NBr2/para_sim.inp
+        new file:   models/NBr/In/CAP/para_sim/NBr5/para_sim.inp
+        new file:   models/NBr/In/CAP/sel_key_svat_per/NBr1/sel_key_svat_per.inp
+        new file:   models/NBr/In/CAP/tiop_sim/NBr1/tiop_sim.inp
+        new file:   models/NBr/In/CAP/tiop_sim/NBr2/tiop_sim.inp
+        new file:   models/NBr/In/CHD/NBr1.dvc
+        new file:   models/NBr/In/CHD/NBr5.dvc
+        new file:   models/NBr/In/DRN/DRN_Cond_MV_25M_MODEL_NBr1.IDF.dvc
+        new file:   models/NBr/In/DRN/DRN_Cond_ONTWATERING_BELGIE_NBr1.IDF.dvc
+        new file:   models/NBr/In/DRN/DRN_Cond_buis_NBr1.IDF.dvc
+        new file:   models/NBr/In/DRN/DRN_Elv_BELGIE_NBr1.IDF.dvc
+        new file:   models/NBr/In/DRN/DRN_Elv_MV_25M_NBr1.IDF.dvc
+        new file:   models/NBr/In/DRN/DRN_Elv_buis_NBr1.IDF.dvc
+        new file:   models/NBr/In/HFB/Feldbiss_midden_NBr1.GEN.dvc
+        new file:   models/NBr/In/HFB/Feldbiss_noord_NBr1.GEN.dvc
+        new file:   models/NBr/In/HFB/Feldbiss_zuid_NBr1.GEN.dvc
+        new file:   models/NBr/In/HFB/Peelrandbreuk_NBr1.GEN.dvc
+        new file:   models/NBr/In/HFB/h3o_253_kempen_NBr1.GEN.dvc
+        new file:   models/NBr/In/HFB/regis_beegden_NBr1.GEN.dvc
+        new file:   models/NBr/In/KHV/KHV_L10_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L11_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L12_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L13_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L14_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L15_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L16_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L17_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L18_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L19_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L1_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L20_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L21_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L22_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L23_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L24_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L25_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L26_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L27_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L28_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L29_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L2_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L30_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L31_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L32_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L33_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L34_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L35_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L36_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L37_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L3_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L4_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L5_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L6_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L7_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L8_NBr1.idf.dvc
+        new file:   models/NBr/In/KHV/KHV_L9_NBr1.idf.dvc
+        new file:   models/NBr/In/OBS/NBr5.dvc
+        new file:   models/NBr/In/PRJ/NBr7.prj
+        new file:   models/NBr/In/PRJ/NBr8.prj
+        new file:   models/NBr/In/PRJ/NBr9.prj
+        new file:   models/NBr/In/PRJ/Nbr1.prj
+        new file:   models/NBr/In/PRJ/Nbr2.prj
+        new file:   models/NBr/In/PRJ/Nbr3.prj
+        new file:   models/NBr/In/PRJ/Nbr4.prj
+        new file:   models/NBr/In/PRJ/Nbr5.prj
+        new file:   models/NBr/In/PRJ/Nbr6.prj
+        new file:   models/NBr/In/RIV/RIV_Bot_Detailwatergangen_NBr1.IDF.dvc
+        new file:   models/NBr/In/RIV/RIV_Bot_Maas_NBr1.IDF.dvc
+        new file:   models/NBr/In/RIV/RIV_Bot_RIVER_RIVER_BOTTOM_NBr1.IDF.dvc
+        new file:   models/NBr/In/RIV/RIV_Bot_polderpeil_NBr1.IDF.dvc
+        new file:   models/NBr/In/RIV/RIV_Bot_summer_NBr1.IDF.dvc
+        new file:   models/NBr/In/RIV/RIV_Bot_winter_NBr1.IDF.dvc
+        new file:   models/NBr/In/RIV/RIV_Cond_DETAILWATERGANGEN_NBr1.IDF.dvc
+        new file:   models/NBr/In/RIV/RIV_Cond_DRN_NBr1.IDF.dvc
+        new file:   models/NBr/In/RIV/RIV_Cond_Maas_NBr1.IDF.dvc
+        new file:   models/NBr/In/RIV/RIV_Cond_Polderpeil_NBr1.IDF.dvc
+        new file:   models/NBr/In/RIV/RIV_Cond_RIV_NBr1.IDF.dvc
+        new file:   models/NBr/In/RIV/RIV_Stg_Detailwatergangen_NBr1.IDF.dvc
+        new file:   models/NBr/In/RIV/RIV_Stg_Maas_NBr1.IDF.dvc
+        new file:   models/NBr/In/RIV/RIV_Stg_Polderpeil_summer_NBr1.IDF.dvc
+        new file:   models/NBr/In/RIV/RIV_Stg_summer_NBr1.IDF.dvc
+        new file:   models/NBr/In/RIV/RIV_Stg_winter_NBr1.IDF.dvc
+        new file:   models/NBr/In/SHD/SHD_L10_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L11_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L12_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L13_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L14_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L15_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L16_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L17_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L18_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L19_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L1_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L2_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L3_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L4_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L5_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L6_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L7_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L8_NBr1.idf.dvc
+        new file:   models/NBr/In/SHD/SHD_L9_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L10_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L11_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L12_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L13_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L14_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L15_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L16_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L17_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L18_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L19_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L1_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L20_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L21_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L22_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L23_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L24_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L25_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L26_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L27_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L28_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L29_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L2_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L30_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L31_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L32_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L33_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L34_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L35_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L36_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L37_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L3_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L4_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L5_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L6_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L7_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L8_NBr1.idf.dvc
+        new file:   models/NBr/In/TOP/TOP_L9_NBr1.idf.dvc
+        new file:   models/NBr/In/WEL/Br_Wa.dvc
+        new file:   models/NBr/In/WEL/Ind_Aa_and_Maas.dvc
+        new file:   models/NBr/In/WEL/Ind_Br.dvc
+        new file:   models/NBr/In/WEL/WEL_Br_Wa_SS_NBr1.ipf.dvc
+        new file:   models/NBr/In/WEL/WEL_Br_Wa_T_NBr1.ipf.dvc
+        new file:   models/NBr/In/WEL/WEL_Ind_Aa_and_Maas_SS_NBr1.ipf.dvc
+        new file:   models/NBr/In/WEL/WEL_Ind_Aa_and_Maas_T_NBr1.ipf.dvc
+        new file:   models/NBr/In/WEL/WEL_Ind_Br_SS_NBr1.ipf.dvc
+        new file:   models/NBr/In/WEL/WEL_Ind_Br_T_NBr1.ipf.dvc
+        new file:   models/NBr/In/_READ_ME.txt
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr1.bat
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr1.ini
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr2.bat
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr2.ini
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr3.bat
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr3.ini
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr4.bat
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr4.ini
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr5.bat
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr5.ini
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr6.bat
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr6.ini
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr7.bat
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr7.ini
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr8.bat
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr8.ini
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr9.bat
+        new file:   models/NBr/code/Mdl_Prep/Mdl_Prep_NBr9.ini
+        new file:   models/NBr/doc/BF3823WATRP1902061020WM Hydrologisch Gereedsch.pdf
+        new file:   models/NBr/doc/Grondwaterinstrumentarium iMOD Brabantse Delta_v5.docx
+        new file:   models/NBr/doc/Grondwaterinstrumentarium iMOD Brabantse Delta_v5_EN_translation.docx
+
+(C:\mamba_envs\WS) PS C:\OD\WS_Mdl>
+
+
+(C:\mamba_envs\WS) PS C:\OD\WS_Mdl> git commit -m "Finished DVC setup (except models/*/PoP, which I'll work on later)"
+[main 3af5a5d] Finished DVC setup (except models/*/PoP, which I'll work on later)
+ 236 files changed, 54304 insertions(+), 6 deletions(-)
+ create mode 100644 code/Mdl_Fi_restructure/Mdl_Fi_restructure.ipynb
+ create mode 100644 code/WS_Mdl/scripts/DVC_add_pattern_deep.py
+ create mode 100644 code/WS_Mdl/scripts/__pycache__/DVC_add_pattern_deep.cpython-312.pyc
+ create mode 100644 code/build/launch_PS_WS.bat
+ create mode 100644 models/NBr/In/BND/BND_L1_NBr1.IDF.dvc
+ create mode 100644 models/NBr/In/BOT/BOT_L10_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/BOT/BOT_L11_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/BOT/BOT_L12_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/BOT/BOT_L13_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/BOT/BOT_L14_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/BOT/BOT_L15_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/BOT/BOT_L16_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/BOT/BOT_L17_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/BOT/BOT_L18_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/BOT/BOT_L19_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/BOT/BOT_L1_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/BOT/BOT_L20_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/BOT/BOT_L21_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/BOT/BOT_L22_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/BOT/BOT_L23_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/BOT/BOT_L24_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/BOT/BOT_L25_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/BOT/BOT_L26_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/BOT/BOT_L27_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/BOT/BOT_L28_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/BOT/BOT_L29_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/BOT/BOT_L2_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/BOT/BOT_L30_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/BOT/BOT_L31_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/BOT/BOT_L32_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/BOT/BOT_L33_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/BOT/BOT_L34_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/BOT/BOT_L35_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/BOT/BOT_L36_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/BOT/BOT_L37_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/BOT/BOT_L3_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/BOT/BOT_L4_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/BOT/BOT_L5_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/BOT/BOT_L6_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/BOT/BOT_L7_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/BOT/BOT_L8_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/BOT/BOT_L9_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/CAP/ARL/ARL_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/CAP/ART/ART_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/CAP/LGN/LGN_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/CAP/P/NBr1.dvc
+ create mode 100644 models/NBr/In/CAP/PET/NBr1.dvc
+ create mode 100644 models/NBr/In/CAP/RZN/RZN_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/CAP/SEV/SEV_NBr1.IDF.dvc
+ create mode 100644 models/NBr/In/CAP/SFU/SFU_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/CAP/UBA/UBA_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/CAP/WTA/WTA_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/CAP/fact_svat/NBr1/fact_svat.inp
+ create mode 100644 models/NBr/In/CAP/init_svat/NBr1/init_svat.inp
+ create mode 100644 models/NBr/In/CAP/luse_svat/NBr1/luse_svat.inp
+ create mode 100644 models/NBr/In/CAP/mete_grid/NBr1/mete_grid.inp
+ create mode 100644 models/NBr/In/CAP/mete_grid/NBr2/mete_grid.inp
+ create mode 100644 models/NBr/In/CAP/mete_grid/NBr3/mete_grid.inp
+ create mode 100644 models/NBr/In/CAP/mete_grid/NBr5/mete_grid.inp
+ create mode 100644 models/NBr/In/CAP/para_sim/NBr1/para_sim.inp
+ create mode 100644 models/NBr/In/CAP/para_sim/NBr2/para_sim.inp
+ create mode 100644 models/NBr/In/CAP/para_sim/NBr5/para_sim.inp
+ create mode 100644 models/NBr/In/CAP/sel_key_svat_per/NBr1/sel_key_svat_per.inp
+ create mode 100644 models/NBr/In/CAP/tiop_sim/NBr1/tiop_sim.inp
+ create mode 100644 models/NBr/In/CAP/tiop_sim/NBr2/tiop_sim.inp
+ create mode 100644 models/NBr/In/CHD/NBr1.dvc
+ create mode 100644 models/NBr/In/CHD/NBr5.dvc
+ create mode 100644 models/NBr/In/DRN/DRN_Cond_MV_25M_MODEL_NBr1.IDF.dvc
+ create mode 100644 models/NBr/In/DRN/DRN_Cond_ONTWATERING_BELGIE_NBr1.IDF.dvc
+ create mode 100644 models/NBr/In/DRN/DRN_Cond_buis_NBr1.IDF.dvc
+ create mode 100644 models/NBr/In/DRN/DRN_Elv_BELGIE_NBr1.IDF.dvc
+ create mode 100644 models/NBr/In/DRN/DRN_Elv_MV_25M_NBr1.IDF.dvc
+ create mode 100644 models/NBr/In/DRN/DRN_Elv_buis_NBr1.IDF.dvc
+ create mode 100644 models/NBr/In/HFB/Feldbiss_midden_NBr1.GEN.dvc
+ create mode 100644 models/NBr/In/HFB/Feldbiss_noord_NBr1.GEN.dvc
+ create mode 100644 models/NBr/In/HFB/Feldbiss_zuid_NBr1.GEN.dvc
+ create mode 100644 models/NBr/In/HFB/Peelrandbreuk_NBr1.GEN.dvc
+ create mode 100644 models/NBr/In/HFB/h3o_253_kempen_NBr1.GEN.dvc
+ create mode 100644 models/NBr/In/HFB/regis_beegden_NBr1.GEN.dvc
+ create mode 100644 models/NBr/In/KHV/KHV_L10_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/KHV/KHV_L11_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/KHV/KHV_L12_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/KHV/KHV_L13_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/KHV/KHV_L14_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/KHV/KHV_L15_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/KHV/KHV_L16_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/KHV/KHV_L17_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/KHV/KHV_L18_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/KHV/KHV_L19_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/KHV/KHV_L1_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/KHV/KHV_L20_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/KHV/KHV_L21_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/KHV/KHV_L22_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/KHV/KHV_L23_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/KHV/KHV_L24_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/KHV/KHV_L25_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/KHV/KHV_L26_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/KHV/KHV_L27_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/KHV/KHV_L28_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/KHV/KHV_L29_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/KHV/KHV_L2_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/KHV/KHV_L30_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/KHV/KHV_L31_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/KHV/KHV_L32_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/KHV/KHV_L33_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/KHV/KHV_L34_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/KHV/KHV_L35_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/KHV/KHV_L36_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/KHV/KHV_L37_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/KHV/KHV_L3_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/KHV/KHV_L4_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/KHV/KHV_L5_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/KHV/KHV_L6_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/KHV/KHV_L7_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/KHV/KHV_L8_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/KHV/KHV_L9_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/OBS/NBr5.dvc
+ create mode 100644 models/NBr/In/PRJ/NBr7.prj
+ create mode 100644 models/NBr/In/PRJ/NBr8.prj
+ create mode 100644 models/NBr/In/PRJ/NBr9.prj
+ create mode 100644 models/NBr/In/PRJ/Nbr1.prj
+ create mode 100644 models/NBr/In/PRJ/Nbr2.prj
+ create mode 100644 models/NBr/In/PRJ/Nbr3.prj
+ create mode 100644 models/NBr/In/PRJ/Nbr4.prj
+ create mode 100644 models/NBr/In/PRJ/Nbr5.prj
+ create mode 100644 models/NBr/In/PRJ/Nbr6.prj
+ create mode 100644 models/NBr/In/RIV/RIV_Bot_Detailwatergangen_NBr1.IDF.dvc
+ create mode 100644 models/NBr/In/RIV/RIV_Bot_Maas_NBr1.IDF.dvc
+ create mode 100644 models/NBr/In/RIV/RIV_Bot_RIVER_RIVER_BOTTOM_NBr1.IDF.dvc
+ create mode 100644 models/NBr/In/RIV/RIV_Bot_polderpeil_NBr1.IDF.dvc
+ create mode 100644 models/NBr/In/RIV/RIV_Bot_summer_NBr1.IDF.dvc
+ create mode 100644 models/NBr/In/RIV/RIV_Bot_winter_NBr1.IDF.dvc
+ create mode 100644 models/NBr/In/RIV/RIV_Cond_DETAILWATERGANGEN_NBr1.IDF.dvc
+ create mode 100644 models/NBr/In/RIV/RIV_Cond_DRN_NBr1.IDF.dvc
+ create mode 100644 models/NBr/In/RIV/RIV_Cond_Maas_NBr1.IDF.dvc
+ create mode 100644 models/NBr/In/RIV/RIV_Cond_Polderpeil_NBr1.IDF.dvc
+ create mode 100644 models/NBr/In/RIV/RIV_Cond_RIV_NBr1.IDF.dvc
+ create mode 100644 models/NBr/In/RIV/RIV_Stg_Detailwatergangen_NBr1.IDF.dvc
+ create mode 100644 models/NBr/In/RIV/RIV_Stg_Maas_NBr1.IDF.dvc
+ create mode 100644 models/NBr/In/RIV/RIV_Stg_Polderpeil_summer_NBr1.IDF.dvc
+ create mode 100644 models/NBr/In/RIV/RIV_Stg_summer_NBr1.IDF.dvc
+ create mode 100644 models/NBr/In/RIV/RIV_Stg_winter_NBr1.IDF.dvc
+ create mode 100644 models/NBr/In/SHD/SHD_L10_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/SHD/SHD_L11_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/SHD/SHD_L12_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/SHD/SHD_L13_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/SHD/SHD_L14_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/SHD/SHD_L15_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/SHD/SHD_L16_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/SHD/SHD_L17_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/SHD/SHD_L18_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/SHD/SHD_L19_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/SHD/SHD_L1_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/SHD/SHD_L2_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/SHD/SHD_L3_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/SHD/SHD_L4_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/SHD/SHD_L5_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/SHD/SHD_L6_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/SHD/SHD_L7_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/SHD/SHD_L8_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/SHD/SHD_L9_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/TOP/TOP_L10_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/TOP/TOP_L11_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/TOP/TOP_L12_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/TOP/TOP_L13_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/TOP/TOP_L14_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/TOP/TOP_L15_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/TOP/TOP_L16_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/TOP/TOP_L17_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/TOP/TOP_L18_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/TOP/TOP_L19_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/TOP/TOP_L1_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/TOP/TOP_L20_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/TOP/TOP_L21_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/TOP/TOP_L22_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/TOP/TOP_L23_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/TOP/TOP_L24_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/TOP/TOP_L25_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/TOP/TOP_L26_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/TOP/TOP_L27_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/TOP/TOP_L28_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/TOP/TOP_L29_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/TOP/TOP_L2_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/TOP/TOP_L30_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/TOP/TOP_L31_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/TOP/TOP_L32_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/TOP/TOP_L33_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/TOP/TOP_L34_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/TOP/TOP_L35_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/TOP/TOP_L36_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/TOP/TOP_L37_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/TOP/TOP_L3_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/TOP/TOP_L4_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/TOP/TOP_L5_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/TOP/TOP_L6_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/TOP/TOP_L7_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/TOP/TOP_L8_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/TOP/TOP_L9_NBr1.idf.dvc
+ create mode 100644 models/NBr/In/WEL/Br_Wa.dvc
+ create mode 100644 models/NBr/In/WEL/Ind_Aa_and_Maas.dvc
+ create mode 100644 models/NBr/In/WEL/Ind_Br.dvc
+ create mode 100644 models/NBr/In/WEL/WEL_Br_Wa_SS_NBr1.ipf.dvc
+ create mode 100644 models/NBr/In/WEL/WEL_Br_Wa_T_NBr1.ipf.dvc
+ create mode 100644 models/NBr/In/WEL/WEL_Ind_Aa_and_Maas_SS_NBr1.ipf.dvc
+ create mode 100644 models/NBr/In/WEL/WEL_Ind_Aa_and_Maas_T_NBr1.ipf.dvc
+ create mode 100644 models/NBr/In/WEL/WEL_Ind_Br_SS_NBr1.ipf.dvc
+ create mode 100644 models/NBr/In/WEL/WEL_Ind_Br_T_NBr1.ipf.dvc
+ create mode 100644 models/NBr/In/_READ_ME.txt
+ create mode 100644 models/NBr/code/Mdl_Prep/Mdl_Prep_NBr1.bat
+ create mode 100644 models/NBr/code/Mdl_Prep/Mdl_Prep_NBr1.ini
+ create mode 100644 models/NBr/code/Mdl_Prep/Mdl_Prep_NBr2.bat
+ create mode 100644 models/NBr/code/Mdl_Prep/Mdl_Prep_NBr2.ini
+ create mode 100644 models/NBr/code/Mdl_Prep/Mdl_Prep_NBr3.bat
+ create mode 100644 models/NBr/code/Mdl_Prep/Mdl_Prep_NBr3.ini
+ create mode 100644 models/NBr/code/Mdl_Prep/Mdl_Prep_NBr4.bat
+ create mode 100644 models/NBr/code/Mdl_Prep/Mdl_Prep_NBr4.ini
+ create mode 100644 models/NBr/code/Mdl_Prep/Mdl_Prep_NBr5.bat
+ create mode 100644 models/NBr/code/Mdl_Prep/Mdl_Prep_NBr5.ini
+ create mode 100644 models/NBr/code/Mdl_Prep/Mdl_Prep_NBr6.bat
+ create mode 100644 models/NBr/code/Mdl_Prep/Mdl_Prep_NBr6.ini
+ create mode 100644 models/NBr/code/Mdl_Prep/Mdl_Prep_NBr7.bat
+ create mode 100644 models/NBr/code/Mdl_Prep/Mdl_Prep_NBr7.ini
+ create mode 100644 models/NBr/code/Mdl_Prep/Mdl_Prep_NBr8.bat
+ create mode 100644 models/NBr/code/Mdl_Prep/Mdl_Prep_NBr8.ini
+ create mode 100644 models/NBr/code/Mdl_Prep/Mdl_Prep_NBr9.bat
+ create mode 100644 models/NBr/code/Mdl_Prep/Mdl_Prep_NBr9.ini
+ create mode 100644 models/NBr/doc/BF3823WATRP1902061020WM Hydrologisch Gereedsch.pdf
+ create mode 100644 models/NBr/doc/Grondwaterinstrumentarium iMOD Brabantse Delta_v5.docx
+ create mode 100644 models/NBr/doc/Grondwaterinstrumentarium iMOD Brabantse Delta_v5_EN_translation.docx
+(C:\mamba_envs\WS) PS C:\OD\WS_Mdl> git push
+Enumerating objects: 323, done.
+Counting objects: 100% (323/323), done.
+Delta compression using up to 12 threads
+Compressing objects: 100% (273/273), done.
+Writing objects: 100% (306/306), 36.98 MiB | 2.65 MiB/s, done.
+Total 306 (delta 53), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (53/53), completed with 13 local objects.
+To https://github.com/Ydrolog/WS_Mdl
+   f150429..3af5a5d  main -> main
+(C:\mamba_envs\WS) PS C:\OD\WS_Mdl>

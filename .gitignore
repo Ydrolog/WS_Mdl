@@ -25,3 +25,6 @@ models/*/Sim
 # All SS folders will be ignored. This is placed at the bottom to overwrite anything else.
 **/SS/
 **/SS/**
+
+# Excel lock files.
+~$*.xls*
