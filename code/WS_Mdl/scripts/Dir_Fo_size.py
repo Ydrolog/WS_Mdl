@@ -1,17 +1,25 @@
 #!/usr/bin/env python
+import os
+
+def get_folder_size(path):
+    total = 0
+    for dirpath, _, filenames in os.walk(path):
+        for f in filenames:
+            try:
+                total += os.path.getsize(os.path.join(dirpath, f))
+            except (OSError, FileNotFoundError):
+                pass
+    return total
+
 def main():
-    import os
     print('-'*100)
     Dir = input("Provide the directory for which to print all folder sizes. If you want the current directory, simply press Enter.\n")
     if Dir == '':
         Dir = os.getcwd()
 
-    sizes = {d: sum(os.path.getsize(os.path.join(dp, f))
-                    for dp, _, files in os.walk(os.path.join(Dir, d))
-                    for f in files)
-             for d in sorted(os.listdir(Dir), key=str.lower)
-             if os.path.isdir(os.path.join(Dir, d))}
+    sizes = {entry.name: get_folder_size(entry.path)
+             for entry in os.scandir(Dir) if entry.is_dir()}
 
-    for s in sizes:
-        print(f"{s}: {sizes[s] / (1024 * 1024):.2f} MB")
+    for name, size in sorted(sizes.items()):
+        print(f"{name}: {size / (1024 * 1024):.2f} MB")
     print('-'*100, '\n')

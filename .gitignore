@@ -18,6 +18,14 @@ models/*/PoP
 models/*/PrP
 models/*/Sim
 
+# Imod temp and user files
+**/IMOD_INIT.PRF
+**/IMOD_TMP/
+**/IMOD_USER/
+
+# python cache files
+**/__pycache__/
+
 ## DVC files everywhere (except in SS folders) will be un-ignored. Same for .inp files, they're MetaSWAP files that are very small. CAVEAT: the folders where those file reside need to be un-ignored too, otherwise this won't work.
 !**/*.dvc
 !**/*.inp

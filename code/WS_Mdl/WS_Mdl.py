@@ -378,6 +378,37 @@ def run_Mdl(Se_Ln, DF_Opt): #666 think if this can be improved to take only 1 ar
                 print(f"  - ❌: {Cmd}\nError: {e.stderr}")
                 f.write(f"ERROR: {e.stderr}\n")
 
+def run_Mdl_print_only(Se_Ln, DF_Opt): #666 think if this can be improved to take only 1 argument.
+    """Runs the model from PrP, to PrSimP, to PP.
+    Requires:
+    - `Se_Ln`: A Pandas Series (row from the RunLog sheet of RunLog.xlsx)
+    - `DF_Opt`: A Pandas DataFrame (PP_Opt sheet of the same spreadsheet)
+    """
+    MdlN = Se_Ln['MdlN']
+    print(f"--- Executing RunMng for {MdlN}")
+
+    # Get default directories
+    d_paths = get_MdlN_paths(MdlN)
+    MdlN_B, path_Mdl, path_MdlN, path_INI, path_BAT, path_PRJ = (d_paths[k] for k in ['MdlN_B', 'path_Mdl', 'path_MdlN', "path_INI_S", "path_BAT_S", "path_PRJ_S"])
+        
+    # Define commands and their working directories
+    d_Cmds = {path_BAT: os.path.dirname(path_BAT),
+              "activate WS": os.path.dirname(path_BAT),
+              f"WS_Mdl add_OBS {MdlN} {DF_Opt.loc[DF_Opt['MdlN']==MdlN, 'add_OBS'].values[0]}": os.path.dirname(path_BAT),
+              r'.\RUN.BAT': path_MdlN}
+
+    # Generate log file path
+    log_file = os.path.join(path_MdlN, f'Tmnl_Out_{MdlN}.txt')
+    os.makedirs(os.path.dirname(log_file), exist_ok=True)
+
+    for Cmd, cwd in d_Cmds.items():
+        try:
+            print(f" -- Executing: {Cmd}\nin {cwd}")
+            print(f"  - ✓")
+
+        except sp.CalledProcessError as e:
+            print(f"  - ❌: {Cmd}\nError: {e.stderr}")
+
 def run_Mdl_parallel(DF, DF_Opt):
     queued_Sims = DF.loc[DF['Status'] == 'Queued']
     num_cores = min(len(queued_Sims), cpu_count())
