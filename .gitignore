@@ -14,9 +14,10 @@ models/*/In/**
 !models/*/In/CAP/
 !models/*/In/CAP/**/
 
-models/*/PoP
-models/*/PrP
-models/*/Sim
+modes/*/doc/
+models/*/PoP/
+models/*/PrP/
+models/*/Sim/
 
 # Imod temp and user files
 **/IMOD_INIT.PRF
