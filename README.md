@@ -49,3 +49,20 @@ TO BE WRITTEN
 for this project's python library:<br>
 pip install -e C:\OD\WS_Mdl\code (or pip install -e C:\OD\WS_Mdl\code --use-pep517)
 
+
+## Guide to install SW for this project
+(optional software starts with "Opt:", the rest is mandatory)
+
+0. symlink OneDrive (this will be useful later)
+cmd.exe
+mklink /D C:\OD "C:\Users\<User>\OneDrive - Universiteit Utrecht"
+
+1. Opt:	Double Commander
+cd "C:\Users\mkarampasi\OneDrive - Universiteit Utrecht\Software\InstalledOutsideSoftwareCenter"
+.\doublecmd-1.1.22.x86_64-win64.exe
+Opt: replace files in C:\Users\<User>\AppData\Roaming\doublecmd\ with files in C:\OD\Software\Settings\Double Commander\ (might need to enable view Hidden files)
+
+2. Python env (with snakmake)
+TO BE WRITTEN
+
+... and more ... (to be completed)

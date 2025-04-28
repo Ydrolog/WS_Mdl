@@ -150,7 +150,7 @@ def INI_to_d(path_INI:str):
                 d_INI[k.strip().upper()] = v.strip()  # Remove extra spaces
     return d_INI
 
-def Mdl_Dmns_from_INI(path_INI):
+def Mdl_Dmns_from_INI(path_INI): # 666 Can be improved. It should take a MdlN instead of a path. Makes things easier.
     """Returns model dimension parameters. Common use:
     Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = WS.Mdl_Dmns_from_INI(path)"""
     d_INI = INI_to_d(path_INI)

@@ -1,6 +1,17 @@
 import subprocess
 from pathlib import Path
 
+"""
+This script prints a minimal set of parent directories that contain untracked or ignored files,
+collapsing nested paths into their highest relevant ancestor. It:
+
+1. Uses `git ls-files --others --ignored --exclude-standard` to list ignored and untracked files.
+2. Extracts and resolves their parent directories.
+3. Collapses anything under `.dvc/` into `.dvc` explicitly.
+4. Builds a trie to eliminate redundant nested paths (e.g., keeps 'a/' but drops 'a/b/').
+5. Prints the cleaned set of relative directory paths in POSIX format.
+"""
+
 class TrieNode:
     def __init__(self):
         self.children = {}

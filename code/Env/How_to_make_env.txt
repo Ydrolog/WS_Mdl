@@ -1,6 +1,6 @@
 To freeze/export:
 conda activate env
-conda env export > environment.yml
+conda env export > Env_NBr7.yml
 
 To import/install:
 mamba env create -f ENVIRONMENT.yml
