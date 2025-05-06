@@ -14,6 +14,7 @@ import re
 import subprocess as sp
 from multiprocessing import Process, cpu_count
 warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl")
+import time
 
 ## How to import:
 # import WS_Mdl as WS
@@ -21,7 +22,8 @@ warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl")
 
 path_WS = 'C:/OD/WS_Mdl'
 crs = "EPSG:28992"
-
+path_RunLog = os.path.join(path_WS, 'Mng/WS_RunLog.xlsx')
+signature = 'Goodbye, friend.'
 
 ## Can make get paths function that will provide the general directories, like path_WS, path_Mdl. Those can be derived from a folder structure.
 
@@ -133,7 +135,7 @@ def open_PRJ_with_OBS(path_PRJ):
 
     return PRJ, l_OBS_Lns
 
-def INI_to_d(path_INI:str):
+def INI_to_d(path_INI:str) -> dict:
     """Reads INI file (used for preparing the model) and converts it to a dictionary. Keys are converted to upper-case.
     Common use:
     Xmin, Ymin, Xmax, Ymax = [float(i) for i in d_INI['WINDOW'].split(',')]
@@ -278,10 +280,12 @@ def S_from_B(MdlN:str):
         print(f"\u274C - {path_PRJ_S.split('/')[-1]} already exists. If you want it to be replaced, you have to delete it manually before running this command.")
     print('-'*100)
 
-def add_OBS(MdlN:str, Opt:str):
+def add_OBS(MdlN:str, Opt:str="BEGIN OPTIONS\nEND OPTIONS"):
     """Adds OBS file(s) from PRJ file OBS block to Mdl Sim (which iMOD can't do). Thus the OBS file needs to be written, and then a link to the OBS file needs to be created within the NAM file.
     Assumes OBS IPF file contains the following parameters/columns: 'Id', 'L', 'X', 'Y'"""
 
+
+    print('Running add_OBS ...')
     d_paths = get_MdlN_paths(MdlN) # Get default directories
     path_MdlN, path_INI, path_PRJ = (d_paths[k] for k in ['path_MdlN', "path_INI_S", "path_PRJ_S"]) # and pass them to objects that will be used in the function
     
@@ -297,10 +301,13 @@ def add_OBS(MdlN:str, Opt:str):
     l_IPF = [match.group(1) for line in l_OBS_lines for match in re.finditer(pattern, line)] # Find all IPF files of the OBS block.
 
     # Iterate through OBS files of OBS blocks and add them to the Sim
-    for path in l_IPF:
+    for i, path in enumerate(l_IPF):
         path_OBS_IPF = os.path.abspath(os.path.join(path_MdlN, path)) # path of IPF file. To be read.
-        OBS_IPF_Fi = os.path.basename(path_OBS_IPF) # Filename of OBS file to be added to Sim (without ending)
-        path_OBS = os.path.join(path_MdlN, 'GWF_1/MODELINPUT', OBS_IPF_Fi.replace('.ipf', '.obs')) #path of OBS file. To be written.
+        OBS_IPF_Fi = os.path.basename(path_OBS_IPF) # Filename of OBS file to be added to Sim (to be added without ending)
+        if i == 0:
+            path_OBS = os.path.join(path_MdlN, f'GWF_1/MODELINPUT/{MdlN}.OBS') #path of OBS file. To be written.
+        else:
+            path_OBS = os.path.join(path_MdlN, f'GWF_1/MODELINPUT/{MdlN}_N{i}.OBS') #path of OBS file. To be written.
 
         DF_OBS_IPF = read_IPF_Spa(path_OBS_IPF) # Get list of OBS items (without temporal dimension, as it's uneccessary for the OBS file, and takes ages to load)
         DF_OBS_IPF_MdlAa = DF_OBS_IPF.loc[ ( (DF_OBS_IPF['X']>Xmin) & (DF_OBS_IPF['X']<Xmax ) ) &
@@ -312,6 +319,8 @@ def add_OBS(MdlN:str, Opt:str):
         DF_OBS_IPF_MdlAa.sort_values(by=["L", "R", "C"], ascending=[True, True, True], inplace=True) # Let's sort the DF by L, R, C
 
         with open(path_OBS, "w") as f: # write OBS file(s)
+            print(path_MdlN, path, path_OBS_IPF, sep='\n')
+            f.write(f"# created from {path_OBS_IPF}\n")
             f.write(Opt.encode().decode('unicode_escape')) # write optional block
             f.write(f"\n\nBEGIN CONTINUOUS FILEOUT OBS_{OBS_IPF_Fi.split('.')[0]}.csv\n")
             
@@ -329,10 +338,10 @@ def add_OBS(MdlN:str, Opt:str):
             f2.write(l_NAM[0])
             f2.write(fr' OBS6 .\{path_OBS_Rel} OBS_{OBS_IPF_Fi.split('.')[0]}')
             f2.write('\nEND PACKAGES')
-    print(f'{path_OBS} has been added successfully!')
-    print('---------------')
+        print(f'{path_OBS} has been added successfully!')
+    print(' finished successfully!')
 
-def run_Mdl(Se_Ln, DF_Opt): #666 think if this can be improved to take only 1 argument.
+def run_Mdl(Se_Ln, DF_Opt): #666 think if this can be improved to take only 1 argument. Function becomes redundant from v.1.0.0, as snakemae files are used instead.
     """Runs the model from PrP, to PrSimP, to PP.
     Requires:
     - `Se_Ln`: A Pandas Series (row from the RunLog sheet of RunLog.xlsx)
@@ -422,6 +431,22 @@ def run_Mdl_parallel(DF, DF_Opt):
     for p in processes:
         p.join()
 
+def Up_log(MdlN: str,
+           d_Up: dict,
+           path_log=os.path.join(path_WS, 'Mng/log.csv')):
+    """Update log.csv based on MdlN and key of `updates`."""
+    DF = pd.read_csv(path_log, index_col=0)  # Assumes log.csv exists.
+
+    for key, value in d_Up.items():  # Update the relevant cells
+        DF.at[MdlN, key] = value
+
+    while True: # Wait for file to be closed if it's open
+        try:
+            DF.to_csv(path_log, date_format='%Y-%m-%d %H:%M')  # Save back to CSV
+            break  # Break if successful
+        except PermissionError:
+            input("log.csv is open. Press Enter after closing the file...")  # Wait for user input
+
 def DA_to_TIF(DA, path_Out, d_MtDt, crs=crs, _print=False):
     """ Write a 2D xarray.DataArray (shape = [y, x]) to a single-band GeoTIFF.
     - DA: 2D xarray.DataArray with shape [y, x]
@@ -484,6 +509,35 @@ def DA_to_MBTIF(DA, path_Out, d_MtDt, crs=crs, _print=False):
     if _print:
         print(f"DA_to_MBTIF finished successfully for: {path_Out}")
 # ---------------------------------------------------------------------------------
+
+def RunMng(cores=None):
+    """Read the RunLog, and for each queued model, run the corresponding Snakemake file."""
+    if cores is None:
+        cores = max(cpu_count() - 2, 1) # Leave 2 cores free for other tasks. If there aren't enough cores available, set to 1.
+
+    print(f"\n{'*'*80}\nRunMng will run all Sims that are queued in the RunLog.\n")
+
+    print(f"--- Reading RunLog ...", end='')
+    DF = pd.read_excel(path_RunLog, sheet_name='RunLog').dropna(subset='runN') # Read RunLog
+    DF_q = DF.loc[ (DF['Start Status'] == 'Queued') & ((DF['End Status'].isna()) | (DF['End Status']=='Failed')) ] # _q for queued. Only Run Queued runs that aren't running or have finished.
+    print(' completed!\n')
+
+    print('--- Running snakemake files:')
+    for i, Se_Ln in DF_q.iterrows():
+        path_Smk = os.path.join(path_WS, f'models/{Se_Ln["model alias"]}/code/snakemake/{Se_Ln["MdlN"]}.smk')
+        path_DAG = os.path.join(path_WS, f'models/{Se_Ln["model alias"]}/code/snakemake/DAG/DAG_{Se_Ln["MdlN"]}.png')
+        print(f"\n{'-'*60}")
+        print(f"-- {os.path.basename(path_Smk)}\n")
+
+        try:
+            sp.run(["snakemake", "--dag", "-s", path_Smk, "--cores", str(cores), '|', 'dot', '-Tpng', '-o', f'{path_DAG}'], shell=True, check=True)
+            sp.run(["snakemake", "-p", "-s", path_Smk, "--cores", str(cores)], check=True)
+            print(f"✅")
+        except sp.CalledProcessError as e:
+            print(f"❌: {e}")
+        print(f"{'-'*60}")
+    print(signature)
+    print(f"\n{'*'*80}\n")
 
 # Explore ---------------------------------------------------------------------------------
 def Sim_Cfg(*l_MdlN, path_NP=r'C:\Program Files\Notepad++\notepad++.exe'):

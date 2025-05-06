@@ -2,7 +2,7 @@ import sys
 import WS_Mdl
 
 def main():
-    if len(sys.argv) < 3:
+    if len(sys.argv) < 2:
         print("Usage: python -m WS_Mdl <function_name> <arguments>")
         sys.exit(1)
 
@@ -11,7 +11,10 @@ def main():
 
     if hasattr(WS_Mdl, function_name):
         func = getattr(WS_Mdl, function_name)
-        func(*args)
+        if callable(func):
+            func(*args)
+        else:
+            print(f"Error: '{function_name}' is not callable.")
     else:
         print(f"Error: Function '{function_name}' not found in WS_Mdl.")
 

@@ -1,0 +1,12 @@
+MdlN,End Status,PrP start DT,Sim start DT,Sim end DT,PoP end DT,SimDur,Sim device name,Sim Dir,1st SP date,last SP date
+NBr1,Completed,-,23/01/2025 11:37,23/01/2025 12:45,-,01:12,UU120516,C:\OD\WS_Mdl\models\NBr\Sim,01/01/1991,01/02/1991
+NBr2,Removed,-,23/01/2025 16:08,24/01/2025 00:09,-,~8h,UU120516,C:\OD\WS_Mdl\models\NBr\Sim,01/01/2018,31/12/2018
+NBr3,Removed,-,24/01/2025 15:30,24/01/2025 20:31,-,-,UU120516,C:\OD\WS_Mdl\models\NBr\Sim,01/01/2018,31/12/2018
+NBr4,Cancelled,-,-,-,-,-,-,-,01/01/1993,05/10/2020
+NBr5,Completed,-,25/02/2025 23:25,27/02/2025 12:00,-,-,FG-VM43,C:\OD\WS_Mdl\models\NBr\Sim,01/01/2010,31/12/2018
+NBr6,Completed,-,24/02/2025 23:33,24/02/2025 23:54,-,-,FG-VM43,C:\OD\WS_Mdl\models\NBr\Sim,01/01/2010,01/02/2010
+NBr7,Completed,-,10/03/2025 21:52,10/03/2025 21:52,-,-,UU120516,C:\OD\WS_Mdl\models\NBr\Sim,01/01/2010,03/01/2010
+NBr8,Completed,-,05/04/2025 11:45,06/04/2025 02:42,-,-,UU120516,C:\OD\WS_Mdl\models\NBr\Sim,01/01/2010,31/12/2018
+NBr9,Failed,-,-,-,-,-,-,-,-,-
+NBr10,Completed,-,04/04/2025 13:32,04/04/2025 13:33,-,-,UU120516,C:\OD\WS_Mdl\models\NBr\Sim,01/01/2010,03/01/2010
+NBr11,Running,2025-05-05 11:37:02,2025-05-02 17:18:23,,,,,C:/OD/WS_Mdl\models/NBr\Sim,2010-01-01,2010-01-01
