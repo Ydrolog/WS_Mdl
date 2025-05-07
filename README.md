@@ -12,7 +12,7 @@ All files you need to run the models should be available within this project fol
 
 
 ## Rules and Tips
-- .\Mng\Acronyms.xlsx contains acronyms and rules used throughout the project.  This is not just an acronym archive. It also explains the naming convention used throughout this project, so you need to be familiar with its principles when working on with this folder/project. New acronyms should be registerred there. Make sure you read the instructions sheet/tab to understand the acronym system, and follow the system's rules when adding new shortcuts.
+- .\Mng\Acronyms.xlsx contains acronyms and rules used throughout the project.  This is not just an acronym archive. It also explains the naming convention used throughout this project, so you need to be familiar with its principles when working on with this folder/project. New acronyms should be registered there. Make sure you read the instructions sheet/tab to understand the acronym system, and follow the system's rules when adding new shortcuts.
 - The folder is version controlled through GitHub (smaller files, e.g. code) (and DVC). You can use "git ls-files" to print all Git tracked files, and "dvc list . --dvc-only --recursive" (warning, it's very slow), to print the files tracked with each of the two methods. Make sure you push at frequent intervals.
 - For good data management, it's advised to include meta-data in data folder that are not self-explanatory. E.g. a read-me file in a folder with IDFs (IDFs may contain spatial data, units etc. but oftentimes their origin/method of production, which can be very useful, is missing from the meta-data).
 
@@ -30,24 +30,24 @@ the models folder structure is described in more detail below because it is comp
 - SS: Superseded - anything not relevant anymore. (although superseded files can be found in other sub-folders too.
 
 # models
-All model sub-folders contain the same Fo Str for consistency. Files in those folders are only relevant to this Mdl. The Fo Str is described below:
+All model sub-folders contain the same folder structure for consistency. Files in those folders are only relevant to this Mdl. The Fo Str is described below:
 - code: Contains code specific to each Mdl. e.g. Mdl_Prep contains the .bat & .ini file to prepare a Mdl run.
-- doc: self explanatory
+- doc: self-explanatory
 - In: model inputs, organized by iMOD package/module (organized by type). Only contains files that are used directly in the model - i.e. no raw data etc.
 - MM: Contains 3 types of elements:
 - general information layers, e.g. rivers, background map etc. - Those elements are used in the MM regardless of run.
 - In files converted to GIS layers for review and visualization. Most inputs remain the same as the B for a run, but some have to be re-referenced on each Sim. This is done by changing the data-source of the layer (programmatically).
-- PoP: contains a model map for each Sim. PoPed output is unique to each Sim. Thus, the B MM gets copied and the output layers, which are relatively referenced, automatically get linked to the new Sim's PoPed Out.
+- PoP: contains a model map for each Sim. Post processed output (PoPed Out) is unique to each Sim. Thus, the baseline MM gets copied and the output layers, which are relatively referenced, automatically get linked to the new Sim's PoPed Out.
 - PrP: Pre-Processing. Can include raw or intermediate data, or even scripts/JupNotes to create the In files.
 - Sim: Simulation folders. 1 for each Sim. Unfortunately, the way iMOD is designed, Mdl Output needs to be saved here. Organized by Sim.
 
 
 ## Python Env installation guide
 Follow the steps below, to install the WS python Env. Then use it whenever you want to run any command related to this project. This way all dependencies will be satisfied.
-1. Each Env version is linked to a MdlN (more about MdlNs in the RunLog (./Mng/WS_RunLog.xlsx). Replace <MdlN> below with the Env version you want to install. Differenes between versions are miniscule, but it's advised to stick to the Env version that corresponds to your Sim. Not all Sims have a unique Env, because it's not always necessary to make ammendments to the previous Env. In this case use the latest Env before the Sim you want to execute.<br>
+1. Each Env version is linked to a MdlN (more about MdlNs in the RunLog (./Mng/WS_RunLog.xlsx). Replace <MdlN> below with the Env version you want to install. Differences between versions are miniscule, but it's advised to stick to the Env version that corresponds to your Sim. Not all Sims have a unique Env, because it's not always necessary to make amendments to the previous Env. In this case use the latest Env before the Sim you want to execute.<br>
 mamba env create -f Env_<MdlN>.yml
 
-2. Install this project's python library. this assumes that you've made a symbolic link, as described above. Otherwise replace the path.<br>
+2. Install this project's python library. this asumes that you've made a symbolic link, as described above. Otherwise replace the path.<br>
 pip install -e C:\OD\WS_Mdl\code (or pip install -e C:\OD\WS_Mdl\code --use-pep517)
 
 # Terminal tools
