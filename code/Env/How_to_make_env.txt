@@ -5,7 +5,7 @@ conda env export > Env_NBr7.yml
 To import/install:
 mamba env create -f ENVIRONMENT.yml
 # Can use conda instead of mamba
-mamba env create -f Env_NBr7.yml
+mamba env create -f Env_<MdlN>.yml
 
 Then pip install -e C:\OD\WS_Mdl\code
 
