@@ -23,7 +23,8 @@ import time
 path_WS = 'C:/OD/WS_Mdl'
 crs = "EPSG:28992"
 path_RunLog = os.path.join(path_WS, 'Mng/WS_RunLog.xlsx')
-signature = 'Goodbye, friend.'
+path_log = os.path.join(path_WS, 'Mng/log.csv')
+Sign = f"\nGoodbye, friend.\n{'*'*80}\n"
 
 ## Can make get paths function that will provide the general directories, like path_WS, path_Mdl. Those can be derived from a folder structure.
 
@@ -510,7 +511,7 @@ def DA_to_MBTIF(DA, path_Out, d_MtDt, crs=crs, _print=False):
         print(f"DA_to_MBTIF finished successfully for: {path_Out}")
 # ---------------------------------------------------------------------------------
 
-def RunMng(cores=None):
+def RunMng(cores=None, DAG:bool=True):
     """Read the RunLog, and for each queued model, run the corresponding Snakemake file."""
     if cores is None:
         cores = max(cpu_count() - 2, 1) # Leave 2 cores free for other tasks. If there aren't enough cores available, set to 1.
@@ -523,22 +524,44 @@ def RunMng(cores=None):
     print(' completed!\n')
 
     print('--- Running snakemake files:')
-    for i, Se_Ln in DF_q.iterrows():
-        path_Smk = os.path.join(path_WS, f'models/{Se_Ln["model alias"]}/code/snakemake/{Se_Ln["MdlN"]}.smk')
-        path_DAG = os.path.join(path_WS, f'models/{Se_Ln["model alias"]}/code/snakemake/DAG/DAG_{Se_Ln["MdlN"]}.png')
-        print(f"\n{'-'*60}")
-        print(f"-- {os.path.basename(path_Smk)}\n")
+    if DF_q.empty:
+        print("❌ - No queued runs found in the RunLog.")
+    else:
+        for i, Se_Ln in DF_q.iterrows():
+            path_Smk = os.path.join(path_WS, f'models/{Se_Ln["model alias"]}/code/snakemake/{Se_Ln["MdlN"]}.smk')
+            path_log = os.path.join(path_WS, f'models/{Se_Ln["model alias"]}/code/snakemake/log/{Se_Ln["MdlN"]}.log')
+            path_DAG = os.path.join(path_WS, f'models/{Se_Ln["model alias"]}/code/snakemake/DAG/DAG_{Se_Ln["MdlN"]}.png')
+            print(f"\n{'-'*60}")
+            print(f"-- {os.path.basename(path_Smk)}\n")
 
+            try:
+                if DAG:
+                    sp.run(["snakemake", "--dag", "-s", path_Smk, "--cores", str(cores), '|', 'dot', '-Tpng', '-o', f'{path_DAG}'], shell=True, check=True)
+                with open(path_log, 'w') as f:
+                    sp.run(["snakemake", "-p", "-s", path_Smk, "--cores", str(cores)], check=True, stdout=f, stderr=f) # Run snakemake and write output to log file
+                print(f"✅")
+            except sp.CalledProcessError as e:
+                print(f"❌: {e}")
+            print(f"{'-'*60}")
+    print(Sign)
+
+def reset_Sim(MdlN: str):
+    """Resets the simulation by deleting all files in the Sim folder and clearing the log.""" #666 can later be improved by deleting PoP files too. But that's not needed for now.
+    d_paths = get_MdlN_paths(MdlN) # Get default directories
+    path_MdlN = d_paths['path_MdlN']
+
+    if os.path.exists(path_MdlN):
         try:
-            sp.run(["snakemake", "--dag", "-s", path_Smk, "--cores", str(cores), '|', 'dot', '-Tpng', '-o', f'{path_DAG}'], shell=True, check=True)
-            sp.run(["snakemake", "-p", "-s", path_Smk, "--cores", str(cores)], check=True)
-            print(f"✅")
-        except sp.CalledProcessError as e:
-            print(f"❌: {e}")
-        print(f"{'-'*60}")
-    print(signature)
-    print(f"\n{'*'*80}\n")
-
+            sp.run(f'rmdir /S /Q "{path_MdlN}"', shell=True) # Delete the entire Sim folder
+            DF = pd.read_csv(path_log) # Read the log file
+            DF[ DF['MdlN']!=MdlN ].to_csv(path_log, index=False) # Remove the log entry for this model
+            print(f"✅ - {path_MdlN} has been removed and log has been cleared.")
+        except:
+            print(f"❌ - failed to reset {path_MdlN}.")
+    else:
+        print(f"❌ - {path_MdlN} does not exist. No need to reset.")
+        exit(1)
+        
 # Explore ---------------------------------------------------------------------------------
 def Sim_Cfg(*l_MdlN, path_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
     print(f"\n{'-'*100}\nOpening all configuration files for specified runs with Notepad++.\nIt's assumed that Notepad++ is installed in: {path_NP}.\nIf false, provide the correct path to Notepad++ (or another text editor) as the last argument to this function.\n")
