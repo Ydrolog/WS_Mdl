@@ -29,11 +29,6 @@ models/*/Sim/
 
 # Snakemake: Ignore all folders in .snakemake except for log files. Also ignore all temp files in the code/snakemake folder.
 models/*/.snakemake/
-# models/*/.snakemake/**
-# !models/*/.snakemake/
-# !models/*/.snakemake/log/
-# !models/*/.snakemake/log/**
-# !models/*/.snakemake/log/*.log
 models/*/code/snakemake/temp/
 
 ## DVC files everywhere (except in SS folders) will be un-ignored. Same for .inp files, they're MetaSWAP files that are very small. CAVEAT: the folders where those file reside need to be un-ignored too, otherwise this won't work.

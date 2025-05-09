@@ -28,7 +28,6 @@ Sign = f"\nGoodbye, friend.\n{'*'*80}\n"
 
 ## Can make get paths function that will provide the general directories, like path_WS, path_Mdl. Those can be derived from a folder structure.
 
-
 # Get paths ---------------------------------------------------------------------------------
 def MdlN_Se_from_RunLog(MdlN):
     """Returns RunLog line that corresponds to MdlN as a S."""
@@ -46,10 +45,12 @@ def paths_from_MdlN_Se(S, MdlN_S):
     path_INI_B = os.path.join(path_Mdl, f'code/Mdl_Prep/Mdl_Prep_{MdlN_B}.ini')
     path_BAT_B = os.path.join(path_Mdl, f'code/Mdl_Prep/Mdl_Prep_{MdlN_B}.bat')
     path_PRJ_B = os.path.join(path_Mdl, f'In/PRJ/{MdlN_B}.prj')
+    path_Smk_B = os.path.join(path_Mdl, f'code/snakemake/{MdlN_B}.smk')
     path_INI_S = path_INI_B.replace(MdlN_B, MdlN_S)
     path_BAT_S = path_BAT_B.replace(MdlN_B, MdlN_S)
     path_PRJ_S = path_PRJ_B.replace(MdlN_B, MdlN_S)
-
+    path_Smk_S = path_Smk_B.replace(MdlN_B, MdlN_S)
+    
     return {'MdlN_B': MdlN_B,
             'path_Mdl': path_Mdl,
             'path_MdlN': path_MdlN,
@@ -58,7 +59,9 @@ def paths_from_MdlN_Se(S, MdlN_S):
             'path_BAT_B': path_BAT_B,
             'path_BAT_S': path_BAT_S,
             'path_PRJ_B': path_PRJ_B,
-            'path_PRJ_S': path_PRJ_S}
+            'path_PRJ_S': path_PRJ_S,
+            'path_Smk_B': path_Smk_B,
+            'path_Smk_S': path_Smk_S}
 
 def get_MdlN_paths(MdlN_S: str): #666 Can be split into two as both S and B aren't allways needed. Or better, I can make a new function that does that for just 1 run.
     """ Returns a dictionary of useful object (MdlN_B, directories etc.) for a given model. Those need to then be passed to arguments, e.g. path_INI_B = Dft_paths['path_INI_N']."""
@@ -208,7 +211,7 @@ def IDF_to_TIF(path_IDF: str, path_TIF: Optional[str] = None, MtDt: Optional[Dic
         print(f"\u2713 {path_TIF} has been saved (GeoTIFF) with conversion and project metadata.")
     except Exception as e:
         print(f"\u274C \n{e}")
-    print('-'*100)
+    print(Sign)
 
 # def l_IDF_to_TIF(l_IDF, Dir_Out):
 #     """#666 under construction. The aim of this is to make a multi-band tif file instead of multiple single-band tif files, for each parameter."""
@@ -249,29 +252,23 @@ def S_from_B(MdlN:str):
     
     print('-'*100)
     d_paths = get_MdlN_paths(MdlN) # Get default directories
-    MdlN_B, path_INI_B, path_INI_S, path_BAT_B, path_BAT_S, path_PRJ_B, path_PRJ_S = (d_paths[k] for k in ['MdlN_B', "path_INI_B", "path_INI_S", "path_BAT_B", "path_BAT_S", "path_PRJ_B", "path_PRJ_S"]) # and pass them to objects that will be used in the function
+    MdlN_B, path_INI_B, path_INI_S, path_BAT_B, path_BAT_S, path_Smk_S, path_Smk_B, path_PRJ_B, path_PRJ_S = (d_paths[k] for k in ['MdlN_B', "path_INI_B", "path_INI_S", "path_BAT_B", "path_BAT_S", "path_Smk_S", "path_Smk_B", "path_PRJ_B", "path_PRJ_S"]) # and pass them to objects that will be used in the function
 
     # Copy .INI, .bat, .prj and make default (those apply to every Sim) modifications
-    if not os.path.exists(path_INI_S): # The MdlN is mentioned twice in the .ini file: link to the .prj file and to the .nam file. It has to be replaced.
-        sh.copy2(path_INI_B, path_INI_S)
-        with open(path_INI_S, 'r') as f1:
-            contents = f1.read()
-        with open(path_INI_S, 'w') as f2:
-            f2.write(contents.replace(MdlN_B, MdlN))
-        os.startfile(path_INI_S) # Then we'll open it to make any other changes we want to make.
-        print(f'\u2713 - {path_INI_S.split('/')[-1]} created successfully! (from {path_INI_B})')
-    else:
-        print(f"\u274C - {path_INI_S.split('/')[-1]} already exists. If you want it to be replaced, you have to delete it manually before running this command.")
-
-    if not os.path.exists(path_BAT_S): # For the .bat file it's mentioned once at the top. Still it's preferable if it's replaced automatically.
-        sh.copy2(path_BAT_B, path_BAT_S)
-        with open(path_BAT_S, 'r') as f1:
-            contents = f1.read()
-        with open(path_BAT_S, 'w') as f2:
-            f2.write(contents.replace(MdlN_B, MdlN))
-        print(f'\u2713 - {path_BAT_S.split('/')[-1]} created successfully! (from {path_BAT_B})')
-    else:
-        print(f"\u274C - {path_BAT_S.split('/')[-1]} already exists. If you want it to be replaced, you have to delete it manually before running this command.")
+    for path_B, path_S in zip([path_Smk_B, path_BAT_B, path_INI_B], [path_Smk_S, path_BAT_S, path_INI_S]):
+        print(path_B)
+        print(path_S)
+        if not os.path.exists(path_S): # Replace the MdlN of with the new one, so that we don't have to do it manually.
+            sh.copy2(path_B, path_S)
+            with open(path_S, 'r') as f1:
+                contents = f1.read()
+            with open(path_S, 'w') as f2:
+                f2.write(contents.replace(MdlN_B, MdlN))
+            if ".bat" not in path_B.lower():
+                os.startfile(path_S) # Then we'll open it to make any other changes we want to make. Except if it's the BAT file
+            print(f'\u2713 - {path_S.split('/')[-1]} created successfully! (from {path_B})')
+        else:
+            print(f"\u274C - {path_S.split('/')[-1]} already exists. If you want it to be replaced, you have to delete it manually before running this command.")
 
     if not os.path.exists(path_PRJ_S): # For the PRJ file, there is no default replacement, so we'll just copy.
         sh.copy2(path_PRJ_B, path_PRJ_S)
@@ -279,13 +276,26 @@ def S_from_B(MdlN:str):
         print(f'\u2713 - {path_PRJ_S.split('/')[-1]} created successfully! (from {path_PRJ_B})')        
     else:
         print(f"\u274C - {path_PRJ_S.split('/')[-1]} already exists. If you want it to be replaced, you have to delete it manually before running this command.")
-    print('-'*100)
+    print(Sign)
+
+def S_from_B_undo(MdlN:str):
+    """Will undo S_from_B by deletting S files"""
+    print('*'*80)
+    d_paths = get_MdlN_paths(MdlN) # Get default directories
+    MdlN_B, path_INI_B, path_INI_S, path_BAT_B, path_BAT_S, path_Smk_S, path_Smk_B, path_PRJ_B, path_PRJ_S = (d_paths[k] for k in ['MdlN_B', "path_INI_B", "path_INI_S", "path_BAT_B", "path_BAT_S", "path_Smk_S", "path_Smk_B", "path_PRJ_B", "path_PRJ_S"]) # and pass them to objects that will be used in the function
+
+    confirm = input(f"Are you sure you want to delete the Cfg files (.smk, .ini, .bat, .prj) for {MdlN}? (y/n): ").strip().lower()
+    if confirm == 'y':
+        for path_S in [path_Smk_S, path_BAT_S, path_INI_S, path_PRJ_S]:
+            os.remove(path_S) # Delete the S files
+            print(f'\u2713 - {path_S.split("/")[-1]} deleted successfully!')
+    print(Sign)
 
 def add_OBS(MdlN:str, Opt:str="BEGIN OPTIONS\nEND OPTIONS"):
     """Adds OBS file(s) from PRJ file OBS block to Mdl Sim (which iMOD can't do). Thus the OBS file needs to be written, and then a link to the OBS file needs to be created within the NAM file.
     Assumes OBS IPF file contains the following parameters/columns: 'Id', 'L', 'X', 'Y'"""
 
-
+    print('-'*80)
     print('Running add_OBS ...')
     d_paths = get_MdlN_paths(MdlN) # Get default directories
     path_MdlN, path_INI, path_PRJ = (d_paths[k] for k in ['path_MdlN', "path_INI_S", "path_PRJ_S"]) # and pass them to objects that will be used in the function
@@ -341,6 +351,7 @@ def add_OBS(MdlN:str, Opt:str="BEGIN OPTIONS\nEND OPTIONS"):
             f2.write('\nEND PACKAGES')
         print(f'{path_OBS} has been added successfully!')
     print(' finished successfully!')
+    print('-'*80)
 
 def run_Mdl(Se_Ln, DF_Opt): #666 think if this can be improved to take only 1 argument. Function becomes redundant from v.1.0.0, as snakemae files are used instead.
     """Runs the model from PrP, to PrSimP, to PP.
@@ -564,13 +575,12 @@ def reset_Sim(MdlN: str):
         
 # Explore ---------------------------------------------------------------------------------
 def Sim_Cfg(*l_MdlN, path_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
-    print(f"\n{'-'*100}\nOpening all configuration files for specified runs with Notepad++.\nIt's assumed that Notepad++ is installed in: {path_NP}.\nIf false, provide the correct path to Notepad++ (or another text editor) as the last argument to this function.\n")
+    print(f"\n{'-'*100}\nOpening all configuration files for specified runs with the default program.\nIt's assumed that Notepad++ is installed in: {path_NP}.\nIf false, provide the correct path to Notepad++ (or another text editor) as the last argument to this function.\n")
     
-    l_keys   = ['path_BAT_S', 'path_INI_S', 'path_PRJ_S']
-    l_paths  = [get_MdlN_paths(MdlN) for MdlN in l_MdlN]
+    l_keys = ['path_Smk_S', 'path_BAT_S', 'path_INI_S', 'path_PRJ_S']
+    l_paths = [get_MdlN_paths(MdlN) for MdlN in l_MdlN]
     l_files = [paths[k] for k in l_keys for paths in l_paths]
     sp.Popen([path_NP] + l_files)
     for f in l_files:
         print(f'\u2713 - {f}')
-    print('-'*100,'\n')
 #---------------------------------------------------------------------------------
