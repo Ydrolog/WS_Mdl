@@ -4,53 +4,37 @@ Building DAG of jobs...
 Provided cores: 10
 Rules claiming more threads will be scaled down.
 Job stats:
-job             count
-------------  -------
-Mdl_Prep            1
-add_OBS             1
-all                 1
-log_Init            1
-log_SP_dates        1
-total               5
+job         count
+--------  -------
+Mdl_Prep        1
+add_OBS         1
+all             1
+log_Init        1
+total           4
 
 Select jobs to execute...
 Execute 1 jobs...
 
-[Thu May  8 13:38:58 2025]
+[Fri May  9 15:05:54 2025]
 localrule log_Init:
     input: C:/OD/WS_Mdl/code/WS_Mdl/WS_Mdl.py
     output: C:/OD/WS_Mdl/models/NBr/code/snakemake/temp/Log_init_done_NBr11
-    jobid: 4
+    jobid: 3
     reason: Missing output files: C:/OD/WS_Mdl/models/NBr/code/snakemake/temp/Log_init_done_NBr11
     resources: tmpdir=C:\Users\Karam014\AppData\Local\Temp
 Shell command: None
-[Thu May  8 13:38:58 2025]
-Finished jobid: 4 (Rule: log_Init)
-1 of 5 steps (20%) done
+[Fri May  9 15:05:55 2025]
+Finished jobid: 3 (Rule: log_Init)
+1 of 4 steps (25%) done
 Select jobs to execute...
 Execute 1 jobs...
 
-[Thu May  8 13:38:58 2025]
-localrule log_SP_dates:
-    input: C:/OD/WS_Mdl/code/WS_Mdl/WS_Mdl.py, C:/OD/WS_Mdl/models/NBr/code/snakemake/temp/Log_init_done_NBr11
-    output: C:/OD/WS_Mdl/models/NBr/code/snakemake/temp/log_SP_done_NBr11
-    jobid: 3
-    reason: Missing output files: C:/OD/WS_Mdl/models/NBr/code/snakemake/temp/log_SP_done_NBr11; Input files updated by another job: C:/OD/WS_Mdl/models/NBr/code/snakemake/temp/Log_init_done_NBr11
-    resources: tmpdir=C:\Users\Karam014\AppData\Local\Temp
-Shell command: None
-[Thu May  8 13:39:00 2025]
-Finished jobid: 3 (Rule: log_SP_dates)
-2 of 5 steps (40%) done
-Removing temporary output C:/OD/WS_Mdl/models/NBr/code/snakemake/temp/Log_init_done_NBr11.
-Select jobs to execute...
-Execute 1 jobs...
-
-[Thu May  8 13:39:00 2025]
+[Fri May  9 15:05:55 2025]
 localrule Mdl_Prep:
-    input: C:/OD/WS_Mdl/models/NBr/code/snakemake/temp/log_SP_done_NBr11, code/Mdl_Prep/Mdl_Prep_NBr11.bat, code/Mdl_Prep/Mdl_Prep_NBr11.ini, In/PRJ/NBr11.prj
-    output: C:/OD/WS_Mdl/models/NBr/Sim/NBr11/RUN.BAT, C:/OD/WS_Mdl/models/NBr/Sim/NBr11/GWF_1/NBr11.NAM
+    input: C:/OD/WS_Mdl/models/NBr/code/snakemake/temp/Log_init_done_NBr11, code/Mdl_Prep/Mdl_Prep_NBr11.bat, code/Mdl_Prep/Mdl_Prep_NBr11.ini, In/PRJ/NBr11.prj
+    output: C:/OD/WS_Mdl/models/NBr/Sim/NBr11/RUN.BAT
     jobid: 2
-    reason: Missing output files: C:/OD/WS_Mdl/models/NBr/Sim/NBr11/RUN.BAT, C:/OD/WS_Mdl/models/NBr/Sim/NBr11/GWF_1/NBr11.NAM; Input files updated by another job: C:/OD/WS_Mdl/models/NBr/code/snakemake/temp/log_SP_done_NBr11; Set of input files has changed since last execution
+    reason: Missing output files: C:/OD/WS_Mdl/models/NBr/Sim/NBr11/RUN.BAT; Input files updated by another job: C:/OD/WS_Mdl/models/NBr/code/snakemake/temp/Log_init_done_NBr11
     resources: tmpdir=C:\Users\Karam014\AppData\Local\Temp
 Shell command: call code/Mdl_Prep/Mdl_Prep_NBr11.bat
 
@@ -327,14 +311,14 @@ Successfully written MF6 files:..\..\Sim\NBr11\NBr11.nam
 iMOD removed tmp-folder:
   C:\OD\WS_Mdl\models\NBr\code\Mdl_Prep\IMOD_TMP\BATCH1
 
-[Thu May  8 13:39:11 2025]
+[Fri May  9 15:06:01 2025]
 Finished jobid: 2 (Rule: Mdl_Prep)
-3 of 5 steps (60%) done
-Removing temporary output C:/OD/WS_Mdl/models/NBr/code/snakemake/temp/log_SP_done_NBr11.
+2 of 4 steps (50%) done
+Removing temporary output C:/OD/WS_Mdl/models/NBr/code/snakemake/temp/Log_init_done_NBr11.
 Select jobs to execute...
 Execute 1 jobs...
 
-[Thu May  8 13:39:11 2025]
+[Fri May  9 15:06:01 2025]
 localrule add_OBS:
     input: C:/OD/WS_Mdl/code/WS_Mdl/WS_Mdl.py, C:/OD/WS_Mdl/models/NBr/Sim/NBr11/RUN.BAT
     output: C:/OD/WS_Mdl/models/NBr/Sim/NBr11/GWF_1/MODELINPUT/NBr11.OBS
@@ -342,26 +326,30 @@ localrule add_OBS:
     reason: Missing output files: C:/OD/WS_Mdl/models/NBr/Sim/NBr11/GWF_1/MODELINPUT/NBr11.OBS; Input files updated by another job: C:/OD/WS_Mdl/models/NBr/Sim/NBr11/RUN.BAT
     resources: tmpdir=C:\Users\Karam014\AppData\Local\Temp
 Shell command: None
-[Thu May  8 13:39:13 2025]
+[Fri May  9 15:06:03 2025]
 Finished jobid: 1 (Rule: add_OBS)
-4 of 5 steps (80%) done
+3 of 4 steps (75%) done
 Select jobs to execute...
 Execute 1 jobs...
 
-[Thu May  8 13:39:13 2025]
+[Fri May  9 15:06:03 2025]
 localrule all:
-    input: C:/OD/WS_Mdl/models/NBr/Sim/NBr11/GWF_1/MODELINPUT/NBr11.OBS, C:/OD/WS_Mdl/models/NBr/Sim/NBr11/GWF_1/NBr11.NAM, C:/OD/WS_Mdl/models/NBr/Sim/NBr11/RUN.BAT
+    input: C:/OD/WS_Mdl/models/NBr/Sim/NBr11/GWF_1/MODELINPUT/NBr11.OBS
     jobid: 0
-    reason: Input files updated by another job: C:/OD/WS_Mdl/models/NBr/Sim/NBr11/RUN.BAT, C:/OD/WS_Mdl/models/NBr/Sim/NBr11/GWF_1/MODELINPUT/NBr11.OBS, C:/OD/WS_Mdl/models/NBr/Sim/NBr11/GWF_1/NBr11.NAM
+    reason: Input files updated by another job: C:/OD/WS_Mdl/models/NBr/Sim/NBr11/GWF_1/MODELINPUT/NBr11.OBS
     resources: tmpdir=C:\Users\Karam014\AppData\Local\Temp
 Shell command: None
-[Thu May  8 13:39:13 2025]
+[Fri May  9 15:06:03 2025]
 Finished jobid: 0 (Rule: all)
-5 of 5 steps (100%) done
-Complete log(s): C:\OD\WS_Mdl\models\NBr\.snakemake\log\2025-05-08T133858.469993.snakemake.log
+4 of 4 steps (100%) done
+Complete log(s): C:\OD\WS_Mdl\models\NBr\.snakemake\log\2025-05-09T150554.540720.snakemake.log
+--------------------------------------------------------------------------------
 Running add_OBS ...
 C:/OD/WS_Mdl\models/NBr\Sim/NBr11
 ..\..\In\OBS\NBr7\ijkset_selectie_NBr7.ipf
 C:\OD\WS_Mdl\models\NBr\In\OBS\NBr7\ijkset_selectie_NBr7.ipf
 C:/OD/WS_Mdl\models/NBr\Sim/NBr11\GWF_1/MODELINPUT/NBr11.OBS has been added successfully!
- finished successfully!
+
+Goodbye, friend.
+********************************************************************************
+

@@ -6,7 +6,7 @@ mklink /D C:\OD "C:\Users\<User>\OneDrive - Universiteit Utrecht"<br>
 (change the OneDrive directory to whatever it needs to be)<br>
 
 The symbolic link can be deleted using:<br>
-rmdir C:\OD<br>
+rmdir C:\OD
 
 All files you need to run the models should be available within this project folder. The only thing you need to install yourself is the python environment - use the guide below.<br>
 ---
@@ -53,6 +53,7 @@ pip install -e C:\OD\WS_Mdl\code (or pip install -e C:\OD\WS_Mdl\code --use-pep5
 ---
 
 ## Terminal tools
+
 There is a list of terminal tools that facilitate common tasks for this project. Those are listed in C:/OD/WS_Mdl/code/setup.py, with a brief description.<br>
 To add another terminal command, you need to add it to the setup file (similar to the other commands), and make a script. Then you need to run step 2 from the python Env installation guide above.<br>
 It's also possible to run python function from C:\OD\WS_Mdl\code\WS_Mdl\WS_Mdl.py via "WS_Mdl <function> <arg1> <arg2> ...".

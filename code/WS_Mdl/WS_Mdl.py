@@ -13,8 +13,9 @@ import tempfile
 import re
 import subprocess as sp
 from multiprocessing import Process, cpu_count
-warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl")
 import time
+from colored import fg, bg, attr
+warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl")
 
 ## How to import:
 # import WS_Mdl as WS
@@ -24,7 +25,7 @@ path_WS = 'C:/OD/WS_Mdl'
 crs = "EPSG:28992"
 path_RunLog = os.path.join(path_WS, 'Mng/WS_RunLog.xlsx')
 path_log = os.path.join(path_WS, 'Mng/log.csv')
-Sign = f"\nGoodbye, friend.\n{'*'*80}\n"
+Sign = f"{fg(52)}\nGoodbye, friend.{attr('reset')}\n{'*'*80}\n"
 
 ## Can make get paths function that will provide the general directories, like path_WS, path_Mdl. Those can be derived from a folder structure.
 
@@ -40,28 +41,28 @@ def paths_from_MdlN_Se(S, MdlN_S):
     Mdl, SimN_B = S[['model alias', 'B SimN']]
     MdlN_B = Mdl + str(SimN_B)
 
-    path_Mdl = os.path.join(path_WS, f'models/{Mdl}')
-    path_MdlN = os.path.join(path_Mdl, f"Sim/{MdlN_S}")
-    path_INI_B = os.path.join(path_Mdl, f'code/Mdl_Prep/Mdl_Prep_{MdlN_B}.ini')
-    path_BAT_B = os.path.join(path_Mdl, f'code/Mdl_Prep/Mdl_Prep_{MdlN_B}.bat')
-    path_PRJ_B = os.path.join(path_Mdl, f'In/PRJ/{MdlN_B}.prj')
-    path_Smk_B = os.path.join(path_Mdl, f'code/snakemake/{MdlN_B}.smk')
-    path_INI_S = path_INI_B.replace(MdlN_B, MdlN_S)
-    path_BAT_S = path_BAT_B.replace(MdlN_B, MdlN_S)
-    path_PRJ_S = path_PRJ_B.replace(MdlN_B, MdlN_S)
-    path_Smk_S = path_Smk_B.replace(MdlN_B, MdlN_S)
+    path_Mdl    =   os.path.join(path_WS, f'models/{Mdl}')
+    path_MdlN   =   os.path.join(path_Mdl, f"Sim/{MdlN_S}")
+    path_INI_B  =   os.path.join(path_Mdl, f'code/Mdl_Prep/Mdl_Prep_{MdlN_B}.ini')
+    path_BAT_B  =   os.path.join(path_Mdl, f'code/Mdl_Prep/Mdl_Prep_{MdlN_B}.bat')
+    path_PRJ_B  =   os.path.join(path_Mdl, f'In/PRJ/{MdlN_B}.prj')
+    path_Smk_B  =   os.path.join(path_Mdl, f'code/snakemake/{MdlN_B}.smk')
+    path_INI_S  =   path_INI_B.replace(MdlN_B, MdlN_S)
+    path_BAT_S  =   path_BAT_B.replace(MdlN_B, MdlN_S)
+    path_PRJ_S  =   path_PRJ_B.replace(MdlN_B, MdlN_S)
+    path_Smk_S  =   path_Smk_B.replace(MdlN_B, MdlN_S)
     
-    return {'MdlN_B': MdlN_B,
-            'path_Mdl': path_Mdl,
-            'path_MdlN': path_MdlN,
-            'path_INI_B': path_INI_B,
-            'path_INI_S': path_INI_S,
-            'path_BAT_B': path_BAT_B,
-            'path_BAT_S': path_BAT_S,
-            'path_PRJ_B': path_PRJ_B,
-            'path_PRJ_S': path_PRJ_S,
-            'path_Smk_B': path_Smk_B,
-            'path_Smk_S': path_Smk_S}
+    return {'MdlN_B'        :   MdlN_B,
+            'path_Mdl'      :   path_Mdl,
+            'path_MdlN'     :   path_MdlN,
+            'path_INI_B'    :   path_INI_B,
+            'path_INI_S'    :   path_INI_S,
+            'path_BAT_B'    :   path_BAT_B,
+            'path_BAT_S'    :   path_BAT_S,
+            'path_PRJ_B'    :   path_PRJ_B,
+            'path_PRJ_S'    :   path_PRJ_S,
+            'path_Smk_B'    :   path_Smk_B,
+            'path_Smk_S'    :   path_Smk_S}
 
 def get_MdlN_paths(MdlN_S: str): #666 Can be split into two as both S and B aren't allways needed. Or better, I can make a new function that does that for just 1 run.
     """ Returns a dictionary of useful object (MdlN_B, directories etc.) for a given model. Those need to then be passed to arguments, e.g. path_INI_B = Dft_paths['path_INI_N']."""
@@ -179,19 +180,19 @@ def IDF_to_TIF(path_IDF: str, path_TIF: Optional[str] = None, MtDt: Optional[Dic
 
         N_R, N_C = A.shape
 
-        transform = from_bounds(west=MtDt['xmin'],
-                                south=MtDt['ymin'],
-                                east=MtDt['xmax'],
-                                north=MtDt['ymax'],
-                                width=N_C,
-                                height=N_R)
-        meta = {"driver": "GTiff",
-                "height": N_R,
-                "width": N_C,
-                "count": 1,
-                "dtype": str(A.dtype),
-                "crs": crs,
-                "transform": transform}
+        transform = from_bounds(west    =   MtDt['xmin'],
+                                south   =   MtDt['ymin'],
+                                east    =   MtDt['xmax'],
+                                north   =   MtDt['ymax'],
+                                width   =   N_C,
+                                height  =   N_R)
+        meta = {"driver"    :   "GTiff",
+                "height"    :   N_R,
+                "width"     :   N_C,
+                "count"     :   1,
+                "dtype"     :   str(A.dtype),
+                "crs"       :   crs,
+                "transform" :   transform}
 
         if not path_TIF:
             path_TIF = os.path.splitext(path_IDF)[0] + '.tif'
@@ -199,9 +200,9 @@ def IDF_to_TIF(path_IDF: str, path_TIF: Optional[str] = None, MtDt: Optional[Dic
         with rasterio.open(path_TIF, "w", **meta) as Dst:
             Dst.write(A, 1)  # Write band 1
 
-            Cvt_MtDt = {'COMMENT':(f"Converted from IDF on {Cvt_DT}."
-                                f"Original file created on {Ogn_DT}."
-                                f"Original IDF file location: {path_IDF}")}
+            Cvt_MtDt = {'COMMENT':( f"Converted from IDF on {Cvt_DT}."
+                                    f"Original file created on {Ogn_DT}."
+                                    f"Original IDF file location: {path_IDF}")}
                     
             if MtDt: # If project metadata exists, store it separately
                 project_metadata = {f"USER_{k}": str(v) for k, v in MtDt.items()}
@@ -350,8 +351,7 @@ def add_OBS(MdlN:str, Opt:str="BEGIN OPTIONS\nEND OPTIONS"):
             f2.write(fr' OBS6 .\{path_OBS_Rel} OBS_{OBS_IPF_Fi.split('.')[0]}')
             f2.write('\nEND PACKAGES')
         print(f'{path_OBS} has been added successfully!')
-    print(' finished successfully!')
-    print('-'*80)
+    print(Sign)
 
 def run_Mdl(Se_Ln, DF_Opt): #666 think if this can be improved to take only 1 argument. Function becomes redundant from v.1.0.0, as snakemae files are used instead.
     """Runs the model from PrP, to PrSimP, to PP.
@@ -527,7 +527,7 @@ def RunMng(cores=None, DAG:bool=True):
     if cores is None:
         cores = max(cpu_count() - 2, 1) # Leave 2 cores free for other tasks. If there aren't enough cores available, set to 1.
 
-    print(f"\n{'*'*80}\nRunMng will run all Sims that are queued in the RunLog.\n")
+    print(f"{'*'*80}\nRunMng will run all Sims that are queued in the RunLog.\n")
 
     print(f"--- Reading RunLog ...", end='')
     DF = pd.read_excel(path_RunLog, sheet_name='RunLog').dropna(subset='runN') # Read RunLog
@@ -536,14 +536,14 @@ def RunMng(cores=None, DAG:bool=True):
 
     print('--- Running snakemake files:')
     if DF_q.empty:
-        print("❌ - No queued runs found in the RunLog.")
+        print("\n❌ - No queued runs found in the RunLog.")
     else:
         for i, Se_Ln in DF_q.iterrows():
             path_Smk = os.path.join(path_WS, f'models/{Se_Ln["model alias"]}/code/snakemake/{Se_Ln["MdlN"]}.smk')
             path_log = os.path.join(path_WS, f'models/{Se_Ln["model alias"]}/code/snakemake/log/{Se_Ln["MdlN"]}.log')
             path_DAG = os.path.join(path_WS, f'models/{Se_Ln["model alias"]}/code/snakemake/DAG/DAG_{Se_Ln["MdlN"]}.png')
             print(f"\n{'-'*60}")
-            print(f"-- {os.path.basename(path_Smk)}\n")
+            print(f" -- {os.path.basename(path_Smk)}\n")
 
             try:
                 if DAG:
@@ -558,20 +558,34 @@ def RunMng(cores=None, DAG:bool=True):
 
 def reset_Sim(MdlN: str):
     """Resets the simulation by deleting all files in the Sim folder and clearing the log.""" #666 can later be improved by deleting PoP files too. But that's not needed for now.
+    print(f"{'*'*80}\nResetting the simulation for {MdlN}.\n")
     d_paths = get_MdlN_paths(MdlN) # Get default directories
     path_MdlN = d_paths['path_MdlN']
+    DF = pd.read_csv(path_log) # Read the log file
 
-    if os.path.exists(path_MdlN):
+    if os.path.exists(path_MdlN) or MdlN in DF['MdlN'].values: # Check if the Sim folder exists or if the MdlN is in the log file
+        i = 0
         try:
+            if not os.path.exists(path_MdlN):
+                raise FileNotFoundError(f"{path_MdlN} does not exist.")
             sp.run(f'rmdir /S /Q "{path_MdlN}"', shell=True) # Delete the entire Sim folder
-            DF = pd.read_csv(path_log) # Read the log file
-            DF[ DF['MdlN']!=MdlN ].to_csv(path_log, index=False) # Remove the log entry for this model
-            print(f"✅ - {path_MdlN} has been removed and log has been cleared.")
+            print(f"Sim folder removed successfully.")
+            i += 1
         except:
-            print(f"❌ - failed to reset {path_MdlN}.")
+            print(f"❌ - failed to delete Sim folder.")
+        try:
+            DF[ DF['MdlN']!=MdlN ].to_csv(path_log, index=False) # Remove the log entry for this model
+            print("Log file updated successfully.")
+            i += 1
+        except:
+            print(f"❌ - failed to update log file.")
+        if i==2:
+            print("✅")
+        elif i==1:
+            print("➖ - 1/2 sub-processes was successful.")
     else:
         print(f"❌ - {path_MdlN} does not exist. No need to reset.")
-        exit(1)
+    print(Sign)
         
 # Explore ---------------------------------------------------------------------------------
 def Sim_Cfg(*l_MdlN, path_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
