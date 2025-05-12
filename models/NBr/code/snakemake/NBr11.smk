@@ -2,8 +2,9 @@
 import WS_Mdl as WS
 from WS_Mdl import Up_log
 from snakemake.io import temp
-from datetime import datetime as dt
+from datetime import datetime as DT
 import pathlib
+import os
 
 ## --- Variables ---
 MdlN    =   "NBr11"
@@ -19,23 +20,17 @@ path_MdlN           =   os.path.join(path_Sim, f'{MdlN}')
 path_BAT_RUN        =   os.path.join(path_MdlN, 'RUN.BAT')
 path_OBS, path_NAM  =   [os.path.join(path_MdlN, 'GWF_1', i) for i in [f'MODELINPUT/{MdlN}.OBS', f'{MdlN}.NAM']]
 path_HED, path_CBC  =   [os.path.join(path_MdlN, 'GWF_1/MODELOUTPUT', i) for i in ['HEAD/HEAD.HED', 'BUDGET/BUDGET.CBC']]
-path_LST_Sim        =   os.path.join(path_MdlN, 'MFSIM.NAM')
+path_LST_Sim        =   os.path.join(path_MdlN, 'mfsim.lst')
 
 log_Init_done = f"{path_Smk}/temp/Log_init_done_{MdlN}"
 
 ## --- Rules ---
 rule all: # Final rule
     input:
-        # path_LST_Sim,
-        # path_OBS
-        # path_NAM,
-        # path_BAT_RUN
         path_LST_Sim
         
 # -- PrP --
 rule log_Init: # Sets status to running, and writes other info about therun. Has to complete before anything else.
-    input:
-        path_WS_lib
     output:
         temp(log_Init_done)
     run:
@@ -43,11 +38,11 @@ rule log_Init: # Sets status to running, and writes other info about therun. Has
         device = socket.gethostname()
         d_INI = WS.INI_to_d(WS.get_MdlN_paths(MdlN)['path_INI_S'])
         Up_log(MdlN, {  'End Status':       'Running',
-                        'PrP start DT':     dt.now().strftime("%Y-%m-%d %H:%M:%S"),
+                        'PrP start DT':     DT.now().strftime("%Y-%m-%d %H:%M:%S"),
                         "Sim device name":  device,
                         'Sim Dir':          path_Sim,
-                        '1st SP date':      dt.strptime(d_INI['SDATE'], "%Y%m%d").strftime("%Y-%m-%d"),
-                        'last SP date':     dt.strptime(d_INI['SDATE'], "%Y%m%d").strftime("%Y-%m-%d")})
+                        '1st SP date':      DT.strptime(d_INI['SDATE'], "%Y%m%d").strftime("%Y-%m-%d"),
+                        'last SP date':     DT.strptime(d_INI['SDATE'], "%Y%m%d").strftime("%Y-%m-%d")})
         pathlib.Path(output[0]).touch() # Create the file to mark the rule as done.
 
 rule Mdl_Prep: # Prepares Sim Ins (from Ins) via BAT file.
@@ -72,6 +67,7 @@ rule add_OBS:
         path_OBS
     run:
         WS.add_OBS(MdlN, "BEGIN OPTIONS\n\tDIGITS 6\nEND OPTIONS")
+        # Up_log(MdlN, {  'Add OBS start DT': DT.now().strftime("%Y-%m-%d %H:%M:%S")})
 
 # -- Sim ---
 rule Sim: # Runs the simulation via BAT file.
@@ -80,23 +76,27 @@ rule Sim: # Runs the simulation via BAT file.
     output:
         path_LST_Sim
     run:
-        DT_Sim_Start = dt.now().strftime("%Y-%m-%d %H:%M:%S")
-        Up_log(MdlN, {'Sim start DT': DT_Sim_Start})
+        os.chdir(path_MdlN) # Change directory to the model folder.
+        DT_Sim_Start = DT.now()
+        Up_log(MdlN, {'Sim start DT': DT_Sim_Start.strftime("%Y-%m-%d %H:%M:%S")})
         shell(path_BAT_RUN)
-        Up_log(MdlN, {  'Sim end DT': dt.now().strftime("%Y-%m-%d %H:%M:%S"),
-                        'Sim Duration': str(dt.now() - dt.strptime(DT_Sim_Start, "%Y-%m-%d %H:%M:%S")),
+        Up_log(MdlN, {  'Sim end DT': DT.now().strftime("%Y-%m-%d %H:%M:%S"),
+                        'Sim Dur': WS.get_elapsed_time_str(DT_Sim_Start),
                         'End Status': 'Completed'})
+
+# rule fail: # Runs only if the Sim has failed, to update the log.
+#     input:
+#         path_LST_Sim
+#     output:
+#         temp(path_fail) # need to add this to ruleall
+#     run:
+#         Up_log(MdlN, {  'Sim end DT': DT.now().strftime("%Y-%m-%d %H:%M:%S"),
+#                         'End Status': 'Failed'})
+#         raise Exception("Simulation failed.")
+
 
 # --- Junkyard ---
 # ## Can be replaced by starting PowerShell with this profile, like I've set-up Double Commander to do.
 # rule activate_env:
 #     shell:
 #         activate WS
-
-# rule make_DAG: # Creates a DAG of the workflow.
-#     input:
-#         Log_init_done
-#     output:
-#         f"{path_Smk}/DAG_{MdlN}.png"
-#     run:
-#         shell(f"snakemake --dag -p --dryrun -s {os.path.join(path_Smk, f'{MdlN}.smk')} --cores 1 | dot -Tpng -o {output}")

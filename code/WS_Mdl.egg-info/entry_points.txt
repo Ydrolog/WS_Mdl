@@ -6,6 +6,7 @@ IDF_to_TIF = WS_Mdl.scripts.IDF_to_TIF:main
 RunMng = WS_Mdl.scripts.RunMng:main
 S_from_B = WS_Mdl.scripts.S_from_B:main
 S_from_B_undo = WS_Mdl.scripts.S_from_B_undo:main
+Sim_Cfg = WS_Mdl.scripts.Sim_Cfg:main
 WS_Mdl = WS_Mdl.__main__:main
 map_DVC = WS_Mdl.scripts.map_DVC:main
 map_gitignore = WS_Mdl.scripts.map_gitignore:main

@@ -21,6 +21,7 @@ WS_Mdl/scripts/IDF_to_TIF.py
 WS_Mdl/scripts/RunMng.py
 WS_Mdl/scripts/S_from_B.py
 WS_Mdl/scripts/S_from_B_undo.py
+WS_Mdl/scripts/Sim_Cfg.py
 WS_Mdl/scripts/__init__.py
 WS_Mdl/scripts/map_DVC.py
 WS_Mdl/scripts/map_gitignore.py

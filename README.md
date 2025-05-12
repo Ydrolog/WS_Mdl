@@ -8,13 +8,15 @@ mklink /D C:\OD "C:\Users\<User>\OneDrive - Universiteit Utrecht"<br>
 The symbolic link can be deleted using:<br>
 rmdir C:\OD
 
-All files you need to run the models should be available within this project folder. The only thing you need to install yourself is the python environment - use the guide below.<br>
+All files you need to run the models should be available within this project folder. The only thing you need to install yourself is the python environment - use the guide below.
+
 ---
 
 # Rules and Tips
 - .\Mng\Acronyms.xlsx contains acronyms and rules used throughout the project.  This is not just an acronym archive. It also explains the naming convention used throughout this project, so you need to be familiar with its principles when working on with this folder/project. New acronyms should be registered there. Make sure you read the instructions sheet/tab to understand the acronym system, and follow the system's rules when adding new shortcuts.
 - The folder is version controlled through GitHub (smaller files, e.g. code) (and DVC). You can use "git ls-files" to print all Git tracked files, and "dvc list . --dvc-only --recursive" (warning, it's very slow), to print the files tracked with each of the two methods. Make sure you push at frequent intervals.
 - For good data management, it's advised to include meta-data in data folder that are not self-explanatory. E.g. a read-me file in a folder with IDFs (IDFs may contain spatial data, units etc. but oftentimes their origin/method of production, which can be very useful, is missing from the meta-data).
+
 ---
 
 # Folder structure/description
@@ -28,6 +30,7 @@ the models folder structure is described in more detail below because it is comp
 - other: Files relevant to the project that don't belong in any of the other categories/folders.
 - software: Contains modelling software 
 - SS: Superseded - anything not relevant anymore. (although superseded files can be found in other sub-folders too.
+
 ---
 
 ## Models
@@ -41,6 +44,7 @@ All model sub-folders contain the same folder structure for consistency. Files i
 - PoP: contains a model map for each Sim. Post processed output (PoPed Out) is unique to each Sim. Thus, the baseline MM gets copied and the output layers, which are relatively referenced, automatically get linked to the new Sim's PoPed Out.
 - PrP: Pre-Processing. Can include raw or intermediate data, or even scripts/JupNotes to create the In files.
 - Sim: Simulation folders. 1 for each Sim. Unfortunately, the way iMOD is designed, Mdl Output needs to be saved here. Organized by Sim.
+
 ---
 
 # Python Env installation guide
@@ -50,6 +54,7 @@ mamba env create -f Env_<MdlN>.yml
 
 2. Install this project's python library. this asumes that you've made a symbolic link, as described above. Otherwise replace the path.<br>
 pip install -e C:\OD\WS_Mdl\code (or pip install -e C:\OD\WS_Mdl\code --use-pep517)
+
 ---
 
 ## Terminal tools
@@ -57,6 +62,7 @@ pip install -e C:\OD\WS_Mdl\code (or pip install -e C:\OD\WS_Mdl\code --use-pep5
 There is a list of terminal tools that facilitate common tasks for this project. Those are listed in C:/OD/WS_Mdl/code/setup.py, with a brief description.<br>
 To add another terminal command, you need to add it to the setup file (similar to the other commands), and make a script. Then you need to run step 2 from the python Env installation guide above.<br>
 It's also possible to run python function from C:\OD\WS_Mdl\code\WS_Mdl\WS_Mdl.py via "WS_Mdl <function> <arg1> <arg2> ...".
+
 ---
 
 # Guide to install SW for this project

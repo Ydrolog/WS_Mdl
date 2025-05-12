@@ -15,6 +15,7 @@ import subprocess as sp
 from multiprocessing import Process, cpu_count
 import time
 from colored import fg, bg, attr
+from filelock import FileLock as FL 
 warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl")
 
 ## How to import:
@@ -25,7 +26,9 @@ path_WS = 'C:/OD/WS_Mdl'
 crs = "EPSG:28992"
 path_RunLog = os.path.join(path_WS, 'Mng/WS_RunLog.xlsx')
 path_log = os.path.join(path_WS, 'Mng/log.csv')
-Sign = f"{fg(52)}\nGoodbye, friend.{attr('reset')}\n{'*'*80}\n"
+Pre_Sign = f"{fg("grey_50")}{'*'*80}{attr('reset')}\n\n"
+Sign = f"{fg(52)}\nend_of_transmission\n{fg("grey_50")}{'*'*80}{attr('reset')}\n"
+
 
 ## Can make get paths function that will provide the general directories, like path_WS, path_Mdl. Those can be derived from a folder structure.
 
@@ -33,7 +36,10 @@ Sign = f"{fg(52)}\nGoodbye, friend.{attr('reset')}\n{'*'*80}\n"
 def MdlN_Se_from_RunLog(MdlN):
     """Returns RunLog line that corresponds to MdlN as a S."""
     DF = pd.read_excel(os.path.join(path_WS, 'Mng/WS_RunLog.xlsx'), sheet_name='RunLog')    
-    S = DF.loc[DF['MdlN']==MdlN].squeeze()
+    Se_match = DF.loc[DF['MdlN'] == MdlN]
+    if Se_match.empty:
+        raise ValueError(f'MdlN "{MdlN}" not found in RunLog. {fg('indian_red_1c')}Check the spelling and try again.{attr("reset")}')
+    S = Se_match.squeeze()
     return S
 
 def paths_from_MdlN_Se(S, MdlN_S):
@@ -223,23 +229,22 @@ def IDF_to_TIF(path_IDF: str, path_TIF: Optional[str] = None, MtDt: Optional[Dic
 
 class Vld_Mtc:
     formulas = {
-        "NSE": lambda obs, sim: 1 - (np.sum((obs - sim) ** 2) / np.sum((obs - np.mean(obs)) ** 2)),
-        "RMSE": lambda obs, sim: np.sqrt(mean_squared_error(obs, sim)),
-        "MAE": lambda obs, sim: np.mean(np.abs(obs - sim)),
-        "Correlation": lambda obs, sim: np.corrcoef(obs, sim)[0, 1],  # Pearson correlation coefficient
-        "Bias Ratio": lambda obs, sim: np.mean(sim) / np.mean(obs),  # β = mean(sim) / mean(obs)
-        "Variability Ratio": lambda obs, sim: (np.std(sim) / np.mean(sim)) / (np.std(obs) / np.mean(obs)),  # γ'
-        "KGE": lambda obs, sim: 1 - np.sqrt(
-            (np.corrcoef(obs, sim)[0, 1] - 1) ** 2 + 
-            (np.mean(sim) / np.mean(obs) - 1) ** 2 + 
-            ((np.std(sim) / np.mean(sim)) / (np.std(obs) / np.mean(obs)) - 1) ** 2
-        )  # Kling-Gupta Efficiency (KGE')
+        "NSE"               : lambda obs, sim: 1 - (np.sum((obs - sim) ** 2) / np.sum((obs - np.mean(obs)) ** 2)),
+        "RMSE"              : lambda obs, sim: np.sqrt(mean_squared_error(obs, sim)),
+        "MAE"               : lambda obs, sim: np.mean(np.abs(obs - sim)),
+        "Correlation"       : lambda obs, sim: np.corrcoef(obs, sim)[0, 1],  # Pearson correlation coefficient
+        "Bias Ratio"        : lambda obs, sim: np.mean(sim) / np.mean(obs),  # β = mean(sim) / mean(obs)
+        "Variability Ratio" : lambda obs, sim: (np.std(sim) / np.mean(sim)) / (np.std(obs) / np.mean(obs)),  # γ'
+        "KGE"               : lambda obs, sim: 1 - np.sqrt( (np.corrcoef(obs, sim)[0, 1] - 1) ** 2 + 
+                                                            (np.mean(sim) / np.mean(obs) - 1) ** 2 + 
+                                                            ((np.std(sim) / np.mean(sim)) 
+                                                             / (np.std(obs) / np.mean(obs)) - 1) ** 2)  # Kling-Gupta Efficiency (KGE')
     }
 
     def __init__(self, name, unit):
-        self.name = name
-        self.unit = unit
-        self.formula = self.formulas.get(name)
+        self.name       = name
+        self.unit       = unit
+        self.formula    = self.formulas.get(name)
 
     def compute(self, obs, sim):
         if self.formula:
@@ -251,32 +256,36 @@ class Vld_Mtc:
 def S_from_B(MdlN:str):
     """Copies files that contain Sim options from the B Sim, renames them for the S Sim, and opens them in the default file editor. Assumes default WS_Mdl folder structure (as described in READ_ME.MD)."""
     
-    print('-'*100)
+    print('*'*80)
     d_paths = get_MdlN_paths(MdlN) # Get default directories
     MdlN_B, path_INI_B, path_INI_S, path_BAT_B, path_BAT_S, path_Smk_S, path_Smk_B, path_PRJ_B, path_PRJ_S = (d_paths[k] for k in ['MdlN_B', "path_INI_B", "path_INI_S", "path_BAT_B", "path_BAT_S", "path_Smk_S", "path_Smk_B", "path_PRJ_B", "path_PRJ_S"]) # and pass them to objects that will be used in the function
 
     # Copy .INI, .bat, .prj and make default (those apply to every Sim) modifications
     for path_B, path_S in zip([path_Smk_B, path_BAT_B, path_INI_B], [path_Smk_S, path_BAT_S, path_INI_S]):
-        print(path_B)
-        print(path_S)
-        if not os.path.exists(path_S): # Replace the MdlN of with the new one, so that we don't have to do it manually.
-            sh.copy2(path_B, path_S)
-            with open(path_S, 'r') as f1:
-                contents = f1.read()
-            with open(path_S, 'w') as f2:
-                f2.write(contents.replace(MdlN_B, MdlN))
-            if ".bat" not in path_B.lower():
-                os.startfile(path_S) # Then we'll open it to make any other changes we want to make. Except if it's the BAT file
-            print(f'\u2713 - {path_S.split('/')[-1]} created successfully! (from {path_B})')
-        else:
-            print(f"\u274C - {path_S.split('/')[-1]} already exists. If you want it to be replaced, you have to delete it manually before running this command.")
+        try:
+            if not os.path.exists(path_S): # Replace the MdlN of with the new one, so that we don't have to do it manually.
+                sh.copy2(path_B, path_S)
+                with open(path_S, 'r') as f1:
+                    contents = f1.read()
+                with open(path_S, 'w') as f2:
+                    f2.write(contents.replace(MdlN_B, MdlN))
+                if ".bat" not in path_B.lower():
+                    os.startfile(path_S) # Then we'll open it to make any other changes we want to make. Except if it's the BAT file
+                print(f'\u2713 - {path_S.split('/')[-1]} created successfully! (from {path_B})')
+            else:
+                print(f"\u274C - {path_S.split('/')[-1]} already exists. If you want it to be replaced, you have to delete it manually before running this command.")
+        except Exception as e:
+            print(f"\u274C - Error copying {path_B} to {path_S}: {e}")
 
-    if not os.path.exists(path_PRJ_S): # For the PRJ file, there is no default replacement, so we'll just copy.
-        sh.copy2(path_PRJ_B, path_PRJ_S)
-        os.startfile(path_PRJ_S) # Then we'll open it to make any other changes we want to make.
-        print(f'\u2713 - {path_PRJ_S.split('/')[-1]} created successfully! (from {path_PRJ_B})')        
-    else:
-        print(f"\u274C - {path_PRJ_S.split('/')[-1]} already exists. If you want it to be replaced, you have to delete it manually before running this command.")
+    try:
+        if not os.path.exists(path_PRJ_S): # For the PRJ file, there is no default text replacement to be performed, so we'll just copy.
+            sh.copy2(path_PRJ_B, path_PRJ_S)
+            os.startfile(path_PRJ_S) # Then we'll open it to make any other changes we want to make.
+            print(f'\u2713 - {path_PRJ_S.split('/')[-1]} created successfully! (from {path_PRJ_B})')        
+        else:
+            print(f"\u274C - {path_PRJ_S.split('/')[-1]} already exists. If you want it to be replaced, you have to delete it manually before running this command.")
+    except Exception as e:
+        print(f"\u274C - Error copying {path_PRJ_B} to {path_PRJ_S}: {e}")
     print(Sign)
 
 def S_from_B_undo(MdlN:str):
@@ -443,21 +452,23 @@ def run_Mdl_parallel(DF, DF_Opt):
     for p in processes:
         p.join()
 
-def Up_log(MdlN: str,
-           d_Up: dict,
-           path_log=os.path.join(path_WS, 'Mng/log.csv')):
+def Up_log(MdlN: str, d_Up: dict, path_log=os.path.join(path_WS, 'Mng/log.csv')):
     """Update log.csv based on MdlN and key of `updates`."""
-    DF = pd.read_csv(path_log, index_col=0)  # Assumes log.csv exists.
+    path_lock = path_log + '.lock'  # Create a lock file to prevent concurrent access
+    lock = FL(path_lock)
 
-    for key, value in d_Up.items():  # Update the relevant cells
-        DF.at[MdlN, key] = value
+    with lock:  # Acquire the lock to prevent concurrent access
+        DF = pd.read_csv(path_log, index_col=0)  # Assumes log.csv exists.
 
-    while True: # Wait for file to be closed if it's open
-        try:
-            DF.to_csv(path_log, date_format='%Y-%m-%d %H:%M')  # Save back to CSV
-            break  # Break if successful
-        except PermissionError:
-            input("log.csv is open. Press Enter after closing the file...")  # Wait for user input
+        for key, value in d_Up.items():  # Update the relevant cells
+            DF.at[MdlN, key] = value
+
+        while True: # Wait for file to be closed if it's open
+            try:
+                DF.to_csv(path_log, date_format='%Y-%m-%d %H:%M')  # Save back to CSV
+                break  # Break if successful
+            except PermissionError:
+                input("log.csv is open. Press Enter after closing the file...")  # Wait for user input
 
 def DA_to_TIF(DA, path_Out, d_MtDt, crs=crs, _print=False):
     """ Write a 2D xarray.DataArray (shape = [y, x]) to a single-band GeoTIFF.
@@ -520,14 +531,13 @@ def DA_to_MBTIF(DA, path_Out, d_MtDt, crs=crs, _print=False):
             
     if _print:
         print(f"DA_to_MBTIF finished successfully for: {path_Out}")
-# ---------------------------------------------------------------------------------
 
 def RunMng(cores=None, DAG:bool=True):
     """Read the RunLog, and for each queued model, run the corresponding Snakemake file."""
     if cores is None:
         cores = max(cpu_count() - 2, 1) # Leave 2 cores free for other tasks. If there aren't enough cores available, set to 1.
 
-    print(f"{'*'*80}\nRunMng will run all Sims that are queued in the RunLog.\n")
+    print(f"{Pre_Sign}RunMng will run all Sims that are queued in the RunLog.\n")
 
     print(f"--- Reading RunLog ...", end='')
     DF = pd.read_excel(path_RunLog, sheet_name='RunLog').dropna(subset='runN') # Read RunLog
@@ -540,10 +550,10 @@ def RunMng(cores=None, DAG:bool=True):
     else:
         for i, Se_Ln in DF_q.iterrows():
             path_Smk = os.path.join(path_WS, f'models/{Se_Ln["model alias"]}/code/snakemake/{Se_Ln["MdlN"]}.smk')
-            path_log = os.path.join(path_WS, f'models/{Se_Ln["model alias"]}/code/snakemake/log/{Se_Ln["MdlN"]}.log')
+            path_log = os.path.join(path_WS, f'models/{Se_Ln["model alias"]}/code/snakemake/log/{Se_Ln["MdlN"]}_{DT.now().strftime('%Y%m%d_%H%M%S')}.log')
             path_DAG = os.path.join(path_WS, f'models/{Se_Ln["model alias"]}/code/snakemake/DAG/DAG_{Se_Ln["MdlN"]}.png')
             print(f"\n{'-'*60}")
-            print(f" -- {os.path.basename(path_Smk)}\n")
+            print(f" -- {fg('green')}{os.path.basename(path_Smk)}{attr('reset')}\n")
 
             try:
                 if DAG:
@@ -557,36 +567,49 @@ def RunMng(cores=None, DAG:bool=True):
     print(Sign)
 
 def reset_Sim(MdlN: str):
-    """Resets the simulation by deleting all files in the Sim folder and clearing the log.""" #666 can later be improved by deleting PoP files too. But that's not needed for now.
-    print(f"{'*'*80}\nResetting the simulation for {MdlN}.\n")
-    d_paths = get_MdlN_paths(MdlN) # Get default directories
-    path_MdlN = d_paths['path_MdlN']
-    DF = pd.read_csv(path_log) # Read the log file
+    """Resets the simulation by deleting all files in the Sim folder and clearing log.csv. The only thing remaining is the Smk.log file.""" #666 can later be improved by deleting PoP files too. But that's not needed for now.
+    permission = input(f"Are you sure you want to reset the simulation for {MdlN}? (y/n): ").strip().lower()
+    print(f"{Pre_Sign}Resetting the simulation for {MdlN}.\n")
+    if permission == 'y':
+        d_paths = get_MdlN_paths(MdlN) # Get default directories
+        path_MdlN = d_paths['path_MdlN']
+        DF = pd.read_csv(path_log) # Read the log file
 
-    if os.path.exists(path_MdlN) or MdlN in DF['MdlN'].values: # Check if the Sim folder exists or if the MdlN is in the log file
-        i = 0
-        try:
-            if not os.path.exists(path_MdlN):
-                raise FileNotFoundError(f"{path_MdlN} does not exist.")
-            sp.run(f'rmdir /S /Q "{path_MdlN}"', shell=True) # Delete the entire Sim folder
-            print(f"Sim folder removed successfully.")
-            i += 1
-        except:
-            print(f"❌ - failed to delete Sim folder.")
-        try:
-            DF[ DF['MdlN']!=MdlN ].to_csv(path_log, index=False) # Remove the log entry for this model
-            print("Log file updated successfully.")
-            i += 1
-        except:
-            print(f"❌ - failed to update log file.")
-        if i==2:
-            print("✅")
-        elif i==1:
-            print("➖ - 1/2 sub-processes was successful.")
+        if os.path.exists(path_MdlN) or MdlN in DF['MdlN'].values: # Check if the Sim folder exists or if the MdlN is in the log file
+            i = 0
+            try:
+                if not os.path.exists(path_MdlN):
+                    raise FileNotFoundError(f"{path_MdlN} does not exist.")
+                sp.run(f'rmdir /S /Q "{path_MdlN}"', shell=True) # Delete the entire Sim folder
+                print(f"✅ - Sim folder removed successfully.")
+                i += 1
+            except:
+                print(f"❌ - failed to delete Sim folder.")
+            try:
+                DF[ DF['MdlN']!=MdlN ].to_csv(path_log, index=False) # Remove the log entry for this model
+                print("✅ - Log file updated successfully.")
+                i += 1
+            except:
+                print(f"❌ - failed to update log file.")
+            if i==2:
+                print("\n✅ - ALL files were successfully removed.")
+            elif i==1:
+                print("➖ - 1/2 sub-processes was successful.")
+        else:
+            print(f"❌ - {path_MdlN} does not exist. No need to reset.")
     else:
-        print(f"❌ - {path_MdlN} does not exist. No need to reset.")
+        print(f"❌ - Reset cancelled by user (you).")
     print(Sign)
-        
+
+def get_elapsed_time_str(start_time: float) -> str:
+    s = int((DT.now() - start_time).total_seconds())
+    d, h, m, s = s // 86400, (s // 3600) % 24, (s // 60) % 60, s % 60
+
+    if d:   return f"{d}-{h:02}:{m:02}:{s:02}"
+    return f"{h:02}:{m:02}:{s:02}"
+    
+#---------------------------------------------------------------------------------
+
 # Explore ---------------------------------------------------------------------------------
 def Sim_Cfg(*l_MdlN, path_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
     print(f"\n{'-'*100}\nOpening all configuration files for specified runs with the default program.\nIt's assumed that Notepad++ is installed in: {path_NP}.\nIf false, provide the correct path to Notepad++ (or another text editor) as the last argument to this function.\n")
