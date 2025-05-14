@@ -42,7 +42,7 @@ rule log_Init: # Sets status to running, and writes other info about therun. Has
                         "Sim device name":  device,
                         'Sim Dir':          path_Sim,
                         '1st SP date':      DT.strptime(d_INI['SDATE'], "%Y%m%d").strftime("%Y-%m-%d"),
-                        'last SP date':     DT.strptime(d_INI['SDATE'], "%Y%m%d").strftime("%Y-%m-%d")})
+                        'last SP date':     DT.strptime(d_INI['EDATE'], "%Y%m%d").strftime("%Y-%m-%d")})
         pathlib.Path(output[0]).touch() # Create the file to mark the rule as done.
 
 rule Mdl_Prep: # Prepares Sim Ins (from Ins) via BAT file.
