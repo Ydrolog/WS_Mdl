@@ -568,7 +568,7 @@ def RunMng(cores=None, DAG:bool=True):
 
 def reset_Sim(MdlN: str):
     """Resets the simulation by deleting all files in the Sim folder and clearing log.csv. The only thing remaining is the Smk.log file.""" #666 can later be improved by deleting PoP files too. But that's not needed for now.
-    permission = input(f"Are you sure you want to reset the simulation for {MdlN}? (y/n): ").strip().lower()
+    permission = input(f"This will delete the Sim/{MdlN} folder and clear the corresponding line of the log.csv. Are you sure you want to proceed? (y/n): ").strip().lower()
     print(f"{Pre_Sign}Resetting the simulation for {MdlN}.\n")
     if permission == 'y':
         d_paths = get_MdlN_paths(MdlN) # Get default directories
