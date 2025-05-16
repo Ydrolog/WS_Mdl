@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import sys
-from WS_Mdl import IDF_to_TIF
+from WS_Mdl.geo import IDF_to_TIF
 
 def main():
     if len(sys.argv) < 2:

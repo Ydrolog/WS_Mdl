@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import sys
-from WS_Mdl import reset_Sim  # Adjust import as needed
+from WS_Mdl.utils import reset_Sim  # Adjust import as needed
 
 def main():
     if len(sys.argv) < 2:

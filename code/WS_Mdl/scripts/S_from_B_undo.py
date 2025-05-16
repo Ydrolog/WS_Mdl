@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import sys
-from WS_Mdl import S_from_B_undo
+from WS_Mdl.utils import S_from_B_undo
 
 def main():
     if len(sys.argv) < 2:

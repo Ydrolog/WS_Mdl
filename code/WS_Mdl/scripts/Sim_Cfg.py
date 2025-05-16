@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import sys
-from WS_Mdl import Sim_Cfg  # Adjust import as needed
+from WS_Mdl.utils import Sim_Cfg  # Adjust import as needed
 
 def main():
     if len(sys.argv) < 2:
