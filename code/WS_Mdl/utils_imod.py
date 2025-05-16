@@ -7,6 +7,8 @@ import numpy as np
 import subprocess as sp
 from multiprocessing import Process, cpu_count
 import re
+import pandas as pd
+from tqdm import tqdm # Track progress of the loop
 
 # PRJ related ----------------------------------------------------------------------------------------------------------------------
 def read_PRJ_with_OBS(path_PRJ):
@@ -221,4 +223,20 @@ def run_Mdl_parallel(DF, DF_Opt):
 
     for p in processes:
         p.join()
+#-----------------------------------------------------------------------------------------------------------------------------------
+
+# IDF processing -------------------------------------------------------------------------------------------------------------------
+def IDFs_to_DF(S_path_IDF):
+    """ Reads all .IDF Fis listed in a S_Fi_IDF into DF['IDF']. Returns the DF containing Fi_names and the IDF contents.
+        path_Fo is the path of the Fo where th files are stored in."""
+
+    DF = pd.DataFrame({'path': S_path_IDF, 'IDF': None})
+
+    for i, p in tqdm(DF['path'].items(), desc="Loading .IDF files", total=len(DF['path'])):
+        if p.endswith('.IDF'):  # Ensure only .IDF files are processed
+            try:    # Read the .IDF file into an xA DataA
+                DF.at[i, 'IDF'] = imod.idf.read( p )
+            except Exception as e:
+                print(f"Error reading {p}: {e}")
+    return DF
 #-----------------------------------------------------------------------------------------------------------------------------------

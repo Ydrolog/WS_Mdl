@@ -36,6 +36,8 @@ def paths_from_MdlN_Se(S, MdlN_S):
 
     path_Mdl    =   os.path.join(path_WS, f'models/{Mdl}')
     path_MdlN   =   os.path.join(path_Mdl, f"Sim/{MdlN_S}")
+    path_MdlN_B =   os.path.join(path_Mdl, f"Sim/{MdlN_B}")
+    path_PoP    =   os.path.join(path_Mdl, 'PoP')
     path_INI_B  =   os.path.join(path_Mdl, f'code/Mdl_Prep/Mdl_Prep_{MdlN_B}.ini')
     path_BAT_B  =   os.path.join(path_Mdl, f'code/Mdl_Prep/Mdl_Prep_{MdlN_B}.bat')
     path_PRJ_B  =   os.path.join(path_Mdl, f'In/PRJ/{MdlN_B}.prj')
@@ -48,6 +50,8 @@ def paths_from_MdlN_Se(S, MdlN_S):
     return {'MdlN_B'        :   MdlN_B,
             'path_Mdl'      :   path_Mdl,
             'path_MdlN'     :   path_MdlN,
+            'path_MdlN_B'   :   path_MdlN_B,
+            'path_PoP'      :   path_PoP,
             'path_INI_B'    :   path_INI_B,
             'path_INI_S'    :   path_INI_S,
             'path_BAT_B'    :   path_BAT_B,

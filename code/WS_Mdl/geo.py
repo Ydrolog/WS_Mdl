@@ -62,6 +62,47 @@ def IDF_to_TIF(path_IDF: str, path_TIF: Optional[str] = None, MtDt: Optional[Dic
 #     DA = DA.rio.write_crs(crs)  # Set Dutch RD New projection
 #     DA.rio.to_raster(Dir_Out)
 
+def A_to_Raster_n_IDF(A, IDF_MtDt, path_Out, field='HD_L1', crs="EPSG:4326"):
+    # 1. Write a GeoTIFF raster with rasterio
+    nrows, ncols = A.shape
+
+    transform = from_bounds(
+        west=IDF_MtDt['xmin'],
+        south=IDF_MtDt['ymin'],
+        east=IDF_MtDt['xmax'],
+        north=IDF_MtDt['ymax'],
+        width=ncols,
+        height=nrows)
+
+    meta = {
+        "driver": "GTiff",
+        "height": nrows,
+        "width": ncols,
+        "count": 1,
+        "dtype": str(A.dtype),
+        "crs": crs,        # use your known CRS here
+        "transform": transform,
+    }
+
+    tif_path = path_Out + ".tif"
+    with rasterio.open(tif_path, "w", **meta) as dst:
+        dst.write(A, 1)  # Write band 1
+    print(f"{tif_path} has been saved (GeoTIFF).")
+
+    # 2. Write the same data as an iMOD IDF
+    #    Create xarray DataArray with spatial coords
+    x = IDF_MtDt['xmin'] + IDF_MtDt['dx'] * (0.5 + np.arange(ncols))
+    # Common convention is top-to-bottom descending:
+    # but if your 'ymax' < 'ymin', you'll invert accordingly.
+    y = IDF_MtDt['ymax'] - IDF_MtDt['dy'] * (0.5 + np.arange(nrows))
+
+    DA = xr.DataArray(A, coords={"y": y, "x": x}, dims=["y", "x"], name=field)
+
+    # Write the IDF
+    idf_path = path_Out + ".idf"
+    imod.idf.write(idf_path, DA)
+    print(f"{idf_path} has been saved (iMOD IDF).")
+
 def DA_to_TIF(DA, path_Out, d_MtDt, crs=crs, _print=False):
     """ Write a 2D xarray.DataArray (shape = [y, x]) to a single-band GeoTIFF.
     - DA: 2D xarray.DataArray with shape [y, x]
