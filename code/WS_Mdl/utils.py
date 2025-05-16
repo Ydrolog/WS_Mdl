@@ -8,6 +8,8 @@ from filelock import FileLock as FL
 import subprocess as sp
 from datetime import datetime as DT
 from multiprocessing import cpu_count
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl.worksheet._read_only")
 
 #-----------------------------------------------------------------------------------------------------------------------------------
 Pre_Sign = f"{fg("grey_50")}{'*'*80}{attr('reset')}\n\n"
