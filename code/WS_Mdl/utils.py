@@ -1,5 +1,6 @@
 # ***** Utility functions to facilitate more robust modelling. *****
 import os
+from pathlib import Path
 import pandas as pd
 from colored import fg, bg, attr
 import tempfile
@@ -114,6 +115,16 @@ def Sim_Cfg(*l_MdlN, path_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
     sp.Popen([path_NP] + l_files)
     for f in l_files:
         print(f'\u2713 - {f}')
+
+def HD_Out_IDF_to_DF(path):
+    """Reads IDF files from the given path and returns a DataFrame with the file names and their corresponding parameters. Parameters are extracted from filnames, based on a standard format. Hence, don't use this for other groups of IDF files, unless you're sure they follow the same format.""" #666 can be generalized later, to work on all sorts of IDF files.
+    Se_Fi_path = pd.Series([os.path.join(path, i) for i in os.listdir(path) if i.lower().endswith('.idf')])
+    DF = pd.DataFrame({'path':Se_Fi_path, 'file': Se_Fi_path.apply(lambda x: os.path.basename(x))})
+    DF[['type', 'year', 'month', 'day', 'L']] = DF['file'].str.extract(
+        r'^(?P<type>[A-Z]+)_(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})\d{6}_L(?P<L>\d+)\.IDF$'
+        ).astype({'year': int, 'month': int, 'day': int, 'L': int})
+    # DF.to_csv(os.path.join(path, 'contents.csv'), index=False)
+    return DF
 # ----------------------------------------------------------------------------------------------------------------------------------
 
 # Sim Prep + Run -------------------------------------------------------------------------------------------------------------------

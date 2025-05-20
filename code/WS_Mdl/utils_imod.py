@@ -2,7 +2,7 @@
 import os
 import tempfile
 import imod
-from WS_Mdl.utils import Sign, Pre_Sign, read_IPF_Spa, INI_to_d, get_MdlN_paths
+from .utils import Sign, Pre_Sign, read_IPF_Spa, INI_to_d, get_MdlN_paths
 import numpy as np
 import subprocess as sp
 from multiprocessing import Process, cpu_count

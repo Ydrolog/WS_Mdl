@@ -1,12 +1,16 @@
 # ***** Geospatial Functions *****
 import os
 from .utils import Sign, Pre_Sign
+from . import utils as Utl
 import rasterio
 from rasterio.transform import from_bounds
 import imod
 from datetime import datetime as DT
 from typing import Optional, Dict
+import numpy as np
+import xarray as xr
 crs = "EPSG:28992"
+from concurrent.futures import ProcessPoolExecutor as PPE
 
 # Convert --------------------------------------------------------------------------------------------------------------------------
 def IDF_to_TIF(path_IDF: str, path_TIF: Optional[str] = None, MtDt: Optional[Dict] = None, crs=crs):
@@ -164,4 +168,43 @@ def DA_to_MBTIF(DA, path_Out, d_MtDt, crs=crs, _print=False):
             
     if _print:
         print(f"DA_to_MBTIF finished successfully for: {path_Out}")
+
+def HD_IDF_Mo_Avg_to_MBTIF(MdlN: str, N_cores=None, crs=crs):
+    """Reads Out IDF files from the model directory and calculates Mo Avg for each L. Saves them as MultiBand TIF files - each band representing the Mo Avg HD for each L."""
+
+    d_paths = Utl.get_MdlN_paths(MdlN)
+    # Mdl = ''.join([i for i in MdlN if i.isalpha()])
+    path_PoP, path_MdlN = [ d_paths[v] for v in ['path_PoP', 'path_MdlN'] ]
+    path_HD = os.path.join(path_MdlN, 'GWF_1/MODELOUTPUT/HEAD/HEAD')
+
+    DF = Utl.HD_Out_IDF_to_DF(path_HD) # Read the IDF files to a DataFrame
+    DF_grouped = DF.groupby(['year', 'month'])['path']
+
+    path_Mo_AVG_Fo = os.path.join(path_PoP, f'Out/{MdlN}/HD/Mo_AVG') # path where Mo AVG files are stored
+    os.makedirs(path_Mo_AVG_Fo, exist_ok=True) # Create the directory if it doesn't exist
+
+    if N_cores is None:
+        N_cores = max(os.cpu_count() - 2, 1) # Leave 2 cores free for other tasks. If there aren't enough cores available, set to 1.
+
+    start = DT.now() # Start time
+    with PPE(max_workers=N_cores) as E:
+        futures = [E.submit(_HD_IDF_Mo_Avg_to_MBTIF_process_Mo, year, month, list(paths), MdlN, path_Mo_AVG_Fo, path_HD, crs)
+                   for (year, month), paths in DF_grouped]
+        for f in futures:
+            print('\t', f.result(), '- Elapsed time (from start):', DT.now() - start)
+
+    print('*** {MdlN} *** - Total elapsed:', DT.now() - start)
+
+def _HD_IDF_Mo_Avg_to_MBTIF_process_Mo(year, month, paths, MdlN, path_Mo_AVG_Fo, path_HD, crs):
+    XA = imod.formats.idf.open(list(paths)) # Read the files to an Xarray
+    XA_mean = XA.mean(dim='time') # Calculate monthly mean
+
+    path_Out = os.path.join(path_Mo_AVG_Fo, f'HD_AVG_{year}_{month:02d}_{MdlN}.tif') # Create the output path
+
+    d_MtDt = {str(L): {'layer': L} for L in XA.coords['layer'].values}
+    d_MtDt['all'] = {'parameters': XA.coords,
+                     'Description': f'Monthly mean GW heads per layer for {year}-{month:02d}, produced by aggregating {MdlN} output IDF files. Output IDF files are in {path_HD}.'}
+    DA_to_MBTIF(XA_mean, path_Out, d_MtDt, crs=crs, _print=False)
+    return f"*** {MdlN} *** - {year}-{month:02d} ✔ "
+
 # ----------------------------------------------------------------------------------------------------------------------------------
