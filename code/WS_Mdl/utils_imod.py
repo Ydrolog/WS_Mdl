@@ -78,7 +78,7 @@ def add_OBS(MdlN:str, Opt:str="BEGIN OPTIONS\nEND OPTIONS"):
     print(Pre_Sign)
     print('Running add_OBS ...')
     d_paths = get_MdlN_paths(MdlN) # Get default directories
-    path_MdlN, path_INI, path_PRJ = (d_paths[k] for k in ['path_MdlN', "path_INI_S", "path_PRJ_S"]) # and pass them to objects that will be used in the function
+    path_MdlN, path_INI, path_PRJ = (d_paths[k] for k in ['path_MdlN', "path_INI", "path_PRJ"]) # and pass them to objects that will be used in the function
     
     # Extract info from INI file.
     d_INI = INI_to_d(path_INI)
@@ -145,7 +145,7 @@ def run_Mdl(Se_Ln, DF_Opt): #666 think if this can be improved to take only 1 ar
 
     # Get default directories
     d_paths = get_MdlN_paths(MdlN)
-    MdlN_B, path_Mdl, path_MdlN, path_INI, path_BAT, path_PRJ = (d_paths[k] for k in ['MdlN_B', 'path_Mdl', 'path_MdlN', "path_INI_S", "path_BAT_S", "path_PRJ_S"])
+    MdlN_B, path_Mdl, path_MdlN, path_INI, path_BAT, path_PRJ = (d_paths[k] for k in ['MdlN_B', 'path_Mdl', 'path_MdlN', "path_INI", "path_BAT", "path_PRJ"])
         
     # Define commands and their working directories
     d_Cmds = {path_BAT: os.path.dirname(path_BAT),
@@ -191,7 +191,7 @@ def run_Mdl_print_only(Se_Ln, DF_Opt): #666 think if this can be improved to tak
 
     # Get default directories
     d_paths = get_MdlN_paths(MdlN)
-    MdlN_B, path_Mdl, path_MdlN, path_INI, path_BAT, path_PRJ = (d_paths[k] for k in ['MdlN_B', 'path_Mdl', 'path_MdlN', "path_INI_S", "path_BAT_S", "path_PRJ_S"])
+    MdlN_B, path_Mdl, path_MdlN, path_INI, path_BAT, path_PRJ = (d_paths[k] for k in ['MdlN_B', 'path_Mdl', 'path_MdlN', "path_INI", "path_BAT", "path_PRJ"])
         
     # Define commands and their working directories
     d_Cmds = {path_BAT: os.path.dirname(path_BAT),

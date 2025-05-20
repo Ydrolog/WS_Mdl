@@ -30,41 +30,46 @@ def MdlN_Se_from_RunLog(MdlN): # Can be made faster. May need to make excel expo
     S = Se_match.squeeze()
     return S
 
-def paths_from_MdlN_Se(S, MdlN_S):
+def paths_from_MdlN_Se(S, MdlN):
     """Takes in S, returns relevant paths."""
     Mdl, SimN_B = S[['model alias', 'B SimN']]
     MdlN_B = Mdl + str(SimN_B)
 
-    path_Mdl    =   os.path.join(path_WS, f'models/{Mdl}')
-    path_MdlN   =   os.path.join(path_Mdl, f"Sim/{MdlN_S}")
-    path_MdlN_B =   os.path.join(path_Mdl, f"Sim/{MdlN_B}")
-    path_PoP    =   os.path.join(path_Mdl, 'PoP')
-    path_INI_B  =   os.path.join(path_Mdl, f'code/Mdl_Prep/Mdl_Prep_{MdlN_B}.ini')
-    path_BAT_B  =   os.path.join(path_Mdl, f'code/Mdl_Prep/Mdl_Prep_{MdlN_B}.bat')
-    path_PRJ_B  =   os.path.join(path_Mdl, f'In/PRJ/{MdlN_B}.prj')
-    path_Smk_B  =   os.path.join(path_Mdl, f'code/snakemake/{MdlN_B}.smk')
-    path_INI_S  =   path_INI_B.replace(MdlN_B, MdlN_S)
-    path_BAT_S  =   path_BAT_B.replace(MdlN_B, MdlN_S)
-    path_PRJ_S  =   path_PRJ_B.replace(MdlN_B, MdlN_S)
-    path_Smk_S  =   path_Smk_B.replace(MdlN_B, MdlN_S)
+    path_Mdl            =   os.path.join(path_WS, f'models/{Mdl}')
+    path_MdlN           =   os.path.join(path_Mdl, f"Sim/{MdlN}")
+    path_PoP            =   os.path.join(path_Mdl, 'PoP')
+    path_PoP_Out_MdlN   =   os.path.join(path_PoP, 'Out', MdlN)
+    path_INI            =   os.path.join(path_Mdl, f'code/Mdl_Prep/Mdl_Prep_{MdlN}.ini')
+    path_BAT            =   os.path.join(path_Mdl, f'code/Mdl_Prep/Mdl_Prep_{MdlN}.bat')
+    path_PRJ            =   os.path.join(path_Mdl, f'In/PRJ/{MdlN}.prj')
+    path_Smk            =   os.path.join(path_Mdl, f'code/snakemake/{MdlN}.smk')
+    path_MdlN_B         =   path_MdlN.replace(MdlN, MdlN_B)
+    path_PoP_Out_MdlN_B =   path_PoP_Out_MdlN.replace(MdlN, MdlN_B)
+    path_INI_B          =   path_INI.replace(MdlN, MdlN_B)
+    path_BAT_B          =   path_BAT.replace(MdlN, MdlN_B)
+    path_PRJ_B          =   path_PRJ.replace(MdlN, MdlN_B)
+    path_Smk_B          =   path_Smk.replace(MdlN, MdlN_B)
     
-    return {'MdlN_B'        :   MdlN_B,
-            'path_Mdl'      :   path_Mdl,
-            'path_MdlN'     :   path_MdlN,
-            'path_MdlN_B'   :   path_MdlN_B,
-            'path_PoP'      :   path_PoP,
-            'path_INI_B'    :   path_INI_B,
-            'path_INI_S'    :   path_INI_S,
-            'path_BAT_B'    :   path_BAT_B,
-            'path_BAT_S'    :   path_BAT_S,
-            'path_PRJ_B'    :   path_PRJ_B,
-            'path_PRJ_S'    :   path_PRJ_S,
-            'path_Smk_B'    :   path_Smk_B,
-            'path_Smk_S'    :   path_Smk_S}
+    return {'MdlN_B'                :   MdlN_B,
+            'path_Mdl'              :   path_Mdl,
+            'path_PoP'              :   path_PoP,
+            'path_MdlN'             :   path_MdlN,
+            'path_PoP_Out_MdlN'     :   path_PoP_Out_MdlN,
+            'path_INI'              :   path_INI,
+            'path_BAT'              :   path_BAT,
+            'path_PRJ'              :   path_PRJ,
+            'path_Smk'              :   path_Smk,
+            'path_MdlN_B'           :   path_MdlN_B,
+            'path_PoP_Out_MdlN_B'   :   path_PoP_Out_MdlN_B,
+            'path_INI_B'            :   path_INI_B,
+            'path_BAT_B'            :   path_BAT_B,
+            'path_PRJ_B'            :   path_PRJ_B,
+            'path_Smk_B'            :   path_Smk_B
+            }
 
-def get_MdlN_paths(MdlN_S: str): #666 Can be split into two as both S and B aren't allways needed. Or better, I can make a new function that does that for just 1 run.
+def get_MdlN_paths(MdlN: str): #666 Can be split into two as both S and B aren't allways needed. Or better, I can make a new function that does that for just 1 run.
     """ Returns a dictionary of useful object (MdlN_B, directories etc.) for a given model. Those need to then be passed to arguments, e.g. path_INI_B = Dft_paths['path_INI_N']."""
-    return paths_from_MdlN_Se( MdlN_Se_from_RunLog((MdlN_S)), MdlN_S )
+    return paths_from_MdlN_Se( MdlN_Se_from_RunLog((MdlN)), MdlN )
 # ----------------------------------------------------------------------------------------------------------------------------------
 
 # READ FILES -----------------------------------------------------------------------------------------------------------------------
@@ -109,7 +114,7 @@ def Mdl_Dmns_from_INI(path_INI): # 666 Can be improved. It should take a MdlN in
 def Sim_Cfg(*l_MdlN, path_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
     print(f"\n{'-'*100}\nOpening all configuration files for specified runs with the default program.\nIt's assumed that Notepad++ is installed in: {path_NP}.\nIf false, provide the correct path to Notepad++ (or another text editor) as the last argument to this function.\n")
     
-    l_keys = ['path_Smk_S', 'path_BAT_S', 'path_INI_S', 'path_PRJ_S']
+    l_keys = ['path_Smk', 'path_BAT', 'path_INI', 'path_PRJ']
     l_paths = [get_MdlN_paths(MdlN) for MdlN in l_MdlN]
     l_files = [paths[k] for k in l_keys for paths in l_paths]
     sp.Popen([path_NP] + l_files)
@@ -132,10 +137,10 @@ def S_from_B(MdlN:str):
     """Copies files that contain Sim options from the B Sim, renames them for the S Sim, and opens them in the default file editor. Assumes default WS_Mdl folder structure (as described in READ_ME.MD)."""    
     print(Pre_Sign)
     d_paths = get_MdlN_paths(MdlN) # Get default directories
-    MdlN_B, path_INI_B, path_INI_S, path_BAT_B, path_BAT_S, path_Smk_S, path_Smk_B, path_PRJ_B, path_PRJ_S = (d_paths[k] for k in ['MdlN_B', "path_INI_B", "path_INI_S", "path_BAT_B", "path_BAT_S", "path_Smk_S", "path_Smk_B", "path_PRJ_B", "path_PRJ_S"]) # and pass them to objects that will be used in the function
+    MdlN_B, path_INI_B, path_INI, path_BAT_B, path_BAT, path_Smk, path_Smk_B, path_PRJ_B, path_PRJ = (d_paths[k] for k in ['MdlN_B', "path_INI_B", "path_INI", "path_BAT_B", "path_BAT", "path_Smk", "path_Smk_B", "path_PRJ_B", "path_PRJ"]) # and pass them to objects that will be used in the function
 
     # Copy .INI, .bat, .prj and make default (those apply to every Sim) modifications
-    for path_B, path_S in zip([path_Smk_B, path_BAT_B, path_INI_B], [path_Smk_S, path_BAT_S, path_INI_S]):
+    for path_B, path_S in zip([path_Smk_B, path_BAT_B, path_INI_B], [path_Smk, path_BAT, path_INI]):
         try:
             if not os.path.exists(path_S): # Replace the MdlN of with the new one, so that we don't have to do it manually.
                 sh.copy2(path_B, path_S)
@@ -152,25 +157,25 @@ def S_from_B(MdlN:str):
             print(f"\u274C - Error copying {path_B} to {path_S}: {e}")
 
     try:
-        if not os.path.exists(path_PRJ_S): # For the PRJ file, there is no default text replacement to be performed, so we'll just copy.
-            sh.copy2(path_PRJ_B, path_PRJ_S)
-            os.startfile(path_PRJ_S) # Then we'll open it to make any other changes we want to make.
-            print(f'\u2713 - {path_PRJ_S.split('/')[-1]} created successfully! (from {path_PRJ_B})')        
+        if not os.path.exists(path_PRJ): # For the PRJ file, there is no default text replacement to be performed, so we'll just copy.
+            sh.copy2(path_PRJ_B, path_PRJ)
+            os.startfile(path_PRJ) # Then we'll open it to make any other changes we want to make.
+            print(f'\u2713 - {path_PRJ.split('/')[-1]} created successfully! (from {path_PRJ_B})')        
         else:
-            print(f"\u274C - {path_PRJ_S.split('/')[-1]} already exists. If you want it to be replaced, you have to delete it manually before running this command.")
+            print(f"\u274C - {path_PRJ.split('/')[-1]} already exists. If you want it to be replaced, you have to delete it manually before running this command.")
     except Exception as e:
-        print(f"\u274C - Error copying {path_PRJ_B} to {path_PRJ_S}: {e}")
+        print(f"\u274C - Error copying {path_PRJ_B} to {path_PRJ}: {e}")
     print(Sign)
 
 def S_from_B_undo(MdlN:str):
     """Will undo S_from_B by deletting S files"""
     print(Pre_Sign)
     d_paths = get_MdlN_paths(MdlN) # Get default directories
-    MdlN_B, path_INI_B, path_INI_S, path_BAT_B, path_BAT_S, path_Smk_S, path_Smk_B, path_PRJ_B, path_PRJ_S = (d_paths[k] for k in ['MdlN_B', "path_INI_B", "path_INI_S", "path_BAT_B", "path_BAT_S", "path_Smk_S", "path_Smk_B", "path_PRJ_B", "path_PRJ_S"]) # and pass them to objects that will be used in the function
+    MdlN_B, path_INI_B, path_INI, path_BAT_B, path_BAT, path_Smk, path_Smk_B, path_PRJ_B, path_PRJ = (d_paths[k] for k in ['MdlN_B', "path_INI_B", "path_INI", "path_BAT_B", "path_BAT", "path_Smk", "path_Smk_B", "path_PRJ_B", "path_PRJ"]) # and pass them to objects that will be used in the function
 
     confirm = input(f"Are you sure you want to delete the Cfg files (.smk, .ini, .bat, .prj) for {MdlN}? (y/n): ").strip().lower()
     if confirm == 'y':
-        for path_S in [path_Smk_S, path_BAT_S, path_INI_S, path_PRJ_S]:
+        for path_S in [path_Smk, path_BAT, path_INI, path_PRJ]:
             os.remove(path_S) # Delete the S files
             print(f'\u2713 - {path_S.split("/")[-1]} deleted successfully!')
     print(Sign)
