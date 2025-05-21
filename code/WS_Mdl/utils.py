@@ -34,41 +34,30 @@ def paths_from_MdlN_Se(S, MdlN):
     """Takes in S, returns relevant paths."""
     Mdl, SimN_B = S[['model alias', 'B SimN']]
     MdlN_B = Mdl + str(SimN_B)
-
-    path_Mdl            =   os.path.join(path_WS, f'models/{Mdl}')
-    path_MdlN           =   os.path.join(path_Mdl, f"Sim/{MdlN}")
-    path_PoP            =   os.path.join(path_Mdl, 'PoP')
-    path_PoP_Out_MdlN   =   os.path.join(path_PoP, 'Out', MdlN)
-    path_INI            =   os.path.join(path_Mdl, f'code/Mdl_Prep/Mdl_Prep_{MdlN}.ini')
-    path_BAT            =   os.path.join(path_Mdl, f'code/Mdl_Prep/Mdl_Prep_{MdlN}.bat')
-    path_PRJ            =   os.path.join(path_Mdl, f'In/PRJ/{MdlN}.prj')
-    path_Smk            =   os.path.join(path_Mdl, f'code/snakemake/{MdlN}.smk')
-    path_MdlN_B         =   path_MdlN.replace(MdlN, MdlN_B)
-    path_PoP_Out_MdlN_B =   path_PoP_Out_MdlN.replace(MdlN, MdlN_B)
-    path_INI_B          =   path_INI.replace(MdlN, MdlN_B)
-    path_BAT_B          =   path_BAT.replace(MdlN, MdlN_B)
-    path_PRJ_B          =   path_PRJ.replace(MdlN, MdlN_B)
-    path_Smk_B          =   path_Smk.replace(MdlN, MdlN_B)
     
-    return {'MdlN_B'                :   MdlN_B,
-            'path_Mdl'              :   path_Mdl,
-            'path_PoP'              :   path_PoP,
-            'path_MdlN'             :   path_MdlN,
-            'path_PoP_Out_MdlN'     :   path_PoP_Out_MdlN,
-            'path_INI'              :   path_INI,
-            'path_BAT'              :   path_BAT,
-            'path_PRJ'              :   path_PRJ,
-            'path_Smk'              :   path_Smk,
-            'path_MdlN_B'           :   path_MdlN_B,
-            'path_PoP_Out_MdlN_B'   :   path_PoP_Out_MdlN_B,
-            'path_INI_B'            :   path_INI_B,
-            'path_BAT_B'            :   path_BAT_B,
-            'path_PRJ_B'            :   path_PRJ_B,
-            'path_Smk_B'            :   path_Smk_B
-            }
+    d_path = {}
+    d_path['Mdl']                   =   Mdl
+    d_path['MdlN_B']                =   MdlN_B
+    d_path['path_Mdl']              =   os.path.join(path_WS, f'models/{Mdl}')
+    d_path['path_MdlN']             =   os.path.join(d_path['path_Mdl'], f"Sim/{MdlN}")
+    d_path['path_PoP']              =   os.path.join(d_path['path_Mdl'], 'PoP')
+    d_path['path_PoP_Out_MdlN']     =   os.path.join(d_path['path_PoP'], 'Out', MdlN)
+    d_path['path_INI']              =   os.path.join(d_path['path_Mdl'], f'code/Mdl_Prep/Mdl_Prep_{MdlN}.ini')
+    d_path['path_BAT']              =   os.path.join(d_path['path_Mdl'], f'code/Mdl_Prep/Mdl_Prep_{MdlN}.bat')
+    d_path['path_PRJ']              =   os.path.join(d_path['path_Mdl'], f'In/PRJ/{MdlN}.prj')
+    d_path['path_Smk']              =   os.path.join(d_path['path_Mdl'], f'code/snakemake/{MdlN}.smk')
+    d_path['path_MdlN_B']           =   d_path['path_MdlN'].replace(MdlN, MdlN_B)
+    d_path['path_PoP_Out_MdlN_B']   =   d_path['path_PoP_Out_MdlN'].replace(MdlN, MdlN_B)
+    d_path['path_INI_B']            =   d_path['path_INI'].replace(MdlN, MdlN_B)
+    d_path['path_BAT_B']            =   d_path['path_BAT'].replace(MdlN, MdlN_B)
+    d_path['path_PRJ_B']            =   d_path['path_PRJ'].replace(MdlN, MdlN_B)
+    d_path['path_Smk_B']            =   d_path['path_Smk'].replace(MdlN, MdlN_B)
+
+    return  d_path
 
 def get_MdlN_paths(MdlN: str): #666 Can be split into two as both S and B aren't allways needed. Or better, I can make a new function that does that for just 1 run.
     """ Returns a dictionary of useful object (MdlN_B, directories etc.) for a given model. Those need to then be passed to arguments, e.g. path_INI_B = Dft_paths['path_INI_N']."""
+    print(f"✅ - {MdlN} paths extracted from RunLog.")
     return paths_from_MdlN_Se( MdlN_Se_from_RunLog((MdlN)), MdlN )
 # ----------------------------------------------------------------------------------------------------------------------------------
 
@@ -83,6 +72,7 @@ def read_IPF_Spa(path_IPF):
     l_C_Nm = [l_Ln[I + 2].split("\n")[0] for I in range(N_C)] # Extract column names
     DF_IPF = pd.read_csv(path_IPF, skiprows=2+N_C+1, names=l_C_Nm)
 
+    print(f"✅ - IPF file {path_IPF} read successfully. DataFrame created with {len(DF_IPF)} rows and {len(DF_IPF.columns)} columns.")
     return DF_IPF
 
 def INI_to_d(path_INI:str) -> dict:
@@ -100,6 +90,8 @@ def INI_to_d(path_INI:str) -> dict:
             if l and not l.startswith("#"):  # Ignore empty lines and comments
                 k, v = l.split("=", 1)  # Split at the first '='
                 d_INI[k.strip().upper()] = v.strip()  # Remove extra spaces
+    
+    print(f"✅ - INI file {path_INI} read successfully. Dictionary created with {len(d_INI)} keys.")
     return d_INI
 
 def Mdl_Dmns_from_INI(path_INI): # 666 Can be improved. It should take a MdlN instead of a path. Makes things easier.
@@ -108,7 +100,9 @@ def Mdl_Dmns_from_INI(path_INI): # 666 Can be improved. It should take a MdlN in
     d_INI = INI_to_d(path_INI)
     Xmin, Ymin, Xmax, Ymax = [float(i) for i in d_INI['WINDOW'].split(',')]
     cellsize = float(d_INI['CELLSIZE'])
-    N_R, N_C = int( - (Ymin - Ymax) / cellsize ), int( (Xmax - Xmin) / cellsize ), 
+    N_R, N_C = int( - (Ymin - Ymax) / cellsize ), int( (Xmax - Xmin) / cellsize )
+
+    print(f"✅ - model dimensions extracted from {path_INI}.")
     return Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C
 
 def Sim_Cfg(*l_MdlN, path_NP=r'C:\Program Files\Notepad++\notepad++.exe'):

@@ -1,21 +1,23 @@
 # ***** Geospatial Functions *****
-import os
 from .utils import Sign, Pre_Sign
-from . import utils as Utl
+from . import utils as U
+from . import utils_imod as UIM
+import os
+import re
+from datetime import datetime as DT
+from typing import Optional, Dict
 import rasterio
 from rasterio.transform import from_bounds
 import imod
-from datetime import datetime as DT
-from typing import Optional, Dict
 import numpy as np
 import xarray as xr
-from concurrent.futures import ProcessPoolExecutor as PPE
-import re
 from pathlib import Path
+import geopandas as gpd
+from concurrent.futures import ProcessPoolExecutor as PPE
 
 crs = "EPSG:28992"
 
-# Convert --------------------------------------------------------------------------------------------------------------------------
+# TIF ------------------------------------------------------------------------------------------------------------------------------
 def IDF_to_TIF(path_IDF: str, path_TIF: Optional[str] = None, MtDt: Optional[Dict] = None, crs=crs):
     """ Converts IDF file to TIF file.
         If path_TIF is not provided, it'll be the same as path_IDF, except for the file type ending.
@@ -131,15 +133,202 @@ def DA_to_MBTIF(DA, path_Out, d_MtDt, crs=crs, _print=False):
     if _print:
         print(f"DA_to_MBTIF finished successfully for: {path_Out}")
 
+def PRJ_to_TIF(MdlN):
+    """ Converts PRJ file to TIF (multiband if necessary) files by package (only time independent packages).
+    The function used a DF produced by PRJ_to_DF. It needs to follow a specific format."""
+    
+    # -------------------- Get paths ------------------------------------------------------------------------------------------
+    d_paths = U.get_MdlN_paths(MdlN)
+    Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = U.Mdl_Dmns_from_INI(d_paths['path_INI'])
+
+    # -------------------- Read PRJ to DF -------------------------------------------------------------------------------------
+    DF = UIM.PRJ_to_DF(MdlN) # Read PRJ file to DF
+    
+    # -------------------- Process time-indepenent packages (most) ------------------------------------------------------------
+    print(f' --- Converting time-independant package IDF files to TIF ---')
+    DF_Rgu = DF[( DF["time"].isna()   ) &       # Only keep regular (time independent) packages
+                ( DF['path'].notna()  ) &  
+                ( DF['suffix']=='.idf')]        # Non time packages have NaN in 'time' Fld. Failed packages have '-', so they'll also be excluded.
+
+    for i, Par in enumerate(DF_Rgu['parameter'].unique()[:]): # Iterate over parameters
+        print(f"\t{i:<2}, {Par:<30} ... ", end='')
+
+        try:
+            DF_Par = DF_Rgu[DF_Rgu['parameter']==Par] # Slice DF_Rgu for current parameter.
+            DF_Par = DF_Par.drop_duplicates(subset='path', keep='first') # Drop duplicates, keep the first one. imod.formats.idf.open will do that with the list of paths anyway, so the only way to match the paths to the correct metadata is to have only one path per metadata.
+            if DF_Par['package'].nunique() > 1:
+                print("There are multiple packages for the same parameter. Check DF_Rgu.")
+                break
+            else:
+                Pkg = DF_Par['package'].iloc[0] # Get the package name
+
+            ## Prepare directoreis and filenames
+            Mdl = ''.join([c for c in MdlN if not c.isdigit()])
+            Pkg_MdlN = Mdl + str(DF_Par['MdlN'].str.extract(r'(\d+)').astype(int).max().values[0])
+            path_TIF = os.path.join(d_paths['path_Mdl'], 'PoP', 'In', Pkg, Pkg_MdlN, f"{Pkg}_{Par}_{Pkg_MdlN}.tif")  # Full path to TIF file
+
+            ## Build a dictionary mapping each band’s name to its row’s metadata. We're assuming that the order the paths are read into DA is the same as the order in DF_Par.
+            d_MtDt = {}
+
+            if os.path.exists(path_TIF):
+                print(f'\u274C - file already exists. Skipping.')
+                continue
+            else:
+                os.makedirs(os.path.dirname(path_TIF), exist_ok=True) # Make sure the directory exists
+
+                ## Read files-paths to xarray Data Array (DA), then write them to TIF file(s).
+                if DF_Par.shape[0] > 1: # If there are multiple paths for the same parameter
+                    for i, R in DF_Par.iterrows():
+                        d_MtDt[f"{R['parameter']}_L{R['layer']}_{R['MdlN']}"] = {('origin_path' if col == 'path' else col):
+                                                                                str(val) for col, val in R.items()}
+                    DA = imod.formats.idf.open(list(DF_Par['path']), pattern="{name}_L{layer}_").sel(x=slice(Xmin, Xmax), y=slice(Ymax, Ymin))
+                    DA_to_MBTIF(DA, path_TIF, d_MtDt)
+                    print(f'\u2713 - multi-band')
+                else:
+                    try:
+                        DA = imod.formats.idf.open(list(DF_Par['path']), pattern="{name}_L{layer}_").sel(x=slice(Xmin, Xmax), y=slice(Ymax, Ymin))
+                        d_MtDt[f"{DF_Par['parameter'].values[0]}_L{DF_Par['layer'].values[0]}_{DF_Par['MdlN'].values[0]}"] = {('origin_path' if col == 'path' else col): str(val) for col, val in R.items()}
+                        DA_to_TIF(DA.squeeze(drop=True), path_TIF, d_MtDt) # .squeeze cause 2D arrays have extra dimension with size 1 sometimes.
+                        print(f'\u2713 - single-band with L attribute')
+                    except:
+                        DA = imod.formats.idf.open(list(DF_Par['path']), pattern="{name}_").sel(x=slice(Xmin, Xmax), y=slice(Ymax, Ymin))
+                        d_MtDt[f"{DF_Par['parameter'].values[0]}_{DF_Par['MdlN'].values[0]}"] = {('origin_path' if col == 'path' else col): str(val) for col, val in R.items()}
+                        DA_to_TIF(DA.squeeze(drop=True), path_TIF, d_MtDt) # .squeeze cause 2D arrays have extra dimension with size 1 sometimes.
+                        print(f'\u2713 - single-band without L attribute')
+        except Exception as e:
+            print(f"\u274C - Error: {e}")
+
+    # -------------------- Process derived packages/parameters (Thk, T) -------------------------------------------------------
+    d_Clc_In = {} # Dictionary to store calculated inputs.
+
+    ## Thk. TOP and BOT files have been QA'd in C:\OD\WS_Mdl\code\PrP\Mdl_In_to_MM\Mdl_In_to_MM.ipynb
+    DA_TOP = imod.formats.idf.open(list(DF_Rgu[DF_Rgu['parameter']=='top']['path']), pattern="{name}_L{layer}_").sel(x=slice(Xmin, Xmax), y=slice(Ymax, Ymin))
+    DA_BOT = imod.formats.idf.open(list(DF_Rgu[DF_Rgu['parameter']=='bottom']['path']), pattern="{name}_L{layer}_").sel(x=slice(Xmin, Xmax), y=slice(Ymax, Ymin))
+    DA_Kh = imod.formats.idf.open(list(DF_Rgu[DF_Rgu['parameter']=='kh']['path']), pattern="{name}_L{layer}_").sel(x=slice(Xmin, Xmax), y=slice(Ymax, Ymin))
+
+    DA_Thk = (DA_TOP - DA_BOT).squeeze(drop=True) # Let's make a dictionary to store Info about each parameter
+    d_Clc_In['Thk'] = {'Par': 'thickness',
+        'DA': DA_Thk,
+        'MdlN': Mdl + str(max(DF_Rgu.loc[DF_Rgu['package'].isin(['TOP', 'BOT']), 'MdlN'].str.extract(r'(\d+)')[0])), #666 the largest number from the TOP and BOT MdlNs
+        'MtDt': {**{f"thickness_L{i+1}": {"layer": f"L{i+1}"} for i in range(DA_Thk.shape[0])},  # Per-layer metadata
+                 "all": {"description": "Layer thickness calculated as 'top - bottom' per layer.",
+                 "source_files": f"""{'-'*200}\nTOP: {' '*30} {" | | ".join(DF_Rgu.loc[DF_Rgu['package'] == 'TOP', 'path'])}        {'-'*200}\nBOT: {' '*30} {" | | ".join(DF_Rgu.loc[DF_Rgu['package'] == 'BOT', 'path'])} """}}
+        }
+    
+    ## T
+    DA_T = DA_Thk * DA_Kh
+    d_Clc_In['T'] = {'Par': 'transmissivity',
+        'DA': DA_T,
+        'MdlN': Mdl + (max(DF_Rgu.loc[DF_Rgu['package'].isin(['TOP', 'BOT', 'NPF']), 'MdlN'].str.extract(r'(\d+)')[0])), #666 the largest number from the TOP and BOT MdlNs                   
+        'MtDt': {**{f"transmissivity_L{i+1}": {"layer": f"L{i+1}"} for i in range(DA_Thk.shape[0])},  # Per-layer metadata
+        "all": {"description": "Layer transmissivity (horizontal) calculated as '(top - bottom)*Kh' per layer.",
+                "source_files": f"""{'-'*200}TOP: {' '*30} {" | | ".join(DF_Rgu.loc[DF_Rgu['package'] == 'TOP', 'path'])} 
+                    {'-'*200}BOT: {' '*30} {" | | ".join(DF_Rgu.loc[DF_Rgu['package'] == 'BOT', 'path'])}
+                    {'-'*200}NPF: {' '*30} {" | | ".join(DF_Rgu.loc[DF_Rgu['package'] == 'NPF', 'path'])}"""}}}
+    
+    print(f' --- Converting calculated inputs to TIF ---')
+    for i, Par in enumerate(d_Clc_In.keys()):
+        print(f"\t{d_Clc_In[Par]['Par']:<30} ... ", end='')
+
+        path_TIF = os.path.join(d_paths['path_Mdl'], 'PoP', 'Clc_In', Par, d_Clc_In[Par]['MdlN'], f"{Par}_{d_Clc_In[Par]['MdlN']}.tif")  # Full path to TIF file #666 need to think which MdlN to use. It's hard to do the same as with the other packages.
+        
+        if os.path.exists(path_TIF):
+            print(f'\u274C - file already exists. Skipping.')
+            continue
+        else:
+            try:
+                os.makedirs(os.path.dirname(path_TIF), exist_ok=True) # Make sure the directory exists
+
+                ## Write DAs to TIF files.
+                DA = d_Clc_In[Par]['DA'].squeeze(drop=True)
+                d_MtDt = d_Clc_In[Par]['MtDt']
+
+                if not DA.rio.crs: # Ensure DA_Thk has a CRS (if missing, set it)
+                    DA.rio.write_crs(crs, inplace=True)  # Replace with correct CRS
+
+                if len(DA.shape) == 3: # If there are multiple paths for the same parameter
+                    DA_to_MBTIF(DA, path_TIF, d_MtDt)
+                    print(f'\u2713 - multi-band')
+                elif len(DA.shape) == 2:
+                    DA_to_TIF(DA.squeeze(drop=True), path_TIF, d_MtDt) # .squeeze cause 2D arrays have extra dimension with size 1 sometimes.
+                    print(f'\u2713 - single-band')
+            except Exception as e:
+                print(f"\u274C - Error: {e}")
+
+    # -------------------- Process time-dependent packages (RIV, DRN, WEL) --------------------
+    ## RIV & DRN
+    DF_time = DF[ ( DF["time"].notna() ) &
+                ( DF["time"]!='-'    ) &
+                ( DF['path'].notna() )] # Non time packages have NaN in 'time' Fld. Failed packages have '-', so they'll also be excluded.         
+
+    print(f' --- Converting time dependant packages ---')
+    for i, R in DF_time[DF_time['package'].isin(('DRN', 'RIV'))].iterrows():
+        print(f"\t{f"{R['package']}_{R['parameter']}":<30} ... ", end='')
+
+        path_TIF = os.path.join(d_paths['path_Mdl'], 'PoP', 'In', R['package'], R['MdlN'], os.path.basename(re.sub(r'\.idf$', '.tif', R['path'], flags=re.IGNORECASE)))  # Full path to TIF file
+        
+        if os.path.exists(path_TIF):
+            print(f'\u274C - file already exists. Skipping.')
+            continue
+        else:
+            try:    
+                os.makedirs(os.path.dirname(path_TIF), exist_ok=True) # Make sure the directory exists
+
+                ## Build a dictionary mapping each band’s name to its row’s metadata.
+                d_MtDt = {f"{R['parameter']}_L{R['layer']}_{R['MdlN']}" : {('origin_path' if col == 'path' else col): str(val) for col, val in R.items()}}
+
+                DA = imod.formats.idf.open(R['path'], pattern=f'{{name}}_{Mdl}').sel(x=slice(Xmin, Xmax), y=slice(Ymax, Ymin))
+                DA_to_TIF(DA.squeeze(drop=True), path_TIF, d_MtDt) # .squeeze cause 2D arrays have extra dimension with size 1 sometimes.
+                print(f'\u2713 - IDF converted to TIF - single-band without L attribute')
+            except Exception as e:
+                print(f"\u274C - Error: {e}")
+
+    ## WEL
+    DF_WEL = DF.loc[DF['package']=='WEL']
+
+    for i, R in DF_WEL.iloc[3:6].iterrows():
+        print(f"\t{os.path.basename(R['path']):<30} ... ", end='')
+
+        path_GPKG = os.path.join(d_paths['path_Mdl'], 'PoP', 'In', R['package'], R['MdlN'], os.path.basename(re.sub(r'\.ipf$', '.gpkg', R['path'], flags=re.IGNORECASE)))  # Full path to TIF file
+
+        if os.path.exists(path_GPKG):
+            print(f'\u274C - file already exists. Skipping.')
+            continue
+        else:
+
+            try:
+                DF_IPF = imod.formats.ipf.read(R['path'])
+                DF_IPF = DF_IPF.loc[ ( (DF_IPF['x']>Xmin) & (DF_IPF['x']<Xmax ) ) &
+                                    ( (DF_IPF['y']>Ymin) & (DF_IPF['y']<Ymax ) )].copy() # Slice to OBS within the Mdl Aa
+                
+                if ('q_m3' in DF_IPF.columns) and ('id' not in DF_IPF.columns):
+                    DF_IPF.rename(columns={'q_m3':'id'}, inplace=True) # One of the IPF files has q_m3 instead of id in it's fields. Don't ask me why, but it has to be dealt with.
+
+                #666 I'll only save the average flow now
+                DF_IPF_AVG = DF_IPF.groupby('id')[DF_IPF.select_dtypes(include=np.number).columns].agg(np.mean)
+                _GDF_AVG = gpd.GeoDataFrame(DF_IPF_AVG, geometry=gpd.points_from_xy(DF_IPF_AVG['x'], DF_IPF_AVG['y'])).set_crs(crs=crs)
+
+                os.makedirs(os.path.dirname(path_GPKG), exist_ok=True) # Make sure the directory exists
+                _GDF_AVG.to_file(path_GPKG, driver="GPKG") #, layer=os.path.basename(path_GPKG))
+                print(f'\u2713 - IPF average values (per id) converted to GPKG')
+            except:
+                print('\u274C')
+
+
+    print(f' --- Success! ---')
+    print(f' {"-"*100}')
+
 # HD_IDF speciic PoP (could be extended/generalized at a later stage) --------------------------------------------------------------
 def HD_IDF_Mo_Avg_to_MBTIF(MdlN: str, N_cores=None, crs=crs):
-    """Reads Out IDF files from the model directory and calculates Mo Avg for each L. Saves them as MultiBand TIF files - each band representing the Mo Avg HD for each L."""
-
-    d_paths = Utl.get_MdlN_paths(MdlN)
+    """Reads Sim Out IDF files from the model directory and calculates Mo Avg for each L. Saves them as MultiBand TIF files - each band representing the Mo Avg HD for each L."""
+    print(Pre_Sign)
+    print(f"*** {MdlN} *** - HD_IDF_Mo_Avg_to_MBTIF")
+    
+    d_paths = U.get_MdlN_paths(MdlN)
     path_PoP, path_MdlN = [ d_paths[v] for v in ['path_PoP', 'path_MdlN'] ]
     path_HD = os.path.join(path_MdlN, 'GWF_1/MODELOUTPUT/HEAD/HEAD')
 
-    DF = Utl.HD_Out_IDF_to_DF(path_HD) # Read the IDF files to a DataFrame
+    DF = U.HD_Out_IDF_to_DF(path_HD) # Read the IDF files to a DataFrame
     DF_grouped = DF.groupby(['year', 'month'])['path']
 
     path_Mo_AVG_Fo = os.path.join(path_PoP, f'Out/{MdlN}/HD_Mo_AVG') # path where Mo AVG files are stored
@@ -156,24 +345,28 @@ def HD_IDF_Mo_Avg_to_MBTIF(MdlN: str, N_cores=None, crs=crs):
             print('\t', f.result(), '- Elapsed time (from start):', DT.now() - start)
 
     print('*** {MdlN} *** - Total elapsed:', DT.now() - start)
+    print(Sign)
 
 def _HD_IDF_Mo_Avg_to_MBTIF_process_Mo(year, month, paths, MdlN, path_Mo_AVG_Fo, path_HD, crs):
-    """ """
+    """Only for use within HD_IDF_Mo_Avg_to_MBTIF - to utilize multiprocessing."""
     XA = imod.formats.idf.open(list(paths)) # Read the files to an Xarray
     XA_mean = XA.mean(dim='time') # Calculate monthly mean
 
-    path_Out = os.path.join(path_Mo_AVG_Fo, f'HD_AVG_{year}_{month:02d}_{MdlN}.tif') # Create the output path
+    path_Out = os.path.join(path_Mo_AVG_Fo, f'HD_AVG_{year}{month:02d}_{MdlN}.tif') # Create the output path
 
     d_MtDt = {str(L): {'layer': L} for L in XA.coords['layer'].values}
     d_MtDt['all'] = {'parameters': XA.coords,
                      'Description': f'Monthly mean GW heads per layer for {year}-{month:02d}, produced by aggregating {MdlN} output IDF files. Output IDF files are in {path_HD}.'}
     DA_to_MBTIF(XA_mean, path_Out, d_MtDt, crs=crs, _print=False)
     return f"*** {MdlN} *** - {year}-{month:02d} ✔ "
-#       ----------------------------------------------------------------------------------------------------------------------------
 
 def HD_IDF_GXG_to_MBTIF(MdlN: str, N_cores=None, crs=crs):
+    """Reads Sim Out IDF files from the model directory and calculates GXG for each L. Saves them as MultiBand TIF files - each band representing one of the GXG params for a L."""
 
-    d_paths = Utl.get_MdlN_paths(MdlN)
+    print(Pre_Sign)
+    print(f"*** {MdlN} *** - HD_IDF_Mo_Avg_to_MBTIF")
+
+    d_paths = U.get_MdlN_paths(MdlN)
     path_PoP, path_MdlN = [ d_paths[v] for v in ['path_PoP', 'path_MdlN'] ]
     path_HD = os.path.join(path_MdlN, 'GWF_1/MODELOUTPUT/HEAD/HEAD')
 
@@ -201,6 +394,7 @@ def HD_IDF_GXG_to_MBTIF(MdlN: str, N_cores=None, crs=crs):
     print('Total elapsed:', DT.now() - start)
 
 def _HD_IDF_GXG_to_MBTIF_process_L(L, d_IDF_GXG, MdlN, path_PoP, path_HD, crs):
+    """Only for use within HD_IDF_GXG_to_MBTIF - to utilize multiprocessing."""
     XA = imod.idf.open(d_IDF_GXG[L])
     GXG = imod.evaluate.calculate_gxg(XA.squeeze())
     GXG = GXG.rename_vars({var: var.upper() for var in GXG.data_vars})

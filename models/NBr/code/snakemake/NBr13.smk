@@ -5,6 +5,8 @@ from snakemake.io import temp
 from datetime import datetime as DT
 import pathlib
 import os
+sys.stdout.reconfigure(encoding='utf-8')
+sys.stderr.reconfigure(encoding='utf-8')
 
 ## --- Variables ---
 MdlN    =   "NBr13"
@@ -41,7 +43,7 @@ rule log_Init: # Sets status to running, and writes other info about therun. Has
     run:
         import socket
         device = socket.gethostname()
-        d_INI = INI_to_d(get_MdlN_paths(MdlN)['path_INI_S'])
+        d_INI = INI_to_d(get_MdlN_paths(MdlN)['path_INI'])
         Up_log(MdlN, {  'End Status':       'Running',
                         'PrP start DT':     DT.now().strftime("%Y-%m-%d %H:%M:%S"),
                         "Sim device name":  device,

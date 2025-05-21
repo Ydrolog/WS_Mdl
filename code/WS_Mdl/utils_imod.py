@@ -2,7 +2,8 @@
 import os
 import tempfile
 import imod
-from .utils import Sign, Pre_Sign, read_IPF_Spa, INI_to_d, get_MdlN_paths
+from .utils import Sign, Pre_Sign, read_IPF_Spa, INI_to_d, get_MdlN_paths, path_WS
+from . import utils as U
 import numpy as np
 import subprocess as sp
 from multiprocessing import Process, cpu_count
@@ -39,6 +40,124 @@ def read_PRJ_with_OBS(path_PRJ):
     os.remove(path_PRJ_temp) # Delete temp PRJ file as it's not needed anymore.
 
     return PRJ, l_OBS_Lns
+
+def PRJ_to_DF(MdlN):
+    """Leverages read_PRJ_with_OBS to produce a DF with the PRJ data.
+    Could have been included in utils.py based on dependencies, but utils_imod.py fits it better as it's almost alwaysused after read_PRJ_with_OBS (so the libs will be already loaded)."""
+    
+    d_paths = get_MdlN_paths(MdlN)
+
+    Mdl = ''.join([c for c in MdlN if not c.isdigit()])
+    path_AppData = os.path.normpath(os.path.join(os.getenv('APPDATA'), '../'))
+    t_path_replace = (path_AppData, os.path.join(path_WS, 'models', Mdl)) # For some reason imod.idf.read reads the path incorrectly, so I have to replace the incorrect part.
+
+    d_PRJ, OBS = read_PRJ_with_OBS(d_paths['path_PRJ'])
+
+    columns = ['package', 'parameter','time', 'active', 'is_constant', 'layer', 'factor', 'addition', 'constant', 'path']
+    DF = pd.DataFrame(columns=columns) # Main DF to store all the packages
+
+    print(f' --- Reading PRJ Packages into DF ---')
+    for Pkg_name in list(d_PRJ.keys()): # Iterate over packages
+        print(f"\t{Pkg_name:<7}\t...\t", end='')
+        try:
+            Pkg = d_PRJ[Pkg_name]
+
+            if int(Pkg['active']): # if the package is active, process it
+                l_Par = [k for k in Pkg.keys() if k not in {'active', 'n_system', 'time'}] # Make list from package keys/parameters
+                for Par in l_Par[:]: # Iterate over parameters
+
+                    for N, L in enumerate(Pkg[Par]): # differentiate between packages (have time) and modules.
+                        Ln_DF_path = {**L, "package": Pkg_name, "parameter": Par} #, 'path_type':L['path'].suffix.lower()} #, "metadata": L}
+                        
+                        if ('time' in d_PRJ[Pkg_name].keys()):
+                            if (Pkg['n_system'] > 1):
+                                DF.loc[f'{Pkg_name.upper()}_{Par}_Sys{(N)%Pkg['n_system']+1}_{L['time']}'] = Ln_DF_path
+                            elif (Pkg['n_system']==1):
+                                DF.loc[f"{Pkg_name.upper()}_{Par}"] = Ln_DF_path
+                        else:
+                            if (Pkg['n_system'] > 1):
+                                DF.loc[f'{Pkg_name.upper()}_{Par}_Sys{(N)%Pkg['n_system']+1}'] = Ln_DF_path
+                            elif (Pkg['n_system']==1):
+                                DF.loc[f"{Pkg_name.upper()}_{Par}"] = Ln_DF_path
+                print('\u2713')
+            else:
+                print(f'\u2012 the package is innactive.')
+        except:
+            DF.loc[f'{Pkg_name.upper()}'] = "-"
+            DF.loc[f'{Pkg_name.upper()}', 'active'] = 'Failed to read package'
+            print('\u274C')
+    print(f' --- Success! ---')
+    print(f' {"-"*100}')
+
+    DF['package'] = DF['package'].str.replace('(',"").str.replace(')','').str.upper()
+    DF['suffix'] = DF['path'].apply(lambda x: x.suffix.lower() if hasattr(x, 'suffix') else "-")  # Check if 'suffix' exists # Make suffix column so that paths can be categorized
+    DF['path'] = DF['path'].astype('string') # Convert path to string so that the wrong part of the path can be .replace()ed
+    DF['MdlN'] = DF['path'].str.split("_").str[-1].str.split('.').str[0]
+    DF['path'] = DF['path'].str.replace(*t_path_replace, regex=False) # Replace incorrect part of paths. I'm not sure why iMOD doesn't read them right. Maybe cause they're relative it's assumed they start form a directory which is incorrect.
+    DF = DF.loc[:, list(DF.columns[:2]) + ['MdlN'] + list(DF.columns[2:-3]) + ['suffix', DF.columns[-3]]] # Rearrange columns
+
+    return DF
+
+def PRJ_DF_to_TIF(MdlN):
+    """ Converts PRJ DF to TIF (multiband if necessary) files by package (only time independent packages). The function assumes that the PRJ DF has been created using the PRJ_to_DF function, meaning a specific format."""
+    
+    d_paths = get_MdlN_paths(MdlN)
+    Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = U.Mdl_Dmns_from_INI(d_paths['path_INI'])
+
+    DF = PRJ_to_DF(MdlN) # Read PRJ file to DF
+    # Only keep regular (time independent) packages
+    DF_Rgu = DF[( DF["time"].isna()   ) & 
+                ( DF['path'].notna()  ) &  
+                ( DF['suffix']=='.idf')] # Non time packages have NaN in 'time' Fld. Failed packages have '-', so they'll also be excluded.
+    
+    print(f' --- Converting time-independant package IDF files to TIF ---')
+    for Par in DF_Rgu['parameter'].unique()[:]: # Iterate over parameters
+        print(f"\t{Par:<30} ... ", end='')
+
+        try:
+            DF_Par = DF_Rgu[DF_Rgu['parameter']==Par] # Slice DF_Rgu for current parameter.
+            DF_Par = DF_Par.drop_duplicates(subset='path', keep='first') # Drop duplicates, keep the first one. imod.formats.idf.open will do that with the list of paths anyway, so the only way to match the paths to the correct metadata is to have only one path per metadata.
+            if DF_Par['package'].nunique() > 1:
+                print("There are multiple packages for the same parameter. Check DF_Rgu.")
+                break
+            else:
+                Pkg = DF_Par['package'].iloc[0] # Get the package name
+
+            ## Prepare directoreis and filenames
+            Mdl = ''.join([c for c in MdlN if not c.isdigit()])
+            Pkg_MdlN = Mdl + str(DF_Par['MdlN'].str.extract(r'(\d+)').astype(int).max().values[0])
+            path_TIF = os.path.join(d_paths['path_Mdl'], 'PoP', 'In', Pkg, Pkg_MdlN, f"{Pkg}_{Par}_{Pkg_MdlN}.tif")  # Full path to TIF file
+            os.makedirs(os.path.dirname(path_TIF), exist_ok=True) # Make sure the directory exists
+
+            ## Build a dictionary mapping each band’s name to its row’s metadata. We're assuming that the order the paths are read into DA is the same as the order in DF_Par.
+            d_MtDt = {}
+            for i, R in DF_Par.iterrows():
+                d_MtDt[f"{R['parameter']}_L{R['layer']}_{R['MdlN']}"] = {('origin_path' if col == 'path' else col): str(val) for col, val in R.items()}
+
+            if os.path.exists(path_TIF):
+                print(f'\u274C - file already exists. Skipping.')
+                continue
+            else:
+                print(f'\u2713 - file does not exist. Proceeding.')
+
+                ## Read files-paths to xarray Data Array (DA), then write them to TIF file(s).
+                if DF_Par.shape[0] > 1: # If there are multiple paths for the same parameter
+                    DA = imod.formats.idf.open(list(DF_Par['path']), pattern="{name}_L{layer}_").sel(x=slice(Xmin, Xmax), y=slice(Ymax, Ymin))
+                    #G.DA_to_MBTIF(DA, path_TIF, d_MtDt)
+                    print(f'\u2713 - multi-band')
+                else:
+                    try:
+                        DA = imod.formats.idf.open(list(DF_Par['path']), pattern="{name}_L{layer}_").sel(x=slice(Xmin, Xmax), y=slice(Ymax, Ymin))
+                        #G.DA_to_TIF(DA.squeeze(drop=True), path_TIF, d_MtDt) # .squeeze cause 2D arrays have extra dimension with size 1 sometimes.
+                        print(f'\u2713 - single-band with L attribute')
+                    except:
+                        DA = imod.formats.idf.open(list(DF_Par['path']), pattern="{name}_").sel(x=slice(Xmin, Xmax), y=slice(Ymax, Ymin))
+                        #G.DA_to_TIF(DA.squeeze(drop=True), path_TIF, d_MtDt) # .squeeze cause 2D arrays have extra dimension with size 1 sometimes.
+                        print(f'\u2713 - single-band without L attribute')
+        except:
+            print('\u274C')
+    print(f' --- Success! ---')
+    print(f' {"-"*100}')
 
 def open_PRJ_with_OBS(path_PRJ): #666 gives error cause it tries to read files referenced by PRJ using a default user directory as base. 
     """imod.formats.prj.read_projectfile struggles with .prj files that contain OBS blocks. This will read the PRJ file and return a tuple. The first item is a PRJ dictionary (as imod.formats.prj would return) and also a list of the OBS block lines."""
