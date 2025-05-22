@@ -41,9 +41,10 @@ def read_PRJ_with_OBS(path_PRJ):
 
     return PRJ, l_OBS_Lns
 
-def PRJ_to_DF(MdlN):
+def PRJ_to_DF(MdlN):#, verbose:bool=True):
     """Leverages read_PRJ_with_OBS to produce a DF with the PRJ data.
     Could have been included in utils.py based on dependencies, but utils_imod.py fits it better as it's almost alwaysused after read_PRJ_with_OBS (so the libs will be already loaded)."""
+    # print = print if verbose else lambda *a, **k: None
     
     d_paths = get_MdlN_paths(MdlN)
 
@@ -97,67 +98,6 @@ def PRJ_to_DF(MdlN):
     DF = DF.loc[:, list(DF.columns[:2]) + ['MdlN'] + list(DF.columns[2:-3]) + ['suffix', DF.columns[-3]]] # Rearrange columns
 
     return DF
-
-def PRJ_DF_to_TIF(MdlN):
-    """ Converts PRJ DF to TIF (multiband if necessary) files by package (only time independent packages). The function assumes that the PRJ DF has been created using the PRJ_to_DF function, meaning a specific format."""
-    
-    d_paths = get_MdlN_paths(MdlN)
-    Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = U.Mdl_Dmns_from_INI(d_paths['path_INI'])
-
-    DF = PRJ_to_DF(MdlN) # Read PRJ file to DF
-    # Only keep regular (time independent) packages
-    DF_Rgu = DF[( DF["time"].isna()   ) & 
-                ( DF['path'].notna()  ) &  
-                ( DF['suffix']=='.idf')] # Non time packages have NaN in 'time' Fld. Failed packages have '-', so they'll also be excluded.
-    
-    print(f' --- Converting time-independant package IDF files to TIF ---')
-    for Par in DF_Rgu['parameter'].unique()[:]: # Iterate over parameters
-        print(f"\t{Par:<30} ... ", end='')
-
-        try:
-            DF_Par = DF_Rgu[DF_Rgu['parameter']==Par] # Slice DF_Rgu for current parameter.
-            DF_Par = DF_Par.drop_duplicates(subset='path', keep='first') # Drop duplicates, keep the first one. imod.formats.idf.open will do that with the list of paths anyway, so the only way to match the paths to the correct metadata is to have only one path per metadata.
-            if DF_Par['package'].nunique() > 1:
-                print("There are multiple packages for the same parameter. Check DF_Rgu.")
-                break
-            else:
-                Pkg = DF_Par['package'].iloc[0] # Get the package name
-
-            ## Prepare directoreis and filenames
-            Mdl = ''.join([c for c in MdlN if not c.isdigit()])
-            Pkg_MdlN = Mdl + str(DF_Par['MdlN'].str.extract(r'(\d+)').astype(int).max().values[0])
-            path_TIF = os.path.join(d_paths['path_Mdl'], 'PoP', 'In', Pkg, Pkg_MdlN, f"{Pkg}_{Par}_{Pkg_MdlN}.tif")  # Full path to TIF file
-            os.makedirs(os.path.dirname(path_TIF), exist_ok=True) # Make sure the directory exists
-
-            ## Build a dictionary mapping each band’s name to its row’s metadata. We're assuming that the order the paths are read into DA is the same as the order in DF_Par.
-            d_MtDt = {}
-            for i, R in DF_Par.iterrows():
-                d_MtDt[f"{R['parameter']}_L{R['layer']}_{R['MdlN']}"] = {('origin_path' if col == 'path' else col): str(val) for col, val in R.items()}
-
-            if os.path.exists(path_TIF):
-                print(f'\u274C - file already exists. Skipping.')
-                continue
-            else:
-                print(f'\u2713 - file does not exist. Proceeding.')
-
-                ## Read files-paths to xarray Data Array (DA), then write them to TIF file(s).
-                if DF_Par.shape[0] > 1: # If there are multiple paths for the same parameter
-                    DA = imod.formats.idf.open(list(DF_Par['path']), pattern="{name}_L{layer}_").sel(x=slice(Xmin, Xmax), y=slice(Ymax, Ymin))
-                    #G.DA_to_MBTIF(DA, path_TIF, d_MtDt)
-                    print(f'\u2713 - multi-band')
-                else:
-                    try:
-                        DA = imod.formats.idf.open(list(DF_Par['path']), pattern="{name}_L{layer}_").sel(x=slice(Xmin, Xmax), y=slice(Ymax, Ymin))
-                        #G.DA_to_TIF(DA.squeeze(drop=True), path_TIF, d_MtDt) # .squeeze cause 2D arrays have extra dimension with size 1 sometimes.
-                        print(f'\u2713 - single-band with L attribute')
-                    except:
-                        DA = imod.formats.idf.open(list(DF_Par['path']), pattern="{name}_").sel(x=slice(Xmin, Xmax), y=slice(Ymax, Ymin))
-                        #G.DA_to_TIF(DA.squeeze(drop=True), path_TIF, d_MtDt) # .squeeze cause 2D arrays have extra dimension with size 1 sometimes.
-                        print(f'\u2713 - single-band without L attribute')
-        except:
-            print('\u274C')
-    print(f' --- Success! ---')
-    print(f' {"-"*100}')
 
 def open_PRJ_with_OBS(path_PRJ): #666 gives error cause it tries to read files referenced by PRJ using a default user directory as base. 
     """imod.formats.prj.read_projectfile struggles with .prj files that contain OBS blocks. This will read the PRJ file and return a tuple. The first item is a PRJ dictionary (as imod.formats.prj would return) and also a list of the OBS block lines."""

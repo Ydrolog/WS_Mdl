@@ -171,7 +171,7 @@ def PRJ_to_TIF(MdlN):
             d_MtDt = {}
 
             if os.path.exists(path_TIF):
-                print(f'\u274C - file already exists. Skipping.')
+                print(f'\u274C - {os.path.basename(path_TIF)} already exists. Skipping.')
                 continue
             else:
                 os.makedirs(os.path.dirname(path_TIF), exist_ok=True) # Make sure the directory exists
@@ -197,64 +197,7 @@ def PRJ_to_TIF(MdlN):
                         print(f'\u2713 - single-band without L attribute')
         except Exception as e:
             print(f"\u274C - Error: {e}")
-
-    # -------------------- Process derived packages/parameters (Thk, T) -------------------------------------------------------
-    d_Clc_In = {} # Dictionary to store calculated inputs.
-
-    ## Thk. TOP and BOT files have been QA'd in C:\OD\WS_Mdl\code\PrP\Mdl_In_to_MM\Mdl_In_to_MM.ipynb
-    DA_TOP = imod.formats.idf.open(list(DF_Rgu[DF_Rgu['parameter']=='top']['path']), pattern="{name}_L{layer}_").sel(x=slice(Xmin, Xmax), y=slice(Ymax, Ymin))
-    DA_BOT = imod.formats.idf.open(list(DF_Rgu[DF_Rgu['parameter']=='bottom']['path']), pattern="{name}_L{layer}_").sel(x=slice(Xmin, Xmax), y=slice(Ymax, Ymin))
-    DA_Kh = imod.formats.idf.open(list(DF_Rgu[DF_Rgu['parameter']=='kh']['path']), pattern="{name}_L{layer}_").sel(x=slice(Xmin, Xmax), y=slice(Ymax, Ymin))
-
-    DA_Thk = (DA_TOP - DA_BOT).squeeze(drop=True) # Let's make a dictionary to store Info about each parameter
-    d_Clc_In['Thk'] = {'Par': 'thickness',
-        'DA': DA_Thk,
-        'MdlN': Mdl + str(max(DF_Rgu.loc[DF_Rgu['package'].isin(['TOP', 'BOT']), 'MdlN'].str.extract(r'(\d+)')[0])), #666 the largest number from the TOP and BOT MdlNs
-        'MtDt': {**{f"thickness_L{i+1}": {"layer": f"L{i+1}"} for i in range(DA_Thk.shape[0])},  # Per-layer metadata
-                 "all": {"description": "Layer thickness calculated as 'top - bottom' per layer.",
-                 "source_files": f"""{'-'*200}\nTOP: {' '*30} {" | | ".join(DF_Rgu.loc[DF_Rgu['package'] == 'TOP', 'path'])}        {'-'*200}\nBOT: {' '*30} {" | | ".join(DF_Rgu.loc[DF_Rgu['package'] == 'BOT', 'path'])} """}}
-        }
     
-    ## T
-    DA_T = DA_Thk * DA_Kh
-    d_Clc_In['T'] = {'Par': 'transmissivity',
-        'DA': DA_T,
-        'MdlN': Mdl + (max(DF_Rgu.loc[DF_Rgu['package'].isin(['TOP', 'BOT', 'NPF']), 'MdlN'].str.extract(r'(\d+)')[0])), #666 the largest number from the TOP and BOT MdlNs                   
-        'MtDt': {**{f"transmissivity_L{i+1}": {"layer": f"L{i+1}"} for i in range(DA_Thk.shape[0])},  # Per-layer metadata
-        "all": {"description": "Layer transmissivity (horizontal) calculated as '(top - bottom)*Kh' per layer.",
-                "source_files": f"""{'-'*200}TOP: {' '*30} {" | | ".join(DF_Rgu.loc[DF_Rgu['package'] == 'TOP', 'path'])} 
-                    {'-'*200}BOT: {' '*30} {" | | ".join(DF_Rgu.loc[DF_Rgu['package'] == 'BOT', 'path'])}
-                    {'-'*200}NPF: {' '*30} {" | | ".join(DF_Rgu.loc[DF_Rgu['package'] == 'NPF', 'path'])}"""}}}
-    
-    print(f' --- Converting calculated inputs to TIF ---')
-    for i, Par in enumerate(d_Clc_In.keys()):
-        print(f"\t{d_Clc_In[Par]['Par']:<30} ... ", end='')
-
-        path_TIF = os.path.join(d_paths['path_Mdl'], 'PoP', 'Clc_In', Par, d_Clc_In[Par]['MdlN'], f"{Par}_{d_Clc_In[Par]['MdlN']}.tif")  # Full path to TIF file #666 need to think which MdlN to use. It's hard to do the same as with the other packages.
-        
-        if os.path.exists(path_TIF):
-            print(f'\u274C - file already exists. Skipping.')
-            continue
-        else:
-            try:
-                os.makedirs(os.path.dirname(path_TIF), exist_ok=True) # Make sure the directory exists
-
-                ## Write DAs to TIF files.
-                DA = d_Clc_In[Par]['DA'].squeeze(drop=True)
-                d_MtDt = d_Clc_In[Par]['MtDt']
-
-                if not DA.rio.crs: # Ensure DA_Thk has a CRS (if missing, set it)
-                    DA.rio.write_crs(crs, inplace=True)  # Replace with correct CRS
-
-                if len(DA.shape) == 3: # If there are multiple paths for the same parameter
-                    DA_to_MBTIF(DA, path_TIF, d_MtDt)
-                    print(f'\u2713 - multi-band')
-                elif len(DA.shape) == 2:
-                    DA_to_TIF(DA.squeeze(drop=True), path_TIF, d_MtDt) # .squeeze cause 2D arrays have extra dimension with size 1 sometimes.
-                    print(f'\u2713 - single-band')
-            except Exception as e:
-                print(f"\u274C - Error: {e}")
-
     # -------------------- Process time-dependent packages (RIV, DRN, WEL) --------------------
     ## RIV & DRN
     DF_time = DF[ ( DF["time"].notna() ) &
@@ -268,7 +211,7 @@ def PRJ_to_TIF(MdlN):
         path_TIF = os.path.join(d_paths['path_Mdl'], 'PoP', 'In', R['package'], R['MdlN'], os.path.basename(re.sub(r'\.idf$', '.tif', R['path'], flags=re.IGNORECASE)))  # Full path to TIF file
         
         if os.path.exists(path_TIF):
-            print(f'\u274C - file already exists. Skipping.')
+            print(f'\u274C - {os.path.basename(path_TIF)} already exists. Skipping.')
             continue
         else:
             try:    
@@ -292,7 +235,7 @@ def PRJ_to_TIF(MdlN):
         path_GPKG = os.path.join(d_paths['path_Mdl'], 'PoP', 'In', R['package'], R['MdlN'], os.path.basename(re.sub(r'\.ipf$', '.gpkg', R['path'], flags=re.IGNORECASE)))  # Full path to TIF file
 
         if os.path.exists(path_GPKG):
-            print(f'\u274C - file already exists. Skipping.')
+            print(f'\u274C - file {os.path.basename(path_GPKG)} exists. Skipping.')
             continue
         else:
 
@@ -313,7 +256,62 @@ def PRJ_to_TIF(MdlN):
                 print(f'\u2713 - IPF average values (per id) converted to GPKG')
             except:
                 print('\u274C')
+    # -------------------- Process derived packages/parameters (Thk, T) -------------------------------------------------------
+    d_Clc_In = {} # Dictionary to store calculated inputs.
 
+    ## Thk. TOP and BOT files have been QA'd in C:\OD\WS_Mdl\code\PrP\Mdl_In_to_MM\Mdl_In_to_MM.ipynb
+    DA_TOP = imod.formats.idf.open(list(DF_Rgu[DF_Rgu['parameter']=='top']['path']), pattern="{name}_L{layer}_").sel(x=slice(Xmin, Xmax), y=slice(Ymax, Ymin))
+    DA_BOT = imod.formats.idf.open(list(DF_Rgu[DF_Rgu['parameter']=='bottom']['path']), pattern="{name}_L{layer}_").sel(x=slice(Xmin, Xmax), y=slice(Ymax, Ymin))
+    DA_Kh = imod.formats.idf.open(list(DF_Rgu[DF_Rgu['parameter']=='kh']['path']), pattern="{name}_L{layer}_").sel(x=slice(Xmin, Xmax), y=slice(Ymax, Ymin))
+
+    DA_Thk = (DA_TOP - DA_BOT).squeeze(drop=True) # Let's make a dictionary to store Info about each parameter
+    MdlN_Pkg = Mdl + str(max(DF_Rgu.loc[DF_Rgu['package'].isin(['TOP', 'BOT']), 'MdlN'].str.extract(r'(\d+)')[0])) #666 the largest number from the TOP and BOT MdlNs
+    d_Clc_In['Thk'] = {'Par': 'thickness',
+        'DA': DA_Thk,
+        'MdlN_Pkg': MdlN_Pkg,
+        'MtDt': {**{f"thickness_L{i+1}_{MdlN_Pkg}": {"layer": f"L{i+1}"} for i in range(DA_Thk.shape[0])},  # Per-layer metadata
+                 "all": {"description": "Layer thickness calculated as 'top - bottom' per layer.",
+                 "source_files": f"""{'-'*200}\nTOP: {' '*30} {" | | ".join(DF_Rgu.loc[DF_Rgu['package'] == 'TOP', 'path'])}        {'-'*200}\nBOT: {' '*30} {" | | ".join(DF_Rgu.loc[DF_Rgu['package'] == 'BOT', 'path'])} """}}}
+    ## T
+    DA_T = DA_Thk * DA_Kh
+    MdlN_Pkg = Mdl + str(max(DF_Rgu.loc[DF_Rgu['package'].isin(['TOP', 'BOT', 'NPF']), 'MdlN'].str.extract(r'(\d+)')[0])) # the largest number from the TOP and BOT MdlNs
+    d_Clc_In['T'] = {'Par': 'transmissivity',
+        'DA': DA_T,
+        'MdlN_Pkg': MdlN_Pkg,                    
+        'MtDt': {**{f"transmissivity_L{i+1}_{MdlN_Pkg}": {"layer": f"L{i+1}"} for i in range(DA_Thk.shape[0])},  # Per-layer metadata
+        'all': {"description": "Layer transmissivity (horizontal) calculated as '(top - bottom)*Kh' per layer.",
+                "source_files": f"""{'-'*200}TOP: {' '*30} {" | | ".join(DF_Rgu.loc[DF_Rgu['package'] == 'TOP', 'path'])} 
+                    {'-'*200}BOT: {' '*30} {" | | ".join(DF_Rgu.loc[DF_Rgu['package'] == 'BOT', 'path'])}
+                    {'-'*200}NPF: {' '*30} {" | | ".join(DF_Rgu.loc[DF_Rgu['package'] == 'NPF', 'path'])}"""}}}
+    
+    print(f' --- Converting calculated inputs to TIF ---')
+    for i, Par in enumerate(d_Clc_In.keys()):
+        print(f"\t{d_Clc_In[Par]['Par']:<30} ... ", end='')
+
+        path_TIF = os.path.join(d_paths['path_Mdl'], 'PoP', 'Clc_In', Par, d_Clc_In[Par]['MdlN_Pkg'], f"{Par}_{d_Clc_In[Par]['MdlN_Pkg']}.tif")  # Full path to TIF file #666 need to think which MdlN to use. It's hard to do the same as with the other packages.
+        
+        if os.path.exists(path_TIF):
+            print(f'\u274C - {os.path.basename(path_TIF)} already exists. Skipping.')
+            continue
+        else:
+            try:
+                os.makedirs(os.path.dirname(path_TIF), exist_ok=True) # Make sure the directory exists
+
+                ## Write DAs to TIF files.
+                DA = d_Clc_In[Par]['DA'].squeeze(drop=True)
+                d_MtDt = d_Clc_In[Par]['MtDt']
+
+                if not DA.rio.crs: # Ensure DA_Thk has a CRS (if missing, set it)
+                    DA.rio.write_crs(crs, inplace=True)  # Replace with correct CRS
+
+                if len(DA.shape) == 3: # If there are multiple paths for the same parameter
+                    DA_to_MBTIF(DA, path_TIF, d_MtDt)
+                    print(f'\u2713 - multi-band')
+                elif len(DA.shape) == 2:
+                    DA_to_TIF(DA.squeeze(drop=True), path_TIF, d_MtDt) # .squeeze cause 2D arrays have extra dimension with size 1 sometimes.
+                    print(f'\u2713 - single-band')
+            except Exception as e:
+                print(f"\u274C - Error: {e}")
 
     print(f' --- Success! ---')
     print(f' {"-"*100}')

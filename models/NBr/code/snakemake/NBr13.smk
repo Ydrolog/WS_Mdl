@@ -1,6 +1,8 @@
 ## --- Imports ---
 from WS_Mdl.utils import Up_log, path_WS, INI_to_d, get_elapsed_time_str, get_MdlN_paths
-from WS_Mdl.utils_imod import add_OBS
+import WS_Mdl.utils as U
+import WS_Mdl.utils_imod as UIM
+import WS_Mdl.geo as G
 from snakemake.io import temp
 from datetime import datetime as DT
 import pathlib
@@ -25,6 +27,7 @@ path_HED, path_CBC  =   [os.path.join(path_MdlN, 'GWF_1/MODELOUTPUT', i) for i i
 path_LST_Sim        =   os.path.join(path_MdlN, 'mfsim.lst')
 
 log_Init_done = f"{path_Smk}/temp/Log_init_done_{MdlN}"
+log_Vis_Ins_done = f"{path_Smk}/temp/Log_Vis_Ind_done_{MdlN}"
 
 path_RIV = os.path.join(path_Mdl, 'In/RIV')
 path_RIV_MdlN = os.path.join(path_RIV, f'{MdlN}')
@@ -34,7 +37,8 @@ l_Out_PrP_RIV = [os.path.join(path_RIV_MdlN, os.path.basename(i).replace(MdlN_B_
 ## --- Rules ---
 rule all: # Final rule
     input:
-        path_LST_Sim
+        path_LST_Sim,
+        log_Vis_Ins_done
         
 # -- PrP --
 rule log_Init: # Sets status to running, and writes other info about therun. Has to complete before anything else.
@@ -81,7 +85,7 @@ rule add_OBS:
     output:
         path_OBS
     run:
-        add_OBS(MdlN, "BEGIN OPTIONS\n\tDIGITS 6\nEND OPTIONS")
+        UIM.add_OBS(MdlN, "BEGIN OPTIONS\n\tDIGITS 6\nEND OPTIONS")
         # Up_log(MdlN, {  'Add OBS start DT': DT.now().strftime("%Y-%m-%d %H:%M:%S")})
 
 # -- Sim ---
@@ -98,6 +102,16 @@ rule Sim: # Runs the simulation via BAT file.
         Up_log(MdlN, {  'Sim end DT':   DT.now().strftime("%Y-%m-%d %H:%M:%S"),
                         'Sim Dur':      get_elapsed_time_str(DT_Sim_Start),
                         'End Status':   'Completed'})
+
+rule PRJ_to_TIF:
+    input:
+        path_LST_Sim
+    output:
+        log_Vis_Ins_done
+    run:
+        G.PRJ_to_TIF(MdlN)
+        pathlib.Path(output[0]).touch() # Create the file to mark the rule as done.
+
 
 # rule fail: # Runs only if the Sim has failed, to update the log.
 #     input:

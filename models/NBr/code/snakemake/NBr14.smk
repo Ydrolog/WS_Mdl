@@ -1,10 +1,14 @@
 ## --- Imports ---
 from WS_Mdl.utils import Up_log, path_WS, INI_to_d, get_elapsed_time_str, get_MdlN_paths
-from WS_Mdl.utils_imod import add_OBS
+import WS_Mdl.utils as U
+import WS_Mdl.utils_imod as UIM
+import WS_Mdl.geo as G
 from snakemake.io import temp
 from datetime import datetime as DT
 import pathlib
 import os
+sys.stdout.reconfigure(encoding='utf-8')
+sys.stderr.reconfigure(encoding='utf-8')
 
 ## --- Variables ---
 MdlN    =   "NBr14"
@@ -22,11 +26,13 @@ path_HED, path_CBC  =   [os.path.join(path_MdlN, 'GWF_1/MODELOUTPUT', i) for i i
 path_LST_Sim        =   os.path.join(path_MdlN, 'mfsim.lst')
 
 log_Init_done = f"{path_Smk}/temp/Log_init_done_{MdlN}"
+log_Vis_Ins_done = f"{path_Smk}/temp/Log_Vis_Ind_done_{MdlN}"
 
 ## --- Rules ---
 rule all: # Final rule
     input:
-        path_LST_Sim
+        path_LST_Sim,
+        log_Vis_Ins_done
         
 # -- PrP --
 rule log_Init: # Sets status to running, and writes other info about therun. Has to complete before anything else.
@@ -35,7 +41,7 @@ rule log_Init: # Sets status to running, and writes other info about therun. Has
     run:
         import socket
         device = socket.gethostname()
-        d_INI = INI_to_d(get_MdlN_paths(MdlN)['path_INI_S'])
+        d_INI = INI_to_d(get_MdlN_paths(MdlN)['path_INI'])
         Up_log(MdlN, {  'End Status':       'Running',
                         'PrP start DT':     DT.now().strftime("%Y-%m-%d %H:%M:%S"),
                         "Sim device name":  device,
@@ -64,8 +70,7 @@ rule add_OBS:
     output:
         path_OBS
     run:
-        add_OBS(MdlN, "BEGIN OPTIONS\n\tDIGITS 6\nEND OPTIONS")
-        # Up_log(MdlN, {  'Add OBS start DT': DT.now().strftime("%Y-%m-%d %H:%M:%S")})
+        UIM.add_OBS(MdlN, "BEGIN OPTIONS\n\tDIGITS 6\nEND OPTIONS")
 
 # -- Sim ---
 rule Sim: # Runs the simulation via BAT file.
@@ -76,11 +81,20 @@ rule Sim: # Runs the simulation via BAT file.
     run:
         os.chdir(path_MdlN) # Change directory to the model folder.
         DT_Sim_Start = DT.now()
-        Up_log(MdlN, {'Sim start DT': DT_Sim_Start.strftime("%Y-%m-%d %H:%M:%S")})
+        Up_log(MdlN, {  'Sim start DT'  :   DT_Sim_Start.strftime("%Y-%m-%d %H:%M:%S")})
         shell(path_BAT_RUN)
-        Up_log(MdlN, {  'Sim end DT': DT.now().strftime("%Y-%m-%d %H:%M:%S"),
-                        'Sim Dur': get_elapsed_time_str(DT_Sim_Start),
-                        'End Status': 'Completed'})
+        Up_log(MdlN, {  'Sim end DT'    :   DT.now().strftime("%Y-%m-%d %H:%M:%S"),
+                        'Sim Dur'       :   get_elapsed_time_str(DT_Sim_Start),
+                        'End Status'    :   'Completed'})
+
+rule Vis_Ins:
+    input:
+        path_LST_Sim
+    output:
+        log_Vis_Ins_done
+    run:
+        G.PRJ_to_TIF(MdlN)
+        pathlib.Path(output[0]).touch() # Create the file to mark the rule as done.
 
 # rule fail: # Runs only if the Sim has failed, to update the log.
 #     input:
