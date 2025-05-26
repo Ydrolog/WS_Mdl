@@ -1,4 +1,3 @@
-# ***** Geospatial Functions *****
 from .utils import Sign, Pre_Sign
 from . import utils as U
 from . import utils_imod as UIM
@@ -12,6 +11,7 @@ import imod
 import numpy as np
 import xarray as xr
 from pathlib import Path
+import pandas as pd
 import geopandas as gpd
 from concurrent.futures import ProcessPoolExecutor as PPE
 
@@ -135,17 +135,24 @@ def DA_to_MBTIF(DA, path_Out, d_MtDt, crs=crs, _print=False):
 
 def PRJ_to_TIF(MdlN):
     """ Converts PRJ file to TIF (multiband if necessary) files by package (only time independent packages).
-    The function used a DF produced by PRJ_to_DF. It needs to follow a specific format."""
+    The function uses a DF produced by PRJ_to_DF. It needs to follow a specific format.
+    Also creates a .csv file with the TIF file paths to be replaced in the QGIS project."""
     
-    # -------------------- Get paths ------------------------------------------------------------------------------------------
-    d_paths = U.get_MdlN_paths(MdlN)
-    Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = U.Mdl_Dmns_from_INI(d_paths['path_INI'])
+    # -------------------- Initiate ------------------------------------------------------------------------------------------
+    d_paths = U.get_MdlN_paths(MdlN)                                                        # Get paths
+    Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = U.Mdl_Dmns_from_INI(d_paths['path_INI'])   # Get dimensions
 
-    # -------------------- Read PRJ to DF -------------------------------------------------------------------------------------
+    MdlN_B = d_paths['MdlN_B']
+    path_Up = os.path.join(d_paths['path_PoP_Out_MdlN'], f'MM_path_Up_{MdlN}.csv')
+    if not os.path.exists(path_Up):
+        os.makedirs(os.path.dirname(path_Up), exist_ok=True)
+    DF_Up = pd.read_csv(path_Up)    # DF to store QGIS path changes
+    
+    
     DF = UIM.PRJ_to_DF(MdlN) # Read PRJ file to DF
     
     # -------------------- Process time-indepenent packages (most) ------------------------------------------------------------
-    print(f' --- Converting time-independant package IDF files to TIF ---')
+    print(f'\n --- Converting time-independant package IDF files to TIF ---')
     DF_Rgu = DF[( DF["time"].isna()   ) &       # Only keep regular (time independent) packages
                 ( DF['path'].notna()  ) &  
                 ( DF['suffix']=='.idf')]        # Non time packages have NaN in 'time' Fld. Failed packages have '-', so they'll also be excluded.
@@ -200,11 +207,11 @@ def PRJ_to_TIF(MdlN):
     
     # -------------------- Process time-dependent packages (RIV, DRN, WEL) --------------------
     ## RIV & DRN
+    print(f'\n --- Converting time dependant packages ---')
     DF_time = DF[ ( DF["time"].notna() ) &
                 ( DF["time"]!='-'    ) &
                 ( DF['path'].notna() )] # Non time packages have NaN in 'time' Fld. Failed packages have '-', so they'll also be excluded.         
 
-    print(f' --- Converting time dependant packages ---')
     for i, R in DF_time[DF_time['package'].isin(('DRN', 'RIV'))].iterrows():
         print(f"\t{f"{R['package']}_{R['parameter']}":<30} ... ", end='')
 
@@ -260,6 +267,8 @@ def PRJ_to_TIF(MdlN):
     d_Clc_In = {} # Dictionary to store calculated inputs.
 
     ## Thk. TOP and BOT files have been QA'd in C:\OD\WS_Mdl\code\PrP\Mdl_In_to_MM\Mdl_In_to_MM.ipynb
+    print(f' --- Converting calculated inputs to TIF ---')
+
     DA_TOP = imod.formats.idf.open(list(DF_Rgu[DF_Rgu['parameter']=='top']['path']), pattern="{name}_L{layer}_").sel(x=slice(Xmin, Xmax), y=slice(Ymax, Ymin))
     DA_BOT = imod.formats.idf.open(list(DF_Rgu[DF_Rgu['parameter']=='bottom']['path']), pattern="{name}_L{layer}_").sel(x=slice(Xmin, Xmax), y=slice(Ymax, Ymin))
     DA_Kh = imod.formats.idf.open(list(DF_Rgu[DF_Rgu['parameter']=='kh']['path']), pattern="{name}_L{layer}_").sel(x=slice(Xmin, Xmax), y=slice(Ymax, Ymin))
@@ -284,7 +293,6 @@ def PRJ_to_TIF(MdlN):
                     {'-'*200}BOT: {' '*30} {" | | ".join(DF_Rgu.loc[DF_Rgu['package'] == 'BOT', 'path'])}
                     {'-'*200}NPF: {' '*30} {" | | ".join(DF_Rgu.loc[DF_Rgu['package'] == 'NPF', 'path'])}"""}}}
     
-    print(f' --- Converting calculated inputs to TIF ---')
     for i, Par in enumerate(d_Clc_In.keys()):
         print(f"\t{d_Clc_In[Par]['Par']:<30} ... ", end='')
 
@@ -313,20 +321,41 @@ def PRJ_to_TIF(MdlN):
             except Exception as e:
                 print(f"\u274C - Error: {e}")
 
+    # -------------------- Write replace.csv that contains TIF sources to be changed  ---------------------------------------------
+    print(f' --- Writing .csv file with paths to be replaced ---')
+
+    DF_replace = UIM.PRJ_to_DF(MdlN).merge(UIM.PRJ_to_DF(MdlN_B), how='outer', indicator=True).query('_merge != "both"')
+
+    d_replace = {}
+    DF_l = DF_replace.query('_merge == "left_only"')
+    DF_r = DF_replace.query('_merge == "right_only"')
+    Cols = DF_replace.columns.drop(['MdlN', 'path', '_merge'])
+
+    for i, R_L in DF_l.iterrows():
+        for i, R_R in DF_r.iterrows():
+            if (R_L[Cols] == R_R[Cols]).all():
+                d_replace[R_R['path']] = R_L['path']
+
+    with open(os.path.join(d_paths['path_PoP_Out_MdlN'], f'MM_path_Up_{MdlN}.csv'), 'w') as f:
+        f.write('B,S\n')
+        for k, v in d_replace.items():
+            f.write(f'{k},{v}\n')
+
     print(f' --- Success! ---')
     print(f' {"-"*100}')
 
 # HD_IDF speciic PoP (could be extended/generalized at a later stage) --------------------------------------------------------------
-def HD_IDF_Mo_Avg_to_MBTIF(MdlN: str, N_cores=None, crs=crs):
+def HD_IDF_Mo_Avg_to_MBTIF(MdlN: str, N_cores:int=None, crs:str=crs, DF_rules:str=None):
     """Reads Sim Out IDF files from the model directory and calculates Mo Avg for each L. Saves them as MultiBand TIF files - each band representing the Mo Avg HD for each L."""
     print(Pre_Sign)
     print(f"*** {MdlN} *** - HD_IDF_Mo_Avg_to_MBTIF")
     
     d_paths = U.get_MdlN_paths(MdlN)
-    path_PoP, path_MdlN = [ d_paths[v] for v in ['path_PoP', 'path_MdlN'] ]
-    path_HD = os.path.join(path_MdlN, 'GWF_1/MODELOUTPUT/HEAD/HEAD')
+    path_PoP, path_HD = [ d_paths[v] for v in ['path_PoP', 'path_Out_HD'] ]
 
     DF = U.HD_Out_IDF_to_DF(path_HD) # Read the IDF files to a DataFrame
+    if DF_rules is not None:
+        DF = DF.query(DF_rules)
     DF_grouped = DF.groupby(['year', 'month'])['path']
 
     path_Mo_AVG_Fo = os.path.join(path_PoP, f'Out/{MdlN}/HD_Mo_AVG') # path where Mo AVG files are stored
@@ -358,7 +387,7 @@ def _HD_IDF_Mo_Avg_to_MBTIF_process_Mo(year, month, paths, MdlN, path_Mo_AVG_Fo,
     DA_to_MBTIF(XA_mean, path_Out, d_MtDt, crs=crs, _print=False)
     return f"*** {MdlN} *** - {year}-{month:02d} ✔ "
 
-def HD_IDF_GXG_to_MBTIF(MdlN: str, N_cores=None, crs=crs):
+def HD_IDF_GXG_to_MBTIF(MdlN: str, N_cores:int=None, crs:str=crs):
     """Reads Sim Out IDF files from the model directory and calculates GXG for each L. Saves them as MultiBand TIF files - each band representing one of the GXG params for a L."""
 
     print(Pre_Sign)

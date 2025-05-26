@@ -87,7 +87,7 @@ rule Sim: # Runs the simulation via BAT file.
                         'Sim Dur'       :   get_elapsed_time_str(DT_Sim_Start),
                         'End Status'    :   'Completed'})
 
-rule Vis_Ins:
+rule PRJ_to_TIF:
     input:
         path_LST_Sim
     output:
@@ -95,6 +95,8 @@ rule Vis_Ins:
     run:
         G.PRJ_to_TIF(MdlN)
         pathlib.Path(output[0]).touch() # Create the file to mark the rule as done.
+
+
 
 # rule fail: # Runs only if the Sim has failed, to update the log.
 #     input:

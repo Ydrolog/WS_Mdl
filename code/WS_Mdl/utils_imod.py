@@ -41,7 +41,7 @@ def read_PRJ_with_OBS(path_PRJ):
 
     return PRJ, l_OBS_Lns
 
-def PRJ_to_DF(MdlN):#, verbose:bool=True):
+def PRJ_to_DF(MdlN):#, verbose:bool=True): #666 adding verbose behaviour enables print surpression when verbose=False
     """Leverages read_PRJ_with_OBS to produce a DF with the PRJ data.
     Could have been included in utils.py based on dependencies, but utils_imod.py fits it better as it's almost alwaysused after read_PRJ_with_OBS (so the libs will be already loaded)."""
     # print = print if verbose else lambda *a, **k: None
@@ -169,7 +169,7 @@ def add_OBS(MdlN:str, Opt:str="BEGIN OPTIONS\nEND OPTIONS"):
         DF_OBS_IPF_MdlAa.sort_values(by=["L", "R", "C"], ascending=[True, True, True], inplace=True) # Let's sort the DF by L, R, C
 
         with open(path_OBS, "w") as f: # write OBS file(s)
-            print(path_MdlN, path, path_OBS_IPF, sep='\n')
+            #print(path_MdlN, path, path_OBS_IPF, sep='\n')
             f.write(f"# created from {path_OBS_IPF}\n")
             f.write(Opt.encode().decode('unicode_escape')) # write optional block
             f.write(f"\n\nBEGIN CONTINUOUS FILEOUT OBS_{OBS_IPF_Fi.split('.')[0]}.csv\n")
@@ -188,7 +188,7 @@ def add_OBS(MdlN:str, Opt:str="BEGIN OPTIONS\nEND OPTIONS"):
             f2.write(l_NAM[0])
             f2.write(fr' OBS6 .\{path_OBS_Rel} OBS_{OBS_IPF_Fi.split('.')[0]}')
             f2.write('\nEND PACKAGES')
-        print(f'{path_OBS} has been added successfully!')
+        print(f'✅ - {path_OBS} has been added successfully!')
     print(Sign)
 #-----------------------------------------------------------------------------------------------------------------------------------
 

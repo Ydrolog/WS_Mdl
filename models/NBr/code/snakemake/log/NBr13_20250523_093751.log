@@ -1,0 +1,191 @@
+Assuming unrestricted shared filesystem usage.
+host: UU120516
+Building DAG of jobs...
+Provided cores: 10
+Rules claiming more threads will be scaled down.
+Job stats:
+job           count
+----------  -------
+PRJ_to_TIF        1
+all               1
+total             2
+
+Select jobs to execute...
+Execute 1 jobs...
+
+[Fri May 23 09:38:21 2025]
+localrule PRJ_to_TIF:
+    input: C:/OD/WS_Mdl/models/NBr/Sim/NBr13/mfsim.lst
+    output: C:/OD/WS_Mdl/models/NBr/code/snakemake/temp/Log_Vis_Ind_done_NBr13
+    jobid: 6
+    reason: Missing output files: C:/OD/WS_Mdl/models/NBr/code/snakemake/temp/Log_Vis_Ind_done_NBr13
+    resources: tmpdir=C:\Users\Karam014\AppData\Local\Temp
+Shell command: None
+✅ - NBr13 paths extracted from RunLog.
+✅ - INI file C:/OD/WS_Mdl\models/NBr\code/Mdl_Prep/Mdl_Prep_NBr13.ini read successfully. Dictionary created with 21 keys.
+✅ - model dimensions extracted from C:/OD/WS_Mdl\models/NBr\code/Mdl_Prep/Mdl_Prep_NBr13.ini.
+✅ - NBr13 paths extracted from RunLog.
+ --- Reading PRJ Packages into DF ---
+	(cap)  	...	✓
+	extra  	...	❌
+	(bnd)  	...	✓
+	(top)  	...	✓
+	(bot)  	...	✓
+	(khv)  	...	✓
+	(kva)  	...	✓
+	(shd)  	...	✓
+	(sto)  	...	✓
+	(spy)  	...	✓
+	(hfb)  	...	✓
+	(drn)  	...	✓
+	(riv)  	...	✓
+	(wel)  	...	✓
+	(pcg)  	...	❌
+	(chd)  	...	✓
+	periods	...	❌
+	species	...	❌
+ --- Success! ---
+ ----------------------------------------------------------------------------------------------------
+ --- Converting time-independant package IDF files to TIF ---
+	0 , boundary                       ... ❌ - CAP_boundary_NBr1.tif already exists. Skipping.
+	1 , landuse                        ... ❌ - CAP_landuse_NBr1.tif already exists. Skipping.
+	2 , rootzone_thickness             ... ❌ - CAP_rootzone_thickness_NBr1.tif already exists. Skipping.
+	3 , soil_physical_unit             ... ❌ - CAP_soil_physical_unit_NBr1.tif already exists. Skipping.
+	4 , meteo_station_number           ... ❌ - CAP_meteo_station_number_NBr1.tif already exists. Skipping.
+	5 , surface_elevation              ... ❌ - CAP_surface_elevation_NBr1.tif already exists. Skipping.
+	6 , artificial_recharge            ... ❌ - CAP_artificial_recharge_NBr1.tif already exists. Skipping.
+	7 , artificial_recharge_layer      ... ❌ - CAP_artificial_recharge_layer_NBr1.tif already exists. Skipping.
+	8 , wetted_area                    ... ❌ - CAP_wetted_area_NBr1.tif already exists. Skipping.
+	9 , urban_area                     ... ❌ - CAP_urban_area_NBr1.tif already exists. Skipping.
+	10, ibound                         ... ❌ - BND_ibound_NBr1.tif already exists. Skipping.
+	11, top                            ... ❌ - TOP_top_NBr1.tif already exists. Skipping.
+	12, bottom                         ... ❌ - BOT_bottom_NBr1.tif already exists. Skipping.
+	13, kh                             ... ❌ - KHV_kh_NBr1.tif already exists. Skipping.
+	14, head                           ... ❌ - SHD_head_NBr8.tif already exists. Skipping.
+ --- Converting time dependant packages ---
+	DRN_conductance                ... ❌ - DRN_Cond_buis_NBr1.tif already exists. Skipping.
+	DRN_conductance                ... ❌ - DRN_Cond_MV_25M_MODEL_NBr1.tif already exists. Skipping.
+	DRN_conductance                ... ❌ - DRN_Cond_ONTWATERING_BELGIE_NBr1.tif already exists. Skipping.
+	DRN_conductance                ... ❌ - DRN_Cond_buis_NBr1.tif already exists. Skipping.
+	DRN_conductance                ... ❌ - DRN_Cond_MV_25M_MODEL_NBr1.tif already exists. Skipping.
+	DRN_conductance                ... ❌ - DRN_Cond_ONTWATERING_BELGIE_NBr1.tif already exists. Skipping.
+	DRN_elevation                  ... ❌ - DRN_Elv_buis_NBr1.tif already exists. Skipping.
+	DRN_elevation                  ... ❌ - DRN_Elv_MV_25M_NBr1.tif already exists. Skipping.
+	DRN_elevation                  ... ❌ - DRN_Elv_BELGIE_NBr1.tif already exists. Skipping.
+	DRN_elevation                  ... ❌ - DRN_Elv_buis_NBr1.tif already exists. Skipping.
+	DRN_elevation                  ... ❌ - DRN_Elv_MV_25M_NBr1.tif already exists. Skipping.
+	DRN_elevation                  ... ❌ - DRN_Elv_BELGIE_NBr1.tif already exists. Skipping.
+	RIV_conductance                ... ❌ - RIV_Cond_DETAILWATERGANGEN_NBr1.tif already exists. Skipping.
+	RIV_conductance                ... ❌ - RIV_Cond_RIV_NBr1.tif already exists. Skipping.
+	RIV_conductance                ... ❌ - RIV_Cond_DRN_NBr1.tif already exists. Skipping.
+	RIV_conductance                ... ❌ - RIV_Cond_Maas_NBr1.tif already exists. Skipping.
+	RIV_conductance                ... ❌ - RIV_Cond_Polderpeil_NBr1.tif already exists. Skipping.
+	RIV_conductance                ... ❌ - RIV_Cond_DETAILWATERGANGEN_NBr1.tif already exists. Skipping.
+	RIV_conductance                ... ❌ - RIV_Cond_RIV_NBr1.tif already exists. Skipping.
+	RIV_conductance                ... ❌ - RIV_Cond_DRN_NBr1.tif already exists. Skipping.
+	RIV_conductance                ... ❌ - RIV_Cond_Maas_NBr1.tif already exists. Skipping.
+	RIV_conductance                ... ❌ - RIV_Cond_Polderpeil_NBr1.tif already exists. Skipping.
+	RIV_conductance                ... ❌ - RIV_Cond_DETAILWATERGANGEN_NBr1.tif already exists. Skipping.
+	RIV_conductance                ... ❌ - RIV_Cond_RIV_NBr1.tif already exists. Skipping.
+	RIV_conductance                ... ❌ - RIV_Cond_DRN_NBr1.tif already exists. Skipping.
+	RIV_conductance                ... ❌ - RIV_Cond_Maas_NBr1.tif already exists. Skipping.
+	RIV_conductance                ... ❌ - RIV_Cond_Polderpeil_NBr1.tif already exists. Skipping.
+	RIV_stage                      ... ❌ - RIV_Stg_Detailwatergangen_NBr13.tif already exists. Skipping.
+	RIV_stage                      ... ❌ - RIV_Stg_winter_NBr13.tif already exists. Skipping.
+	RIV_stage                      ... ❌ - RIV_Stg_winter_NBr13.tif already exists. Skipping.
+	RIV_stage                      ... ❌ - RIV_Stg_Maas_NBr13.tif already exists. Skipping.
+	RIV_stage                      ... ❌ - RIV_Stg_Polderpeil_summer_NBr13.tif already exists. Skipping.
+	RIV_stage                      ... ❌ - RIV_Stg_Detailwatergangen_NBr13.tif already exists. Skipping.
+	RIV_stage                      ... ❌ - RIV_Stg_winter_NBr13.tif already exists. Skipping.
+	RIV_stage                      ... ❌ - RIV_Stg_winter_NBr13.tif already exists. Skipping.
+	RIV_stage                      ... ❌ - RIV_Stg_Maas_NBr13.tif already exists. Skipping.
+	RIV_stage                      ... ❌ - RIV_Stg_winter_NBr13.tif already exists. Skipping.
+	RIV_stage                      ... ❌ - RIV_Stg_Detailwatergangen_NBr13.tif already exists. Skipping.
+	RIV_stage                      ... ❌ - RIV_Stg_summer_NBr13.tif already exists. Skipping.
+	RIV_stage                      ... ❌ - RIV_Stg_summer_NBr13.tif already exists. Skipping.
+	RIV_stage                      ... ❌ - RIV_Stg_Maas_NBr13.tif already exists. Skipping.
+	RIV_stage                      ... ❌ - RIV_Stg_Polderpeil_summer_NBr13.tif already exists. Skipping.
+	RIV_bottom_elevation           ... ❌ - RIV_Stg_Detailwatergangen_NBr13.tif already exists. Skipping.
+	RIV_bottom_elevation           ... ❌ - RIV_Bot_RIVER_RIVER_BOTTOM_NBr1.tif already exists. Skipping.
+	RIV_bottom_elevation           ... ❌ - RIV_Stg_winter_NBr13.tif already exists. Skipping.
+	RIV_bottom_elevation           ... ❌ - RIV_Bot_Maas_NBr1.tif already exists. Skipping.
+	RIV_bottom_elevation           ... ❌ - RIV_Bot_polderpeil_NBr1.tif already exists. Skipping.
+	RIV_bottom_elevation           ... ❌ - RIV_Stg_Detailwatergangen_NBr13.tif already exists. Skipping.
+	RIV_bottom_elevation           ... ❌ - RIV_Bot_RIVER_RIVER_BOTTOM_NBr1.tif already exists. Skipping.
+	RIV_bottom_elevation           ... ❌ - RIV_Stg_winter_NBr13.tif already exists. Skipping.
+	RIV_bottom_elevation           ... ❌ - RIV_Bot_Maas_NBr1.tif already exists. Skipping.
+	RIV_bottom_elevation           ... ❌ - RIV_Bot_polderpeil_NBr1.tif already exists. Skipping.
+	RIV_bottom_elevation           ... ❌ - RIV_Stg_Detailwatergangen_NBr13.tif already exists. Skipping.
+	RIV_bottom_elevation           ... ❌ - RIV_Bot_RIVER_RIVER_BOTTOM_NBr1.tif already exists. Skipping.
+	RIV_bottom_elevation           ... ❌ - RIV_Stg_summer_NBr13.tif already exists. Skipping.
+	RIV_bottom_elevation           ... ❌ - RIV_Bot_Maas_NBr1.tif already exists. Skipping.
+	RIV_bottom_elevation           ... ❌ - RIV_Bot_polderpeil_NBr1.tif already exists. Skipping.
+	WEL_Ind_Aa_and_Maas_T_NBr1.ipf ... ❌ - file WEL_Ind_Aa_and_Maas_T_NBr1.gpkg exists. Skipping.
+	WEL_Ind_Br_T_NBr1.ipf          ... ❌ - file WEL_Ind_Br_T_NBr1.gpkg exists. Skipping.
+	WEL_Br_Wa_T_NBr1.ipf           ... ❌ - file WEL_Br_Wa_T_NBr1.gpkg exists. Skipping.
+ --- Converting calculated inputs to TIF ---[Fri May 23 09:38:42 2025]
+Finished jobid: 6 (Rule: PRJ_to_TIF)
+1 of 2 steps (50%) done
+Select jobs to execute...
+Execute 1 jobs...
+
+[Fri May 23 09:38:42 2025]
+localrule all:
+    input: C:/OD/WS_Mdl/models/NBr/Sim/NBr13/mfsim.lst, C:/OD/WS_Mdl/models/NBr/code/snakemake/temp/Log_Vis_Ind_done_NBr13
+    jobid: 0
+    reason: Input files updated by another job: C:/OD/WS_Mdl/models/NBr/code/snakemake/temp/Log_Vis_Ind_done_NBr13
+    resources: tmpdir=C:\Users\Karam014\AppData\Local\Temp
+Shell command: None
+[Fri May 23 09:38:42 2025]
+Finished jobid: 0 (Rule: all)
+2 of 2 steps (100%) done
+Complete log(s): C:\OD\WS_Mdl\models\NBr\.snakemake\log\2025-05-23T093821.685322.snakemake.log
+
+	thickness                      ... ❌ - Thk_NBr1.tif already exists. Skipping.
+	transmissivity                 ... ❌ - T_NBr1.tif already exists. Skipping.
+✅ - NBr13 paths extracted from RunLog.
+ --- Reading PRJ Packages into DF ---
+	(cap)  	...	✓
+	extra  	...	❌
+	(bnd)  	...	✓
+	(top)  	...	✓
+	(bot)  	...	✓
+	(khv)  	...	✓
+	(kva)  	...	✓
+	(shd)  	...	✓
+	(sto)  	...	✓
+	(spy)  	...	✓
+	(hfb)  	...	✓
+	(drn)  	...	✓
+	(riv)  	...	✓
+	(wel)  	...	✓
+	(pcg)  	...	❌
+	(chd)  	...	✓
+	periods	...	❌
+	species	...	❌
+ --- Success! ---
+ ----------------------------------------------------------------------------------------------------
+✅ - NBr12 paths extracted from RunLog.
+ --- Reading PRJ Packages into DF ---
+	(cap)  	...	✓
+	extra  	...	❌
+	(bnd)  	...	✓
+	(top)  	...	✓
+	(bot)  	...	✓
+	(khv)  	...	✓
+	(kva)  	...	✓
+	(shd)  	...	✓
+	(sto)  	...	✓
+	(spy)  	...	✓
+	(hfb)  	...	✓
+	(drn)  	...	✓
+	(riv)  	...	✓
+	(wel)  	...	✓
+	(pcg)  	...	❌
+	(chd)  	...	✓
+	periods	...	❌
+	species	...	❌
+ --- Success! ---
+ ----------------------------------------------------------------------------------------------------
+ --- Success! ---
+ ----------------------------------------------------------------------------------------------------

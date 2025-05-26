@@ -13,8 +13,8 @@ import warnings
 warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl.worksheet._read_only")
 
 #-----------------------------------------------------------------------------------------------------------------------------------
-Pre_Sign = f"{fg("grey_50")}{'*'*80}{attr('reset')}\n\n"
-Sign = f"{fg(52)}\nend_of_transmission\n{fg("grey_50")}{'*'*80}{attr('reset')}\n"
+Pre_Sign = f"{fg('grey_50')}{'*'*80}{attr('reset')}\n\n"
+Sign = f"{fg(52)}\nend_of_transmission\n{fg('grey_50')}{'*'*80}{attr('reset')}\n"
 path_WS = 'C:/OD/WS_Mdl'
 path_RunLog = os.path.join(path_WS, 'Mng/WS_RunLog.xlsx')
 path_log = os.path.join(path_WS, 'Mng/log.csv')
@@ -26,7 +26,7 @@ def MdlN_Se_from_RunLog(MdlN): # Can be made faster. May need to make excel expo
     DF = pd.read_excel(os.path.join(path_WS, 'Mng/WS_RunLog.xlsx'), sheet_name='RunLog')    
     Se_match = DF.loc[DF['MdlN'] == MdlN]
     if Se_match.empty:
-        raise ValueError(f'MdlN "{MdlN}" not found in RunLog. {fg('indian_red_1c')}Check the spelling and try again.{attr("reset")}')
+        raise ValueError(f"MdlN {MdlN} not found in RunLog. {fg('indian_red_1c')}Check the spelling and try again.{attr('reset')}")
     S = Se_match.squeeze()
     return S
 
@@ -36,29 +36,35 @@ def paths_from_MdlN_Se(S, MdlN):
     MdlN_B = Mdl + str(SimN_B)
     
     d_path = {}
-    d_path['Mdl']                   =   Mdl
-    d_path['MdlN_B']                =   MdlN_B
-    d_path['path_Mdl']              =   os.path.join(path_WS, f'models/{Mdl}')
-    d_path['path_MdlN']             =   os.path.join(d_path['path_Mdl'], f"Sim/{MdlN}")
+    d_path['Mdl']       =   Mdl
+    d_path['MdlN_B']    =   MdlN_B
+    d_path['path_Mdl']      =   os.path.join(path_WS, f'models/{Mdl}')
+    d_path['path_INI']      =   os.path.join(d_path['path_Mdl'], f'code/Mdl_Prep/Mdl_Prep_{MdlN}.ini')
+    d_path['path_BAT']      =   os.path.join(d_path['path_Mdl'], f'code/Mdl_Prep/Mdl_Prep_{MdlN}.bat')
+    d_path['path_PRJ']      =   os.path.join(d_path['path_Mdl'], f'In/PRJ/{MdlN}.prj')
+    d_path['path_Smk']      =   os.path.join(d_path['path_Mdl'], f'code/snakemake/{MdlN}.smk')
+    d_path['path_MdlN']         =   os.path.join(d_path['path_Mdl'], f"Sim/{MdlN}")
+    d_path['path_Out_HD']       =   os.path.join(d_path['path_MdlN'], f"GWF_1/MODELOUTPUT/HEAD/HEAD")
     d_path['path_PoP']              =   os.path.join(d_path['path_Mdl'], 'PoP')
     d_path['path_PoP_Out_MdlN']     =   os.path.join(d_path['path_PoP'], 'Out', MdlN)
-    d_path['path_INI']              =   os.path.join(d_path['path_Mdl'], f'code/Mdl_Prep/Mdl_Prep_{MdlN}.ini')
-    d_path['path_BAT']              =   os.path.join(d_path['path_Mdl'], f'code/Mdl_Prep/Mdl_Prep_{MdlN}.bat')
-    d_path['path_PRJ']              =   os.path.join(d_path['path_Mdl'], f'In/PRJ/{MdlN}.prj')
-    d_path['path_Smk']              =   os.path.join(d_path['path_Mdl'], f'code/snakemake/{MdlN}.smk')
-    d_path['path_MdlN_B']           =   d_path['path_MdlN'].replace(MdlN, MdlN_B)
+    d_path['path_MM']              =   os.path.join(d_path['path_PoP_Out_MdlN'], f'MM-{MdlN}.qgz')
+    d_path['path_INI_B']    =   d_path['path_INI'].replace(MdlN, MdlN_B)
+    d_path['path_BAT_B']    =   d_path['path_BAT'].replace(MdlN, MdlN_B)
+    d_path['path_PRJ_B']    =   d_path['path_PRJ'].replace(MdlN, MdlN_B)
+    d_path['path_Smk_B']    =   d_path['path_Smk'].replace(MdlN, MdlN_B)
+    d_path['path_MdlN_B']       =   d_path['path_MdlN'].replace(MdlN, MdlN_B)
+    d_path['path_Out_HD_B']     =   d_path['path_Out_HD'].replace(MdlN, MdlN_B)
     d_path['path_PoP_Out_MdlN_B']   =   d_path['path_PoP_Out_MdlN'].replace(MdlN, MdlN_B)
-    d_path['path_INI_B']            =   d_path['path_INI'].replace(MdlN, MdlN_B)
-    d_path['path_BAT_B']            =   d_path['path_BAT'].replace(MdlN, MdlN_B)
-    d_path['path_PRJ_B']            =   d_path['path_PRJ'].replace(MdlN, MdlN_B)
-    d_path['path_Smk_B']            =   d_path['path_Smk'].replace(MdlN, MdlN_B)
+    d_path['path_MM_B']             =   d_path['path_MM'].replace(MdlN, MdlN_B)
+
 
     return  d_path
 
 def get_MdlN_paths(MdlN: str): #666 Can be split into two as both S and B aren't allways needed. Or better, I can make a new function that does that for just 1 run.
     """ Returns a dictionary of useful object (MdlN_B, directories etc.) for a given model. Those need to then be passed to arguments, e.g. path_INI_B = Dft_paths['path_INI_N']."""
-    print(f"✅ - {MdlN} paths extracted from RunLog.")
-    return paths_from_MdlN_Se( MdlN_Se_from_RunLog((MdlN)), MdlN )
+    d_paths = paths_from_MdlN_Se( MdlN_Se_from_RunLog((MdlN)), MdlN )
+    print(f"✅ - {MdlN} paths extracted from RunLog and returned as dictionary with keys:\n{', '.join(d_paths.keys())}")
+    return d_paths
 # ----------------------------------------------------------------------------------------------------------------------------------
 
 # READ FILES -----------------------------------------------------------------------------------------------------------------------
@@ -144,7 +150,7 @@ def S_from_B(MdlN:str):
                     f2.write(contents.replace(MdlN_B, MdlN))
                 if ".bat" not in path_B.lower():
                     os.startfile(path_S) # Then we'll open it to make any other changes we want to make. Except if it's the BAT file
-                print(f'\u2713 - {path_S.split('/')[-1]} created successfully! (from {path_B})')
+                print(f"\u2713 - {path_S.split('/')[-1]} created successfully! (from {path_B})")
             else:
                 print(f"\u274C - {path_S.split('/')[-1]} already exists. If you want it to be replaced, you have to delete it manually before running this command.")
         except Exception as e:
@@ -154,7 +160,7 @@ def S_from_B(MdlN:str):
         if not os.path.exists(path_PRJ): # For the PRJ file, there is no default text replacement to be performed, so we'll just copy.
             sh.copy2(path_PRJ_B, path_PRJ)
             os.startfile(path_PRJ) # Then we'll open it to make any other changes we want to make.
-            print(f'\u2713 - {path_PRJ.split('/')[-1]} created successfully! (from {path_PRJ_B})')        
+            print(f"\u2713 - {path_PRJ.split('/')[-1]} created successfully! (from {path_PRJ_B})")
         else:
             print(f"\u274C - {path_PRJ.split('/')[-1]} already exists. If you want it to be replaced, you have to delete it manually before running this command.")
     except Exception as e:
@@ -209,9 +215,9 @@ def RunMng(cores=None, DAG:bool=True):
         print("\n❌ - No queued runs found in the RunLog.")
     else:
         for i, Se_Ln in DF_q.iterrows():
-            path_Smk = os.path.join(path_WS, f'models/{Se_Ln["model alias"]}/code/snakemake/{Se_Ln["MdlN"]}.smk')
-            path_log = os.path.join(path_WS, f'models/{Se_Ln["model alias"]}/code/snakemake/log/{Se_Ln["MdlN"]}_{DT.now().strftime('%Y%m%d_%H%M%S')}.log')
-            path_DAG = os.path.join(path_WS, f'models/{Se_Ln["model alias"]}/code/snakemake/DAG/DAG_{Se_Ln["MdlN"]}.png')
+            path_Smk = os.path.join(path_WS, f"models/{Se_Ln['model alias']}/code/snakemake/{Se_Ln['MdlN']}.smk")
+            path_log = os.path.join(path_WS, f"models/{Se_Ln['model alias']}/code/snakemake/log/{Se_Ln['MdlN']}_{DT.now().strftime('%Y%m%d_%H%M%S')}.log")
+            path_DAG = os.path.join(path_WS, f"models/{Se_Ln['model alias']}/code/snakemake/DAG/DAG_{Se_Ln['MdlN']}.png")
             print(f"\n{'-'*60}")
             print(f" -- {fg('green')}{os.path.basename(path_Smk)}{attr('reset')}\n")
 
