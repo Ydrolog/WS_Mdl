@@ -2,6 +2,7 @@ from .utils import Sign, Pre_Sign
 from . import utils as U
 from . import utils_imod as UIM
 import os
+import shutil as sh
 import re
 from datetime import datetime as DT
 from typing import Optional, Dict
@@ -14,6 +15,8 @@ from pathlib import Path
 import pandas as pd
 import geopandas as gpd
 from concurrent.futures import ProcessPoolExecutor as PPE
+import zipfile as ZF
+import xml.etree.ElementTree as ET
 
 crs = "EPSG:28992"
 
@@ -141,13 +144,6 @@ def PRJ_to_TIF(MdlN):
     # -------------------- Initiate ------------------------------------------------------------------------------------------
     d_paths = U.get_MdlN_paths(MdlN)                                                        # Get paths
     Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = U.Mdl_Dmns_from_INI(d_paths['path_INI'])   # Get dimensions
-
-    MdlN_B = d_paths['MdlN_B']
-    path_Up = os.path.join(d_paths['path_PoP_Out_MdlN'], f'MM_path_Up_{MdlN}.csv')
-    if not os.path.exists(path_Up):
-        os.makedirs(os.path.dirname(path_Up), exist_ok=True)
-    DF_Up = pd.read_csv(path_Up)    # DF to store QGIS path changes
-    
     
     DF = UIM.PRJ_to_DF(MdlN) # Read PRJ file to DF
     
@@ -320,29 +316,7 @@ def PRJ_to_TIF(MdlN):
                     print(f'\u2713 - single-band')
             except Exception as e:
                 print(f"\u274C - Error: {e}")
-
-    # -------------------- Write replace.csv that contains TIF sources to be changed  ---------------------------------------------
-    print(f' --- Writing .csv file with paths to be replaced ---')
-
-    DF_replace = UIM.PRJ_to_DF(MdlN).merge(UIM.PRJ_to_DF(MdlN_B), how='outer', indicator=True).query('_merge != "both"')
-
-    d_replace = {}
-    DF_l = DF_replace.query('_merge == "left_only"')
-    DF_r = DF_replace.query('_merge == "right_only"')
-    Cols = DF_replace.columns.drop(['MdlN', 'path', '_merge'])
-
-    for i, R_L in DF_l.iterrows():
-        for i, R_R in DF_r.iterrows():
-            if (R_L[Cols] == R_R[Cols]).all():
-                d_replace[R_R['path']] = R_L['path']
-
-    with open(os.path.join(d_paths['path_PoP_Out_MdlN'], f'MM_path_Up_{MdlN}.csv'), 'w') as f:
-        f.write('B,S\n')
-        for k, v in d_replace.items():
-            f.write(f'{k},{v}\n')
-
-    print(f' --- Success! ---')
-    print(f' {"-"*100}')
+    print(Sign)
 
 # HD_IDF speciic PoP (could be extended/generalized at a later stage) --------------------------------------------------------------
 def HD_IDF_Mo_Avg_to_MBTIF(MdlN: str, N_cores:int=None, crs:str=crs, DF_rules:str=None):
@@ -391,7 +365,7 @@ def HD_IDF_GXG_to_MBTIF(MdlN: str, N_cores:int=None, crs:str=crs):
     """Reads Sim Out IDF files from the model directory and calculates GXG for each L. Saves them as MultiBand TIF files - each band representing one of the GXG params for a L."""
 
     print(Pre_Sign)
-    print(f"*** {MdlN} *** - HD_IDF_Mo_Avg_to_MBTIF")
+    print(f"*** {MdlN} *** - HD_IDF_GXG_to_MBTIF\n")
 
     d_paths = U.get_MdlN_paths(MdlN)
     path_PoP, path_MdlN = [ d_paths[v] for v in ['path_PoP', 'path_MdlN'] ]
@@ -432,16 +406,91 @@ def _HD_IDF_GXG_to_MBTIF_process_L(L, d_IDF_GXG, MdlN, path_PoP, path_HD, crs):
     path_Out = os.path.join(path_PoP, 'Out', MdlN, 'GXG', f'GXG_L{L}_{MdlN}.tif')
     os.makedirs(os.path.dirname(path_Out), exist_ok=True)
 
-    d_MtDt = {str(i): {f'{var}_AVG': float(GXG[var].mean().values) for var in GXG.data_vars} 
+    d_MtDt = {str(i+1): {f'{var}_AVG': float(GXG[var].mean().values) for var in GXG.data_vars} 
               for i in range(len(GXG.data_vars))}
     
     d_MtDt['all'] = {'parameters': XA.coords,
                      'Description': f'{MdlN} GXG (path: {path_HD})\nFor more info see: https://deltares.github.io/imod-python/api/generated/evaluate/imod.evaluate.calculate_gxg.html'}
 
-    DA = GXG.to_array(dim="band")
+    # Set proper band names and write to MBTIF
+    band_names = [f"{var}_{MdlN}" for var in GXG.data_vars]
+    DA = GXG.to_array(dim="band").astype(np.float32)
+    DA["band"] = band_names
     DA_to_MBTIF(DA, path_Out, d_MtDt, crs=crs, _print=False)
     return f"GXG_L{L} ✔"
 
+# ----------------------------------------------------------------------------------------------------------------------------------
+
+# MM Update ------------------------------------------------------------------------------------------------------------------------
+def Up_MM(MdlN):
+    """Updates the MM (QGIS projct containing model data)."""
+    
+    print(Pre_Sign)
+    print(f" *****   Creating MM for {MdlN}   ***** ")
+    
+    d_paths = U.get_MdlN_paths(MdlN)
+    path_QGZ, path_QGZ_B = d_paths['path_MM'], d_paths['path_MM_B']
+    Mdl = d_paths['Mdl']
+
+    os.makedirs(os.path.basename(path_QGZ), exist_ok=True)      # Ensure destination folder exists
+    sh.copy(path_QGZ_B, path_QGZ)                               # Copy the file
+    print(f"Copied QGIS project from {path_QGZ_B} to {path_QGZ}.\nUpdating layer path ...")
+
+    path_temp = os.path.join(os.path.dirname(path_QGZ), 'temp')
+    os.makedirs(path_temp, exist_ok=True)
+
+    with ZF.ZipFile(path_QGZ_B, 'r') as zip_ref:     # Unzip .qgz
+        zip_ref.extractall(path_temp)
+
+    path_QGS = os.path.join(path_temp, os.path.basename(path_QGZ_B).replace('.qgz', '.qgs'))
+    tree = ET.parse(path_QGS)
+    root = tree.getroot()
+
+    for i, DS in enumerate(root.iter('datasource')):                  # Update datasource paths
+        DS_text = DS.text
+        # print(i, DS_text)
+        
+        if not DS_text:
+            # print(' - X - Not text')
+            # print('-'*50)
+            continue
+
+        if '|' in DS_text:
+            path, suffix = DS_text.split('|', 1)
+        else:
+            path, suffix = DS_text, ''
+
+        if Mdl in path:
+            matches = re.findall(rf'{re.escape(Mdl)}(\d+)', path)
+            if len(set(matches)) > 1:
+                print(f"❌ ERROR: multiple different {Mdl}Ns found in path: {matches}")
+                sys.exit("Fix the path containing different MdlNs, then re-run me.")
+            else:
+                MdlX = f"{Mdl}{matches[0]}"
+                
+                path_full = os.path.normpath(os.path.join(os.path.dirname(path_QGZ), path.replace(MdlX, MdlN)))
+                if (MdlX != MdlN) and (os.path.exists(path_full)):
+                    path_X = path.replace(MdlX, MdlN)
+                    DS.text = f"{path_X}|{suffix}" if suffix else path_X
+                    print(f" - ✅ Updated {MdlX} → {MdlN} in {path_full}")
+                # else:
+                    # print(" - OK (no change)")
+        # else:
+        #     print(" - No Mdl in path")
+        # print('-'*50)
+
+    tree.write(path_QGS, encoding='utf-8', xml_declaration=True)    # Save the modified .qgs file
+
+    with ZF.ZipFile(path_QGZ, 'w', ZF.ZIP_DEFLATED) as zipf:   # Zip back into .qgz
+        for foldername, _, filenames in os.walk(path_temp):
+            for filename in filenames:
+                filepath = os.path.join(foldername, filename)
+                arcname = os.path.relpath(filepath, path_temp)
+                zipf.write(filepath, arcname)
+
+    sh.rmtree(path_temp)  # Remove the temporary folder
+    print(f"\n✅ MM for {MdlN} has been updated.\n")
+    print(Sign)
 # ----------------------------------------------------------------------------------------------------------------------------------
 
 # OUTDATED -------------------------------------------------------------------------------------------------------------------------
