@@ -1,0 +1,204 @@
+Assuming unrestricted shared filesystem usage.
+host: UU120516
+Building DAG of jobs...
+Provided cores: 10
+Rules claiming more threads will be scaled down.
+Job stats:
+job         count
+--------  -------
+Mdl_Prep        1
+add_OBS         1
+all             1
+log_Init        1
+total           4
+
+Select jobs to execute...
+Execute 1 jobs...
+
+[Mon Jun  2 09:11:21 2025]
+localrule log_Init:
+    output: C:/OD/WS_Mdl/models/NBr/code/snakemake/temp/Log_init_done_NBr15
+    jobid: 3
+    reason: Missing output files: C:/OD/WS_Mdl/models/NBr/code/snakemake/temp/Log_init_done_NBr15
+    resources: tmpdir=C:\Users\Karam014\AppData\Local\Temp
+Shell command: None
+[Mon Jun  2 09:11:22 2025]
+Finished jobid: 3 (Rule: log_Init)
+1 of 4 steps (25%) done
+Select jobs to execute...
+Execute 1 jobs...
+
+[Mon Jun  2 09:11:22 2025]
+localrule Mdl_Prep:
+    input: C:/OD/WS_Mdl/models/NBr/code/snakemake/temp/Log_init_done_NBr15, code/Mdl_Prep/Mdl_Prep_NBr15.bat, code/Mdl_Prep/Mdl_Prep_NBr15.ini, In/PRJ/NBr15.prj
+    output: C:/OD/WS_Mdl/models/NBr/Sim/NBr15/RUN.BAT
+    jobid: 2
+    reason: Missing output files: C:/OD/WS_Mdl/models/NBr/Sim/NBr15/RUN.BAT; Input files updated by another job: C:/OD/WS_Mdl/models/NBr/code/snakemake/temp/Log_init_done_NBr15
+    resources: tmpdir=C:\Users\Karam014\AppData\Local\Temp
+Shell command: call code/Mdl_Prep/Mdl_Prep_NBr15.bat
+
+ ==================================================
+ Running iMOD: 
+  exe: C:\OD\WS_Mdl\software\iMOD5\iMOD_V5_6_1.exe
+  dir: C:\OD\WS_Mdl\models\NBr\code\Mdl_Prep
+ ==================================================
+
+
+EXECUTING FUNCTION >>> RUNFILE <<<
+
+
+iMODBATCH using tmp-folder:
+  C:\OD\WS_Mdl\models\NBr\code\Mdl_Prep\IMOD_TMP\BATCH1
+
+PRJFILE_IN=..\..\In\PRJ\NBr15.prj
+
+Export to MODFLOW6 files
+
+NAMFILE_OUT=..\..\Sim\NBr15\NBr15.nam
+WINDOW=     113100.000     387600.000     125100.000     396200.000
+CELLSIZE=         25.000
+ISS=         1
+SDATE=20100101000000
+EDATE=20100103000000
+ITT=             3
+IDT=             1
+Time step:     1 days
+NSTEP=         1
+ISTEADY=         0
+SSYSTEM=         1
+SAVESHD=-1
+SAVEDRN=1
+SAVERIV=1
+SAVEWEL=1
+SAVEFLX=1
+PCKACTIVE=0
+COUPLER=..\..\..\..\software\iMOD5\bin\iMOD_coupler
+ISOLVE=         0
+
+iMOD found model with 37 layers
+
+Reading BND-files (2.70%)      Reading BND-files (5.41%)      Reading BND-files (8.11%)      Reading BND-files (10.81%)      Reading BND-files (13.51%)      Reading BND-files (16.22%)      Reading BND-files (18.92%)      Reading BND-files (21.62%)      Reading BND-files (24.32%)      Reading BND-files (27.03%)      Reading BND-files (29.73%)      Reading BND-files (32.43%)      Reading BND-files (35.14%)      Reading BND-files (37.84%)      Reading BND-files (40.54%)      Reading BND-files (43.24%)      Reading BND-files (45.95%)      Reading BND-files (48.65%)      Reading BND-files (51.35%)      Reading BND-files (54.05%)      Reading BND-files (56.76%)      Reading BND-files (59.46%)      Reading BND-files (62.16%)      Reading BND-files (64.86%)      Reading BND-files (67.57%)      Reading BND-files (70.27%)      Reading BND-files (72.97%)      Reading BND-files (75.68%)      Reading BND-files (78.38%)      Reading BND-files (81.08%)      Reading BND-files (83.78%)      Reading BND-files (86.49%)      Reading BND-files (89.19%)      Reading BND-files (91.89%)      Reading BND-files (94.59%)      Reading BND-files (97.30%)      Reading BND-files (100.00%)      
+Modified boundary layer 1 due to submodelling N/S/W/E: 478/478/344/344
+Modified boundary layer 2 due to submodelling N/S/W/E: 478/478/344/344
+Modified boundary layer 3 due to submodelling N/S/W/E: 478/478/344/344
+Modified boundary layer 4 due to submodelling N/S/W/E: 478/478/344/344
+Modified boundary layer 5 due to submodelling N/S/W/E: 478/478/344/344
+Modified boundary layer 6 due to submodelling N/S/W/E: 478/478/344/344
+Modified boundary layer 7 due to submodelling N/S/W/E: 478/478/344/344
+Modified boundary layer 8 due to submodelling N/S/W/E: 478/478/344/344
+Modified boundary layer 9 due to submodelling N/S/W/E: 478/478/344/344
+Modified boundary layer 10 due to submodelling N/S/W/E: 478/478/344/344
+Modified boundary layer 11 due to submodelling N/S/W/E: 478/478/344/344
+Modified boundary layer 12 due to submodelling N/S/W/E: 478/478/344/344
+Modified boundary layer 13 due to submodelling N/S/W/E: 478/478/344/344
+Modified boundary layer 14 due to submodelling N/S/W/E: 478/478/344/344
+Modified boundary layer 15 due to submodelling N/S/W/E: 478/478/344/344
+Modified boundary layer 16 due to submodelling N/S/W/E: 478/478/344/344
+Modified boundary layer 17 due to submodelling N/S/W/E: 478/478/344/344
+Modified boundary layer 18 due to submodelling N/S/W/E: 478/478/344/344
+Modified boundary layer 19 due to submodelling N/S/W/E: 478/478/344/344
+Modified boundary layer 20 due to submodelling N/S/W/E: 478/478/344/344
+Modified boundary layer 21 due to submodelling N/S/W/E: 478/478/344/344
+Modified boundary layer 22 due to submodelling N/S/W/E: 478/478/344/344
+Modified boundary layer 23 due to submodelling N/S/W/E: 478/478/344/344
+Modified boundary layer 24 due to submodelling N/S/W/E: 478/478/344/344
+Modified boundary layer 25 due to submodelling N/S/W/E: 478/478/344/344
+Modified boundary layer 26 due to submodelling N/S/W/E: 478/478/344/344
+Modified boundary layer 27 due to submodelling N/S/W/E: 478/478/344/344
+Modified boundary layer 28 due to submodelling N/S/W/E: 478/478/344/344
+Modified boundary layer 29 due to submodelling N/S/W/E: 478/478/344/344
+Modified boundary layer 30 due to submodelling N/S/W/E: 478/478/344/344
+Modified boundary layer 31 due to submodelling N/S/W/E: 478/478/344/344
+Modified boundary layer 32 due to submodelling N/S/W/E: 478/478/344/344
+Modified boundary layer 33 due to submodelling N/S/W/E: 478/478/344/344
+Modified boundary layer 34 due to submodelling N/S/W/E: 478/478/344/344
+Modified boundary layer 35 due to submodelling N/S/W/E: 478/478/344/344
+Modified boundary layer 36 due to submodelling N/S/W/E: 478/478/344/344
+Modified boundary layer 37 due to submodelling N/S/W/E: 478/478/344/344
+Reading SHD-files (2.70%)      Reading SHD-files (5.41%)      Reading SHD-files (8.11%)      Reading SHD-files (10.81%)      Reading SHD-files (13.51%)      Reading SHD-files (16.22%)      Reading SHD-files (18.92%)      Reading SHD-files (21.62%)      Reading SHD-files (24.32%)      Reading SHD-files (27.03%)      Reading SHD-files (29.73%)      Reading SHD-files (32.43%)      Reading SHD-files (35.14%)      Reading SHD-files (37.84%)      Reading SHD-files (40.54%)      Reading SHD-files (43.24%)      Reading SHD-files (45.95%)      Reading SHD-files (48.65%)      Reading SHD-files (51.35%)      Reading SHD-files (54.05%)      Reading SHD-files (56.76%)      Reading SHD-files (59.46%)      Reading SHD-files (62.16%)      Reading SHD-files (64.86%)      Reading SHD-files (67.57%)      Reading SHD-files (70.27%)      Reading SHD-files (72.97%)      Reading SHD-files (75.68%)      Reading SHD-files (78.38%)      Reading SHD-files (81.08%)      Reading SHD-files (83.78%)      Reading SHD-files (86.49%)      Reading SHD-files (89.19%)      Reading SHD-files (91.89%)      Reading SHD-files (94.59%)      Reading SHD-files (97.30%)      Reading SHD-files (100.00%)      Reading TOP/BOT-files (2.70%)      Reading TOP/BOT-files (5.41%)      Reading TOP/BOT-files (8.11%)      Reading TOP/BOT-files (10.81%)      Reading TOP/BOT-files (13.51%)      Reading TOP/BOT-files (16.22%)      Reading TOP/BOT-files (18.92%)      Reading TOP/BOT-files (21.62%)      Reading TOP/BOT-files (24.32%)      Reading TOP/BOT-files (27.03%)      Reading TOP/BOT-files (29.73%)      Reading TOP/BOT-files (32.43%)      Reading TOP/BOT-files (35.14%)      Reading TOP/BOT-files (37.84%)      Reading TOP/BOT-files (40.54%)      Reading TOP/BOT-files (43.24%)      Reading TOP/BOT-files (45.95%)      Reading TOP/BOT-files (48.65%)      Reading TOP/BOT-files (51.35%)      Reading TOP/BOT-files (54.05%)      Reading TOP/BOT-files (56.76%)      Reading TOP/BOT-files (59.46%)      Reading TOP/BOT-files (62.16%)      Reading TOP/BOT-files (64.86%)      Reading TOP/BOT-files (67.57%)      Reading TOP/BOT-files (70.27%)      Reading TOP/BOT-files (72.97%)      Reading TOP/BOT-files (75.68%)      Reading TOP/BOT-files (78.38%)      Reading TOP/BOT-files (81.08%)      Reading TOP/BOT-files (83.78%)      Reading TOP/BOT-files (86.49%)      Reading TOP/BOT-files (89.19%)      Reading TOP/BOT-files (91.89%)      Reading TOP/BOT-files (94.59%)      Reading TOP/BOT-files (97.30%)      Reading TOP/BOT-files (100.00%)      Reading LPF-files Permeability components (2.70%)      Reading LPF-files Permeability components (5.41%)      Reading LPF-files Permeability components (8.11%)      Reading LPF-files Permeability components (10.81%)      Reading LPF-files Permeability components (13.51%)      Reading LPF-files Permeability components (16.22%)      Reading LPF-files Permeability components (18.92%)      Reading LPF-files Permeability components (21.62%)      Reading LPF-files Permeability components (24.32%)      Reading LPF-files Permeability components (27.03%)      Reading LPF-files Permeability components (29.73%)      Reading LPF-files Permeability components (32.43%)      Reading LPF-files Permeability components (35.14%)      Reading LPF-files Permeability components (37.84%)      Reading LPF-files Permeability components (40.54%)      Reading LPF-files Permeability components (43.24%)      Reading LPF-files Permeability components (45.95%)      Reading LPF-files Permeability components (48.65%)      Reading LPF-files Permeability components (51.35%)      Reading LPF-files Permeability components (54.05%)      Reading LPF-files Permeability components (56.76%)      Reading LPF-files Permeability components (59.46%)      Reading LPF-files Permeability components (62.16%)      Reading LPF-files Permeability components (64.86%)      Reading LPF-files Permeability components (67.57%)      Reading LPF-files Permeability components (70.27%)      Reading LPF-files Permeability components (72.97%)      Reading LPF-files Permeability components (75.68%)      Reading LPF-files Permeability components (78.38%)      Reading LPF-files Permeability components (81.08%)      Reading LPF-files Permeability components (83.78%)      Reading LPF-files Permeability components (86.49%)      Reading LPF-files Permeability components (89.19%)      Reading LPF-files Permeability components (91.89%)      Reading LPF-files Permeability components (94.59%)      Reading LPF-files Permeability components (97.30%)      Reading LPF-files Permeability components (100.00%)      Reading LPF-files Storage components (2.70%)      Reading LPF-files Storage components (5.41%)      Reading LPF-files Storage components (8.11%)      Reading LPF-files Storage components (10.81%)      Reading LPF-files Storage components (13.51%)      Reading LPF-files Storage components (16.22%)      Reading LPF-files Storage components (18.92%)      Reading LPF-files Storage components (21.62%)      Reading LPF-files Storage components (24.32%)      Reading LPF-files Storage components (27.03%)      Reading LPF-files Storage components (29.73%)      Reading LPF-files Storage components (32.43%)      Reading LPF-files Storage components (35.14%)      Reading LPF-files Storage components (37.84%)      Reading LPF-files Storage components (40.54%)      Reading LPF-files Storage components (43.24%)      Reading LPF-files Storage components (45.95%)      Reading LPF-files Storage components (48.65%)      Reading LPF-files Storage components (51.35%)      Reading LPF-files Storage components (54.05%)      Reading LPF-files Storage components (56.76%)      Reading LPF-files Storage components (59.46%)      Reading LPF-files Storage components (62.16%)      Reading LPF-files Storage components (64.86%)      Reading LPF-files Storage components (67.57%)      Reading LPF-files Storage components (70.27%)      Reading LPF-files Storage components (72.97%)      Reading LPF-files Storage components (75.68%)      Reading LPF-files Storage components (78.38%)      Reading LPF-files Storage components (81.08%)      Reading LPF-files Storage components (83.78%)      Reading LPF-files Storage components (86.49%)      Reading LPF-files Storage components (89.19%)      Reading LPF-files Storage components (91.89%)      Reading LPF-files Storage components (94.59%)      Reading LPF-files Storage components (97.30%)      Reading LPF-files Storage components (100.00%)      
+
+ Writing ..\..\SIM\NBR15\GWF_1\MODELINPUT\NBR15.IC6...
+
+ Writing ..\..\SIM\NBR15\GWF_1\MODELINPUT\NBR15.DIS6...
+
+ Writing ..\..\SIM\NBR15\GWF_1\MODELINPUT\NBR15.NPF6...
+
+ Writing ..\..\SIM\NBR15\GWF_1\MODELINPUT\NBR15.STO6...
+
+ Writing ..\..\SIM\NBR15\GWF_1\MODELINPUT\NBR15.HFB6...
+
+ Writing ..\..\SIM\NBR15\GWF_1\MODELINPUT\NBR15.DRN6...
+     STARTTIME        PCKTIME        ENDTIME          ENTRY
+20100101000000 20100101000000 20100102000000              2
+Exporting timestep      1     2     2 20100101000000 20100102000000Exporting timestep      2     2    -2 20100102000000 20100103000000
+
+ Writing ..\..\SIM\NBR15\GWF_1\MODELINPUT\NBR15.RIV6...
+     STARTTIME        PCKTIME        ENDTIME          ENTRY
+20100101000000 19901001000000 20100102000000              2
+Exporting timestep      1     2     2 20100101000000 20100102000000Exporting timestep      2     2    -2 20100102000000 20100103000000
+
+ Writing ..\..\SIM\NBR15\GWF_1\MODELINPUT\NBR15.CHD6...
+Exporting timestep      1     2     0 20100101000000 20100102000000Exporting timestep      2     2     0 20100102000000 20100103000000
+
+ Writing MetaSwap files ...
+Progress 0.15%             Progress 0.29%             Progress 0.44%             Progress 0.58%             Progress 0.73%             Progress 0.87%             Progress 1.02%             Progress 1.16%             Progress 1.31%             Progress 1.45%             Progress 1.60%             Progress 1.74%             Progress 1.89%             Progress 2.03%             Progress 2.18%             Progress 2.33%             Progress 2.47%             Progress 2.62%             Progress 2.76%             Progress 2.91%             Progress 3.05%             Progress 3.20%             Progress 3.34%             Progress 3.49%             Progress 3.63%             Progress 3.78%             Progress 3.92%             Progress 4.07%             Progress 4.22%             Progress 4.36%             Progress 4.51%             Progress 4.65%             Progress 4.80%             Progress 4.94%             Progress 5.09%             Progress 5.23%             Progress 5.38%             Progress 5.52%             Progress 5.67%             Progress 5.81%             Progress 5.96%             Progress 6.10%             Progress 6.25%             Progress 6.40%             Progress 6.54%             Progress 6.69%             Progress 6.83%             Progress 6.98%             Progress 7.12%             Progress 7.27%             Progress 7.41%             Progress 7.56%             Progress 7.70%             Progress 7.85%             Progress 7.99%             Progress 8.14%             Progress 8.28%             Progress 8.43%             Progress 8.58%             Progress 8.72%             Progress 8.87%             Progress 9.01%             Progress 9.16%             Progress 9.30%             Progress 9.45%             Progress 9.59%             Progress 9.74%             Progress 9.88%             Progress 10.03%             Progress 10.17%             Progress 10.32%             Progress 10.47%             Progress 10.61%             Progress 10.76%             Progress 10.90%             Progress 11.05%             Progress 11.19%             Progress 11.34%             Progress 11.48%             Progress 11.63%             Progress 11.77%             Progress 11.92%             Progress 12.06%             Progress 12.21%             Progress 12.35%             Progress 12.50%             Progress 12.65%             Progress 12.79%             Progress 12.94%             Progress 13.08%             Progress 13.23%             Progress 13.37%             Progress 13.52%             Progress 13.66%             Progress 13.81%             Progress 13.95%             Progress 14.10%             Progress 14.24%             Progress 14.39%             Progress 14.53%             Progress 14.68%             Progress 14.83%             Progress 14.97%             Progress 15.12%             Progress 15.26%             Progress 15.41%             Progress 15.55%             Progress 15.70%             Progress 15.84%             Progress 15.99%             Progress 16.13%             Progress 16.28%             Progress 16.42%             Progress 16.57%             Progress 16.72%             Progress 16.86%             Progress 17.01%             Progress 17.15%             Progress 17.30%             Progress 17.44%             Progress 17.59%             Progress 17.73%             Progress 17.88%             Progress 18.02%             Progress 18.17%             Progress 18.31%             Progress 18.46%             Progress 18.60%             Progress 18.75%             Progress 18.90%             Progress 19.04%             Progress 19.19%             Progress 19.33%             Progress 19.48%             Progress 19.62%             Progress 19.77%             Progress 19.91%             Progress 20.06%             Progress 20.20%             Progress 20.35%             Progress 20.49%             Progress 20.64%             Progress 20.78%             Progress 20.93%             Progress 21.08%             Progress 21.22%             Progress 21.37%             Progress 21.51%             Progress 21.66%             Progress 21.80%             Progress 21.95%             Progress 22.09%             Progress 22.24%             Progress 22.38%             Progress 22.53%             Progress 22.67%             Progress 22.82%             Progress 22.97%             Progress 23.11%             Progress 23.26%             Progress 23.40%             Progress 23.55%             Progress 23.69%             Progress 23.84%             Progress 23.98%             Progress 24.13%             Progress 24.27%             Progress 24.42%             Progress 24.56%             Progress 24.71%             Progress 24.85%             Progress 25.00%             Progress 25.15%             Progress 25.29%             Progress 25.44%             Progress 25.58%             Progress 25.73%             Progress 25.87%             Progress 26.02%             Progress 26.16%             Progress 26.31%             Progress 26.45%             Progress 26.60%             Progress 26.74%             Progress 26.89%             Progress 27.03%             Progress 27.18%             Progress 27.33%             Progress 27.47%             Progress 27.62%             Progress 27.76%             Progress 27.91%             Progress 28.05%             Progress 28.20%             Progress 28.34%             Progress 28.49%             Progress 28.63%             Progress 28.78%             Progress 28.92%             Progress 29.07%             Progress 29.22%             Progress 29.36%             Progress 29.51%             Progress 29.65%             Progress 29.80%             Progress 29.94%             Progress 30.09%             Progress 30.23%             Progress 30.38%             Progress 30.52%             Progress 30.67%             Progress 30.81%             Progress 30.96%             Progress 31.10%             Progress 31.25%             Progress 31.40%             Progress 31.54%             Progress 31.69%             Progress 31.83%             Progress 31.98%             Progress 32.12%             Progress 32.27%             Progress 32.41%             Progress 32.56%             Progress 32.70%             Progress 32.85%             Progress 32.99%             Progress 33.14%             Progress 33.28%             Progress 33.43%             Progress 33.58%             Progress 33.72%             Progress 33.87%             Progress 34.01%             Progress 34.16%             Progress 34.30%             Progress 34.45%             Progress 34.59%             Progress 34.74%             Progress 34.88%             Progress 35.03%             Progress 35.17%             Progress 35.32%             Progress 35.47%             Progress 35.61%             Progress 35.76%             Progress 35.90%             Progress 36.05%             Progress 36.19%             Progress 36.34%             Progress 36.48%             Progress 36.63%             Progress 36.77%             Progress 36.92%             Progress 37.06%             Progress 37.21%             Progress 37.35%             Progress 37.50%             Progress 37.65%             Progress 37.79%             Progress 37.94%             Progress 38.08%             Progress 38.23%             Progress 38.37%             Progress 38.52%             Progress 38.66%             Progress 38.81%             Progress 38.95%             Progress 39.10%             Progress 39.24%             Progress 39.39%             Progress 39.53%             Progress 39.68%             Progress 39.83%             Progress 39.97%             Progress 40.12%             Progress 40.26%             Progress 40.41%             Progress 40.55%             Progress 40.70%             Progress 40.84%             Progress 40.99%             Progress 41.13%             Progress 41.28%             Progress 41.42%             Progress 41.57%             Progress 41.72%             Progress 41.86%             Progress 42.01%             Progress 42.15%             Progress 42.30%             Progress 42.44%             Progress 42.59%             Progress 42.73%             Progress 42.88%             Progress 43.02%             Progress 43.17%             Progress 43.31%             Progress 43.46%             Progress 43.60%             Progress 43.75%             Progress 43.90%             Progress 44.04%             Progress 44.19%             Progress 44.33%             Progress 44.48%             Progress 44.62%             Progress 44.77%             Progress 44.91%             Progress 45.06%             Progress 45.20%             Progress 45.35%             Progress 45.49%             Progress 45.64%             Progress 45.78%             Progress 45.93%             Progress 46.08%             Progress 46.22%             Progress 46.37%             Progress 46.51%             Progress 46.66%             Progress 46.80%             Progress 46.95%             Progress 47.09%             Progress 47.24%             Progress 47.38%             Progress 47.53%             Progress 47.67%             Progress 47.82%             Progress 47.97%             Progress 48.11%             Progress 48.26%             Progress 48.40%             Progress 48.55%             Progress 48.69%             Progress 48.84%             Progress 48.98%             Progress 49.13%             Progress 49.27%             Progress 49.42%             Progress 49.56%             Progress 49.71%             Progress 49.85%             Progress 50.00%             Progress 0.29%             Progress 0.58%             Progress 0.87%             Progress 1.16%             Progress 1.45%             Progress 1.74%             Progress 2.03%             Progress 2.33%             Progress 2.62%             Progress 2.91%             Progress 3.20%             Progress 3.49%             Progress 3.78%             Progress 4.07%             Progress 4.36%             Progress 4.65%             Progress 4.94%             Progress 5.23%             Progress 5.52%             Progress 5.81%             Progress 6.10%             Progress 6.40%             Progress 6.69%             Progress 6.98%             Progress 7.27%             Progress 7.56%             Progress 7.85%             Progress 8.14%             Progress 8.43%             Progress 8.72%             Progress 9.01%             Progress 9.30%             Progress 9.59%             Progress 9.88%             Progress 10.17%             Progress 10.47%             Progress 10.76%             Progress 11.05%             Progress 11.34%             Progress 11.63%             Progress 11.92%             Progress 12.21%             Progress 12.50%             Progress 12.79%             Progress 13.08%             Progress 13.37%             Progress 13.66%             Progress 13.95%             Progress 14.24%             Progress 14.53%             Progress 14.83%             Progress 15.12%             Progress 15.41%             Progress 15.70%             Progress 15.99%             Progress 16.28%             Progress 16.57%             Progress 16.86%             Progress 17.15%             Progress 17.44%             Progress 17.73%             Progress 18.02%             Progress 18.31%             Progress 18.60%             Progress 18.90%             Progress 19.19%             Progress 19.48%             Progress 19.77%             Progress 20.06%             Progress 20.35%             Progress 20.64%             Progress 20.93%             Progress 21.22%             Progress 21.51%             Progress 21.80%             Progress 22.09%             Progress 22.38%             Progress 22.67%             Progress 22.97%             Progress 23.26%             Progress 23.55%             Progress 23.84%             Progress 24.13%             Progress 24.42%             Progress 24.71%             Progress 25.00%             Progress 25.29%             Progress 25.58%             Progress 25.87%             Progress 26.16%             Progress 26.45%             Progress 26.74%             Progress 27.03%             Progress 27.33%             Progress 27.62%             Progress 27.91%             Progress 28.20%             Progress 28.49%             Progress 28.78%             Progress 29.07%             Progress 29.36%             Progress 29.65%             Progress 29.94%             Progress 30.23%             Progress 30.52%             Progress 30.81%             Progress 31.10%             Progress 31.40%             Progress 31.69%             Progress 31.98%             Progress 32.27%             Progress 32.56%             Progress 32.85%             Progress 33.14%             Progress 33.43%             Progress 33.72%             Progress 34.01%             Progress 34.30%             Progress 34.59%             Progress 34.88%             Progress 35.17%             Progress 35.47%             Progress 35.76%             Progress 36.05%             Progress 36.34%             Progress 36.63%             Progress 36.92%             Progress 37.21%             Progress 37.50%             Progress 37.79%             Progress 38.08%             Progress 38.37%             Progress 38.66%             Progress 38.95%             Progress 39.24%             Progress 39.53%             Progress 39.83%             Progress 40.12%             Progress 40.41%             Progress 40.70%             Progress 40.99%             Progress 41.28%             Progress 41.57%             Progress 41.86%             Progress 42.15%             Progress 42.44%             Progress 42.73%             Progress 43.02%             Progress 43.31%             Progress 43.60%             Progress 43.90%             Progress 44.19%             Progress 44.48%             Progress 44.77%             Progress 45.06%             Progress 45.35%             Progress 45.64%             Progress 45.93%             Progress 46.22%             Progress 46.51%             Progress 46.80%             Progress 47.09%             Progress 47.38%             Progress 47.67%             Progress 47.97%             Progress 48.26%             Progress 48.55%             Progress 48.84%             Progress 49.13%             Progress 49.42%             Progress 49.71%             Progress 50.00%             Progress 50.29%             Progress 50.58%             Progress 50.87%             Progress 51.16%             Progress 51.45%             Progress 51.74%             Progress 52.03%             Progress 52.33%             Progress 52.62%             Progress 52.91%             Progress 53.20%             Progress 53.49%             Progress 53.78%             Progress 54.07%             Progress 54.36%             Progress 54.65%             Progress 54.94%             Progress 55.23%             Progress 55.52%             Progress 55.81%             Progress 56.10%             Progress 56.40%             Progress 56.69%             Progress 56.98%             Progress 57.27%             Progress 57.56%             Progress 57.85%             Progress 58.14%             Progress 58.43%             Progress 58.72%             Progress 59.01%             Progress 59.30%             Progress 59.59%             Progress 59.88%             Progress 60.17%             Progress 60.47%             Progress 60.76%             Progress 61.05%             Progress 61.34%             Progress 61.63%             Progress 61.92%             Progress 62.21%             Progress 62.50%             Progress 62.79%             Progress 63.08%             Progress 63.37%             Progress 63.66%             Progress 63.95%             Progress 64.24%             Progress 64.53%             Progress 64.83%             Progress 65.12%             Progress 65.41%             Progress 65.70%             Progress 65.99%             Progress 66.28%             Progress 66.57%             Progress 66.86%             Progress 67.15%             Progress 67.44%             Progress 67.73%             Progress 68.02%             Progress 68.31%             Progress 68.60%             Progress 68.90%             Progress 69.19%             Progress 69.48%             Progress 69.77%             Progress 70.06%             Progress 70.35%             Progress 70.64%             Progress 70.93%             Progress 71.22%             Progress 71.51%             Progress 71.80%             Progress 72.09%             Progress 72.38%             Progress 72.67%             Progress 72.97%             Progress 73.26%             Progress 73.55%             Progress 73.84%             Progress 74.13%             Progress 74.42%             Progress 74.71%             Progress 75.00%             Progress 75.29%             Progress 75.58%             Progress 75.87%             Progress 76.16%             Progress 76.45%             Progress 76.74%             Progress 77.03%             Progress 77.33%             Progress 77.62%             Progress 77.91%             Progress 78.20%             Progress 78.49%             Progress 78.78%             Progress 79.07%             Progress 79.36%             Progress 79.65%             Progress 79.94%             Progress 80.23%             Progress 80.52%             Progress 80.81%             Progress 81.10%             Progress 81.40%             Progress 81.69%             Progress 81.98%             Progress 82.27%             Progress 82.56%             Progress 82.85%             Progress 83.14%             Progress 83.43%             Progress 83.72%             Progress 84.01%             Progress 84.30%             Progress 84.59%             Progress 84.88%             Progress 85.17%             Progress 85.47%             Progress 85.76%             Progress 86.05%             Progress 86.34%             Progress 86.63%             Progress 86.92%             Progress 87.21%             Progress 87.50%             Progress 87.79%             Progress 88.08%             Progress 88.37%             Progress 88.66%             Progress 88.95%             Progress 89.24%             Progress 89.53%             Progress 89.83%             Progress 90.12%             Progress 90.41%             Progress 90.70%             Progress 90.99%             Progress 91.28%             Progress 91.57%             Progress 91.86%             Progress 92.15%             Progress 92.44%             Progress 92.73%             Progress 93.02%             Progress 93.31%             Progress 93.60%             Progress 93.90%             Progress 94.19%             Progress 94.48%             Progress 94.77%             Progress 95.06%             Progress 95.35%             Progress 95.64%             Progress 95.93%             Progress 96.22%             Progress 96.51%             Progress 96.80%             Progress 97.09%             Progress 97.38%             Progress 97.67%             Progress 97.97%             Progress 98.26%             Progress 98.55%             Progress 98.84%             Progress 99.13%             Progress 99.42%             Progress 99.71%             Progress 100.00%                     1 file(s) copied.
+        1 file(s) copied.
+        1 file(s) copied.
+        1 file(s) copied.
+        1 file(s) copied.
+
+
+Successfully written MF6 files:..\..\Sim\NBr15\NBr15.nam
+
+
+iMOD removed tmp-folder:
+  C:\OD\WS_Mdl\models\NBr\code\Mdl_Prep\IMOD_TMP\BATCH1
+
+[Mon Jun  2 09:12:12 2025]
+Finished jobid: 2 (Rule: Mdl_Prep)
+2 of 4 steps (50%) done
+Removing temporary output C:/OD/WS_Mdl/models/NBr/code/snakemake/temp/Log_init_done_NBr15.
+Select jobs to execute...
+Execute 1 jobs...
+
+[Mon Jun  2 09:12:12 2025]
+localrule add_OBS:
+    input: C:/OD/WS_Mdl/models/NBr/Sim/NBr15/RUN.BAT
+    output: C:/OD/WS_Mdl/models/NBr/Sim/NBr15/GWF_1/MODELINPUT/NBr15.OBS
+    jobid: 1
+    reason: Missing output files: C:/OD/WS_Mdl/models/NBr/Sim/NBr15/GWF_1/MODELINPUT/NBr15.OBS; Input files updated by another job: C:/OD/WS_Mdl/models/NBr/Sim/NBr15/RUN.BAT
+    resources: tmpdir=C:\Users\Karam014\AppData\Local\Temp
+Shell command: None
+[Mon Jun  2 09:12:14 2025]
+Finished jobid: 1 (Rule: add_OBS)
+3 of 4 steps (75%) done
+Select jobs to execute...
+Execute 1 jobs...
+
+[Mon Jun  2 09:12:14 2025]
+localrule all:
+    input: C:/OD/WS_Mdl/models/NBr/Sim/NBr15/GWF_1/MODELINPUT/NBr15.OBS
+    jobid: 0
+    reason: Input files updated by another job: C:/OD/WS_Mdl/models/NBr/Sim/NBr15/GWF_1/MODELINPUT/NBr15.OBS
+    resources: tmpdir=C:\Users\Karam014\AppData\Local\Temp
+Shell command: None
+[Mon Jun  2 09:12:14 2025]
+Finished jobid: 0 (Rule: all)
+4 of 4 steps (100%) done
+Complete log(s): C:\OD\WS_Mdl\models\NBr\.snakemake\log\2025-06-02T091121.021776.snakemake.log
+✅ - NBr15 paths extracted from RunLog and returned as dictionary with keys:
+Mdl, MdlN_B, path_Mdl, path_INI, path_BAT, path_PRJ, path_Smk, path_MdlN, path_Out_HD, path_PoP, path_PoP_Out_MdlN, path_MM, path_INI_B, path_BAT_B, path_PRJ_B, path_Smk_B, path_MdlN_B, path_Out_HD_B, path_PoP_Out_MdlN_B, path_MM_B
+✅ - INI file C:/OD/WS_Mdl\models/NBr\code/Mdl_Prep/Mdl_Prep_NBr15.ini read successfully. Dictionary created with 21 keys.
+********************************************************************************
+
+
+Running add_OBS ...
+✅ - NBr15 paths extracted from RunLog and returned as dictionary with keys:
+Mdl, MdlN_B, path_Mdl, path_INI, path_BAT, path_PRJ, path_Smk, path_MdlN, path_Out_HD, path_PoP, path_PoP_Out_MdlN, path_MM, path_INI_B, path_BAT_B, path_PRJ_B, path_Smk_B, path_MdlN_B, path_Out_HD_B, path_PoP_Out_MdlN_B, path_MM_B
+✅ - INI file C:/OD/WS_Mdl\models/NBr\code/Mdl_Prep/Mdl_Prep_NBr15.ini read successfully. Dictionary created with 21 keys.
+✅ - IPF file C:\OD\WS_Mdl\models\NBr\In\OBS\NBr8\ijkset_selectie_NBr8.ipf read successfully. DataFrame created with 9678 rows and 11 columns.
+✅ - C:/OD/WS_Mdl\models/NBr\Sim/NBr15\GWF_1/MODELINPUT/NBr15.OBS has been added successfully!
+
+end_of_transmission
+********************************************************************************
+

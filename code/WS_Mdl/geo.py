@@ -17,6 +17,7 @@ import geopandas as gpd
 from concurrent.futures import ProcessPoolExecutor as PPE
 import zipfile as ZF
 import xml.etree.ElementTree as ET
+import sys
 
 crs = "EPSG:28992"
 
@@ -361,18 +362,20 @@ def _HD_IDF_Mo_Avg_to_MBTIF_process_Mo(year, month, paths, MdlN, path_Mo_AVG_Fo,
     DA_to_MBTIF(XA_mean, path_Out, d_MtDt, crs=crs, _print=False)
     return f"*** {MdlN} *** - {year}-{month:02d} ✔ "
 
-def HD_IDF_GXG_to_MBTIF(MdlN: str, N_cores:int=None, crs:str=crs):
+def HD_IDF_GXG_to_MBTIF(MdlN: str, N_cores:int=None, crs:str=crs, DF_rules:str=None):
     """Reads Sim Out IDF files from the model directory and calculates GXG for each L. Saves them as MultiBand TIF files - each band representing one of the GXG params for a L."""
 
     print(Pre_Sign)
     print(f"*** {MdlN} *** - HD_IDF_GXG_to_MBTIF\n")
 
+    # Get paths
     d_paths = U.get_MdlN_paths(MdlN)
     path_PoP, path_MdlN = [ d_paths[v] for v in ['path_PoP', 'path_MdlN'] ]
     path_HD = os.path.join(path_MdlN, 'GWF_1/MODELOUTPUT/HEAD/HEAD')
 
-    # Get list of layers in the model
-    l_L = sorted({int(match.group(1)) for f in Path(path_HD).glob("HEAD_*.IDF")
+    # Apply rules to DF if DF_rules is not None.
+    if not DF_rules:
+        l_L = sorted({int(match.group(1)) for f in Path(path_HD).glob("HEAD_*.IDF")
                 if (match := re.compile(r"_L(\d+)\.IDF$").search(f.name))})
     
     # Make a dictionary of the IDF files for each layer
@@ -463,8 +466,8 @@ def Up_MM(MdlN):
         if Mdl in path:
             matches = re.findall(rf'{re.escape(Mdl)}(\d+)', path)
             if len(set(matches)) > 1:
-                print(f"❌ ERROR: multiple different {Mdl}Ns found in path: {matches}")
-                sys.exit("Fix the path containing different MdlNs, then re-run me.")
+                print(f"❌ ERROR: multiple non-identical {Mdl}Ns found in path: {matches}")
+                sys.exit("Fix the path containing non-identical MdlNs, then re-run me.")
             else:
                 MdlX = f"{Mdl}{matches[0]}"
                 

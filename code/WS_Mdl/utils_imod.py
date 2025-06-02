@@ -155,9 +155,9 @@ def add_OBS(MdlN:str, Opt:str="BEGIN OPTIONS\nEND OPTIONS"):
         path_OBS_IPF = os.path.abspath(os.path.join(path_MdlN, path)) # path of IPF file. To be read.
         OBS_IPF_Fi = os.path.basename(path_OBS_IPF) # Filename of OBS file to be added to Sim (to be added without ending)
         if i == 0:
-            path_OBS = os.path.join(path_MdlN, f'GWF_1/MODELINPUT/{MdlN}.OBS') #path of OBS file. To be written.
+            path_OBS = os.path.join(path_MdlN, f'GWF_1/MODELINPUT/{MdlN}.OBS6') #path of OBS file. To be written.
         else:
-            path_OBS = os.path.join(path_MdlN, f'GWF_1/MODELINPUT/{MdlN}_N{i}.OBS') #path of OBS file. To be written.
+            path_OBS = os.path.join(path_MdlN, f'GWF_1/MODELINPUT/{MdlN}_N{i}.OBS6') #path of OBS file. To be written.
 
         DF_OBS_IPF = read_IPF_Spa(path_OBS_IPF) # Get list of OBS items (without temporal dimension, as it's uneccessary for the OBS file, and takes ages to load)
         DF_OBS_IPF_MdlAa = DF_OBS_IPF.loc[ ( (DF_OBS_IPF['X']>Xmin) & (DF_OBS_IPF['X']<Xmax ) ) &
