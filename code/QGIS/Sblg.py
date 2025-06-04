@@ -12,7 +12,7 @@ import math
 # (A) Defaults: if the user doesn’t supply anything, these values are used.
 
 DEFAULT_CLASS_COUNTS = list(range(8, 16))
-DEFAULT_PALETTE      = "Spectral"
+DEFAULT_PALETTE      = "Spectral_r"
 DEFAULT_STEPS        = [1000.0, 100.0, 50.0, 20.0, 10.0, 5.0, 2.0, 1.0, 0.5, 0.25, 0.1]
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -77,9 +77,7 @@ def build_items_no_endcaps(color_ramp, step, N, new_min):
 
 # ─────────────────────────────────────────────────────────────────────────────
 # (C) The main reclassification function. It takes optional arguments; if the caller omits them, we use the DEFAULT_*..
-def nice_steps(class_counts = None,
-                               palette_name = None,
-                               step_sizes   = None):
+def nice_steps(palette_name = None, class_counts = None, step_sizes   = None):
     """
     Reclassify all currently selected single-band rasters in the Layers panel,
     using:
@@ -104,9 +102,20 @@ def nice_steps(class_counts = None,
 
     # Ensure the chosen palette actually exists; otherwise pick the first one:
     style = QgsStyle().defaultStyle()
-    if style.colorRamp(palette_name) is None:
-        palette_name = style.colorRampNames()[0]
-    color_ramp = style.colorRamp(palette_name)
+
+    # If the user asked for “Spectral_r”, strip the “_r” and mark it inverted:
+    if palette_name.endswith("_r"):
+        base_name = palette_name[:-2]  # “Spectral”
+        if style.colorRamp(base_name) is None:
+            # fallback if even “Spectral” isn’t found
+            base_name = style.colorRampNames()[0]
+        color_ramp = style.colorRamp(base_name).clone()  # make a copy before inverting
+        color_ramp.invert()
+    else:
+        # Otherwise just grab the named ramp normally
+        if style.colorRamp(palette_name) is None:
+            palette_name = style.colorRampNames()[0]
+        color_ramp = style.colorRamp(palette_name)
 
     for layer in selected_layers:
         if layer.type() != layer.RasterLayer:
@@ -139,18 +148,18 @@ def nice_steps(class_counts = None,
         layer.triggerRepaint()
 
         # 3) Expand just this layer’s node (so it doesn’t collapse):
-        node = QgsProject.instance().layerTreeRoot().findLayer(layer.id())
-        iface.layerTreeView().expandNode(node)
+        root       = QgsProject.instance().layerTreeRoot()
+        node       = root.findLayer(layer.id())
+        model      = iface.layerTreeView().layerTreeModel()
+        proxy      = iface.layerTreeView().model()
+        source_idx = model.node2index(node)
+        proxy_idx  = proxy.mapFromSource(source_idx)
+        iface.layerTreeView().setExpanded(proxy_idx, True)
 
         print(
             f"Layer '{layer.name()}': raw [{raw_min:.4f} … {raw_max:.4f}] → "
-            f"rounded [{new_min:.4f} … {new_max:.4f}], "
-            f"step={step}, classes={num_classes}"
+            f"rounded [{new_min:.4f} … {new_max:.4f}], step={step}, classes={num_classes}"
         )
-
-    iface.messageBar().pushMessage(
-        "Reclassification", "Finished reclassifying selected raster layers.", level=0, duration=3
-    )
 
 # ─────────────────────────────────────────────────────────────────────────────
 # (D) Example calls:
