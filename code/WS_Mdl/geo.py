@@ -324,11 +324,13 @@ def HD_IDF_Mo_Avg_to_MBTIF(MdlN: str, N_cores:int=None, crs:str=crs, DF_rules:st
     """Reads Sim Out IDF files from the model directory and calculates Mo Avg for each L. Saves them as MultiBand TIF files - each band representing the Mo Avg HD for each L."""
     print(Pre_Sign)
     print(f"*** {MdlN} *** - HD_IDF_Mo_Avg_to_MBTIF")
-    
+
+    # Get paths
     d_paths = U.get_MdlN_paths(MdlN)
     path_PoP, path_HD = [ d_paths[v] for v in ['path_PoP', 'path_Out_HD'] ]
 
-    DF = U.HD_Out_IDF_to_DF(path_HD) # Read the IDF files to a DataFrame
+    # Read the IDF files to a DataFrame. Apply rules. Group.
+    DF = U.HD_Out_IDF_to_DF(path_HD)
     if DF_rules is not None:
         DF = DF.query(DF_rules)
     DF_grouped = DF.groupby(['year', 'month'])['path']
@@ -370,12 +372,13 @@ def HD_IDF_GXG_to_MBTIF(MdlN: str, N_cores:int=None, crs:str=crs, DF_rules:str=N
 
     # Get paths
     d_paths = U.get_MdlN_paths(MdlN)
-    path_PoP, path_MdlN = [ d_paths[v] for v in ['path_PoP', 'path_MdlN'] ]
-    path_HD = os.path.join(path_MdlN, 'GWF_1/MODELOUTPUT/HEAD/HEAD')
+    path_PoP, path_HD = [ d_paths[v] for v in ['path_PoP', 'path_Out_HD'] ]
 
     # Apply rules to DF if DF_rules is not None.
-    if not DF_rules:
-        l_L = sorted({int(match.group(1)) for f in Path(path_HD).glob("HEAD_*.IDF")
+    if DF_rules is not None:
+        DF = DF.query(DF_rules)
+    
+    l_L = sorted({int(match.group(1)) for f in Path(path_HD).glob("HEAD_*.IDF")
                 if (match := re.compile(r"_L(\d+)\.IDF$").search(f.name))})
     
     # Make a dictionary of the IDF files for each layer

@@ -121,7 +121,7 @@ def Sim_Cfg(*l_MdlN, path_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
     for f in l_files:
         print(f'\u2713 - {f}')
 
-def HD_Out_IDF_to_DF(path):
+def HD_Out_IDF_to_DF(path): #666 can make it save DF if a 2nd path is provided. Unecessary for now.
     """Reads IDF files from the given path and returns a DataFrame with the file names and their corresponding parameters. Parameters are extracted from filnames, based on a standard format. Hence, don't use this for other groups of IDF files, unless you're sure they follow the same format.""" #666 can be generalized later, to work on all sorts of IDF files.
     Se_Fi_path = pd.Series([os.path.join(path, i) for i in os.listdir(path) if i.lower().endswith('.idf')])
     DF = pd.DataFrame({'path':Se_Fi_path, 'file': Se_Fi_path.apply(lambda x: os.path.basename(x))})
@@ -274,3 +274,10 @@ def get_elapsed_time_str(start_time: float) -> str:
     if d:   return f"{d}-{h:02}:{m:02}:{s:02}"
     return f"{h:02}:{m:02}:{s:02}"
 #-----------------------------------------------------------------------------------------------------------------------------------
+
+def get_last_MdlN():
+    path_log = os.path.join(path_WS, 'Mng/log.csv')
+    DF = pd.read_csv(path_log)
+    DF.loc[:-2, 'Sim end DT'] = DF.loc[:-2, 'Sim end DT'].apply(pd.to_datetime, dayfirst=True)
+    DF['Sim end DT'] = pd.to_datetime(DF['Sim end DT'], dayfirst=True)
+    return  DF.sort_values('Sim end DT', ascending=False).iloc[0]['MdlN']

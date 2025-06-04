@@ -1,13 +1,27 @@
-To freeze/export:
-conda activate env
-conda env export > Env_NBr7.yml
+-----------------------------------------
+--- To freeze/export: ---
+The WS env should be frozen on every change. If no Env is present for a run/Sim you want to repeat, assume the previous one will do the job.
 
-To import/install:
-mamba env create -f ENVIRONMENT.yml
+1. activate
+conda activate WS
+2. freeze
+python .\freeze_env_WS.py
+
+This will create a .yml and a .txt file for the conda and pip dependencies respectedly
+-----------------------------------------
+
+
+-----------------------------------------
+--- To import/install: ---
+1. install from .yml
+mamba env create -f WS_conda_env_<MdlN>.yml
 # Can use conda instead of mamba
-mamba env create -f Env_<MdlN>.yml
-
-Then pip install -e C:\OD\WS_Mdl\code
-
-
-ATTENTION! Always make a new .yml file for a run where changes have been made to the env since the previous run. Then update the env version in the RunLog/PP_Ctrl s/s.
+2. activate env
+conda activate WS
+3. install pip dependencies (including WS GitHub package)
+pip install -r pip_env.txt
+4. (optional) check conda packages
+conda list
+5. (optional) check pip packages
+pip list
+-----------------------------------------
