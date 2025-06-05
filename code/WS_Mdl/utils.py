@@ -64,7 +64,7 @@ def get_MdlN_paths(MdlN: str, verbose=False): #666 Can be split into two as both
     """ Returns a dictionary of useful object (MdlN_B, directories etc.) for a given model. Those need to then be passed to arguments, e.g. path_INI_B = Dft_paths['path_INI_N']."""
     d_paths = paths_from_MdlN_Se( MdlN_Se_from_RunLog((MdlN)), MdlN )
     if verbose:
-        print(f"✅ - {MdlN} paths extracted from RunLog and returned as dictionary with keys:\n{', '.join(d_paths.keys())}")
+        print(f"🟢 - {MdlN} paths extracted from RunLog and returned as dictionary with keys:\n{', '.join(d_paths.keys())}")
     return d_paths
 # ----------------------------------------------------------------------------------------------------------------------------------
 
@@ -79,7 +79,7 @@ def read_IPF_Spa(path_IPF):
     l_C_Nm = [l_Ln[I + 2].split("\n")[0] for I in range(N_C)] # Extract column names
     DF_IPF = pd.read_csv(path_IPF, skiprows=2+N_C+1, names=l_C_Nm)
 
-    print(f"✅ - IPF file {path_IPF} read successfully. DataFrame created with {len(DF_IPF)} rows and {len(DF_IPF.columns)} columns.")
+    print(f"🟢 - IPF file {path_IPF} read successfully. DataFrame created with {len(DF_IPF)} rows and {len(DF_IPF.columns)} columns.")
     return DF_IPF
 
 def INI_to_d(path_INI:str) -> dict:
@@ -98,7 +98,7 @@ def INI_to_d(path_INI:str) -> dict:
                 k, v = l.split("=", 1)  # Split at the first '='
                 d_INI[k.strip().upper()] = v.strip()  # Remove extra spaces
     
-    print(f"✅ - INI file {path_INI} read successfully. Dictionary created with {len(d_INI)} keys.")
+    print(f"🟢 - INI file {path_INI} read successfully. Dictionary created with {len(d_INI)} keys.")
     return d_INI
 
 def Mdl_Dmns_from_INI(path_INI): # 666 Can be improved. It should take a MdlN instead of a path. Makes things easier.
@@ -109,7 +109,7 @@ def Mdl_Dmns_from_INI(path_INI): # 666 Can be improved. It should take a MdlN in
     cellsize = float(d_INI['CELLSIZE'])
     N_R, N_C = int( - (Ymin - Ymax) / cellsize ), int( (Xmax - Xmin) / cellsize )
 
-    print(f"✅ - model dimensions extracted from {path_INI}.")
+    print(f"🟢 - model dimensions extracted from {path_INI}.")
     return Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C
 
 def Sim_Cfg(*l_MdlN, path_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
@@ -120,7 +120,7 @@ def Sim_Cfg(*l_MdlN, path_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
     l_files = [paths[k] for k in l_keys for paths in l_paths]
     sp.Popen([path_NP] + l_files)
     for f in l_files:
-        print(f'\u2713 - {f}')
+        print(f'🟢 - {f}')
 
 def HD_Out_IDF_to_DF(path): #666 can make it save DF if a 2nd path is provided. Unecessary for now.
     """Reads IDF files from the given path and returns a DataFrame with the file names and their corresponding parameters. Parameters are extracted from filnames, based on a standard format. Hence, don't use this for other groups of IDF files, unless you're sure they follow the same format.""" #666 can be generalized later, to work on all sorts of IDF files.
@@ -151,7 +151,7 @@ def S_from_B(MdlN:str):
                     f2.write(contents.replace(MdlN_B, MdlN))
                 if ".bat" not in path_B.lower():
                     os.startfile(path_S) # Then we'll open it to make any other changes we want to make. Except if it's the BAT file
-                print(f"\u2713 - {path_S.split('/')[-1]} created successfully! (from {path_B})")
+                print(f"🟢 - {path_S.split('/')[-1]} created successfully! (from {path_B})")
             else:
                 print(f"\u274C - {path_S.split('/')[-1]} already exists. If you want it to be replaced, you have to delete it manually before running this command.")
         except Exception as e:
@@ -161,7 +161,7 @@ def S_from_B(MdlN:str):
         if not os.path.exists(path_PRJ): # For the PRJ file, there is no default text replacement to be performed, so we'll just copy.
             sh.copy2(path_PRJ_B, path_PRJ)
             os.startfile(path_PRJ) # Then we'll open it to make any other changes we want to make.
-            print(f"\u2713 - {path_PRJ.split('/')[-1]} created successfully! (from {path_PRJ_B})")
+            print(f"🟢 - {path_PRJ.split('/')[-1]} created successfully! (from {path_PRJ_B})")
         else:
             print(f"\u274C - {path_PRJ.split('/')[-1]} already exists. If you want it to be replaced, you have to delete it manually before running this command.")
     except Exception as e:
@@ -178,7 +178,7 @@ def S_from_B_undo(MdlN:str):
     if confirm == 'y':
         for path_S in [path_Smk, path_BAT, path_INI, path_PRJ]:
             os.remove(path_S) # Delete the S files
-            print(f'\u2713 - {path_S.split("/")[-1]} deleted successfully!')
+            print(f'🟢 - {path_S.split("/")[-1]} deleted successfully!')
     print(Sign)
 
 def Up_log(MdlN: str, d_Up: dict, path_log=os.path.join(path_WS, 'Mng/log.csv')):
@@ -214,7 +214,7 @@ def RunMng(cores=None, DAG:bool=True):
 
     print('--- Running snakemake files:')
     if DF_q.empty:
-        print("\n❌ - No queued runs found in the RunLog.")
+        print("\n🔴 - No queued runs found in the RunLog.")
     else:
         for i, Se_Ln in DF_q.iterrows():
             path_Smk = os.path.join(path_WS, f"models/{Se_Ln['model alias']}/code/snakemake/{Se_Ln['MdlN']}.smk")
@@ -227,9 +227,9 @@ def RunMng(cores=None, DAG:bool=True):
                     sp.run(["snakemake", "--dag", "-s", path_Smk, "--cores", str(cores), '|', 'dot', '-Tpng', '-o', f'{path_DAG}'], shell=True, check=True)
                 with open(path_log, 'w') as f:
                     sp.run(["snakemake", "-p", "-s", path_Smk, "--cores", str(cores)], check=True, stdout=f, stderr=f) # Run snakemake and write output to log file
-                print(f"✅")
+                print(f"🟢")
             except sp.CalledProcessError as e:
-                print(f"❌: {e}")
+                print(f"🔴: {e}")
     print(Sign)
 
 def reset_Sim(MdlN: str):
@@ -258,44 +258,44 @@ def reset_Sim(MdlN: str):
                 if not os.path.exists(path_MdlN):
                     raise FileNotFoundError(f"{path_MdlN} does not exist.")
                 sp.run(f'rmdir /S /Q "{path_MdlN}"', shell=True) # Delete the entire Sim folder
-                print(f"✅ - Sim folder removed successfully.")
+                print(f"🟢 - Sim folder removed successfully.")
                 i += 1
             except:
-                print(f"❌ - failed to delete Sim folder.")
+                print(f"🔴 - failed to delete Sim folder.")
 
             try:
                 DF[ DF['MdlN']!=MdlN ].to_csv(path_log, index=False) # Remove the log entry for this model
-                print("✅ - Log file updated successfully.")
+                print("🟢 - Log file updated successfully.")
                 i += 1
             except:
-                print(f"❌ - failed to update log file.")
+                print(f"🔴 - failed to update log file.")
             
             try:
                 print(path_Smk_temp)
                 for l in l_temp:
                     os.remove(os.path.join(path_Smk_temp, l))
-                print("✅ - Smk log files deleted successfully.")
+                print("🟢 - Smk log files deleted successfully.")
                 i += 1
             except:
-                print(f"❌ - failed to remove Smk log files.")
+                print(f"🔴 - failed to remove Smk log files.")
 
             try:
                 if not os.path.exists(d_paths['path_PoP_Out_MdlN']):
                     raise FileNotFoundError(f"{d_paths['path_PoP_Out_MdlN']} does not exist.")
                 sp.run(f'rmdir /S /Q "{d_paths['path_PoP_Out_MdlN']}"', shell=True) # Delete the entire Sim folder
-                print(f"✅ - PoP Out folder removed successfully.")
+                print(f"🟢 - PoP Out folder removed successfully.")
                 i += 1
             except:
-                print(f"❌ - failed to delete PoP Out folder.")
+                print(f"🔴 - failed to delete PoP Out folder.")
 
             if i==4:
-                print("\n✅ - ALL files were successfully removed.")
+                print("\n🟢 - ALL files were successfully removed.")
             else:
-                print(f"➖ - {i}/4 sub-processes finished successfully.")
+                print(f"🟡 - {i}/4 sub-processes finished successfully.")
         else:
-            print(f"❌ - Items do not exist (Sim folder, log entry, Smk log files, PoP Out folder). No need to reset.")
+            print(f"🔴 - Items do not exist (Sim folder, log entry, Smk log files, PoP Out folder). No need to reset.")
     else:
-        print(f"❌ - Reset cancelled by user (you).")
+        print(f"🔴 - Reset cancelled by user (you).")
     print(Sign)
 
 def get_elapsed_time_str(start_time: float) -> str:

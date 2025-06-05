@@ -64,7 +64,7 @@ def IDF_to_TIF(path_IDF: str, path_TIF: Optional[str] = None, MtDt: Optional[Dic
                 Cvt_MtDt.update(project_metadata)
 
             Dst.update_tags(**Cvt_MtDt)
-        print(f"\u2713 {path_TIF} has been saved (GeoTIFF) with conversion and project metadata.")
+        print(f"🟢 {path_TIF} has been saved (GeoTIFF) with conversion and project metadata.")
     except Exception as e:
         print(f"\u274C \n{e}")
     print(Sign)
@@ -187,18 +187,18 @@ def PRJ_to_TIF(MdlN):
                                                                                 str(val) for col, val in R.items()}
                     DA = imod.formats.idf.open(list(DF_Par['path']), pattern="{name}_L{layer}_").sel(x=slice(Xmin, Xmax), y=slice(Ymax, Ymin))
                     DA_to_MBTIF(DA, path_TIF, d_MtDt)
-                    print(f'\u2713 - multi-band')
+                    print(f'🟢 - multi-band')
                 else:
                     try:
                         DA = imod.formats.idf.open(list(DF_Par['path']), pattern="{name}_L{layer}_").sel(x=slice(Xmin, Xmax), y=slice(Ymax, Ymin))
                         d_MtDt[f"{DF_Par['parameter'].values[0]}_L{DF_Par['layer'].values[0]}_{DF_Par['MdlN'].values[0]}"] = {('origin_path' if col == 'path' else col): str(val) for col, val in R.items()}
                         DA_to_TIF(DA.squeeze(drop=True), path_TIF, d_MtDt) # .squeeze cause 2D arrays have extra dimension with size 1 sometimes.
-                        print(f'\u2713 - single-band with L attribute')
+                        print(f'🟢 - single-band with L attribute')
                     except:
                         DA = imod.formats.idf.open(list(DF_Par['path']), pattern="{name}_").sel(x=slice(Xmin, Xmax), y=slice(Ymax, Ymin))
                         d_MtDt[f"{DF_Par['parameter'].values[0]}_{DF_Par['MdlN'].values[0]}"] = {('origin_path' if col == 'path' else col): str(val) for col, val in R.items()}
                         DA_to_TIF(DA.squeeze(drop=True), path_TIF, d_MtDt) # .squeeze cause 2D arrays have extra dimension with size 1 sometimes.
-                        print(f'\u2713 - single-band without L attribute')
+                        print(f'🟢 - single-band without L attribute')
         except Exception as e:
             print(f"\u274C - Error: {e}")
     
@@ -226,7 +226,7 @@ def PRJ_to_TIF(MdlN):
 
                 DA = imod.formats.idf.open(R['path'], pattern=f'{{name}}_{Mdl}').sel(x=slice(Xmin, Xmax), y=slice(Ymax, Ymin))
                 DA_to_TIF(DA.squeeze(drop=True), path_TIF, d_MtDt) # .squeeze cause 2D arrays have extra dimension with size 1 sometimes.
-                print(f'\u2713 - IDF converted to TIF - single-band without L attribute')
+                print(f'🟢 - IDF converted to TIF - single-band without L attribute')
             except Exception as e:
                 print(f"\u274C - Error: {e}")
 
@@ -257,7 +257,7 @@ def PRJ_to_TIF(MdlN):
 
                 os.makedirs(os.path.dirname(path_GPKG), exist_ok=True) # Make sure the directory exists
                 _GDF_AVG.to_file(path_GPKG, driver="GPKG") #, layer=os.path.basename(path_GPKG))
-                print(f'\u2713 - IPF average values (per id) converted to GPKG')
+                print(f'🟢 - IPF average values (per id) converted to GPKG')
             except:
                 print('\u274C')
     # -------------------- Process derived packages/parameters (Thk, T) -------------------------------------------------------
@@ -311,10 +311,10 @@ def PRJ_to_TIF(MdlN):
 
                 if len(DA.shape) == 3: # If there are multiple paths for the same parameter
                     DA_to_MBTIF(DA, path_TIF, d_MtDt)
-                    print(f'\u2713 - multi-band')
+                    print(f'🟢 - multi-band')
                 elif len(DA.shape) == 2:
                     DA_to_TIF(DA.squeeze(drop=True), path_TIF, d_MtDt) # .squeeze cause 2D arrays have extra dimension with size 1 sometimes.
-                    print(f'\u2713 - single-band')
+                    print(f'🟢 - single-band')
             except Exception as e:
                 print(f"\u274C - Error: {e}")
     print(Sign)
@@ -362,7 +362,7 @@ def _HD_IDF_Mo_Avg_to_MBTIF_process_Mo(year, month, paths, MdlN, path_Mo_AVG_Fo,
     d_MtDt['all'] = {'parameters': XA.coords,
                      'Description': f'Monthly mean GW heads per layer for {year}-{month:02d}, produced by aggregating {MdlN} output IDF files. Output IDF files are in {path_HD}.'}
     DA_to_MBTIF(XA_mean, path_Out, d_MtDt, crs=crs, _print=False)
-    return f"*** {MdlN} *** - {year}-{month:02d} ✔ "
+    return f"*** {MdlN} *** - {year}-{month:02d} 🟢 "
 
 def HD_IDF_GXG_to_TIF(MdlN: str, N_cores:int=None, crs:str=crs, DF_rules:str=None):
     """Reads Sim Out IDF files from the model directory and calculates GXG for each L. Saves them as MultiBand TIF files - each band representing one of the GXG params for a L."""
@@ -421,7 +421,7 @@ def _HD_IDF_GXG_to_TIF_per_L(DF, L, MdlN, path_PoP, path_HD, crs):
         DA = GXG[V]
         DA_to_TIF(DA, path_Out, d_MtDt, crs=crs, _print=False)
 
-    return f"L{L} ✔"
+    return f"L{L} 🟢"
 
 # ----------------------------------------------------------------------------------------------------------------------------------
 
@@ -470,7 +470,7 @@ def Up_MM(MdlN, MdlN_MM_B=None):
         if Mdl in path:
             matches = re.findall(rf'{re.escape(Mdl)}(\d+)', path)
             if len(set(matches)) > 1:
-                print(f"❌ ERROR: multiple non-identical {Mdl}Ns found in path: {matches}")
+                print(f"🔴 ERROR: multiple non-identical {Mdl}Ns found in path: {matches}")
                 sys.exit("Fix the path containing non-identical MdlNs, then re-run me.")
             else:
                 MdlX = f"{Mdl}{matches[0]}"
@@ -479,7 +479,7 @@ def Up_MM(MdlN, MdlN_MM_B=None):
                 if (MdlX != MdlN) and (os.path.exists(path_full)):
                     path_X = path.replace(MdlX, MdlN)
                     DS.text = f"{path_X}|{suffix}" if suffix else path_X
-                    print(f" - ✅ Updated {MdlX} → {MdlN} in {path_full}")
+                    print(f" - 🟢 Updated {MdlX} → {MdlN} in {path_full}")
                 # else:
                     # print(" - OK (no change)")
         # else:
@@ -496,7 +496,7 @@ def Up_MM(MdlN, MdlN_MM_B=None):
                 zipf.write(filepath, arcname)
 
     sh.rmtree(path_temp)  # Remove the temporary folder
-    print(f"\n✅ MM for {MdlN} has been updated.\n")
+    print(f"\n🟢 MM for {MdlN} has been updated.\n")
     print(Sign)
 # ----------------------------------------------------------------------------------------------------------------------------------
 

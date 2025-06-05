@@ -80,7 +80,7 @@ def PRJ_to_DF(MdlN):#, verbose:bool=True): #666 adding verbose behaviour enables
                                 DF.loc[f'{Pkg_name.upper()}_{Par}_Sys{(N)%Pkg['n_system']+1}'] = Ln_DF_path
                             elif (Pkg['n_system']==1):
                                 DF.loc[f"{Pkg_name.upper()}_{Par}"] = Ln_DF_path
-                print('\u2713\u2705')
+                print('🟢')
             else:
                 print(f'\u2012 the package is innactive.')
         except:
@@ -188,7 +188,7 @@ def add_OBS(MdlN:str, Opt:str="BEGIN OPTIONS\nEND OPTIONS"):
             f2.write(l_NAM[0])
             f2.write(fr' OBS6 .\{path_OBS_Rel} OBS_{OBS_IPF_Fi.split('.')[0]}')
             f2.write('\nEND PACKAGES')
-        print(f'✅ - {path_OBS} has been added successfully!')
+        print(f'🟢 - {path_OBS} has been added successfully!')
     print(Sign)
 #-----------------------------------------------------------------------------------------------------------------------------------
 
@@ -236,7 +236,7 @@ def run_Mdl(Se_Ln, DF_Opt): #666 think if this can be improved to take only 1 ar
                 print(f"  - ✓")
 
             except sp.CalledProcessError as e:
-                print(f"  - ❌: {Cmd}\nError: {e.stderr}")
+                print(f"  - 🔴: {Cmd}\nError: {e.stderr}")
                 f.write(f"ERROR: {e.stderr}\n")
 
 def run_Mdl_print_only(Se_Ln, DF_Opt): #666 think if this can be improved to take only 1 argument.
@@ -268,7 +268,7 @@ def run_Mdl_print_only(Se_Ln, DF_Opt): #666 think if this can be improved to tak
             print(f"  - ✓")
 
         except sp.CalledProcessError as e:
-            print(f"  - ❌: {Cmd}\nError: {e.stderr}")
+            print(f"  - 🔴: {Cmd}\nError: {e.stderr}")
 
 def run_Mdl_parallel(DF, DF_Opt):
     queued_Sims = DF.loc[DF['Status'] == 'Queued']
