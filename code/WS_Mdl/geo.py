@@ -364,71 +364,69 @@ def _HD_IDF_Mo_Avg_to_MBTIF_process_Mo(year, month, paths, MdlN, path_Mo_AVG_Fo,
     DA_to_MBTIF(XA_mean, path_Out, d_MtDt, crs=crs, _print=False)
     return f"*** {MdlN} *** - {year}-{month:02d} ✔ "
 
-def HD_IDF_GXG_to_MBTIF(MdlN: str, N_cores:int=None, crs:str=crs, DF_rules:str=None):
+def HD_IDF_GXG_to_TIF(MdlN: str, N_cores:int=None, crs:str=crs, DF_rules:str=None):
     """Reads Sim Out IDF files from the model directory and calculates GXG for each L. Saves them as MultiBand TIF files - each band representing one of the GXG params for a L."""
 
     print(Pre_Sign)
-    print(f"*** {MdlN} *** - HD_IDF_GXG_to_MBTIF\n")
+    print(f"*** {MdlN} *** - HD_IDF_GXG_to_TIF\n")
 
     # Get paths
     d_paths = U.get_MdlN_paths(MdlN)
     path_PoP, path_HD = [ d_paths[v] for v in ['path_PoP', 'path_Out_HD'] ]
 
     # Apply rules to DF if DF_rules is not None.
+    DF = U.HD_Out_IDF_to_DF(path_HD)
     if DF_rules is not None:
         DF = DF.query(DF_rules)
-    
-    l_L = sorted({int(match.group(1)) for f in Path(path_HD).glob("HEAD_*.IDF")
-                if (match := re.compile(r"_L(\d+)\.IDF$").search(f.name))})
-    
-    # Make a dictionary of the IDF files for each layer
-    d_IDF_GXG = {i: sorted(f for f in Path(path_HD).glob(f"HEAD_*_L{i}.IDF")
-                        if re.search(r'HEAD_(\d{4})(\d{2})(\d{2})', f.name)
-                        and int((m := re.search(r'HEAD_(\d{4})(\d{2})(\d{2})', f.name)).group(3)) in {14, 28})
-                for i in l_L}
 
     if N_cores is None:
         N_cores = max(os.cpu_count() - 2, 1)
     start = DT.now() # Start time
 
-    start = DT.now()
     with PPE(max_workers=N_cores) as E:
-        futures = [E.submit(_HD_IDF_GXG_to_MBTIF_process_L, L, d_IDF_GXG, MdlN, path_PoP, path_HD, crs)
-                   for L in d_IDF_GXG.keys()]
+        futures = [E.submit(_HD_IDF_GXG_to_TIF_per_L, DF, L, MdlN, path_PoP, path_HD, crs)
+                   for L in DF['L'].unique()]
         for f in futures:
             print('\t', f.result(), '- Elapsed time (from start):', DT.now() - start)
 
     print('Total elapsed:', DT.now() - start)
 
-def _HD_IDF_GXG_to_MBTIF_process_L(L, d_IDF_GXG, MdlN, path_PoP, path_HD, crs):
-    """Only for use within HD_IDF_GXG_to_MBTIF - to utilize multiprocessing."""
-    XA = imod.idf.open(d_IDF_GXG[L])
+def _HD_IDF_GXG_to_TIF_per_L(DF, L, MdlN, path_PoP, path_HD, crs):
+    """Only for use within HD_IDF_GXG_to_TIF - to utilize multiprocessing."""
+
+    # Load HD files corresponding to the L to an XA
+    l_IDF_L = list(DF.loc[DF['L']==1, 'path'])
+    XA = imod.idf.open(l_IDF_L)
+
+    # Calculate Variables
     GXG = imod.evaluate.calculate_gxg(XA.squeeze())
     GXG = GXG.rename_vars({var: var.upper() for var in GXG.data_vars})
-    GXG = GXG.rename_vars({'N_YEARS_GXG': 'N_years_GXG', 'N_YEARS_GVG': 'N_years_GVG'})
+    N_years_GXG = GXG['N_YEARS_GXG'].values if GXG['N_YEARS_GXG'].values.max() != GXG['N_YEARS_GXG'].values.min() else int(GXG['N_YEARS_GXG'].values[0, 0])
+    N_years_GVG = GXG['N_YEARS_GVG'].values if GXG['N_YEARS_GVG'].values.max() != GXG['N_YEARS_GVG'].values.min() else int(GXG['N_YEARS_GVG'].values[0, 0])
     GXG["GHG_m_GLG"] = GXG["GHG"] - GXG["GLG"]
-    GXG = GXG[["GHG", "GLG", "GHG_m_GLG", "GVG", "N_years_GXG", "N_years_GVG"]]
+    GXG = GXG[["GHG", "GLG", "GHG_m_GLG", "GVG"]]
 
-    path_Out = os.path.join(path_PoP, 'Out', MdlN, 'GXG', f'GXG_L{L}_{MdlN}.tif')
-    os.makedirs(os.path.dirname(path_Out), exist_ok=True)
+    # Save to TIF
+    os.makedirs(os.path.join(path_PoP, 'Out', MdlN, 'GXG'), exist_ok=True)
+    for V in GXG.data_vars:
+        path_Out = os.path.join(path_PoP, 'Out', MdlN, 'GXG', f'{V}_L{L}_{MdlN}.tif')
 
-    d_MtDt = {str(i+1): {f'{var}_AVG': float(GXG[var].mean().values) for var in GXG.data_vars} 
-              for i in range(len(GXG.data_vars))}
-    
-    d_MtDt['all'] = {'parameters': XA.coords,
-                     'Description': f'{MdlN} GXG (path: {path_HD})\nFor more info see: https://deltares.github.io/imod-python/api/generated/evaluate/imod.evaluate.calculate_gxg.html'}
+        d_MtDt = {f'{V}_L{L}_{MdlN}':
+                        {'AVG'          :   float(GXG[V].mean().values),
+                        'coordinates'   :   XA.coords,
+                        'N_years'       :   N_years_GVG if V=='GVG' else N_years_GXG,
+                        'variable'          :   os.path.splitext(os.path.basename(path_Out))[0],
+                        'details'       :   f'{MdlN} {V} calculated from (path: {path_HD}), via function described in: https://deltares.github.io/imod-python/api/generated/evaluate/imod.evaluate.calculate_gxg.html'}}
+        
+        DA = GXG[V]
+        DA_to_TIF(DA, path_Out, d_MtDt, crs=crs, _print=False)
 
-    # Set proper band names and write to MBTIF
-    band_names = [f"{var}_{MdlN}" for var in GXG.data_vars]
-    DA = GXG.to_array(dim="band").astype(np.float32)
-    DA["band"] = band_names
-    DA_to_MBTIF(DA, path_Out, d_MtDt, crs=crs, _print=False)
-    return f"GXG_L{L} ✔"
+    return f"L{L} ✔"
 
 # ----------------------------------------------------------------------------------------------------------------------------------
 
 # MM Update ------------------------------------------------------------------------------------------------------------------------
-def Up_MM(MdlN):
+def Up_MM(MdlN, MdlN_MM_B=None):
     """Updates the MM (QGIS projct containing model data)."""
     
     print(Pre_Sign)
@@ -438,11 +436,14 @@ def Up_MM(MdlN):
     path_QGZ, path_QGZ_B = d_paths['path_MM'], d_paths['path_MM_B']
     Mdl = d_paths['Mdl']
 
+    if MdlN_MM_B is not None: # Replace MdlN_B with another MdlN if requested.
+        path_QGZ_B = path_QGZ_B.replace(d_paths['MdlN_B'], MdlN_MM_B)
+
     os.makedirs(os.path.basename(path_QGZ), exist_ok=True)      # Ensure destination folder exists
-    sh.copy(path_QGZ_B, path_QGZ)                               # Copy the file
+    sh.copy(path_QGZ_B, path_QGZ)                               # Copy the QGIS file
     print(f"Copied QGIS project from {path_QGZ_B} to {path_QGZ}.\nUpdating layer path ...")
 
-    path_temp = os.path.join(os.path.dirname(path_QGZ), 'temp')
+    path_temp = os.path.join(os.path.dirname(path_QGZ), 'temp') # Path to temporarily extract QGZ contents
     os.makedirs(path_temp, exist_ok=True)
 
     with ZF.ZipFile(path_QGZ_B, 'r') as zip_ref:     # Unzip .qgz

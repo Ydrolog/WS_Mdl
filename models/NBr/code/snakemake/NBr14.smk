@@ -26,7 +26,7 @@ path_HED, path_CBC  =   [os.path.join(path_MdlN, 'GWF_1/MODELOUTPUT', i) for i i
 path_LST_Sim        =   os.path.join(path_MdlN, 'mfsim.lst')
 
 log_Init_done = f"{path_Smk}/temp/Log_init_done_{MdlN}"
-log_Vis_Ins_done = f"{path_Smk}/temp/Log_Vis_Ind_done_{MdlN}"
+log_Vis_Ins_done = f"{path_Smk}/temp/Log_Vis_Ins_done_{MdlN}"
 
 ## --- Rules ---
 rule all: # Final rule
@@ -85,7 +85,7 @@ rule Sim: # Runs the simulation via BAT file.
         shell(path_BAT_RUN)
         Up_log(MdlN, {  'Sim end DT'    :   DT.now().strftime("%Y-%m-%d %H:%M:%S"),
                         'Sim Dur'       :   get_elapsed_time_str(DT_Sim_Start),
-                        'End Status'    :   'Completed'})
+                        'End Status'    :   'completed'})
 
 rule PRJ_to_TIF:
     input:

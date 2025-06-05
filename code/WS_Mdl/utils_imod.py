@@ -80,7 +80,7 @@ def PRJ_to_DF(MdlN):#, verbose:bool=True): #666 adding verbose behaviour enables
                                 DF.loc[f'{Pkg_name.upper()}_{Par}_Sys{(N)%Pkg['n_system']+1}'] = Ln_DF_path
                             elif (Pkg['n_system']==1):
                                 DF.loc[f"{Pkg_name.upper()}_{Par}"] = Ln_DF_path
-                print('\u2713')
+                print('\u2713\u2705')
             else:
                 print(f'\u2012 the package is innactive.')
         except:

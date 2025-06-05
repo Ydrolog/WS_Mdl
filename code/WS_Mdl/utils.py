@@ -13,8 +13,8 @@ import warnings
 warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl.worksheet._read_only")
 
 #-----------------------------------------------------------------------------------------------------------------------------------
-Pre_Sign = f"{fg('grey_50')}{'*'*80}{attr('reset')}\n\n"
-Sign = f"{fg(52)}\nend_of_transmission\n{fg('grey_50')}{'*'*80}{attr('reset')}\n"
+Pre_Sign = f"{fg(52)}{'*'*80}{attr('reset')}\n\n"
+Sign = f"{fg(52)}\nend_of_transmission\n{'*'*80}{attr('reset')}\n"
 path_WS = 'C:/OD/WS_Mdl'
 path_RunLog = os.path.join(path_WS, 'Mng/WS_RunLog.xlsx')
 path_log = os.path.join(path_WS, 'Mng/log.csv')
@@ -36,34 +36,35 @@ def paths_from_MdlN_Se(S, MdlN):
     MdlN_B = Mdl + str(SimN_B)
     
     d_path = {}
-    d_path['Mdl']       =   Mdl
-    d_path['MdlN_B']    =   MdlN_B
-    d_path['path_Mdl']      =   os.path.join(path_WS, f'models/{Mdl}')
-    d_path['path_INI']      =   os.path.join(d_path['path_Mdl'], f'code/Mdl_Prep/Mdl_Prep_{MdlN}.ini')
-    d_path['path_BAT']      =   os.path.join(d_path['path_Mdl'], f'code/Mdl_Prep/Mdl_Prep_{MdlN}.bat')
-    d_path['path_PRJ']      =   os.path.join(d_path['path_Mdl'], f'In/PRJ/{MdlN}.prj')
-    d_path['path_Smk']      =   os.path.join(d_path['path_Mdl'], f'code/snakemake/{MdlN}.smk')
-    d_path['path_MdlN']         =   os.path.join(d_path['path_Mdl'], f"Sim/{MdlN}")
-    d_path['path_Out_HD']       =   os.path.join(d_path['path_MdlN'], f"GWF_1/MODELOUTPUT/HEAD/HEAD")
+    d_path['Mdl']                   =   Mdl
+    d_path['MdlN_B']                =   MdlN_B
+    d_path['path_Mdl']              =   os.path.join(path_WS, f'models/{Mdl}')
+    d_path['path_INI']              =   os.path.join(d_path['path_Mdl'], f'code/Mdl_Prep/Mdl_Prep_{MdlN}.ini')
+    d_path['path_BAT']              =   os.path.join(d_path['path_Mdl'], f'code/Mdl_Prep/Mdl_Prep_{MdlN}.bat')
+    d_path['path_PRJ']              =   os.path.join(d_path['path_Mdl'], f'In/PRJ/{MdlN}.prj')
+    d_path['path_Smk']              =   os.path.join(d_path['path_Mdl'], f'code/snakemake/{MdlN}.smk')
+    d_path['path_Smk_temp']         =   os.path.join(d_path['path_Mdl'], f'code/snakemake/temp')
+    d_path['path_MdlN']             =   os.path.join(d_path['path_Mdl'], f"Sim/{MdlN}")
+    d_path['path_Out_HD']           =   os.path.join(d_path['path_MdlN'], f"GWF_1/MODELOUTPUT/HEAD/HEAD")
     d_path['path_PoP']              =   os.path.join(d_path['path_Mdl'], 'PoP')
     d_path['path_PoP_Out_MdlN']     =   os.path.join(d_path['path_PoP'], 'Out', MdlN)
-    d_path['path_MM']              =   os.path.join(d_path['path_PoP_Out_MdlN'], f'MM-{MdlN}.qgz')
-    d_path['path_INI_B']    =   d_path['path_INI'].replace(MdlN, MdlN_B)
-    d_path['path_BAT_B']    =   d_path['path_BAT'].replace(MdlN, MdlN_B)
-    d_path['path_PRJ_B']    =   d_path['path_PRJ'].replace(MdlN, MdlN_B)
-    d_path['path_Smk_B']    =   d_path['path_Smk'].replace(MdlN, MdlN_B)
-    d_path['path_MdlN_B']       =   d_path['path_MdlN'].replace(MdlN, MdlN_B)
-    d_path['path_Out_HD_B']     =   d_path['path_Out_HD'].replace(MdlN, MdlN_B)
+    d_path['path_MM']               =   os.path.join(d_path['path_PoP_Out_MdlN'], f'MM-{MdlN}.qgz')
+    d_path['path_INI_B']            =   d_path['path_INI'].replace(MdlN, MdlN_B)
+    d_path['path_BAT_B']            =   d_path['path_BAT'].replace(MdlN, MdlN_B)
+    d_path['path_PRJ_B']            =   d_path['path_PRJ'].replace(MdlN, MdlN_B)
+    d_path['path_Smk_B']            =   d_path['path_Smk'].replace(MdlN, MdlN_B)
+    d_path['path_MdlN_B']           =   d_path['path_MdlN'].replace(MdlN, MdlN_B)
+    d_path['path_Out_HD_B']         =   d_path['path_Out_HD'].replace(MdlN, MdlN_B)
     d_path['path_PoP_Out_MdlN_B']   =   d_path['path_PoP_Out_MdlN'].replace(MdlN, MdlN_B)
     d_path['path_MM_B']             =   d_path['path_MM'].replace(MdlN, MdlN_B)
 
-
     return  d_path
 
-def get_MdlN_paths(MdlN: str): #666 Can be split into two as both S and B aren't allways needed. Or better, I can make a new function that does that for just 1 run.
+def get_MdlN_paths(MdlN: str, verbose=False): #666 Can be split into two as both S and B aren't allways needed. Or better, I can make a new function that does that for just 1 run.
     """ Returns a dictionary of useful object (MdlN_B, directories etc.) for a given model. Those need to then be passed to arguments, e.g. path_INI_B = Dft_paths['path_INI_N']."""
     d_paths = paths_from_MdlN_Se( MdlN_Se_from_RunLog((MdlN)), MdlN )
-    print(f"✅ - {MdlN} paths extracted from RunLog and returned as dictionary with keys:\n{', '.join(d_paths.keys())}")
+    if verbose:
+        print(f"✅ - {MdlN} paths extracted from RunLog and returned as dictionary with keys:\n{', '.join(d_paths.keys())}")
     return d_paths
 # ----------------------------------------------------------------------------------------------------------------------------------
 
@@ -207,7 +208,8 @@ def RunMng(cores=None, DAG:bool=True):
 
     print(f"--- Reading RunLog ...", end='')
     DF = pd.read_excel(path_RunLog, sheet_name='RunLog').dropna(subset='runN') # Read RunLog
-    DF_q = DF.loc[ (DF['Start Status'] == 'Queued') & ((DF['End Status'].isna()) | (DF['End Status']=='Failed')) ] # _q for queued. Only Run Queued runs that aren't running or have finished.
+    DF_q = DF.loc[ ((DF['Start Status'] == 'Queued') & ((DF['End Status'].isna()) | (DF['End Status']=='Failed')))  |
+                   ((DF['Start Status'] == 'Re-queued'))] # _q for queued. Only Run Queued runs that aren't running or have finished.
     print(' completed!\n')
 
     print('--- Running snakemake files:')
@@ -218,7 +220,6 @@ def RunMng(cores=None, DAG:bool=True):
             path_Smk = os.path.join(path_WS, f"models/{Se_Ln['model alias']}/code/snakemake/{Se_Ln['MdlN']}.smk")
             path_log = os.path.join(path_WS, f"models/{Se_Ln['model alias']}/code/snakemake/log/{Se_Ln['MdlN']}_{DT.now().strftime('%Y%m%d_%H%M%S')}.log")
             path_DAG = os.path.join(path_WS, f"models/{Se_Ln['model alias']}/code/snakemake/DAG/DAG_{Se_Ln['MdlN']}.png")
-            print(f"\n{'-'*60}")
             print(f" -- {fg('green')}{os.path.basename(path_Smk)}{attr('reset')}\n")
 
             try:
@@ -229,20 +230,30 @@ def RunMng(cores=None, DAG:bool=True):
                 print(f"✅")
             except sp.CalledProcessError as e:
                 print(f"❌: {e}")
-            print(f"{'-'*60}")
     print(Sign)
 
 def reset_Sim(MdlN: str):
-    """Resets the simulation by deleting all files in the Sim folder and clearing log.csv. The only thing remaining is the Smk.log file.""" #666 can later be improved by deleting PoP files too. But that's not needed for now.
+    """
+    Resets the simulation by:
+        1. Deleting all files in the MldN folder in the Sim folder.
+        2. Clearing log.csv.
+        3. Deletes Smk log files for MdlN.
+        4. Deletes PoP folder for MdlN.
+    """
+    
     permission = input(f"This will delete the Sim/{MdlN} folder and clear the corresponding line of the log.csv. Are you sure you want to proceed? (y/n): ").strip().lower()
     print(f"{Pre_Sign}Resetting the simulation for {MdlN}.\n")
+    
     if permission == 'y':
         d_paths = get_MdlN_paths(MdlN) # Get default directories
         path_MdlN = d_paths['path_MdlN']
         DF = pd.read_csv(path_log) # Read the log file
+        path_Smk_temp = d_paths['path_Smk_temp']
+        l_temp = [i for i in os.listdir(path_Smk_temp) if MdlN in i]
 
-        if os.path.exists(path_MdlN) or MdlN in DF['MdlN'].values: # Check if the Sim folder exists or if the MdlN is in the log file
+        if os.path.exists(path_MdlN) or (MdlN in DF['MdlN'].values) or l_temp or os.path.exists(d_paths['path_PoP_Out_MdlN']): # Check if the Sim folder exists or if the MdlN is in the log file
             i = 0
+
             try:
                 if not os.path.exists(path_MdlN):
                     raise FileNotFoundError(f"{path_MdlN} does not exist.")
@@ -251,18 +262,38 @@ def reset_Sim(MdlN: str):
                 i += 1
             except:
                 print(f"❌ - failed to delete Sim folder.")
+
             try:
                 DF[ DF['MdlN']!=MdlN ].to_csv(path_log, index=False) # Remove the log entry for this model
                 print("✅ - Log file updated successfully.")
                 i += 1
             except:
                 print(f"❌ - failed to update log file.")
-            if i==2:
+            
+            try:
+                print(path_Smk_temp)
+                for l in l_temp:
+                    os.remove(os.path.join(path_Smk_temp, l))
+                print("✅ - Smk log files deleted successfully.")
+                i += 1
+            except:
+                print(f"❌ - failed to remove Smk log files.")
+
+            try:
+                if not os.path.exists(d_paths['path_PoP_Out_MdlN']):
+                    raise FileNotFoundError(f"{d_paths['path_PoP_Out_MdlN']} does not exist.")
+                sp.run(f'rmdir /S /Q "{d_paths['path_PoP_Out_MdlN']}"', shell=True) # Delete the entire Sim folder
+                print(f"✅ - PoP Out folder removed successfully.")
+                i += 1
+            except:
+                print(f"❌ - failed to delete PoP Out folder.")
+
+            if i==4:
                 print("\n✅ - ALL files were successfully removed.")
-            elif i==1:
-                print("➖ - 1/2 sub-processes was successful.")
+            else:
+                print(f"➖ - {i}/4 sub-processes finished successfully.")
         else:
-            print(f"❌ - {path_MdlN} does not exist. No need to reset.")
+            print(f"❌ - Items do not exist (Sim folder, log entry, Smk log files, PoP Out folder). No need to reset.")
     else:
         print(f"❌ - Reset cancelled by user (you).")
     print(Sign)
