@@ -21,7 +21,7 @@ def main():
     MdlN = U.get_last_MdlN()
 
     # Fixed local Git repository path
-    path_repo = r"C:\OD\WS_Mdl"
+    Pa_repo = r"C:\OD\WS_Mdl"
     package_name = "WS_Mdl"
     # Export conda environment
     print(f"Exporting conda environment '{env_name}' to environment.yml...")
@@ -42,12 +42,12 @@ def main():
         print(f"Error freezing pip packages: {e}", file=sys.stderr)
         sys.exit(1)
     # Verify Git repo path and extract remote URL + commit
-    if not os.path.isdir(PJ(path_repo, '.git')):
-        print(f"Error: {path_repo} is not a Git repository.", file=sys.stderr)
+    if not os.path.isdir(PJ(Pa_repo, '.git')):
+        print(f"Error: {Pa_repo} is not a Git repository.", file=sys.stderr)
         sys.exit(1)
 
-    remote_url = run(f'git -C "{path_repo}" remote get-url origin')
-    commit_hash = run(f'git -C "{path_repo}" rev-parse HEAD')
+    remote_url = run(f'git -C "{Pa_repo}" remote get-url origin')
+    commit_hash = run(f'git -C "{Pa_repo}" rev-parse HEAD')
     git_line = f"git+{remote_url}@{commit_hash}#egg={package_name}"
     print(f"Appending local Git package: {git_line}")
     with open(pip_freeze_env, 'a') as f:

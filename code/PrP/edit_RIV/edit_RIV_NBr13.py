@@ -8,10 +8,10 @@ MdlN, MdlN_B = 'NBr13', 'NBr1'
 
 Stg_increase_m = 0.2
 
-d_paths_B = WS.get_MdlN_paths(MdlN_B) # Get default directories
-Dir_RIV = PJ(d_paths_B['path_Mdl'], 'In/RIV')
+d_Pa_B = WS.get_MdlN_paths(MdlN_B) # Get default directories
+Dir_RIV = PJ(d_Pa_B['Pa_Mdl'], 'In/RIV')
 
-d_paths_S = WS.get_MdlN_paths((MdlN))
+d_Pa_S = WS.get_MdlN_paths((MdlN))
 
 # Read B RIV files
 l_RIV_B = [f for f in LD(Dir_RIV) if (MdlN_B in f) and ('RIV_Stg' in f) and ('.IDF' in f.upper()) and ('.dvc' not in f.lower())]

@@ -24,15 +24,15 @@ import sys
 crs = "EPSG:28992"
 
 # TIF ------------------------------------------------------------------------------------------------------------------------------
-def IDF_to_TIF(path_IDF: str, path_TIF: Optional[str] = None, MtDt: Optional[Dict] = None, crs=crs):
+def IDF_to_TIF(Pa_IDF: str, Pa_TIF: Optional[str] = None, MtDt: Optional[Dict] = None, crs=crs):
     """ Converts IDF file to TIF file.
-        If path_TIF is not provided, it'll be the same as path_IDF, except for the file type ending.
+        If Pa_TIF is not provided, it'll be the same as Pa_IDF, except for the file type ending.
         crs (coordinate reference system) is set to the Amerfoot crs by default, but can be changed for other projects."""
     print(Pre_Sign)
     try:
-        A, MtDt = imod.idf.read(path_IDF)
+        A, MtDt = imod.idf.read(Pa_IDF)
 
-        Ogn_DT = DT.fromtimestamp(os.path.getctime(path_IDF)).strftime('%Y-%m-%d %H:%M:%S') # Get OG (IDF) file's date modified.
+        Ogn_DT = DT.fromtimestamp(os.path.getctime(Pa_IDF)).strftime('%Y-%m-%d %H:%M:%S') # Get OG (IDF) file's date modified.
         Cvt_DT = DT.now().strftime('%Y-%m-%d %H:%M:%S') # Get current time, to write time of convertion to comment
 
         N_R, N_C = A.shape
@@ -51,22 +51,22 @@ def IDF_to_TIF(path_IDF: str, path_TIF: Optional[str] = None, MtDt: Optional[Dic
                 "crs"       :   crs,
                 "transform" :   transform}
 
-        if not path_TIF:
-            path_TIF = os.path.splitext(path_IDF)[0] + '.tif'
+        if not Pa_TIF:
+            Pa_TIF = os.path.splitext(Pa_IDF)[0] + '.tif'
 
-        with rasterio.open(path_TIF, "w", **meta) as Dst:
+        with rasterio.open(Pa_TIF, "w", **meta) as Dst:
             Dst.write(A, 1)  # Write band 1
 
             Cvt_MtDt = {'COMMENT':( f"Converted from IDF on {Cvt_DT}."
                                     f"Original file created on {Ogn_DT}."
-                                    f"Original IDF file location: {path_IDF}")}
+                                    f"Original IDF file location: {Pa_IDF}")}
                     
             if MtDt: # If project metadata exists, store it separately
                 project_metadata = {f"USER_{k}": str(v) for k, v in MtDt.items()}
                 Cvt_MtDt.update(project_metadata)
 
             Dst.update_tags(**Cvt_MtDt)
-        print(f"🟢 {path_TIF} has been saved (GeoTIFF) with conversion and project metadata.")
+        print(f"🟢 {Pa_TIF} has been saved (GeoTIFF) with conversion and project metadata.")
     except Exception as e:
         print(f"\u274C \n{e}")
     print(Sign)
@@ -77,10 +77,10 @@ def IDF_to_TIF(path_IDF: str, path_TIF: Optional[str] = None, MtDt: Optional[Dic
     #     DA = DA.rio.write_crs(crs)  # Set Dutch RD New projection
     #     DA.rio.to_raster(Dir_Out)
 
-def DA_to_TIF(DA, path_Out, d_MtDt, crs=crs, _print=False):
+def DA_to_TIF(DA, Pa_Out, d_MtDt, crs=crs, _print=False):
     """ Write a 2D xarray.DataArray (shape = [y, x]) to a single-band GeoTIFF.
     - DA: 2D xarray.DataArray with shape [y, x]
-    - path_Out: Path to the output GeoTIFF file.
+    - Pa_Out: Path to the output GeoTIFF file.
     - d_MtDt: Dictionary with metadata for this single band.
       Must contain exactly 1 item: {band_description: band_metadata_dict}
     - crs: Coordinate Reference System (optional)."""    
@@ -92,7 +92,7 @@ def DA_to_TIF(DA, path_Out, d_MtDt, crs=crs, _print=False):
 
     transform = DA.rio.transform() # Build transform from DA
 
-    with rasterio.open(path_Out,
+    with rasterio.open(Pa_Out,
                        "w",
                        driver="GTiff",
                        height=DA.shape[0],
@@ -105,12 +105,12 @@ def DA_to_TIF(DA, path_Out, d_MtDt, crs=crs, _print=False):
         Dst.set_band_description(1, band_key) # Give the band a useful name
         Dst.update_tags(1, **band_meta) # Write each row field as a separate metadata tag on this band
     if _print:
-        print(f"DA_to_TIF finished successfully for: {path_Out}")
+        print(f"DA_to_TIF finished successfully for: {Pa_Out}")
 
-def DA_to_MBTIF(DA, path_Out, d_MtDt, crs=crs, _print=False):
+def DA_to_MBTIF(DA, Pa_Out, d_MtDt, crs=crs, _print=False):
     """ Write a 3D xarray.DataArray (shape = [n_bands, y, x]) to a GeoTIFF. This bypasses rioxarray.to_raster() entirely, letting us set per-band descriptions and metadata in a single pass.
     - DA: 3D xarray.DataArray with shape [n_bands, y, x]
-    - path_Out: Path to the output GeoTIFF file.
+    - Pa_Out: Path to the output GeoTIFF file.
     - d_MtDt: Dictionary with metadata to be written to the GeoTIFF file. Each key is a band index (1-based) and each value is a dictionary of metadata tags.
     - crs: Coordinate Reference System (optional)."""
 
@@ -118,7 +118,7 @@ def DA_to_MBTIF(DA, path_Out, d_MtDt, crs=crs, _print=False):
 
     transform = DA.rio.transform()
 
-    with rasterio.open(path_Out, #666 add ask-to-overwrite function (preferably to any function/command in this Lib that writes a file.)
+    with rasterio.open(Pa_Out, #666 add ask-to-overwrite function (preferably to any function/command in this Lib that writes a file.)
                        "w",
                        driver="GTiff",
                        height=DA.shape[1],
@@ -137,7 +137,7 @@ def DA_to_MBTIF(DA, path_Out, d_MtDt, crs=crs, _print=False):
             Dst.update_tags(**d_MtDt["all"])  # Set global metadata for the whole dataset
             
     if _print:
-        print(f"DA_to_MBTIF finished successfully for: {path_Out}")
+        print(f"DA_to_MBTIF finished successfully for: {Pa_Out}")
 
 def PRJ_to_TIF(MdlN):
     """ Converts PRJ file to TIF (multiband if necessary) files by package (only time independent packages).
@@ -145,8 +145,8 @@ def PRJ_to_TIF(MdlN):
     Also creates a .csv file with the TIF file paths to be replaced in the QGIS project."""
     
     # -------------------- Initiate ------------------------------------------------------------------------------------------
-    d_paths = U.get_MdlN_paths(MdlN)                                                        # Get paths
-    Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = U.Mdl_Dmns_from_INI(d_paths['path_INI'])   # Get dimensions
+    d_Pa = U.get_MdlN_paths(MdlN)                                                        # Get paths
+    Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = U.Mdl_Dmns_from_INI(d_Pa['Pa_INI'])   # Get dimensions
     
     DF = UIM.PRJ_to_DF(MdlN) # Read PRJ file to DF
     
@@ -171,16 +171,16 @@ def PRJ_to_TIF(MdlN):
             ## Prepare directoreis and filenames
             Mdl = ''.join([c for c in MdlN if not c.isdigit()])
             Pkg_MdlN = Mdl + str(DF_Par['MdlN'].str.extract(r'(\d+)').astype(int).max().values[0])
-            path_TIF = PJ(d_paths['path_Mdl'], 'PoP', 'In', Pkg, Pkg_MdlN, f"{Pkg}_{Par}_{Pkg_MdlN}.tif")  # Full path to TIF file
+            Pa_TIF = PJ(d_Pa['Pa_Mdl'], 'PoP', 'In', Pkg, Pkg_MdlN, f"{Pkg}_{Par}_{Pkg_MdlN}.tif")  # Full path to TIF file
 
             ## Build a dictionary mapping each band’s name to its row’s metadata. We're assuming that the order the paths are read into DA is the same as the order in DF_Par.
             d_MtDt = {}
 
-            if os.path.exists(path_TIF):
-                print(f'\u274C - {PBN(path_TIF)} already exists. Skipping.')
+            if os.path.exists(Pa_TIF):
+                print(f'\u274C - {PBN(Pa_TIF)} already exists. Skipping.')
                 continue
             else:
-                MDs(PDN(path_TIF), exist_ok=True) # Make sure the directory exists
+                MDs(PDN(Pa_TIF), exist_ok=True) # Make sure the directory exists
 
                 ## Read files-paths to xarray Data Array (DA), then write them to TIF file(s).
                 if DF_Par.shape[0] > 1: # If there are multiple paths for the same parameter
@@ -188,18 +188,18 @@ def PRJ_to_TIF(MdlN):
                         d_MtDt[f"{R['parameter']}_L{R['layer']}_{R['MdlN']}"] = {('origin_path' if col == 'path' else col):
                                                                                 str(val) for col, val in R.items()}
                     DA = imod.formats.idf.open(list(DF_Par['path']), pattern="{name}_L{layer}_").sel(x=slice(Xmin, Xmax), y=slice(Ymax, Ymin))
-                    DA_to_MBTIF(DA, path_TIF, d_MtDt)
+                    DA_to_MBTIF(DA, Pa_TIF, d_MtDt)
                     print(f'🟢 - multi-band')
                 else:
                     try:
                         DA = imod.formats.idf.open(list(DF_Par['path']), pattern="{name}_L{layer}_").sel(x=slice(Xmin, Xmax), y=slice(Ymax, Ymin))
                         d_MtDt[f"{DF_Par['parameter'].values[0]}_L{DF_Par['layer'].values[0]}_{DF_Par['MdlN'].values[0]}"] = {('origin_path' if col == 'path' else col): str(val) for col, val in R.items()}
-                        DA_to_TIF(DA.squeeze(drop=True), path_TIF, d_MtDt) # .squeeze cause 2D arrays have extra dimension with size 1 sometimes.
+                        DA_to_TIF(DA.squeeze(drop=True), Pa_TIF, d_MtDt) # .squeeze cause 2D arrays have extra dimension with size 1 sometimes.
                         print(f'🟢 - single-band with L attribute')
                     except:
                         DA = imod.formats.idf.open(list(DF_Par['path']), pattern="{name}_").sel(x=slice(Xmin, Xmax), y=slice(Ymax, Ymin))
                         d_MtDt[f"{DF_Par['parameter'].values[0]}_{DF_Par['MdlN'].values[0]}"] = {('origin_path' if col == 'path' else col): str(val) for col, val in R.items()}
-                        DA_to_TIF(DA.squeeze(drop=True), path_TIF, d_MtDt) # .squeeze cause 2D arrays have extra dimension with size 1 sometimes.
+                        DA_to_TIF(DA.squeeze(drop=True), Pa_TIF, d_MtDt) # .squeeze cause 2D arrays have extra dimension with size 1 sometimes.
                         print(f'🟢 - single-band without L attribute')
         except Exception as e:
             print(f"\u274C - Error: {e}")
@@ -214,20 +214,20 @@ def PRJ_to_TIF(MdlN):
     for i, R in DF_time[DF_time['package'].isin(('DRN', 'RIV'))].iterrows():
         print(f"\t{f"{R['package']}_{R['parameter']}":<30} ... ", end='')
 
-        path_TIF = PJ(d_paths['path_Mdl'], 'PoP', 'In', R['package'], R['MdlN'], PBN(re.sub(r'\.idf$', '.tif', R['path'], flags=re.IGNORECASE)))  # Full path to TIF file
+        Pa_TIF = PJ(d_Pa['Pa_Mdl'], 'PoP', 'In', R['package'], R['MdlN'], PBN(re.sub(r'\.idf$', '.tif', R['path'], flags=re.IGNORECASE)))  # Full path to TIF file
         
-        if os.path.exists(path_TIF):
-            print(f'\u274C - {PBN(path_TIF)} already exists. Skipping.')
+        if os.path.exists(Pa_TIF):
+            print(f'\u274C - {PBN(Pa_TIF)} already exists. Skipping.')
             continue
         else:
             try:    
-                MDs(PDN(path_TIF), exist_ok=True) # Make sure the directory exists
+                MDs(PDN(Pa_TIF), exist_ok=True) # Make sure the directory exists
 
                 ## Build a dictionary mapping each band’s name to its row’s metadata.
                 d_MtDt = {f"{R['parameter']}_L{R['layer']}_{R['MdlN']}" : {('origin_path' if col == 'path' else col): str(val) for col, val in R.items()}}
 
                 DA = imod.formats.idf.open(R['path'], pattern=f'{{name}}_{Mdl}').sel(x=slice(Xmin, Xmax), y=slice(Ymax, Ymin))
-                DA_to_TIF(DA.squeeze(drop=True), path_TIF, d_MtDt) # .squeeze cause 2D arrays have extra dimension with size 1 sometimes.
+                DA_to_TIF(DA.squeeze(drop=True), Pa_TIF, d_MtDt) # .squeeze cause 2D arrays have extra dimension with size 1 sometimes.
                 print(f'🟢 - IDF converted to TIF - single-band without L attribute')
             except Exception as e:
                 print(f"\u274C - Error: {e}")
@@ -238,10 +238,10 @@ def PRJ_to_TIF(MdlN):
     for i, R in DF_WEL.iloc[3:6].iterrows():
         print(f"\t{PBN(R['path']):<30} ... ", end='')
 
-        path_GPKG = PJ(d_paths['path_Mdl'], 'PoP', 'In', R['package'], R['MdlN'], PBN(re.sub(r'\.ipf$', '.gpkg', R['path'], flags=re.IGNORECASE)))  # Full path to TIF file
+        Pa_GPKG = PJ(d_Pa['Pa_Mdl'], 'PoP', 'In', R['package'], R['MdlN'], PBN(re.sub(r'\.ipf$', '.gpkg', R['path'], flags=re.IGNORECASE)))  # Full path to TIF file
 
-        if os.path.exists(path_GPKG):
-            print(f'\u274C - file {PBN(path_GPKG)} exists. Skipping.')
+        if os.path.exists(Pa_GPKG):
+            print(f'\u274C - file {PBN(Pa_GPKG)} exists. Skipping.')
             continue
         else:
 
@@ -257,8 +257,8 @@ def PRJ_to_TIF(MdlN):
                 DF_IPF_AVG = DF_IPF.groupby('id')[DF_IPF.select_dtypes(include=np.number).columns].agg(np.mean)
                 _GDF_AVG = gpd.GeoDataFrame(DF_IPF_AVG, geometry=gpd.points_from_xy(DF_IPF_AVG['x'], DF_IPF_AVG['y'])).set_crs(crs=crs)
 
-                MDs(PDN(path_GPKG), exist_ok=True) # Make sure the directory exists
-                _GDF_AVG.to_file(path_GPKG, driver="GPKG") #, layer=PBN(path_GPKG))
+                MDs(PDN(Pa_GPKG), exist_ok=True) # Make sure the directory exists
+                _GDF_AVG.to_file(Pa_GPKG, driver="GPKG") #, layer=PBN(Pa_GPKG))
                 print(f'🟢 - IPF average values (per id) converted to GPKG')
             except:
                 print('\u274C')
@@ -295,14 +295,14 @@ def PRJ_to_TIF(MdlN):
     for i, Par in enumerate(d_Clc_In.keys()):
         print(f"\t{d_Clc_In[Par]['Par']:<30} ... ", end='')
 
-        path_TIF = PJ(d_paths['path_Mdl'], 'PoP', 'Clc_In', Par, d_Clc_In[Par]['MdlN_Pkg'], f"{Par}_{d_Clc_In[Par]['MdlN_Pkg']}.tif")  # Full path to TIF file #666 need to think which MdlN to use. It's hard to do the same as with the other packages.
+        Pa_TIF = PJ(d_Pa['Pa_Mdl'], 'PoP', 'Clc_In', Par, d_Clc_In[Par]['MdlN_Pkg'], f"{Par}_{d_Clc_In[Par]['MdlN_Pkg']}.tif")  # Full path to TIF file #666 need to think which MdlN to use. It's hard to do the same as with the other packages.
         
-        if os.path.exists(path_TIF):
-            print(f'\u274C - {PBN(path_TIF)} already exists. Skipping.')
+        if os.path.exists(Pa_TIF):
+            print(f'\u274C - {PBN(Pa_TIF)} already exists. Skipping.')
             continue
         else:
             try:
-                MDs(PDN(path_TIF), exist_ok=True) # Make sure the directory exists
+                MDs(PDN(Pa_TIF), exist_ok=True) # Make sure the directory exists
 
                 ## Write DAs to TIF files.
                 DA = d_Clc_In[Par]['DA'].squeeze(drop=True)
@@ -312,10 +312,10 @@ def PRJ_to_TIF(MdlN):
                     DA.rio.write_crs(crs, inplace=True)  # Replace with correct CRS
 
                 if len(DA.shape) == 3: # If there are multiple paths for the same parameter
-                    DA_to_MBTIF(DA, path_TIF, d_MtDt)
+                    DA_to_MBTIF(DA, Pa_TIF, d_MtDt)
                     print(f'🟢 - multi-band')
                 elif len(DA.shape) == 2:
-                    DA_to_TIF(DA.squeeze(drop=True), path_TIF, d_MtDt) # .squeeze cause 2D arrays have extra dimension with size 1 sometimes.
+                    DA_to_TIF(DA.squeeze(drop=True), Pa_TIF, d_MtDt) # .squeeze cause 2D arrays have extra dimension with size 1 sometimes.
                     print(f'🟢 - single-band')
             except Exception as e:
                 print(f"\u274C - Error: {e}")
@@ -328,24 +328,24 @@ def HD_IDF_Mo_Avg_to_MBTIF(MdlN: str, N_cores:int=None, crs:str=crs, DF_rules:st
     print(f"*** {MdlN} *** - HD_IDF_Mo_Avg_to_MBTIF")
 
     # Get paths
-    d_paths = U.get_MdlN_paths(MdlN)
-    path_PoP, path_HD = [ d_paths[v] for v in ['path_PoP', 'path_Out_HD'] ]
+    d_Pa = U.get_MdlN_paths(MdlN)
+    Pa_PoP, Pa_HD = [ d_Pa[v] for v in ['Pa_PoP', 'Pa_Out_HD'] ]
 
     # Read the IDF files to a DataFrame. Apply rules. Group.
-    DF = U.HD_Out_IDF_to_DF(path_HD)
+    DF = U.HD_Out_IDF_to_DF(Pa_HD)
     if DF_rules is not None:
         DF = DF.query(DF_rules)
     DF_grouped = DF.groupby(['year', 'month'])['path']
 
-    path_Mo_AVG_Fo = PJ(path_PoP, f'Out/{MdlN}/HD_Mo_AVG') # path where Mo AVG files are stored
-    MDs(path_Mo_AVG_Fo, exist_ok=True) # Create the directory if it doesn't exist
+    Pa_Mo_AVG_Fo = PJ(Pa_PoP, f'Out/{MdlN}/HD_Mo_AVG') # path where Mo AVG files are stored
+    MDs(Pa_Mo_AVG_Fo, exist_ok=True) # Create the directory if it doesn't exist
 
     if N_cores is None:
         N_cores = max(os.cpu_count() - 2, 1) # Leave 2 cores free for other tasks. If there aren't enough cores available, set to 1.
 
     start = DT.now() # Start time
     with PPE(max_workers=N_cores) as E:
-        futures = [E.submit(_HD_IDF_Mo_Avg_to_MBTIF_process_Mo, year, month, list(paths), MdlN, path_Mo_AVG_Fo, path_HD, crs)
+        futures = [E.submit(_HD_IDF_Mo_Avg_to_MBTIF_process_Mo, year, month, list(paths), MdlN, Pa_Mo_AVG_Fo, Pa_HD, crs)
                    for (year, month), paths in DF_grouped]
         for f in futures:
             print('\t', f.result(), '- Elapsed time (from start):', DT.now() - start)
@@ -353,17 +353,17 @@ def HD_IDF_Mo_Avg_to_MBTIF(MdlN: str, N_cores:int=None, crs:str=crs, DF_rules:st
     print('*** {MdlN} *** - Total elapsed:', DT.now() - start)
     print(Sign)
 
-def _HD_IDF_Mo_Avg_to_MBTIF_process_Mo(year, month, paths, MdlN, path_Mo_AVG_Fo, path_HD, crs):
+def _HD_IDF_Mo_Avg_to_MBTIF_process_Mo(year, month, paths, MdlN, Pa_Mo_AVG_Fo, Pa_HD, crs):
     """Only for use within HD_IDF_Mo_Avg_to_MBTIF - to utilize multiprocessing."""
     XA = imod.formats.idf.open(list(paths)) # Read the files to an Xarray
     XA_mean = XA.mean(dim='time') # Calculate monthly mean
 
-    path_Out = PJ(path_Mo_AVG_Fo, f'HD_AVG_{year}{month:02d}_{MdlN}.tif') # Create the output path
+    Pa_Out = PJ(Pa_Mo_AVG_Fo, f'HD_AVG_{year}{month:02d}_{MdlN}.tif') # Create the output path
 
     d_MtDt = {str(L): {'layer': L} for L in XA.coords['layer'].values}
     d_MtDt['all'] = {'parameters': XA.coords,
-                     'Description': f'Monthly mean GW heads per layer for {year}-{month:02d}, produced by aggregating {MdlN} output IDF files. Output IDF files are in {path_HD}.'}
-    DA_to_MBTIF(XA_mean, path_Out, d_MtDt, crs=crs, _print=False)
+                     'Description': f'Monthly mean GW heads per layer for {year}-{month:02d}, produced by aggregating {MdlN} output IDF files. Output IDF files are in {Pa_HD}.'}
+    DA_to_MBTIF(XA_mean, Pa_Out, d_MtDt, crs=crs, _print=False)
     return f"*** {MdlN} *** - {year}-{month:02d} 🟢 "
 
 def HD_IDF_GXG_to_TIF(MdlN: str, N_cores:int=None, crs:str=crs, DF_rules:str=None):
@@ -373,11 +373,11 @@ def HD_IDF_GXG_to_TIF(MdlN: str, N_cores:int=None, crs:str=crs, DF_rules:str=Non
     print(f"*** {MdlN} *** - HD_IDF_GXG_to_TIF\n")
 
     # Get paths
-    d_paths = U.get_MdlN_paths(MdlN)
-    path_PoP, path_HD = [ d_paths[v] for v in ['path_PoP', 'path_Out_HD'] ]
+    d_Pa = U.get_MdlN_paths(MdlN)
+    Pa_PoP, Pa_HD = [ d_Pa[v] for v in ['Pa_PoP', 'Pa_Out_HD'] ]
 
     # Apply rules to DF if DF_rules is not None.
-    DF = U.HD_Out_IDF_to_DF(path_HD)
+    DF = U.HD_Out_IDF_to_DF(Pa_HD)
     if DF_rules is not None:
         DF = DF.query(DF_rules)
 
@@ -386,14 +386,14 @@ def HD_IDF_GXG_to_TIF(MdlN: str, N_cores:int=None, crs:str=crs, DF_rules:str=Non
     start = DT.now() # Start time
 
     with PPE(max_workers=N_cores) as E:
-        futures = [E.submit(_HD_IDF_GXG_to_TIF_per_L, DF, L, MdlN, path_PoP, path_HD, crs)
+        futures = [E.submit(_HD_IDF_GXG_to_TIF_per_L, DF, L, MdlN, Pa_PoP, Pa_HD, crs)
                    for L in DF['L'].unique()]
         for f in futures:
             print('\t', f.result(), '- Elapsed time (from start):', DT.now() - start)
 
     print('Total elapsed:', DT.now() - start)
 
-def _HD_IDF_GXG_to_TIF_per_L(DF, L, MdlN, path_PoP, path_HD, crs):
+def _HD_IDF_GXG_to_TIF_per_L(DF, L, MdlN, Pa_PoP, Pa_HD, crs):
     """Only for use within HD_IDF_GXG_to_TIF - to utilize multiprocessing."""
 
     # Load HD files corresponding to the L to an XA
@@ -409,19 +409,19 @@ def _HD_IDF_GXG_to_TIF_per_L(DF, L, MdlN, path_PoP, path_HD, crs):
     GXG = GXG[["GHG", "GLG", "GHG_m_GLG", "GVG"]]
 
     # Save to TIF
-    MDs(PJ(path_PoP, 'Out', MdlN, 'GXG'), exist_ok=True)
+    MDs(PJ(Pa_PoP, 'Out', MdlN, 'GXG'), exist_ok=True)
     for V in GXG.data_vars:
-        path_Out = PJ(path_PoP, 'Out', MdlN, 'GXG', f'{V}_L{L}_{MdlN}.tif')
+        Pa_Out = PJ(Pa_PoP, 'Out', MdlN, 'GXG', f'{V}_L{L}_{MdlN}.tif')
 
         d_MtDt = {f'{V}_L{L}_{MdlN}':
                         {'AVG'          :   float(GXG[V].mean().values),
                         'coordinates'   :   XA.coords,
                         'N_years'       :   N_years_GVG if V=='GVG' else N_years_GXG,
-                        'variable'          :   os.path.splitext(PBN(path_Out))[0],
-                        'details'       :   f'{MdlN} {V} calculated from (path: {path_HD}), via function described in: https://deltares.github.io/imod-python/api/generated/evaluate/imod.evaluate.calculate_gxg.html'}}
+                        'variable'          :   os.path.splitext(PBN(Pa_Out))[0],
+                        'details'       :   f'{MdlN} {V} calculated from (path: {Pa_HD}), via function described in: https://deltares.github.io/imod-python/api/generated/evaluate/imod.evaluate.calculate_gxg.html'}}
         
         DA = GXG[V]
-        DA_to_TIF(DA, path_Out, d_MtDt, crs=crs, _print=False)
+        DA_to_TIF(DA, Pa_Out, d_MtDt, crs=crs, _print=False)
 
     return f"L{L} 🟢"
 
@@ -434,25 +434,25 @@ def Up_MM(MdlN, MdlN_MM_B=None):
     print(Pre_Sign)
     print(f" *****   Creating MM for {MdlN}   ***** ")
     
-    d_paths = U.get_MdlN_paths(MdlN)
-    path_QGZ, path_QGZ_B = d_paths['path_MM'], d_paths['path_MM_B']
-    Mdl = d_paths['Mdl']
+    d_Pa = U.get_MdlN_paths(MdlN)
+    Pa_QGZ, Pa_QGZ_B = d_Pa['Pa_MM'], d_Pa['Pa_MM_B']
+    Mdl = U.get_Mdl(MdlN)
 
     if MdlN_MM_B is not None: # Replace MdlN_B with another MdlN if requested.
-        path_QGZ_B = path_QGZ_B.replace(d_paths['MdlN_B'], MdlN_MM_B)
+        Pa_QGZ_B = Pa_QGZ_B.replace(d_Pa['MdlN_B'], MdlN_MM_B)
 
-    MDs(PBN(path_QGZ), exist_ok=True)      # Ensure destination folder exists
-    sh.copy(path_QGZ_B, path_QGZ)                               # Copy the QGIS file
-    print(f"Copied QGIS project from {path_QGZ_B} to {path_QGZ}.\nUpdating layer path ...")
+    MDs(PBN(Pa_QGZ), exist_ok=True)      # Ensure destination folder exists
+    sh.copy(Pa_QGZ_B, Pa_QGZ)                               # Copy the QGIS file
+    print(f"Copied QGIS project from {Pa_QGZ_B} to {Pa_QGZ}.\nUpdating layer path ...")
 
-    path_temp = PJ(PDN(path_QGZ), 'temp') # Path to temporarily extract QGZ contents
-    MDs(path_temp, exist_ok=True)
+    Pa_temp = PJ(PDN(Pa_QGZ), 'temp') # Path to temporarily extract QGZ contents
+    MDs(Pa_temp, exist_ok=True)
 
-    with ZF.ZipFile(path_QGZ_B, 'r') as zip_ref:     # Unzip .qgz
-        zip_ref.extractall(path_temp)
+    with ZF.ZipFile(Pa_QGZ_B, 'r') as zip_ref:     # Unzip .qgz
+        zip_ref.extractall(Pa_temp)
 
-    path_QGS = PJ(path_temp, PBN(path_QGZ_B).replace('.qgz', '.qgs'))
-    tree = ET.parse(path_QGS)
+    Pa_QGS = PJ(Pa_temp, PBN(Pa_QGZ_B).replace('.qgz', '.qgs'))
+    tree = ET.parse(Pa_QGS)
     root = tree.getroot()
 
     for i, DS in enumerate(root.iter('datasource')):                  # Update datasource paths
@@ -477,33 +477,33 @@ def Up_MM(MdlN, MdlN_MM_B=None):
             else:
                 MdlX = f"{Mdl}{matches[0]}"
                 
-                path_full = os.path.normpath(PJ(PDN(path_QGZ), path.replace(MdlX, MdlN)))
-                if (MdlX != MdlN) and (os.path.exists(path_full)):
-                    path_X = path.replace(MdlX, MdlN)
-                    DS.text = f"{path_X}|{suffix}" if suffix else path_X
-                    print(f" - 🟢 Updated {MdlX} → {MdlN} in {path_full}")
+                Pa_full = os.path.normpath(PJ(PDN(Pa_QGZ), path.replace(MdlX, MdlN)))
+                if (MdlX != MdlN) and (os.path.exists(Pa_full)):
+                    Pa_X = path.replace(MdlX, MdlN)
+                    DS.text = f"{Pa_X}|{suffix}" if suffix else Pa_X
+                    print(f" - 🟢 Updated {MdlX} → {MdlN} in {Pa_full}")
                 # else:
                     # print(" - OK (no change)")
         # else:
         #     print(" - No Mdl in path")
         # print('-'*50)
 
-    tree.write(path_QGS, encoding='utf-8', xml_declaration=True)    # Save the modified .qgs file
+    tree.write(Pa_QGS, encoding='utf-8', xml_declaration=True)    # Save the modified .qgs file
 
-    with ZF.ZipFile(path_QGZ, 'w', ZF.ZIP_DEFLATED) as zipf:   # Zip back into .qgz
-        for foldername, _, filenames in os.walk(path_temp):
+    with ZF.ZipFile(Pa_QGZ, 'w', ZF.ZIP_DEFLATED) as zipf:   # Zip back into .qgz
+        for foldername, _, filenames in os.walk(Pa_temp):
             for filename in filenames:
                 filepath = PJ(foldername, filename)
-                arcname = os.path.relpath(filepath, path_temp)
+                arcname = os.path.relpath(filepath, Pa_temp)
                 zipf.write(filepath, arcname)
 
-    sh.rmtree(path_temp)  # Remove the temporary folder
+    sh.rmtree(Pa_temp)  # Remove the temporary folder
     print(f"\n🟢 MM for {MdlN} has been updated.\n")
     print(Sign)
 # ----------------------------------------------------------------------------------------------------------------------------------
 
 # OUTDATED -------------------------------------------------------------------------------------------------------------------------
-def A_to_Raster_n_IDF(A, IDF_MtDt, path_Out, field='HD_L1', crs="EPSG:4326"):
+def A_to_Raster_n_IDF(A, IDF_MtDt, Pa_Out, field='HD_L1', crs="EPSG:4326"):
     """ This was used in PoP_HD_IDF a long time ago and is now outdated."""
     # 1. Write a GeoTIFF raster with rasterio
     nrows, ncols = A.shape
@@ -526,7 +526,7 @@ def A_to_Raster_n_IDF(A, IDF_MtDt, path_Out, field='HD_L1', crs="EPSG:4326"):
         "transform": transform,
     }
 
-    tif_path = path_Out + ".tif"
+    tif_path = Pa_Out + ".tif"
     with rasterio.open(tif_path, "w", **meta) as dst:
         dst.write(A, 1)  # Write band 1
     print(f"{tif_path} has been saved (GeoTIFF).")
@@ -541,7 +541,7 @@ def A_to_Raster_n_IDF(A, IDF_MtDt, path_Out, field='HD_L1', crs="EPSG:4326"):
     DA = xr.DataArray(A, coords={"y": y, "x": x}, dims=["y", "x"], name=field)
 
     # Write the IDF
-    idf_path = path_Out + ".idf"
+    idf_path = Pa_Out + ".idf"
     imod.idf.write(idf_path, DA)
     print(f"{idf_path} has been saved (iMOD IDF).")
 # ----------------------------------------------------------------------------------------------------------------------------------

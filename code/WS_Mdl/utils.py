@@ -17,15 +17,15 @@ warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl.workshe
 #-----------------------------------------------------------------------------------------------------------------------------------
 Pre_Sign = f"{fg(52)}{'*'*80}{attr('reset')}\n\n"
 Sign = f"{fg(52)}\nend_of_transmission\n{'*'*80}{attr('reset')}\n"
-path_WS = 'C:/OD/WS_Mdl'
-path_RunLog = PJ(path_WS, 'Mng/WS_RunLog.xlsx')
-path_log = PJ(path_WS, 'Mng/log.csv')
-## Can make get paths function that will provide the general directories, like path_WS, path_Mdl. Those can be derived from a folder structure.
+Pa_WS = 'C:/OD/WS_Mdl'
+Pa_RunLog = PJ(Pa_WS, 'Mng/WS_RunLog.xlsx')
+Pa_log = PJ(Pa_WS, 'Mng/log.csv')
+## Can make get paths function that will provide the general directories, like Pa_WS, Pa_Mdl. Those can be derived from a folder structure.
 
 # Get paths from MdlN --------------------------------------------------------------------------------------------------------------
 def MdlN_Se_from_RunLog(MdlN): # Can be made faster. May need to make excel export the RunLog as a csv, so that I can use pd.read_csv instead of pd.read_excel. 
     """Returns RunLog line that corresponds to MdlN as a S."""
-    DF = pd.read_excel(PJ(path_WS, 'Mng/WS_RunLog.xlsx'), sheet_name='RunLog')    
+    DF = pd.read_excel(PJ(Pa_WS, 'Mng/WS_RunLog.xlsx'), sheet_name='RunLog')    
     Se_match = DF.loc[DF['MdlN'] == MdlN]
     if Se_match.empty:
         raise ValueError(f"MdlN {MdlN} not found in RunLog. {fg('indian_red_1c')}Check the spelling and try again.{attr('reset')}")
@@ -37,54 +37,57 @@ def paths_from_MdlN_Se(S, MdlN):
     Mdl, SimN_B = S[['model alias', 'B SimN']]
     MdlN_B = Mdl + str(SimN_B)
     
-    d_path = {}
-    d_path['Mdl']                   =   Mdl
-    d_path['MdlN_B']                =   MdlN_B
-    d_path['path_Mdl']              =   PJ(path_WS, f'models/{Mdl}')
-    d_path['path_INI']              =   PJ(d_path['path_Mdl'], f'code/Mdl_Prep/Mdl_Prep_{MdlN}.ini')
-    d_path['path_BAT']              =   PJ(d_path['path_Mdl'], f'code/Mdl_Prep/Mdl_Prep_{MdlN}.bat')
-    d_path['path_PRJ']              =   PJ(d_path['path_Mdl'], f'In/PRJ/{MdlN}.prj')
-    d_path['path_Smk']              =   PJ(d_path['path_Mdl'], f'code/snakemake/{MdlN}.smk')
-    d_path['path_Smk_temp']         =   PJ(d_path['path_Mdl'], f'code/snakemake/temp')
-    d_path['path_MdlN']             =   PJ(d_path['path_Mdl'], f"Sim/{MdlN}")
-    d_path['path_Out_HD']           =   PJ(d_path['path_MdlN'], f"GWF_1/MODELOUTPUT/HEAD/HEAD")
-    d_path['path_PoP']              =   PJ(d_path['path_Mdl'], 'PoP')
-    d_path['path_PoP_Out_MdlN']     =   PJ(d_path['path_PoP'], 'Out', MdlN)
-    d_path['path_MM']               =   PJ(d_path['path_PoP_Out_MdlN'], f'MM-{MdlN}.qgz')
-    d_path['path_INI_B']            =   d_path['path_INI'].replace(MdlN, MdlN_B)
-    d_path['path_BAT_B']            =   d_path['path_BAT'].replace(MdlN, MdlN_B)
-    d_path['path_PRJ_B']            =   d_path['path_PRJ'].replace(MdlN, MdlN_B)
-    d_path['path_Smk_B']            =   d_path['path_Smk'].replace(MdlN, MdlN_B)
-    d_path['path_MdlN_B']           =   d_path['path_MdlN'].replace(MdlN, MdlN_B)
-    d_path['path_Out_HD_B']         =   d_path['path_Out_HD'].replace(MdlN, MdlN_B)
-    d_path['path_PoP_Out_MdlN_B']   =   d_path['path_PoP_Out_MdlN'].replace(MdlN, MdlN_B)
-    d_path['path_MM_B']             =   d_path['path_MM'].replace(MdlN, MdlN_B)
+    d_Pa = {}
+    d_Pa['Mdl']                   =   Mdl
+    d_Pa['MdlN_B']                =   MdlN_B
+    d_Pa['Pa_Mdl']              =   PJ(Pa_WS, f'models/{Mdl}')
+    d_Pa['Pa_INI']              =   PJ(d_Pa['Pa_Mdl'], f'code/Mdl_Prep/Mdl_Prep_{MdlN}.ini')
+    d_Pa['Pa_BAT']              =   PJ(d_Pa['Pa_Mdl'], f'code/Mdl_Prep/Mdl_Prep_{MdlN}.bat')
+    d_Pa['Pa_PRJ']              =   PJ(d_Pa['Pa_Mdl'], f'In/PRJ/{MdlN}.prj')
+    d_Pa['Pa_Smk']              =   PJ(d_Pa['Pa_Mdl'], f'code/snakemake/{MdlN}.smk')
+    d_Pa['Pa_Smk_temp']         =   PJ(d_Pa['Pa_Mdl'], f'code/snakemake/temp')
+    d_Pa['Pa_MdlN']             =   PJ(d_Pa['Pa_Mdl'], f"Sim/{MdlN}")
+    d_Pa['Pa_Out_HD']           =   PJ(d_Pa['Pa_MdlN'], f"GWF_1/MODELOUTPUT/HEAD/HEAD")
+    d_Pa['Pa_PoP']              =   PJ(d_Pa['Pa_Mdl'], 'PoP')
+    d_Pa['Pa_PoP_Out_MdlN']     =   PJ(d_Pa['Pa_PoP'], 'Out', MdlN)
+    d_Pa['Pa_MM']               =   PJ(d_Pa['Pa_PoP_Out_MdlN'], f'MM-{MdlN}.qgz')
+    d_Pa['Pa_INI_B']            =   d_Pa['Pa_INI'].replace(MdlN, MdlN_B)
+    d_Pa['Pa_BAT_B']            =   d_Pa['Pa_BAT'].replace(MdlN, MdlN_B)
+    d_Pa['Pa_PRJ_B']            =   d_Pa['Pa_PRJ'].replace(MdlN, MdlN_B)
+    d_Pa['Pa_Smk_B']            =   d_Pa['Pa_Smk'].replace(MdlN, MdlN_B)
+    d_Pa['Pa_MdlN_B']           =   d_Pa['Pa_MdlN'].replace(MdlN, MdlN_B)
+    d_Pa['Pa_Out_HD_B']         =   d_Pa['Pa_Out_HD'].replace(MdlN, MdlN_B)
+    d_Pa['Pa_PoP_Out_MdlN_B']   =   d_Pa['Pa_PoP_Out_MdlN'].replace(MdlN, MdlN_B)
+    d_Pa['Pa_MM_B']             =   d_Pa['Pa_MM'].replace(MdlN, MdlN_B)
 
-    return  d_path
+    return d_Pa
 
 def get_MdlN_paths(MdlN: str, verbose=False): #666 Can be split into two as both S and B aren't allways needed. Or better, I can make a new function that does that for just 1 run.
-    """ Returns a dictionary of useful object (MdlN_B, directories etc.) for a given model. Those need to then be passed to arguments, e.g. path_INI_B = Dft_paths['path_INI_N']."""
-    d_paths = paths_from_MdlN_Se( MdlN_Se_from_RunLog((MdlN)), MdlN )
+    """ Returns a dictionary of useful object (MdlN_B, directories etc.) for a given model. Those need to then be passed to arguments, e.g. Pa_INI_B = Dft_paths['Pa_INI_N']."""
+    d_Pa = paths_from_MdlN_Se( MdlN_Se_from_RunLog((MdlN)), MdlN )
     if verbose:
-        print(f"🟢 - {MdlN} paths extracted from RunLog and returned as dictionary with keys:\n{', '.join(d_paths.keys())}")
-    return d_paths
+        print(f"🟢 - {MdlN} paths extracted from RunLog and returned as dictionary with keys:\n{', '.join(d_Pa.keys())}")
+    return d_Pa
 # ----------------------------------------------------------------------------------------------------------------------------------
 
 # READ FILES -----------------------------------------------------------------------------------------------------------------------
 #666 to be iproved later by replacing paths with MdlN. I'll have to make get_MdlN_paths_noB, where RunLog won't be read. Path of one MdlN will be calculated off of standard folder structure.
-def read_IPF_Spa(path_IPF):
+def read_RunLog():
+    return pd.read_excel(Pa_RunLog, sheet_name='RunLog').dropna(subset='runN') # Read RunLog
+
+def read_IPF_Spa(Pa_IPF):
     """Reads IPF file without temporal component - i.e. no linked TS text files. Returns a DF created from just the IPF file.""" 
-    with open(path_IPF, "r") as f:
+    with open(Pa_IPF, "r") as f:
         l_Ln = f.readlines()
 
     N_C = int(l_Ln[1].strip())  # Number of columns
     l_C_Nm = [l_Ln[I + 2].split("\n")[0] for I in range(N_C)] # Extract column names
-    DF_IPF = pd.read_csv(path_IPF, skiprows=2+N_C+1, names=l_C_Nm)
+    DF_IPF = pd.read_csv(Pa_IPF, skiprows=2+N_C+1, names=l_C_Nm)
 
-    print(f"🟢 - IPF file {path_IPF} read successfully. DataFrame created with {len(DF_IPF)} rows and {len(DF_IPF.columns)} columns.")
+    print(f"🟢 - IPF file {Pa_IPF} read successfully. DataFrame created with {len(DF_IPF)} rows and {len(DF_IPF.columns)} columns.")
     return DF_IPF
 
-def INI_to_d(path_INI:str) -> dict:
+def INI_to_d(Pa_INI:str) -> dict:
     """Reads INI file (used for preparing the model) and converts it to a dictionary. Keys are converted to upper-case.
     Common use:
     Xmin, Ymin, Xmax, Ymax = [float(i) for i in d_INI['WINDOW'].split(',')]
@@ -93,34 +96,34 @@ def INI_to_d(path_INI:str) -> dict:
     print(f'The model area has {N_R} rows and {N_C} columns.'))
     """
     d_INI = {}
-    with open(path_INI, 'r', encoding="utf-8") as file:
+    with open(Pa_INI, 'r', encoding="utf-8") as file:
         for l in file:
             l = l.strip()
             if l and not l.startswith("#"):  # Ignore empty lines and comments
                 k, v = l.split("=", 1)  # Split at the first '='
                 d_INI[k.strip().upper()] = v.strip()  # Remove extra spaces
     
-    print(f"🟢 - INI file {path_INI} read successfully. Dictionary created with {len(d_INI)} keys.")
+    print(f"🟢 - INI file {Pa_INI} read successfully. Dictionary created with {len(d_INI)} keys.")
     return d_INI
 
-def Mdl_Dmns_from_INI(path_INI): # 666 Can be improved. It should take a MdlN instead of a path. Makes things easier.
+def Mdl_Dmns_from_INI(Pa_INI): # 666 Can be improved. It should take a MdlN instead of a path. Makes things easier.
     """Returns model dimension parameters. Common use:
     Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = WS.Mdl_Dmns_from_INI(path)"""
-    d_INI = INI_to_d(path_INI)
+    d_INI = INI_to_d(Pa_INI)
     Xmin, Ymin, Xmax, Ymax = [float(i) for i in d_INI['WINDOW'].split(',')]
     cellsize = float(d_INI['CELLSIZE'])
     N_R, N_C = int( - (Ymin - Ymax) / cellsize ), int( (Xmax - Xmin) / cellsize )
 
-    print(f"🟢 - model dimensions extracted from {path_INI}.")
+    print(f"🟢 - model dimensions extracted from {Pa_INI}.")
     return Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C
 
-def Sim_Cfg(*l_MdlN, path_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
-    print(f"\n{'-'*100}\nOpening all configuration files for specified runs with the default program.\nIt's assumed that Notepad++ is installed in: {path_NP}.\nIf false, provide the correct path to Notepad++ (or another text editor) as the last argument to this function.\n")
+def Sim_Cfg(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
+    print(f"\n{'-'*100}\nOpening all configuration files for specified runs with the default program.\nIt's assumed that Notepad++ is installed in: {Pa_NP}.\nIf false, provide the correct path to Notepad++ (or another text editor) as the last argument to this function.\n")
     
-    l_keys = ['path_Smk', 'path_BAT', 'path_INI', 'path_PRJ']
+    l_keys = ['Pa_Smk', 'Pa_BAT', 'Pa_INI', 'Pa_PRJ']
     l_paths = [get_MdlN_paths(MdlN) for MdlN in l_MdlN]
     l_files = [paths[k] for k in l_keys for paths in l_paths]
-    sp.Popen([path_NP] + l_files)
+    sp.Popen([Pa_NP] + l_files)
     for f in l_files:
         print(f'🟢 - {f}')
 
@@ -139,64 +142,64 @@ def HD_Out_IDF_to_DF(path): #666 can make it save DF if a 2nd path is provided. 
 def S_from_B(MdlN:str):
     """Copies files that contain Sim options from the B Sim, renames them for the S Sim, and opens them in the default file editor. Assumes default WS_Mdl folder structure (as described in READ_ME.MD)."""    
     print(Pre_Sign)
-    d_paths = get_MdlN_paths(MdlN) # Get default directories
-    MdlN_B, path_INI_B, path_INI, path_BAT_B, path_BAT, path_Smk, path_Smk_B, path_PRJ_B, path_PRJ = (d_paths[k] for k in ['MdlN_B', "path_INI_B", "path_INI", "path_BAT_B", "path_BAT", "path_Smk", "path_Smk_B", "path_PRJ_B", "path_PRJ"]) # and pass them to objects that will be used in the function
+    d_Pa = get_MdlN_paths(MdlN) # Get default directories
+    MdlN_B, Pa_INI_B, Pa_INI, Pa_BAT_B, Pa_BAT, Pa_Smk, Pa_Smk_B, Pa_PRJ_B, Pa_PRJ = (d_Pa[k] for k in ['MdlN_B', "Pa_INI_B", "Pa_INI", "Pa_BAT_B", "Pa_BAT", "Pa_Smk", "Pa_Smk_B", "Pa_PRJ_B", "Pa_PRJ"]) # and pass them to objects that will be used in the function
 
     # Copy .INI, .bat, .prj and make default (those apply to every Sim) modifications
-    for path_B, path_S in zip([path_Smk_B, path_BAT_B, path_INI_B], [path_Smk, path_BAT, path_INI]):
+    for Pa_B, Pa_S in zip([Pa_Smk_B, Pa_BAT_B, Pa_INI_B], [Pa_Smk, Pa_BAT, Pa_INI]):
         try:
-            if not os.path.exists(path_S): # Replace the MdlN of with the new one, so that we don't have to do it manually.
-                sh.copy2(path_B, path_S)
-                with open(path_S, 'r') as f1:
+            if not os.path.exists(Pa_S): # Replace the MdlN of with the new one, so that we don't have to do it manually.
+                sh.copy2(Pa_B, Pa_S)
+                with open(Pa_S, 'r') as f1:
                     contents = f1.read()
-                with open(path_S, 'w') as f2:
+                with open(Pa_S, 'w') as f2:
                     f2.write(contents.replace(MdlN_B, MdlN))
-                if ".bat" not in path_B.lower():
-                    os.startfile(path_S) # Then we'll open it to make any other changes we want to make. Except if it's the BAT file
-                print(f"🟢 - {path_S.split('/')[-1]} created successfully! (from {path_B})")
+                if ".bat" not in Pa_B.lower():
+                    os.startfile(Pa_S) # Then we'll open it to make any other changes we want to make. Except if it's the BAT file
+                print(f"🟢 - {Pa_S.split('/')[-1]} created successfully! (from {Pa_B})")
             else:
-                print(f"\u274C - {path_S.split('/')[-1]} already exists. If you want it to be replaced, you have to delete it manually before running this command.")
+                print(f"\u274C - {Pa_S.split('/')[-1]} already exists. If you want it to be replaced, you have to delete it manually before running this command.")
         except Exception as e:
-            print(f"\u274C - Error copying {path_B} to {path_S}: {e}")
+            print(f"\u274C - Error copying {Pa_B} to {Pa_S}: {e}")
 
     try:
-        if not os.path.exists(path_PRJ): # For the PRJ file, there is no default text replacement to be performed, so we'll just copy.
-            sh.copy2(path_PRJ_B, path_PRJ)
-            os.startfile(path_PRJ) # Then we'll open it to make any other changes we want to make.
-            print(f"🟢 - {path_PRJ.split('/')[-1]} created successfully! (from {path_PRJ_B})")
+        if not os.path.exists(Pa_PRJ): # For the PRJ file, there is no default text replacement to be performed, so we'll just copy.
+            sh.copy2(Pa_PRJ_B, Pa_PRJ)
+            os.startfile(Pa_PRJ) # Then we'll open it to make any other changes we want to make.
+            print(f"🟢 - {Pa_PRJ.split('/')[-1]} created successfully! (from {Pa_PRJ_B})")
         else:
-            print(f"\u274C - {path_PRJ.split('/')[-1]} already exists. If you want it to be replaced, you have to delete it manually before running this command.")
+            print(f"\u274C - {Pa_PRJ.split('/')[-1]} already exists. If you want it to be replaced, you have to delete it manually before running this command.")
     except Exception as e:
-        print(f"\u274C - Error copying {path_PRJ_B} to {path_PRJ}: {e}")
+        print(f"\u274C - Error copying {Pa_PRJ_B} to {Pa_PRJ}: {e}")
     print(Sign)
 
 def S_from_B_undo(MdlN:str):
     """Will undo S_from_B by deletting S files"""
     print(Pre_Sign)
-    d_paths = get_MdlN_paths(MdlN) # Get default directories
-    MdlN_B, path_INI_B, path_INI, path_BAT_B, path_BAT, path_Smk, path_Smk_B, path_PRJ_B, path_PRJ = (d_paths[k] for k in ['MdlN_B', "path_INI_B", "path_INI", "path_BAT_B", "path_BAT", "path_Smk", "path_Smk_B", "path_PRJ_B", "path_PRJ"]) # and pass them to objects that will be used in the function
+    d_Pa = get_MdlN_paths(MdlN) # Get default directories
+    MdlN_B, Pa_INI_B, Pa_INI, Pa_BAT_B, Pa_BAT, Pa_Smk, Pa_Smk_B, Pa_PRJ_B, Pa_PRJ = (d_Pa[k] for k in ['MdlN_B', "Pa_INI_B", "Pa_INI", "Pa_BAT_B", "Pa_BAT", "Pa_Smk", "Pa_Smk_B", "Pa_PRJ_B", "Pa_PRJ"]) # and pass them to objects that will be used in the function
 
     confirm = input(f"Are you sure you want to delete the Cfg files (.smk, .ini, .bat, .prj) for {MdlN}? (y/n): ").strip().lower()
     if confirm == 'y':
-        for path_S in [path_Smk, path_BAT, path_INI, path_PRJ]:
-            os.remove(path_S) # Delete the S files
-            print(f'🟢 - {path_S.split("/")[-1]} deleted successfully!')
+        for Pa_S in [Pa_Smk, Pa_BAT, Pa_INI, Pa_PRJ]:
+            os.remove(Pa_S) # Delete the S files
+            print(f'🟢 - {Pa_S.split("/")[-1]} deleted successfully!')
     print(Sign)
 
-def Up_log(MdlN: str, d_Up: dict, path_log=PJ(path_WS, 'Mng/log.csv')):
+def Up_log(MdlN: str, d_Up: dict, Pa_log=Pa_log): #Pa_log=PJ(Pa_WS, 'Mng/log.csv')):
     """Update log.csv based on MdlN and key of `updates`."""
-    path_lock = path_log + '.lock'  # Create a lock file to prevent concurrent access
-    lock = FL(path_lock)
+    Pa_lock = Pa_log + '.lock'  # Create a lock file to prevent concurrent access
+    lock = FL(Pa_lock)
 
     with lock:  # Acquire the lock to prevent concurrent access
-        DF = pd.read_csv(path_log, index_col=0)  # Assumes log.csv exists.
+        DF = pd.read_csv(Pa_log, index_col=0)  # Assumes log.csv exists.
 
         for key, value in d_Up.items():  # Update the relevant cells
             DF.at[MdlN, key] = value
 
         while True: # Wait for file to be closed if it's open
             try:
-                DF.to_csv(path_log, date_format='%Y-%m-%d %H:%M')  # Save back to CSV
+                DF.to_csv(Pa_log, date_format='%Y-%m-%d %H:%M')  # Save back to CSV
                 break  # Break if successful
             except PermissionError:
                 input("log.csv is open. Press Enter after closing the file...")  # Wait for user input
@@ -209,7 +212,7 @@ def RunMng(cores=None, DAG:bool=True):
     print(f"{Pre_Sign}RunMng will run all Sims that are queued in the RunLog.\n")
 
     print(f"--- Reading RunLog ...", end='')
-    DF = pd.read_excel(path_RunLog, sheet_name='RunLog').dropna(subset='runN') # Read RunLog
+    DF = read_RunLog()
     DF_q = DF.loc[ ((DF['Start Status'] == 'Queued') & ((DF['End Status'].isna()) | (DF['End Status']=='Failed')))  |
                    ((DF['Start Status'] == 'Re-queued'))] # _q for queued. Only Run Queued runs that aren't running or have finished.
     print(' completed!\n')
@@ -219,16 +222,16 @@ def RunMng(cores=None, DAG:bool=True):
         print("\n🔴 - No queued runs found in the RunLog.")
     else:
         for i, Se_Ln in DF_q.iterrows():
-            path_Smk = PJ(path_WS, f"models/{Se_Ln['model alias']}/code/snakemake/{Se_Ln['MdlN']}.smk")
-            path_log = PJ(path_WS, f"models/{Se_Ln['model alias']}/code/snakemake/log/{Se_Ln['MdlN']}_{DT.now().strftime('%Y%m%d_%H%M%S')}.log")
-            path_DAG = PJ(path_WS, f"models/{Se_Ln['model alias']}/code/snakemake/DAG/DAG_{Se_Ln['MdlN']}.png")
-            print(f" -- {fg('green')}{PBN(path_Smk)}{attr('reset')}\n")
+            Pa_Smk = PJ(Pa_WS, f"models/{Se_Ln['model alias']}/code/snakemake/{Se_Ln['MdlN']}.smk")
+            Pa_Smk_log = PJ(Pa_WS, f"models/{Se_Ln['model alias']}/code/snakemake/log/{Se_Ln['MdlN']}_{DT.now().strftime('%Y%m%d_%H%M%S')}.log")
+            Pa_DAG = PJ(Pa_WS, f"models/{Se_Ln['model alias']}/code/snakemake/DAG/DAG_{Se_Ln['MdlN']}.png")
+            print(f" -- {fg('green')}{PBN(Pa_Smk)}{attr('reset')}\n")
 
             try:
                 if DAG:
-                    sp.run(["snakemake", "--dag", "-s", path_Smk, "--cores", str(cores), '|', 'dot', '-Tpng', '-o', f'{path_DAG}'], shell=True, check=True)
-                with open(path_log, 'w') as f:
-                    sp.run(["snakemake", "-p", "-s", path_Smk, "--cores", str(cores)], check=True, stdout=f, stderr=f) # Run snakemake and write output to log file
+                    sp.run(["snakemake", "--dag", "-s", Pa_Smk, "--cores", str(cores), '|', 'dot', '-Tpng', '-o', f'{Pa_DAG}'], shell=True, check=True)
+                with open(Pa_Smk_log, 'w') as f:
+                    sp.run(["snakemake", "-p", "-s", Pa_Smk, "--cores", str(cores)], check=True, stdout=f, stderr=f) # Run snakemake and write output to log file
                 print(f"🟢")
             except sp.CalledProcessError as e:
                 print(f"🔴: {e}")
@@ -247,44 +250,44 @@ def reset_Sim(MdlN: str):
     print(f"{Pre_Sign}Resetting the simulation for {MdlN}.\n")
     
     if permission == 'y':
-        d_paths = get_MdlN_paths(MdlN) # Get default directories
-        path_MdlN = d_paths['path_MdlN']
-        DF = pd.read_csv(path_log) # Read the log file
-        path_Smk_temp = d_paths['path_Smk_temp']
-        l_temp = [i for i in LD(path_Smk_temp) if MdlN in i]
+        d_Pa = get_MdlN_paths(MdlN) # Get default directories
+        Pa_MdlN = d_Pa['Pa_MdlN']
+        DF = pd.read_csv(Pa_log) # Read the log file
+        Pa_Smk_temp = d_Pa['Pa_Smk_temp']
+        l_temp = [i for i in LD(Pa_Smk_temp) if MdlN in i]
 
-        if os.path.exists(path_MdlN) or (MdlN in DF['MdlN'].values) or l_temp or os.path.exists(d_paths['path_PoP_Out_MdlN']): # Check if the Sim folder exists or if the MdlN is in the log file
+        if os.path.exists(Pa_MdlN) or (MdlN in DF['MdlN'].values) or l_temp or os.path.exists(d_Pa['Pa_PoP_Out_MdlN']): # Check if the Sim folder exists or if the MdlN is in the log file
             i = 0
 
             try:
-                if not os.path.exists(path_MdlN):
-                    raise FileNotFoundError(f"{path_MdlN} does not exist.")
-                sp.run(f'rmdir /S /Q "{path_MdlN}"', shell=True) # Delete the entire Sim folder
+                if not os.path.exists(Pa_MdlN):
+                    raise FileNotFoundError(f"{Pa_MdlN} does not exist.")
+                sp.run(f'rmdir /S /Q "{Pa_MdlN}"', shell=True) # Delete the entire Sim folder
                 print(f"🟢 - Sim folder removed successfully.")
                 i += 1
             except:
                 print(f"🔴 - failed to delete Sim folder.")
 
             try:
-                DF[ DF['MdlN']!=MdlN ].to_csv(path_log, index=False) # Remove the log entry for this model
+                DF[ DF['MdlN']!=MdlN ].to_csv(Pa_log, index=False) # Remove the log entry for this model
                 print("🟢 - Log file updated successfully.")
                 i += 1
             except:
                 print(f"🔴 - failed to update log file.")
             
             try:
-                print(path_Smk_temp)
+                print(Pa_Smk_temp)
                 for l in l_temp:
-                    os.remove(PJ(path_Smk_temp, l))
+                    os.remove(PJ(Pa_Smk_temp, l))
                 print("🟢 - Smk log files deleted successfully.")
                 i += 1
             except:
                 print(f"🔴 - failed to remove Smk log files.")
 
             try:
-                if not os.path.exists(d_paths['path_PoP_Out_MdlN']):
-                    raise FileNotFoundError(f"{d_paths['path_PoP_Out_MdlN']} does not exist.")
-                sp.run(f'rmdir /S /Q "{d_paths['path_PoP_Out_MdlN']}"', shell=True) # Delete the entire Sim folder
+                if not os.path.exists(d_Pa['Pa_PoP_Out_MdlN']):
+                    raise FileNotFoundError(f"{d_Pa['Pa_PoP_Out_MdlN']} does not exist.")
+                sp.run(f'rmdir /S /Q "{d_Pa['Pa_PoP_Out_MdlN']}"', shell=True) # Delete the entire Sim folder
                 print(f"🟢 - PoP Out folder removed successfully.")
                 i += 1
             except:
@@ -309,8 +312,7 @@ def get_elapsed_time_str(start_time: float) -> str:
 #-----------------------------------------------------------------------------------------------------------------------------------
 
 def get_last_MdlN():
-    path_log = PJ(path_WS, 'Mng/log.csv')
-    DF = pd.read_csv(path_log)
+    DF = pd.read_csv(Pa_log)
     DF.loc[:-2, 'Sim end DT'] = DF.loc[:-2, 'Sim end DT'].apply(pd.to_datetime, dayfirst=True)
     DF['Sim end DT'] = pd.to_datetime(DF['Sim end DT'], dayfirst=True)
     return  DF.sort_values('Sim end DT', ascending=False).iloc[0]['MdlN']

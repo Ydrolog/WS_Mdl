@@ -40,7 +40,7 @@ Deprecated @ file:///home/conda/feedstock_root/build_artifacts/deprecated_173798
 distributed @ file:///home/conda/feedstock_root/build_artifacts/distributed_1737295222062/work
 docutils @ file:///home/conda/feedstock_root/build_artifacts/docutils_1733217766141/work
 donfig @ file:///home/conda/feedstock_root/build_artifacts/donfig_1734368700593/work
-dpath @ file:///home/conda/feedstock_root/build_artifacts/dpath_1718243458415/work
+dpath @ file:///home/conda/feedstock_root/build_artifacts/dPa_1718243458415/work
 eido @ file:///home/conda/feedstock_root/build_artifacts/eido_1729011009093/work
 et_xmlfile @ file:///home/conda/feedstock_root/build_artifacts/et_xmlfile_1733749653422/work
 exceptiongroup @ file:///home/conda/feedstock_root/build_artifacts/exceptiongroup_1733208806608/work

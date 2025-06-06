@@ -1,5 +1,5 @@
 # --- Imports ---
-from WS_Mdl.utils import Up_log, path_WS, INI_to_d, get_elapsed_time_str, get_MdlN_paths
+from WS_Mdl.utils import Up_log, Pa_WS, INI_to_d, get_elapsed_time_str, get_MdlN_paths
 import WS_Mdl.utils as U
 import WS_Mdl.utils_imod as UIM
 import WS_Mdl.geo as G
@@ -23,23 +23,23 @@ Mdl         =   ''.join([i for i in MdlN if i.isalpha()])
 DF_rules    =   "(L == 1)"
 
 ## Paths
-path_Mdl                        =   os.path.join(path_WS, f'models/{Mdl}') 
-workdir:                            path_Mdl
-path_Smk                        =   os.path.join(path_Mdl, 'code/snakemake')
-path_temp                       =   os.path.join(path_Smk, 'temp')
-path_Sim                        =   os.path.join(path_Mdl, 'Sim')
-path_MdlN                       =   os.path.join(path_Sim, f'{MdlN}')
-path_BAT_RUN                    =   os.path.join(path_MdlN, 'RUN.BAT')
-path_OBS, path_NAM, path_SFR    =   [os.path.join(path_MdlN, 'GWF_1', i) for i in [f'MODELINPUT/{MdlN}.OBS6', f'{MdlN}.NAM', f'MODELINPUT/{MdlN}.SFR6']]
-path_SFR_B                      =   path_SFR.replace(MdlN, MdlN_B)
-path_HED, path_CBC              =   [os.path.join(path_MdlN, 'GWF_1/MODELOUTPUT', i) for i in ['HEAD/HEAD.HED', 'BUDGET/BUDGET.CBC']]
+Pa_Mdl                        =   os.path.join(Pa_WS, f'models/{Mdl}') 
+workdir:                            Pa_Mdl
+Pa_Smk                        =   os.path.join(Pa_Mdl, 'code/snakemake')
+Pa_temp                       =   os.path.join(Pa_Smk, 'temp')
+Pa_Sim                        =   os.path.join(Pa_Mdl, 'Sim')
+Pa_MdlN                       =   os.path.join(Pa_Sim, f'{MdlN}')
+Pa_BAT_RUN                    =   os.path.join(Pa_MdlN, 'RUN.BAT')
+Pa_OBS, Pa_NAM, Pa_SFR    =   [os.path.join(Pa_MdlN, 'GWF_1', i) for i in [f'MODELINPUT/{MdlN}.OBS6', f'{MdlN}.NAM', f'MODELINPUT/{MdlN}.SFR6']]
+Pa_SFR_B                      =   Pa_SFR.replace(MdlN, MdlN_B)
+Pa_HED, Pa_CBC              =   [os.path.join(Pa_MdlN, 'GWF_1/MODELOUTPUT', i) for i in ['HEAD/HEAD.HED', 'BUDGET/BUDGET.CBC']]
 
 ## Temp files (for completion validation)
-log_Init_done       =   f"{path_Smk}/temp/Log_init_done_{MdlN}"
-log_Sim_done        =   f"{path_Smk}/temp/Log_Sim_done_{MdlN}"
-log_PRJ_to_TIF_done =   f"{path_Smk}/temp/Log_PRJ_to_TIF_done_{MdlN}"
-log_GXG_done        =   f"{path_Smk}/temp/Log_GXG_done_{MdlN}"
-log_Up_MM_done      =   f"{path_Smk}/temp/Log_Up_MM_done_{MdlN}"
+log_Init_done       =   f"{Pa_Smk}/temp/Log_init_done_{MdlN}"
+log_Sim_done        =   f"{Pa_Smk}/temp/Log_Sim_done_{MdlN}"
+log_PRJ_to_TIF_done =   f"{Pa_Smk}/temp/Log_PRJ_to_TIF_done_{MdlN}"
+log_GXG_done        =   f"{Pa_Smk}/temp/Log_GXG_done_{MdlN}"
+log_Up_MM_done      =   f"{Pa_Smk}/temp/Log_Up_MM_done_{MdlN}"
 
 
 # --- Rules ---
@@ -55,11 +55,11 @@ rule log_Init: # Sets status to running, and writes other info about therun. Has
     run:
         import socket
         device = socket.gethostname()
-        d_INI = INI_to_d(get_MdlN_paths(MdlN)['path_INI'])
+        d_INI = INI_to_d(get_MdlN_paths(MdlN)['Pa_INI'])
         Up_log(MdlN, {  'End Status':       'Running',
                         'PrP start DT':     DT.now().strftime("%Y-%m-%d %H:%M:%S"),
                         "Sim device name":  device,
-                        'Sim Dir':          path_Sim,
+                        'Sim Dir':          Pa_Sim,
                         '1st SP date':      DT.strptime(d_INI['SDATE'], "%Y%m%d").strftime("%Y-%m-%d"),
                         'last SP date':     DT.strptime(d_INI['EDATE'], "%Y%m%d").strftime("%Y-%m-%d")})
         pathlib.Path(output[0]).touch() # Create the file to mark the rule as done.
@@ -71,8 +71,8 @@ rule Mdl_Prep: # Prepares Sim Ins (from Ins) via BAT file.
         INI = f"code/Mdl_Prep/Mdl_Prep_{MdlN}.ini",
         PRJ = f"In/PRJ/{MdlN}.prj"
     output:
-        path_BAT_RUN
-        # path_NAM
+        Pa_BAT_RUN
+        # Pa_NAM
     shell:
         "call {input.BAT}"
     ## Mdl_Prep Ins (mainly the PRJ) point to a lot of other files. Technically, all of them should be in the Ins of this rule. Practically, they don't need to be. That is because Ins from previous Sims aren't meant to be edited, as they're stamped with a MdlN. If one of the Ins that is new for this run is changed, then the script that edits that In Fi should be part of this snakemake file too.
@@ -80,37 +80,37 @@ rule Mdl_Prep: # Prepares Sim Ins (from Ins) via BAT file.
 ## -- PrSimP --
 rule add_OBS:
     input:
-        path_BAT_RUN
+        Pa_BAT_RUN
     output:
-        path_OBS
+        Pa_OBS
     run:
         UIM.add_OBS(MdlN, "BEGIN OPTIONS\n\tDIGITS 6\nEND OPTIONS")
 
 rule add_SFR:
     input:
-        path_BAT_RUN
+        Pa_BAT_RUN
     output:
-        path_SFR
+        Pa_SFR
     run:
-        sh.copy2(path_SFR_B, path_SFR)
-        with open(path_NAM, 'r') as f1:
+        sh.copy2(Pa_SFR_B, Pa_SFR)
+        with open(Pa_NAM, 'r') as f1:
             l_lines = f1.readlines()
-        with open(path_NAM, 'w') as f2:
+        with open(Pa_NAM, 'w') as f2:
             for i in l_lines:
                 f2.write( re.sub(MdlN_B, MdlN, i, flags=re.IGNORECASE))
 
 ## -- Sim ---
 rule Sim: # Runs the simulation via BAT file.
     input:
-        path_OBS,
-        path_SFR
+        Pa_OBS,
+        Pa_SFR
     output:
         temp(log_Sim_done)
     run:
-        os.chdir(path_MdlN) # Change directory to the model folder.
+        os.chdir(Pa_MdlN) # Change directory to the model folder.
         DT_Sim_Start = DT.now()
         Up_log(MdlN, {  'Sim start DT'  :   DT_Sim_Start.strftime("%Y-%m-%d %H:%M:%S")})
-        shell(path_BAT_RUN)
+        shell(Pa_BAT_RUN)
         pathlib.Path(output[0]).touch() 
         Up_log(MdlN, {  'Sim end DT'    :   DT.now().strftime("%Y-%m-%d %H:%M:%S"),
                         'Sim Dur'       :   get_elapsed_time_str(DT_Sim_Start),
@@ -149,9 +149,9 @@ rule Up_MM:
 
 # rule fail: # Runs only if the Sim has failed, to update the log.
 #     input:
-#         path_LST_Sim
+#         Pa_LST_Sim
 #     output:
-#         temp(path_fail) # need to add this to ruleall
+#         temp(Pa_fail) # need to add this to ruleall
 #     run:
 #         Up_log(MdlN, {  'Sim end DT': DT.now().strftime("%Y-%m-%d %H:%M:%S"),
 #                         'End Status': 'Failed'})

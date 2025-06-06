@@ -4,7 +4,7 @@ from os import listdir as LD, makedirs as MDs
 from os.path import join as PJ, basename as PBN, dirname as PDN, exists as PE
 import tempfile
 import imod
-from .utils import Sign, Pre_Sign, read_IPF_Spa, INI_to_d, get_MdlN_paths, path_WS
+from .utils import Sign, Pre_Sign, read_IPF_Spa, INI_to_d, get_MdlN_paths, Pa_WS
 from . import utils as U
 import numpy as np
 import subprocess as sp
@@ -14,9 +14,9 @@ import pandas as pd
 from tqdm import tqdm # Track progress of the loop
 
 # PRJ related ----------------------------------------------------------------------------------------------------------------------
-def read_PRJ_with_OBS(path_PRJ):
+def read_PRJ_with_OBS(Pa_PRJ):
     """imod.formats.prj.read_projectfile struggles with .prj files that contain OBS blocks. This will read the PRJ file and return a tuple. The first item is a PRJ dictionary (as imod.formats.prj would return) and also a list of the OBS block lines."""
-    with open(path_PRJ, "r") as f:
+    with open(Pa_PRJ, "r") as f:
         lines = f.readlines()
 
     l_filtered_Lns, l_OBS_Lns = [], []
@@ -36,10 +36,10 @@ def read_PRJ_with_OBS(path_PRJ):
     # Write to a temporary file
     with tempfile.NamedTemporaryFile(delete=False, mode="w", suffix=".prj") as temp_file:
         temp_file.writelines(l_filtered_Lns)
-        path_PRJ_temp = temp_file.name
+        Pa_PRJ_temp = temp_file.name
 
-    PRJ = imod.formats.prj.read_projectfile(path_PRJ_temp) # Load the PRJ file without OBS
-    os.remove(path_PRJ_temp) # Delete temp PRJ file as it's not needed anymore.
+    PRJ = imod.formats.prj.read_projectfile(Pa_PRJ_temp) # Load the PRJ file without OBS
+    os.remove(Pa_PRJ_temp) # Delete temp PRJ file as it's not needed anymore.
 
     return PRJ, l_OBS_Lns
 
@@ -48,13 +48,13 @@ def PRJ_to_DF(MdlN):#, verbose:bool=True): #666 adding verbose behaviour enables
     Could have been included in utils.py based on dependencies, but utils_imod.py fits it better as it's almost alwaysused after read_PRJ_with_OBS (so the libs will be already loaded)."""
     # print = print if verbose else lambda *a, **k: None
     
-    d_paths = get_MdlN_paths(MdlN)
+    d_Pa = get_MdlN_paths(MdlN)
 
     Mdl = ''.join([c for c in MdlN if not c.isdigit()])
-    path_AppData = os.path.normpath(PJ(os.getenv('APPDATA'), '../'))
-    t_path_replace = (path_AppData, PJ(path_WS, 'models', Mdl)) # For some reason imod.idf.read reads the path incorrectly, so I have to replace the incorrect part.
+    Pa_AppData = os.path.normpath(PJ(os.getenv('APPDATA'), '../'))
+    t_Pa_replace = (Pa_AppData, PJ(Pa_WS, 'models', Mdl)) # For some reason imod.idf.read reads the path incorrectly, so I have to replace the incorrect part.
 
-    d_PRJ, OBS = read_PRJ_with_OBS(d_paths['path_PRJ'])
+    d_PRJ, OBS = read_PRJ_with_OBS(d_Pa['Pa_PRJ'])
 
     columns = ['package', 'parameter','time', 'active', 'is_constant', 'layer', 'factor', 'addition', 'constant', 'path']
     DF = pd.DataFrame(columns=columns) # Main DF to store all the packages
@@ -70,7 +70,7 @@ def PRJ_to_DF(MdlN):#, verbose:bool=True): #666 adding verbose behaviour enables
                 for Par in l_Par[:]: # Iterate over parameters
 
                     for N, L in enumerate(Pkg[Par]): # differentiate between packages (have time) and modules.
-                        Ln_DF_path = {**L, "package": Pkg_name, "parameter": Par} #, 'path_type':L['path'].suffix.lower()} #, "metadata": L}
+                        Ln_DF_path = {**L, "package": Pkg_name, "parameter": Par} #, 'Pa_type':L['path'].suffix.lower()} #, "metadata": L}
                         
                         if ('time' in d_PRJ[Pkg_name].keys()):
                             if (Pkg['n_system'] > 1):
@@ -96,14 +96,14 @@ def PRJ_to_DF(MdlN):#, verbose:bool=True): #666 adding verbose behaviour enables
     DF['suffix'] = DF['path'].apply(lambda x: x.suffix.lower() if hasattr(x, 'suffix') else "-")  # Check if 'suffix' exists # Make suffix column so that paths can be categorized
     DF['path'] = DF['path'].astype('string') # Convert path to string so that the wrong part of the path can be .replace()ed
     DF['MdlN'] = DF['path'].str.split("_").str[-1].str.split('.').str[0]
-    DF['path'] = DF['path'].str.replace(*t_path_replace, regex=False) # Replace incorrect part of paths. I'm not sure why iMOD doesn't read them right. Maybe cause they're relative it's assumed they start form a directory which is incorrect.
+    DF['path'] = DF['path'].str.replace(*t_Pa_replace, regex=False) # Replace incorrect part of paths. I'm not sure why iMOD doesn't read them right. Maybe cause they're relative it's assumed they start form a directory which is incorrect.
     DF = DF.loc[:, list(DF.columns[:2]) + ['MdlN'] + list(DF.columns[2:-3]) + ['suffix', DF.columns[-3]]] # Rearrange columns
 
     return DF
 
-def open_PRJ_with_OBS(path_PRJ): #666 gives error cause it tries to read files referenced by PRJ using a default user directory as base. 
+def open_PRJ_with_OBS(Pa_PRJ): #666 gives error cause it tries to read files referenced by PRJ using a default user directory as base. 
     """imod.formats.prj.read_projectfile struggles with .prj files that contain OBS blocks. This will read the PRJ file and return a tuple. The first item is a PRJ dictionary (as imod.formats.prj would return) and also a list of the OBS block lines."""
-    with open(path_PRJ, "r") as f:
+    with open(Pa_PRJ, "r") as f:
         lines = f.readlines()
 
     l_filtered_Lns, l_OBS_Lns = [], []
@@ -123,10 +123,10 @@ def open_PRJ_with_OBS(path_PRJ): #666 gives error cause it tries to read files r
     # Write to a temporary file
     with tempfile.NamedTemporaryFile(delete=False, mode="w", suffix=".prj") as temp_file:
         temp_file.writelines(l_filtered_Lns)
-        path_PRJ_temp = temp_file.name
+        Pa_PRJ_temp = temp_file.name
 
-    PRJ = imod.formats.prj.open_projectfile_data(path_PRJ_temp) # Load the PRJ file without OBS
-    os.remove(path_PRJ_temp) # Delete temp PRJ file as it's not needed anymore.
+    PRJ = imod.formats.prj.open_projectfile_data(Pa_PRJ_temp) # Load the PRJ file without OBS
+    os.remove(Pa_PRJ_temp) # Delete temp PRJ file as it's not needed anymore.
 
     return PRJ, l_OBS_Lns
 #-----------------------------------------------------------------------------------------------------------------------------------
@@ -138,30 +138,30 @@ def add_OBS(MdlN:str, Opt:str="BEGIN OPTIONS\nEND OPTIONS"):
 
     print(Pre_Sign)
     print('Running add_OBS ...')
-    d_paths = get_MdlN_paths(MdlN) # Get default directories
-    path_MdlN, path_INI, path_PRJ = (d_paths[k] for k in ['path_MdlN', "path_INI", "path_PRJ"]) # and pass them to objects that will be used in the function
+    d_Pa = get_MdlN_paths(MdlN) # Get default directories
+    Pa_MdlN, Pa_INI, Pa_PRJ = (d_Pa[k] for k in ['Pa_MdlN', "Pa_INI", "Pa_PRJ"]) # and pass them to objects that will be used in the function
     
     # Extract info from INI file.
-    d_INI = INI_to_d(path_INI)
+    d_INI = INI_to_d(Pa_INI)
     Xmin, Ymin, Xmax, Ymax = [float(i) for i in d_INI['WINDOW'].split(',')]
     cellsize = float(d_INI['CELLSIZE'])
     # N_R, N_C = int( - (Ymin - Ymax) / cellsize ), int( (Xmax - Xmin) / cellsize ), 
 
     # Read PRJ file to extract OBS block info - list of OBS files to be added.
-    l_OBS_lines = read_PRJ_with_OBS(path_PRJ)[1]
+    l_OBS_lines = read_PRJ_with_OBS(Pa_PRJ)[1]
     pattern = r"['\",]([^'\",]*?\.ipf)" # Regex pattern to extract file paths ending in .ipf
     l_IPF = [match.group(1) for line in l_OBS_lines for match in re.finditer(pattern, line)] # Find all IPF files of the OBS block.
 
     # Iterate through OBS files of OBS blocks and add them to the Sim
     for i, path in enumerate(l_IPF):
-        path_OBS_IPF = os.path.abspath(PJ(path_MdlN, path)) # path of IPF file. To be read.
-        OBS_IPF_Fi = PBN(path_OBS_IPF) # Filename of OBS file to be added to Sim (to be added without ending)
+        Pa_OBS_IPF = os.path.abspath(PJ(Pa_MdlN, path)) # path of IPF file. To be read.
+        OBS_IPF_Fi = PBN(Pa_OBS_IPF) # Filename of OBS file to be added to Sim (to be added without ending)
         if i == 0:
-            path_OBS = PJ(path_MdlN, f'GWF_1/MODELINPUT/{MdlN}.OBS6') #path of OBS file. To be written.
+            Pa_OBS = PJ(Pa_MdlN, f'GWF_1/MODELINPUT/{MdlN}.OBS6') #path of OBS file. To be written.
         else:
-            path_OBS = PJ(path_MdlN, f'GWF_1/MODELINPUT/{MdlN}_N{i}.OBS6') #path of OBS file. To be written.
+            Pa_OBS = PJ(Pa_MdlN, f'GWF_1/MODELINPUT/{MdlN}_N{i}.OBS6') #path of OBS file. To be written.
 
-        DF_OBS_IPF = read_IPF_Spa(path_OBS_IPF) # Get list of OBS items (without temporal dimension, as it's uneccessary for the OBS file, and takes ages to load)
+        DF_OBS_IPF = read_IPF_Spa(Pa_OBS_IPF) # Get list of OBS items (without temporal dimension, as it's uneccessary for the OBS file, and takes ages to load)
         DF_OBS_IPF_MdlAa = DF_OBS_IPF.loc[ ( (DF_OBS_IPF['X']>Xmin) & (DF_OBS_IPF['X']<Xmax ) ) &
                                            ( (DF_OBS_IPF['Y']>Ymin) & (DF_OBS_IPF['Y']<Ymax ) )].copy() # Slice to OBS within the Mdl Aa (using INI window)
         
@@ -170,9 +170,9 @@ def add_OBS(MdlN:str, Opt:str="BEGIN OPTIONS\nEND OPTIONS"):
 
         DF_OBS_IPF_MdlAa.sort_values(by=["L", "R", "C"], ascending=[True, True, True], inplace=True) # Let's sort the DF by L, R, C
 
-        with open(path_OBS, "w") as f: # write OBS file(s)
-            #print(path_MdlN, path, path_OBS_IPF, sep='\n')
-            f.write(f"# created from {path_OBS_IPF}\n")
+        with open(Pa_OBS, "w") as f: # write OBS file(s)
+            #print(Pa_MdlN, path, Pa_OBS_IPF, sep='\n')
+            f.write(f"# created from {Pa_OBS_IPF}\n")
             f.write(Opt.encode().decode('unicode_escape')) # write optional block
             f.write(f"\n\nBEGIN CONTINUOUS FILEOUT OBS_{OBS_IPF_Fi.split('.')[0]}.csv\n")
             
@@ -182,15 +182,15 @@ def add_OBS(MdlN:str, Opt:str="BEGIN OPTIONS\nEND OPTIONS"):
             f.write("END CONTINUOUS\n")
     
         # Open NAM file and add OBS file to it
-        with open(PJ(path_MdlN, 'GWF_1', MdlN+'.nam'), 'r') as f1:
+        with open(PJ(Pa_MdlN, 'GWF_1', MdlN+'.nam'), 'r') as f1:
             NAM = f1.read()
         l_NAM = NAM.split('END PACKAGES')
-        with open(PJ(path_MdlN, 'GWF_1', MdlN+'.nam'), 'w') as f2:
-            path_OBS_Rel = os.path.relpath(path_OBS, path_MdlN) # Creates Rel path from full path.
+        with open(PJ(Pa_MdlN, 'GWF_1', MdlN+'.nam'), 'w') as f2:
+            Pa_OBS_Rel = os.path.relpath(Pa_OBS, Pa_MdlN) # Creates Rel path from full path.
             f2.write(l_NAM[0])
-            f2.write(fr' OBS6 .\{path_OBS_Rel} OBS_{OBS_IPF_Fi.split('.')[0]}')
+            f2.write(fr' OBS6 .\{Pa_OBS_Rel} OBS_{OBS_IPF_Fi.split('.')[0]}')
             f2.write('\nEND PACKAGES')
-        print(f'🟢 - {path_OBS} has been added successfully!')
+        print(f'🟢 - {Pa_OBS} has been added successfully!')
     print(Sign)
 #-----------------------------------------------------------------------------------------------------------------------------------
 
@@ -205,17 +205,17 @@ def run_Mdl(Se_Ln, DF_Opt): #666 think if this can be improved to take only 1 ar
     print(f"--- Executing RunMng for {MdlN}")
 
     # Get default directories
-    d_paths = get_MdlN_paths(MdlN)
-    MdlN_B, path_Mdl, path_MdlN, path_INI, path_BAT, path_PRJ = (d_paths[k] for k in ['MdlN_B', 'path_Mdl', 'path_MdlN', "path_INI", "path_BAT", "path_PRJ"])
+    d_Pa = get_MdlN_paths(MdlN)
+    MdlN_B, Pa_Mdl, Pa_MdlN, Pa_INI, Pa_BAT, Pa_PRJ = (d_Pa[k] for k in ['MdlN_B', 'Pa_Mdl', 'Pa_MdlN', "Pa_INI", "Pa_BAT", "Pa_PRJ"])
         
     # Define commands and their working directories
-    d_Cmds = {path_BAT: PDN(path_BAT),
-              "activate WS": PDN(path_BAT),
-              f"WS_Mdl add_OBS {MdlN} {DF_Opt.loc[DF_Opt['MdlN']==MdlN, 'add_OBS'].values[0]}": PDN(path_BAT),
-              r'.\RUN.BAT': path_MdlN}
+    d_Cmds = {Pa_BAT: PDN(Pa_BAT),
+              "activate WS": PDN(Pa_BAT),
+              f"WS_Mdl add_OBS {MdlN} {DF_Opt.loc[DF_Opt['MdlN']==MdlN, 'add_OBS'].values[0]}": PDN(Pa_BAT),
+              r'.\RUN.BAT': Pa_MdlN}
 
     # Generate log file path
-    log_file = PJ(path_MdlN, f'Tmnl_Out_{MdlN}.txt')
+    log_file = PJ(Pa_MdlN, f'Tmnl_Out_{MdlN}.txt')
     MDs(PDN(log_file), exist_ok=True)
 
     with open(log_file, 'w', encoding='utf-8') as f:
@@ -251,17 +251,17 @@ def run_Mdl_print_only(Se_Ln, DF_Opt): #666 think if this can be improved to tak
     print(f"--- Executing RunMng for {MdlN}")
 
     # Get default directories
-    d_paths = get_MdlN_paths(MdlN)
-    MdlN_B, path_Mdl, path_MdlN, path_INI, path_BAT, path_PRJ = (d_paths[k] for k in ['MdlN_B', 'path_Mdl', 'path_MdlN', "path_INI", "path_BAT", "path_PRJ"])
+    d_Pa = get_MdlN_paths(MdlN)
+    MdlN_B, Pa_Mdl, Pa_MdlN, Pa_INI, Pa_BAT, Pa_PRJ = (d_Pa[k] for k in ['MdlN_B', 'Pa_Mdl', 'Pa_MdlN', "Pa_INI", "Pa_BAT", "Pa_PRJ"])
         
     # Define commands and their working directories
-    d_Cmds = {path_BAT: PDN(path_BAT),
-              "activate WS": PDN(path_BAT),
-              f"WS_Mdl add_OBS {MdlN} {DF_Opt.loc[DF_Opt['MdlN']==MdlN, 'add_OBS'].values[0]}": PDN(path_BAT),
-              r'.\RUN.BAT': path_MdlN}
+    d_Cmds = {Pa_BAT: PDN(Pa_BAT),
+              "activate WS": PDN(Pa_BAT),
+              f"WS_Mdl add_OBS {MdlN} {DF_Opt.loc[DF_Opt['MdlN']==MdlN, 'add_OBS'].values[0]}": PDN(Pa_BAT),
+              r'.\RUN.BAT': Pa_MdlN}
 
     # Generate log file path
-    log_file = PJ(path_MdlN, f'Tmnl_Out_{MdlN}.txt')
+    log_file = PJ(Pa_MdlN, f'Tmnl_Out_{MdlN}.txt')
     MDs(PDN(log_file), exist_ok=True)
 
     for Cmd, cwd in d_Cmds.items():
@@ -287,11 +287,11 @@ def run_Mdl_parallel(DF, DF_Opt):
 #-----------------------------------------------------------------------------------------------------------------------------------
 
 # IDF processing -------------------------------------------------------------------------------------------------------------------
-def IDFs_to_DF(S_path_IDF):
+def IDFs_to_DF(S_Pa_IDF):
     """ Reads all .IDF Fis listed in a S_Fi_IDF into DF['IDF']. Returns the DF containing Fi_names and the IDF contents.
-        path_Fo is the path of the Fo where th files are stored in."""
+        Pa_Fo is the path of the Fo where th files are stored in."""
 
-    DF = pd.DataFrame({'path': S_path_IDF, 'IDF': None})
+    DF = pd.DataFrame({'path': S_Pa_IDF, 'IDF': None})
 
     for i, p in tqdm(DF['path'].items(), desc="Loading .IDF files", total=len(DF['path'])):
         if p.endswith('.IDF'):  # Ensure only .IDF files are processed

@@ -1,5 +1,5 @@
 # --- Imports ---
-from WS_Mdl.utils import Up_log, path_WS, INI_to_d, get_elapsed_time_str, get_MdlN_paths
+from WS_Mdl.utils import Up_log, Pa_WS, INI_to_d, get_elapsed_time_str, get_MdlN_paths
 import WS_Mdl.utils as U
 import WS_Mdl.utils_imod as UIM
 import WS_Mdl.geo as G
@@ -16,32 +16,32 @@ MdlN        =   "NBr13"
 MdlN_B_RIV  = 'NBr1'     # Baseline for RIV files
 Mdl         =   ''.join([i for i in MdlN if i.isalpha()])
 
-path_Mdl            =   PJ(path_WS, f'models/{Mdl}') 
-workdir:                path_Mdl
-path_Smk            =   PJ(path_Mdl, 'code/snakemake')
-path_temp           =   PJ(path_Smk, 'temp')
-path_Sim            =   PJ(path_Mdl, 'Sim')
-path_MdlN           =   PJ(path_Sim, f'{MdlN}')
-path_BAT_RUN        =   PJ(path_MdlN, 'RUN.BAT')
-path_OBS, path_NAM  =   [PJ(path_MdlN, 'GWF_1', i) for i in [f'MODELINPUT/{MdlN}.OBS', f'{MdlN}.NAM']]
-path_HED, path_CBC  =   [PJ(path_MdlN, 'GWF_1/MODELOUTPUT', i) for i in ['HEAD/HEAD.HED', 'BUDGET/BUDGET.CBC']]
-path_LST_Sim        =   PJ(path_MdlN, 'mfsim.lst')
+Pa_Mdl            =   PJ(Pa_WS, f'models/{Mdl}') 
+workdir:                Pa_Mdl
+Pa_Smk            =   PJ(Pa_Mdl, 'code/snakemake')
+Pa_temp           =   PJ(Pa_Smk, 'temp')
+Pa_Sim            =   PJ(Pa_Mdl, 'Sim')
+Pa_MdlN           =   PJ(Pa_Sim, f'{MdlN}')
+Pa_BAT_RUN        =   PJ(Pa_MdlN, 'RUN.BAT')
+Pa_OBS, Pa_NAM  =   [PJ(Pa_MdlN, 'GWF_1', i) for i in [f'MODELINPUT/{MdlN}.OBS', f'{MdlN}.NAM']]
+Pa_HED, Pa_CBC  =   [PJ(Pa_MdlN, 'GWF_1/MODELOUTPUT', i) for i in ['HEAD/HEAD.HED', 'BUDGET/BUDGET.CBC']]
+Pa_LST_Sim        =   PJ(Pa_MdlN, 'mfsim.lst')
 
-log_Init_done       =   f"{path_Smk}/temp/Log_init_done_{MdlN}"
-log_Sim_done        =   f"{path_Smk}/temp/Log_Sim_done_{MdlN}"
-log_PRJ_to_TIF_done =   f"{path_Smk}/temp/Log_PRJ_to_TIF_done_{MdlN}"
-log_GXG_done        =   f"{path_Smk}/temp/Log_GXG_done_{MdlN}"
-log_Up_MM_done      =   f"{path_Smk}/temp/Log_Up_MM_done_{MdlN}"
+log_Init_done       =   f"{Pa_Smk}/temp/Log_init_done_{MdlN}"
+log_Sim_done        =   f"{Pa_Smk}/temp/Log_Sim_done_{MdlN}"
+log_PRJ_to_TIF_done =   f"{Pa_Smk}/temp/Log_PRJ_to_TIF_done_{MdlN}"
+log_GXG_done        =   f"{Pa_Smk}/temp/Log_GXG_done_{MdlN}"
+log_Up_MM_done      =   f"{Pa_Smk}/temp/Log_Up_MM_done_{MdlN}"
 
-path_RIV        = PJ(path_Mdl, 'In/RIV')
-path_RIV_MdlN   = PJ(path_RIV, f'{MdlN}')
-l_In_PrP_RIV    = [str(file) for file in pathlib.Path(path_RIV).glob("*.idf") if "RIV_Stg" in file.name and MdlN_B_RIV in file.name]
-l_Out_PrP_RIV   = [PJ(path_RIV_MdlN, PBN(i).replace(MdlN_B_RIV, MdlN)) for i in l_In_PrP_RIV]
+Pa_RIV        = PJ(Pa_Mdl, 'In/RIV')
+Pa_RIV_MdlN   = PJ(Pa_RIV, f'{MdlN}')
+l_In_PrP_RIV    = [str(file) for file in pathlib.Path(Pa_RIV).glob("*.idf") if "RIV_Stg" in file.name and MdlN_B_RIV in file.name]
+l_Out_PrP_RIV   = [PJ(Pa_RIV_MdlN, PBN(i).replace(MdlN_B_RIV, MdlN)) for i in l_In_PrP_RIV]
 
 # --- Rules ---
 rule all: # Final rule
     input:
-        path_LST_Sim,
+        Pa_LST_Sim,
         #log_Sim_done,  # This should have been enabled based on NBr16+ Smk methodology, but I don't want to re-run the Sim
         log_Up_MM_done
         
@@ -52,11 +52,11 @@ rule log_Init: # Sets status to running, and writes other info about therun. Has
     run:
         import socket
         device = socket.gethostname()
-        d_INI = INI_to_d(get_MdlN_paths(MdlN)['path_INI'])
+        d_INI = INI_to_d(get_MdlN_paths(MdlN)['Pa_INI'])
         Up_log(MdlN, {  'End Status':       'Running',
                         'PrP start DT':     DT.now().strftime("%Y-%m-%d %H:%M:%S"),
                         "Sim device name":  device,
-                        'Sim Dir':          path_Sim,
+                        'Sim Dir':          Pa_Sim,
                         '1st SP date':      DT.strptime(d_INI['SDATE'], "%Y%m%d").strftime("%Y-%m-%d"),
                         'last SP date':     DT.strptime(d_INI['EDATE'], "%Y%m%d").strftime("%Y-%m-%d")})
         pathlib.Path(output[0]).touch() # Create the file to mark the rule as done.
@@ -67,7 +67,7 @@ rule PrP_RIV:
     output:
         l_Out_PrP_RIV
     script:
-        PJ(path_WS, f'code/PrP/edit_RIV/edit_RIV_{MdlN}.py')
+        PJ(Pa_WS, f'code/PrP/edit_RIV/edit_RIV_{MdlN}.py')
 
 rule Mdl_Prep: # Prepares Sim Ins (from Ins) via BAT file.
     input:
@@ -77,8 +77,8 @@ rule Mdl_Prep: # Prepares Sim Ins (from Ins) via BAT file.
         INI = f"code/Mdl_Prep/Mdl_Prep_{MdlN}.ini",
         PRJ = f"In/PRJ/{MdlN}.prj"
     output:
-        path_BAT_RUN
-        # path_NAM
+        Pa_BAT_RUN
+        # Pa_NAM
     shell:
         "call {input.BAT}"
     ## Mdl_Prep Ins (mainly the PRJ) point to a lot of other files. Technically, all of them should be in the Ins of this rule. Practically, they don't need to be. That is because Ins from previous Sims aren't meant to be edited, as they're stamped with a MdlN. If one of the Ins that is new for this run is changed, then the script that edits that In Fi should be part of this snakemake file too.
@@ -86,9 +86,9 @@ rule Mdl_Prep: # Prepares Sim Ins (from Ins) via BAT file.
 ## -- PrSimP --
 rule add_OBS:
     input:
-        path_BAT_RUN
+        Pa_BAT_RUN
     output:
-        path_OBS
+        Pa_OBS
     run:
         UIM.add_OBS(MdlN, "BEGIN OPTIONS\n\tDIGITS 6\nEND OPTIONS")
         # Up_log(MdlN, {  'Add OBS start DT': DT.now().strftime("%Y-%m-%d %H:%M:%S")})
@@ -96,14 +96,14 @@ rule add_OBS:
 ## -- Sim ---
 rule Sim: # Runs the simulation via BAT file.
     input:
-        path_OBS
+        Pa_OBS
     output:
-        path_LST_Sim
+        Pa_LST_Sim
     run:
-        os.chdir(path_MdlN) # Change directory to the model folder.
+        os.chdir(Pa_MdlN) # Change directory to the model folder.
         DT_Sim_Start = DT.now()
         Up_log(MdlN, {  'Sim start DT': DT_Sim_Start.strftime("%Y-%m-%d %H:%M:%S")})
-        shell(path_BAT_RUN)
+        shell(Pa_BAT_RUN)
         Up_log(MdlN, {  'Sim end DT':   DT.now().strftime("%Y-%m-%d %H:%M:%S"),
                         'Sim Dur':      get_elapsed_time_str(DT_Sim_Start),
                         'End Status':   'completed'})
@@ -111,7 +111,7 @@ rule Sim: # Runs the simulation via BAT file.
 ## -- PoP ---
 rule PRJ_to_TIF:
     input:
-        path_LST_Sim
+        Pa_LST_Sim
     output:
         temp(log_PRJ_to_TIF_done)
     run:
@@ -120,7 +120,7 @@ rule PRJ_to_TIF:
 
 rule GXG:
     input:
-        path_LST_Sim
+        Pa_LST_Sim
     output:
         temp(log_GXG_done)
     run:
@@ -139,9 +139,9 @@ rule Up_MM:
 
 # rule fail: # Runs only if the Sim has failed, to update the log.
 #     input:
-#         path_LST_Sim
+#         Pa_LST_Sim
 #     output:
-#         temp(path_fail) # need to add this to ruleall
+#         temp(Pa_fail) # need to add this to ruleall
 #     run:
 #         Up_log(MdlN, {  'Sim end DT': DT.now().strftime("%Y-%m-%d %H:%M:%S"),
 #                         'End Status': 'Failed'})

@@ -19,13 +19,13 @@ def get_all_file_paths(directory):
 def PRJ_to_DF(d_):
     # Extract paths from PRJ object (in dictionary form) into a DF
 
-    def d_paths_to_list(data, parent_key=None):
+    def d_Pa_to_list(data, parent_key=None):
         # Function to extract paths and their packages
         paths = []
         for key, value in data.items():
             if isinstance(value, dict):
                 # Recursively process sub-dictionaries
-                paths.extend(d_paths_to_list(value, key if parent_key is None else parent_key))
+                paths.extend(d_Pa_to_list(value, key if parent_key is None else parent_key))
             elif isinstance(value, list):
                 for item in value:
                     if isinstance(item, dict) and 'path' in item:
@@ -34,8 +34,8 @@ def PRJ_to_DF(d_):
                         paths.extend([(parent_key, str(Path(p))) for p in item])
         return paths # returns list of paths
 
-    extracted_paths = d_paths_to_list(d_) # returned list of paths will be converted to a DF
-    df = pd.DataFrame(extracted_paths, columns=["package", "directory"])
+    extracted_Pa = d_Pa_to_list(d_) # returned list of paths will be converted to a DF
+    df = pd.DataFrame(extracted_Pa, columns=["package", "directory"])
     return df
 
 def edit_Fi_name(DF, Fi, rename, replace, insert, append):
@@ -77,32 +77,32 @@ def edit_Fi_name(DF, Fi, rename, replace, insert, append):
     return DF[Fi]
 
 def copy_Fi_DF_row(row):
-    path_Dst = PDN(row['path_Dst'])
-    MDs(path_Dst, exist_ok=True)
-    if os.path.exists(row['path_Dst']):
-        if os.path.getmtime(row['path_Src']) > os.path.getmtime(row['path_Dst']):  # if file is older than destination, skip it.
-            shutil.copy2(row['path_Src'], row['path_Dst'])  # Copy file and preserve metadata    
+    Pa_Dst = PDN(row['Pa_Dst'])
+    MDs(Pa_Dst, exist_ok=True)
+    if os.path.exists(row['Pa_Dst']):
+        if os.path.getmtime(row['Pa_Src']) > os.path.getmtime(row['Pa_Dst']):  # if file is older than destination, skip it.
+            shutil.copy2(row['Pa_Src'], row['Pa_Dst'])  # Copy file and preserve metadata    
     row['Instruction'] = "Processed"  # Change instruction, since the file has now been processed
     row['DT_processed'] = DT.now()
     return row  # Return the modified row
  
-def copy_Fo(path_Src_Fo, path_Dst_Fo, replace=None):
+def copy_Fo(Pa_Src_Fo, Pa_Dst_Fo, replace=None):
     """
     Copies all contents from a source folder to a destination folder, preserving metadata.
     Shows detailed progress for the files being copied.
     """
     # Get total number of files to be copied
-    total_files = sum(len(Fi) for _, _, Fi in os.walk(path_Src_Fo))
+    total_files = sum(len(Fi) for _, _, Fi in os.walk(Pa_Src_Fo))
     
     # Initialize a tqdm progress bar
-    with tqdm(total=total_files, desc=f"Copying from {path_Src_Fo} to {path_Dst_Fo}") as pbar:
-        for path_Src, path_Fo, Fi in os.walk(path_Src_Fo):
+    with tqdm(total=total_files, desc=f"Copying from {Pa_Src_Fo} to {Pa_Dst_Fo}") as pbar:
+        for Pa_Src, Pa_Fo, Fi in os.walk(Pa_Src_Fo):
             # Calculate relative path to replicate folder structure
-            Rel_Path = os.path.relpath(path_Src, path_Src_Fo)
-            path_Dst = PJ(path_Dst_Fo, Rel_Path)
+            Rel_Path = os.path.relpath(Pa_Src, Pa_Src_Fo)
+            Pa_Dst = PJ(Pa_Dst_Fo, Rel_Path)
             
             # Create destination folder if it doesn't exist
-            MDs(path_Dst, exist_ok=True)
+            MDs(Pa_Dst, exist_ok=True)
             
             for Fi_Src in Fi:
                 # Replace logic for the file name
@@ -112,21 +112,21 @@ def copy_Fo(path_Src_Fo, path_Dst_Fo, replace=None):
                         return Fi_Src.replace(Old, New)
                     return Fi_Src  # Return unchanged if no replace logic
                 
-                path_Src_Fi = PJ(path_Src, Fi_Src)
-                path_Dst_Fi = PJ(path_Dst, replace_Val(Fi_Src))
+                Pa_Src_Fi = PJ(Pa_Src, Fi_Src)
+                Pa_Dst_Fi = PJ(Pa_Dst, replace_Val(Fi_Src))
                 
                 # Check if the destination file exists and compare timestamps
-                if os.path.exists(path_Dst_Fi):
-                    if os.path.getmtime(path_Src_Fi) > os.path.getmtime(path_Dst_Fi):  # If source is newer
-                        shutil.copy2(path_Src_Fi, path_Dst_Fi)  # Copy file and preserve metadata
+                if os.path.exists(Pa_Dst_Fi):
+                    if os.path.getmtime(Pa_Src_Fi) > os.path.getmtime(Pa_Dst_Fi):  # If source is newer
+                        shutil.copy2(Pa_Src_Fi, Pa_Dst_Fi)  # Copy file and preserve metadata
                 else:
-                    shutil.copy2(path_Src_Fi, path_Dst_Fi)  # Copy file if it doesn't exist
+                    shutil.copy2(Pa_Src_Fi, Pa_Dst_Fi)  # Copy file if it doesn't exist
 
                 pbar.update(1)  # Update the progress bar
 
-def replace_in_file_Fi_line(DF, path_Fi_In, path_Fi_Out, C_Src, C_Dst):
+def replace_in_file_Fi_line(DF, Pa_Fi_In, Pa_Fi_Out, C_Src, C_Dst):
     # Read the file
-    with open(path_Fi_In, 'r', encoding='utf-8') as f:
+    with open(Pa_Fi_In, 'r', encoding='utf-8') as f:
         lines = f.readlines()
 
     # Replace values line by line
@@ -135,12 +135,12 @@ def replace_in_file_Fi_line(DF, path_Fi_In, path_Fi_Out, C_Src, C_Dst):
                  else line for line in lines]
 
     # Save the updated file
-    with open(path_Fi_Out, 'w', encoding='utf-8') as f:
+    with open(Pa_Fi_Out, 'w', encoding='utf-8') as f:
         f.writelines(lines)
 
-def replace_in_file_Fo_line(DF, path_Fi_In, path_Fi_Out, C_Src, C_Dst, C_replace='replace'):
+def replace_in_file_Fo_line(DF, Pa_Fi_In, Pa_Fi_Out, C_Src, C_Dst, C_replace='replace'):
     # Read the file
-    with open(path_Fi_In, 'r', encoding='utf-8') as f:
+    with open(Pa_Fi_In, 'r', encoding='utf-8') as f:
         lines = f.readlines()
         
     # Replace values line by line
@@ -151,7 +151,7 @@ def replace_in_file_Fo_line(DF, path_Fi_In, path_Fi_Out, C_Src, C_Dst, C_replace
                  else line for line in lines] # replace values in replace column
         
     # Save the updated file
-    with open(path_Fi_Out, 'w', encoding='utf-8') as f:
+    with open(Pa_Fi_Out, 'w', encoding='utf-8') as f:
         f.writelines(lines)
 
 
