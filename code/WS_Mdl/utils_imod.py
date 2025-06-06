@@ -1,5 +1,7 @@
 # ***** Similar to utils.py, but those utilize imod, which takes a long time to load. *****
 import os
+from os import listdir as LD, makedirs as MDs
+from os.path import join as PJ, basename as PBN, dirname as PDN, exists as PE
 import tempfile
 import imod
 from .utils import Sign, Pre_Sign, read_IPF_Spa, INI_to_d, get_MdlN_paths, path_WS
@@ -49,8 +51,8 @@ def PRJ_to_DF(MdlN):#, verbose:bool=True): #666 adding verbose behaviour enables
     d_paths = get_MdlN_paths(MdlN)
 
     Mdl = ''.join([c for c in MdlN if not c.isdigit()])
-    path_AppData = os.path.normpath(os.path.join(os.getenv('APPDATA'), '../'))
-    t_path_replace = (path_AppData, os.path.join(path_WS, 'models', Mdl)) # For some reason imod.idf.read reads the path incorrectly, so I have to replace the incorrect part.
+    path_AppData = os.path.normpath(PJ(os.getenv('APPDATA'), '../'))
+    t_path_replace = (path_AppData, PJ(path_WS, 'models', Mdl)) # For some reason imod.idf.read reads the path incorrectly, so I have to replace the incorrect part.
 
     d_PRJ, OBS = read_PRJ_with_OBS(d_paths['path_PRJ'])
 
@@ -152,12 +154,12 @@ def add_OBS(MdlN:str, Opt:str="BEGIN OPTIONS\nEND OPTIONS"):
 
     # Iterate through OBS files of OBS blocks and add them to the Sim
     for i, path in enumerate(l_IPF):
-        path_OBS_IPF = os.path.abspath(os.path.join(path_MdlN, path)) # path of IPF file. To be read.
-        OBS_IPF_Fi = os.path.basename(path_OBS_IPF) # Filename of OBS file to be added to Sim (to be added without ending)
+        path_OBS_IPF = os.path.abspath(PJ(path_MdlN, path)) # path of IPF file. To be read.
+        OBS_IPF_Fi = PBN(path_OBS_IPF) # Filename of OBS file to be added to Sim (to be added without ending)
         if i == 0:
-            path_OBS = os.path.join(path_MdlN, f'GWF_1/MODELINPUT/{MdlN}.OBS6') #path of OBS file. To be written.
+            path_OBS = PJ(path_MdlN, f'GWF_1/MODELINPUT/{MdlN}.OBS6') #path of OBS file. To be written.
         else:
-            path_OBS = os.path.join(path_MdlN, f'GWF_1/MODELINPUT/{MdlN}_N{i}.OBS6') #path of OBS file. To be written.
+            path_OBS = PJ(path_MdlN, f'GWF_1/MODELINPUT/{MdlN}_N{i}.OBS6') #path of OBS file. To be written.
 
         DF_OBS_IPF = read_IPF_Spa(path_OBS_IPF) # Get list of OBS items (without temporal dimension, as it's uneccessary for the OBS file, and takes ages to load)
         DF_OBS_IPF_MdlAa = DF_OBS_IPF.loc[ ( (DF_OBS_IPF['X']>Xmin) & (DF_OBS_IPF['X']<Xmax ) ) &
@@ -180,10 +182,10 @@ def add_OBS(MdlN:str, Opt:str="BEGIN OPTIONS\nEND OPTIONS"):
             f.write("END CONTINUOUS\n")
     
         # Open NAM file and add OBS file to it
-        with open(os.path.join(path_MdlN, 'GWF_1', MdlN+'.nam'), 'r') as f1:
+        with open(PJ(path_MdlN, 'GWF_1', MdlN+'.nam'), 'r') as f1:
             NAM = f1.read()
         l_NAM = NAM.split('END PACKAGES')
-        with open(os.path.join(path_MdlN, 'GWF_1', MdlN+'.nam'), 'w') as f2:
+        with open(PJ(path_MdlN, 'GWF_1', MdlN+'.nam'), 'w') as f2:
             path_OBS_Rel = os.path.relpath(path_OBS, path_MdlN) # Creates Rel path from full path.
             f2.write(l_NAM[0])
             f2.write(fr' OBS6 .\{path_OBS_Rel} OBS_{OBS_IPF_Fi.split('.')[0]}')
@@ -207,14 +209,14 @@ def run_Mdl(Se_Ln, DF_Opt): #666 think if this can be improved to take only 1 ar
     MdlN_B, path_Mdl, path_MdlN, path_INI, path_BAT, path_PRJ = (d_paths[k] for k in ['MdlN_B', 'path_Mdl', 'path_MdlN', "path_INI", "path_BAT", "path_PRJ"])
         
     # Define commands and their working directories
-    d_Cmds = {path_BAT: os.path.dirname(path_BAT),
-              "activate WS": os.path.dirname(path_BAT),
-              f"WS_Mdl add_OBS {MdlN} {DF_Opt.loc[DF_Opt['MdlN']==MdlN, 'add_OBS'].values[0]}": os.path.dirname(path_BAT),
+    d_Cmds = {path_BAT: PDN(path_BAT),
+              "activate WS": PDN(path_BAT),
+              f"WS_Mdl add_OBS {MdlN} {DF_Opt.loc[DF_Opt['MdlN']==MdlN, 'add_OBS'].values[0]}": PDN(path_BAT),
               r'.\RUN.BAT': path_MdlN}
 
     # Generate log file path
-    log_file = os.path.join(path_MdlN, f'Tmnl_Out_{MdlN}.txt')
-    os.makedirs(os.path.dirname(log_file), exist_ok=True)
+    log_file = PJ(path_MdlN, f'Tmnl_Out_{MdlN}.txt')
+    MDs(PDN(log_file), exist_ok=True)
 
     with open(log_file, 'w', encoding='utf-8') as f:
         for Cmd, cwd in d_Cmds.items():
@@ -253,14 +255,14 @@ def run_Mdl_print_only(Se_Ln, DF_Opt): #666 think if this can be improved to tak
     MdlN_B, path_Mdl, path_MdlN, path_INI, path_BAT, path_PRJ = (d_paths[k] for k in ['MdlN_B', 'path_Mdl', 'path_MdlN', "path_INI", "path_BAT", "path_PRJ"])
         
     # Define commands and their working directories
-    d_Cmds = {path_BAT: os.path.dirname(path_BAT),
-              "activate WS": os.path.dirname(path_BAT),
-              f"WS_Mdl add_OBS {MdlN} {DF_Opt.loc[DF_Opt['MdlN']==MdlN, 'add_OBS'].values[0]}": os.path.dirname(path_BAT),
+    d_Cmds = {path_BAT: PDN(path_BAT),
+              "activate WS": PDN(path_BAT),
+              f"WS_Mdl add_OBS {MdlN} {DF_Opt.loc[DF_Opt['MdlN']==MdlN, 'add_OBS'].values[0]}": PDN(path_BAT),
               r'.\RUN.BAT': path_MdlN}
 
     # Generate log file path
-    log_file = os.path.join(path_MdlN, f'Tmnl_Out_{MdlN}.txt')
-    os.makedirs(os.path.dirname(log_file), exist_ok=True)
+    log_file = PJ(path_MdlN, f'Tmnl_Out_{MdlN}.txt')
+    MDs(PDN(log_file), exist_ok=True)
 
     for Cmd, cwd in d_Cmds.items():
         try:

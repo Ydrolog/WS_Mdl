@@ -16,16 +16,16 @@ MdlN        =   "NBr13"
 MdlN_B_RIV  = 'NBr1'     # Baseline for RIV files
 Mdl         =   ''.join([i for i in MdlN if i.isalpha()])
 
-path_Mdl            =   os.path.join(path_WS, f'models/{Mdl}') 
+path_Mdl            =   PJ(path_WS, f'models/{Mdl}') 
 workdir:                path_Mdl
-path_Smk            =   os.path.join(path_Mdl, 'code/snakemake')
-path_temp           =   os.path.join(path_Smk, 'temp')
-path_Sim            =   os.path.join(path_Mdl, 'Sim')
-path_MdlN           =   os.path.join(path_Sim, f'{MdlN}')
-path_BAT_RUN        =   os.path.join(path_MdlN, 'RUN.BAT')
-path_OBS, path_NAM  =   [os.path.join(path_MdlN, 'GWF_1', i) for i in [f'MODELINPUT/{MdlN}.OBS', f'{MdlN}.NAM']]
-path_HED, path_CBC  =   [os.path.join(path_MdlN, 'GWF_1/MODELOUTPUT', i) for i in ['HEAD/HEAD.HED', 'BUDGET/BUDGET.CBC']]
-path_LST_Sim        =   os.path.join(path_MdlN, 'mfsim.lst')
+path_Smk            =   PJ(path_Mdl, 'code/snakemake')
+path_temp           =   PJ(path_Smk, 'temp')
+path_Sim            =   PJ(path_Mdl, 'Sim')
+path_MdlN           =   PJ(path_Sim, f'{MdlN}')
+path_BAT_RUN        =   PJ(path_MdlN, 'RUN.BAT')
+path_OBS, path_NAM  =   [PJ(path_MdlN, 'GWF_1', i) for i in [f'MODELINPUT/{MdlN}.OBS', f'{MdlN}.NAM']]
+path_HED, path_CBC  =   [PJ(path_MdlN, 'GWF_1/MODELOUTPUT', i) for i in ['HEAD/HEAD.HED', 'BUDGET/BUDGET.CBC']]
+path_LST_Sim        =   PJ(path_MdlN, 'mfsim.lst')
 
 log_Init_done       =   f"{path_Smk}/temp/Log_init_done_{MdlN}"
 log_Sim_done        =   f"{path_Smk}/temp/Log_Sim_done_{MdlN}"
@@ -33,10 +33,10 @@ log_PRJ_to_TIF_done =   f"{path_Smk}/temp/Log_PRJ_to_TIF_done_{MdlN}"
 log_GXG_done        =   f"{path_Smk}/temp/Log_GXG_done_{MdlN}"
 log_Up_MM_done      =   f"{path_Smk}/temp/Log_Up_MM_done_{MdlN}"
 
-path_RIV        = os.path.join(path_Mdl, 'In/RIV')
-path_RIV_MdlN   = os.path.join(path_RIV, f'{MdlN}')
+path_RIV        = PJ(path_Mdl, 'In/RIV')
+path_RIV_MdlN   = PJ(path_RIV, f'{MdlN}')
 l_In_PrP_RIV    = [str(file) for file in pathlib.Path(path_RIV).glob("*.idf") if "RIV_Stg" in file.name and MdlN_B_RIV in file.name]
-l_Out_PrP_RIV   = [os.path.join(path_RIV_MdlN, os.path.basename(i).replace(MdlN_B_RIV, MdlN)) for i in l_In_PrP_RIV]
+l_Out_PrP_RIV   = [PJ(path_RIV_MdlN, PBN(i).replace(MdlN_B_RIV, MdlN)) for i in l_In_PrP_RIV]
 
 # --- Rules ---
 rule all: # Final rule
@@ -67,7 +67,7 @@ rule PrP_RIV:
     output:
         l_Out_PrP_RIV
     script:
-        os.path.join(path_WS, f'code/PrP/edit_RIV/edit_RIV_{MdlN}.py')
+        PJ(path_WS, f'code/PrP/edit_RIV/edit_RIV_{MdlN}.py')
 
 rule Mdl_Prep: # Prepares Sim Ins (from Ins) via BAT file.
     input:

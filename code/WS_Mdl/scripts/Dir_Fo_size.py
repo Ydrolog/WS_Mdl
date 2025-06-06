@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 import os
+from os import listdir as LD, makedirs as MDs
+from os.path import join as PJ, basename as PBN, dirname as PDN, exists as PE
 
 def get_folder_size(path):
     total = 0
     for dirpath, _, filenames in os.walk(path):
         for f in filenames:
             try:
-                total += os.path.getsize(os.path.join(dirpath, f))
+                total += os.path.getsize(PJ(dirpath, f))
             except (OSError, FileNotFoundError):
                 pass
     return total

@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 import os
+from os import listdir as LD, makedirs as MDs
+from os.path import join as PJ, basename as PBN, dirname as PDN, exists as PE
 import subprocess
 import sys
 import pandas as pd
@@ -40,7 +42,7 @@ def main():
         print(f"Error freezing pip packages: {e}", file=sys.stderr)
         sys.exit(1)
     # Verify Git repo path and extract remote URL + commit
-    if not os.path.isdir(os.path.join(path_repo, '.git')):
+    if not os.path.isdir(PJ(path_repo, '.git')):
         print(f"Error: {path_repo} is not a Git repository.", file=sys.stderr)
         sys.exit(1)
 

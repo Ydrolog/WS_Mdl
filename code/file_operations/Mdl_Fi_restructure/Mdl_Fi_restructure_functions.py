@@ -1,4 +1,6 @@
 import os
+from os import listdir as LD, makedirs as MDs
+from os.path import join as PJ, basename as PBN, dirname as PDN, exists as PE
 import csv
 from pathlib import Path
 import pandas as pd
@@ -10,7 +12,7 @@ def get_all_file_paths(directory):
     file_paths = []  # List to store the file paths
     for root, _, files in os.walk(directory):
         for file in files:
-            file_paths.append(os.path.join(root, file))
+            file_paths.append(PJ(root, file))
     return file_paths
 
 
@@ -75,8 +77,8 @@ def edit_Fi_name(DF, Fi, rename, replace, insert, append):
     return DF[Fi]
 
 def copy_Fi_DF_row(row):
-    path_Dst = os.path.dirname(row['path_Dst'])
-    os.makedirs(path_Dst, exist_ok=True)
+    path_Dst = PDN(row['path_Dst'])
+    MDs(path_Dst, exist_ok=True)
     if os.path.exists(row['path_Dst']):
         if os.path.getmtime(row['path_Src']) > os.path.getmtime(row['path_Dst']):  # if file is older than destination, skip it.
             shutil.copy2(row['path_Src'], row['path_Dst'])  # Copy file and preserve metadata    
@@ -97,10 +99,10 @@ def copy_Fo(path_Src_Fo, path_Dst_Fo, replace=None):
         for path_Src, path_Fo, Fi in os.walk(path_Src_Fo):
             # Calculate relative path to replicate folder structure
             Rel_Path = os.path.relpath(path_Src, path_Src_Fo)
-            path_Dst = os.path.join(path_Dst_Fo, Rel_Path)
+            path_Dst = PJ(path_Dst_Fo, Rel_Path)
             
             # Create destination folder if it doesn't exist
-            os.makedirs(path_Dst, exist_ok=True)
+            MDs(path_Dst, exist_ok=True)
             
             for Fi_Src in Fi:
                 # Replace logic for the file name
@@ -110,8 +112,8 @@ def copy_Fo(path_Src_Fo, path_Dst_Fo, replace=None):
                         return Fi_Src.replace(Old, New)
                     return Fi_Src  # Return unchanged if no replace logic
                 
-                path_Src_Fi = os.path.join(path_Src, Fi_Src)
-                path_Dst_Fi = os.path.join(path_Dst, replace_Val(Fi_Src))
+                path_Src_Fi = PJ(path_Src, Fi_Src)
+                path_Dst_Fi = PJ(path_Dst, replace_Val(Fi_Src))
                 
                 # Check if the destination file exists and compare timestamps
                 if os.path.exists(path_Dst_Fi):

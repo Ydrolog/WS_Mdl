@@ -2,6 +2,8 @@ from .utils import Sign, Pre_Sign
 from . import utils as U
 from . import utils_imod as UIM
 import os
+from os import listdir as LD, makedirs as MDs
+from os.path import join as PJ, basename as PBN, dirname as PDN, exists as PE
 import shutil as sh
 import re
 from datetime import datetime as DT
@@ -169,16 +171,16 @@ def PRJ_to_TIF(MdlN):
             ## Prepare directoreis and filenames
             Mdl = ''.join([c for c in MdlN if not c.isdigit()])
             Pkg_MdlN = Mdl + str(DF_Par['MdlN'].str.extract(r'(\d+)').astype(int).max().values[0])
-            path_TIF = os.path.join(d_paths['path_Mdl'], 'PoP', 'In', Pkg, Pkg_MdlN, f"{Pkg}_{Par}_{Pkg_MdlN}.tif")  # Full path to TIF file
+            path_TIF = PJ(d_paths['path_Mdl'], 'PoP', 'In', Pkg, Pkg_MdlN, f"{Pkg}_{Par}_{Pkg_MdlN}.tif")  # Full path to TIF file
 
             ## Build a dictionary mapping each band’s name to its row’s metadata. We're assuming that the order the paths are read into DA is the same as the order in DF_Par.
             d_MtDt = {}
 
             if os.path.exists(path_TIF):
-                print(f'\u274C - {os.path.basename(path_TIF)} already exists. Skipping.')
+                print(f'\u274C - {PBN(path_TIF)} already exists. Skipping.')
                 continue
             else:
-                os.makedirs(os.path.dirname(path_TIF), exist_ok=True) # Make sure the directory exists
+                MDs(PDN(path_TIF), exist_ok=True) # Make sure the directory exists
 
                 ## Read files-paths to xarray Data Array (DA), then write them to TIF file(s).
                 if DF_Par.shape[0] > 1: # If there are multiple paths for the same parameter
@@ -212,14 +214,14 @@ def PRJ_to_TIF(MdlN):
     for i, R in DF_time[DF_time['package'].isin(('DRN', 'RIV'))].iterrows():
         print(f"\t{f"{R['package']}_{R['parameter']}":<30} ... ", end='')
 
-        path_TIF = os.path.join(d_paths['path_Mdl'], 'PoP', 'In', R['package'], R['MdlN'], os.path.basename(re.sub(r'\.idf$', '.tif', R['path'], flags=re.IGNORECASE)))  # Full path to TIF file
+        path_TIF = PJ(d_paths['path_Mdl'], 'PoP', 'In', R['package'], R['MdlN'], PBN(re.sub(r'\.idf$', '.tif', R['path'], flags=re.IGNORECASE)))  # Full path to TIF file
         
         if os.path.exists(path_TIF):
-            print(f'\u274C - {os.path.basename(path_TIF)} already exists. Skipping.')
+            print(f'\u274C - {PBN(path_TIF)} already exists. Skipping.')
             continue
         else:
             try:    
-                os.makedirs(os.path.dirname(path_TIF), exist_ok=True) # Make sure the directory exists
+                MDs(PDN(path_TIF), exist_ok=True) # Make sure the directory exists
 
                 ## Build a dictionary mapping each band’s name to its row’s metadata.
                 d_MtDt = {f"{R['parameter']}_L{R['layer']}_{R['MdlN']}" : {('origin_path' if col == 'path' else col): str(val) for col, val in R.items()}}
@@ -234,12 +236,12 @@ def PRJ_to_TIF(MdlN):
     DF_WEL = DF.loc[DF['package']=='WEL']
 
     for i, R in DF_WEL.iloc[3:6].iterrows():
-        print(f"\t{os.path.basename(R['path']):<30} ... ", end='')
+        print(f"\t{PBN(R['path']):<30} ... ", end='')
 
-        path_GPKG = os.path.join(d_paths['path_Mdl'], 'PoP', 'In', R['package'], R['MdlN'], os.path.basename(re.sub(r'\.ipf$', '.gpkg', R['path'], flags=re.IGNORECASE)))  # Full path to TIF file
+        path_GPKG = PJ(d_paths['path_Mdl'], 'PoP', 'In', R['package'], R['MdlN'], PBN(re.sub(r'\.ipf$', '.gpkg', R['path'], flags=re.IGNORECASE)))  # Full path to TIF file
 
         if os.path.exists(path_GPKG):
-            print(f'\u274C - file {os.path.basename(path_GPKG)} exists. Skipping.')
+            print(f'\u274C - file {PBN(path_GPKG)} exists. Skipping.')
             continue
         else:
 
@@ -255,8 +257,8 @@ def PRJ_to_TIF(MdlN):
                 DF_IPF_AVG = DF_IPF.groupby('id')[DF_IPF.select_dtypes(include=np.number).columns].agg(np.mean)
                 _GDF_AVG = gpd.GeoDataFrame(DF_IPF_AVG, geometry=gpd.points_from_xy(DF_IPF_AVG['x'], DF_IPF_AVG['y'])).set_crs(crs=crs)
 
-                os.makedirs(os.path.dirname(path_GPKG), exist_ok=True) # Make sure the directory exists
-                _GDF_AVG.to_file(path_GPKG, driver="GPKG") #, layer=os.path.basename(path_GPKG))
+                MDs(PDN(path_GPKG), exist_ok=True) # Make sure the directory exists
+                _GDF_AVG.to_file(path_GPKG, driver="GPKG") #, layer=PBN(path_GPKG))
                 print(f'🟢 - IPF average values (per id) converted to GPKG')
             except:
                 print('\u274C')
@@ -293,14 +295,14 @@ def PRJ_to_TIF(MdlN):
     for i, Par in enumerate(d_Clc_In.keys()):
         print(f"\t{d_Clc_In[Par]['Par']:<30} ... ", end='')
 
-        path_TIF = os.path.join(d_paths['path_Mdl'], 'PoP', 'Clc_In', Par, d_Clc_In[Par]['MdlN_Pkg'], f"{Par}_{d_Clc_In[Par]['MdlN_Pkg']}.tif")  # Full path to TIF file #666 need to think which MdlN to use. It's hard to do the same as with the other packages.
+        path_TIF = PJ(d_paths['path_Mdl'], 'PoP', 'Clc_In', Par, d_Clc_In[Par]['MdlN_Pkg'], f"{Par}_{d_Clc_In[Par]['MdlN_Pkg']}.tif")  # Full path to TIF file #666 need to think which MdlN to use. It's hard to do the same as with the other packages.
         
         if os.path.exists(path_TIF):
-            print(f'\u274C - {os.path.basename(path_TIF)} already exists. Skipping.')
+            print(f'\u274C - {PBN(path_TIF)} already exists. Skipping.')
             continue
         else:
             try:
-                os.makedirs(os.path.dirname(path_TIF), exist_ok=True) # Make sure the directory exists
+                MDs(PDN(path_TIF), exist_ok=True) # Make sure the directory exists
 
                 ## Write DAs to TIF files.
                 DA = d_Clc_In[Par]['DA'].squeeze(drop=True)
@@ -335,8 +337,8 @@ def HD_IDF_Mo_Avg_to_MBTIF(MdlN: str, N_cores:int=None, crs:str=crs, DF_rules:st
         DF = DF.query(DF_rules)
     DF_grouped = DF.groupby(['year', 'month'])['path']
 
-    path_Mo_AVG_Fo = os.path.join(path_PoP, f'Out/{MdlN}/HD_Mo_AVG') # path where Mo AVG files are stored
-    os.makedirs(path_Mo_AVG_Fo, exist_ok=True) # Create the directory if it doesn't exist
+    path_Mo_AVG_Fo = PJ(path_PoP, f'Out/{MdlN}/HD_Mo_AVG') # path where Mo AVG files are stored
+    MDs(path_Mo_AVG_Fo, exist_ok=True) # Create the directory if it doesn't exist
 
     if N_cores is None:
         N_cores = max(os.cpu_count() - 2, 1) # Leave 2 cores free for other tasks. If there aren't enough cores available, set to 1.
@@ -356,7 +358,7 @@ def _HD_IDF_Mo_Avg_to_MBTIF_process_Mo(year, month, paths, MdlN, path_Mo_AVG_Fo,
     XA = imod.formats.idf.open(list(paths)) # Read the files to an Xarray
     XA_mean = XA.mean(dim='time') # Calculate monthly mean
 
-    path_Out = os.path.join(path_Mo_AVG_Fo, f'HD_AVG_{year}{month:02d}_{MdlN}.tif') # Create the output path
+    path_Out = PJ(path_Mo_AVG_Fo, f'HD_AVG_{year}{month:02d}_{MdlN}.tif') # Create the output path
 
     d_MtDt = {str(L): {'layer': L} for L in XA.coords['layer'].values}
     d_MtDt['all'] = {'parameters': XA.coords,
@@ -407,15 +409,15 @@ def _HD_IDF_GXG_to_TIF_per_L(DF, L, MdlN, path_PoP, path_HD, crs):
     GXG = GXG[["GHG", "GLG", "GHG_m_GLG", "GVG"]]
 
     # Save to TIF
-    os.makedirs(os.path.join(path_PoP, 'Out', MdlN, 'GXG'), exist_ok=True)
+    MDs(PJ(path_PoP, 'Out', MdlN, 'GXG'), exist_ok=True)
     for V in GXG.data_vars:
-        path_Out = os.path.join(path_PoP, 'Out', MdlN, 'GXG', f'{V}_L{L}_{MdlN}.tif')
+        path_Out = PJ(path_PoP, 'Out', MdlN, 'GXG', f'{V}_L{L}_{MdlN}.tif')
 
         d_MtDt = {f'{V}_L{L}_{MdlN}':
                         {'AVG'          :   float(GXG[V].mean().values),
                         'coordinates'   :   XA.coords,
                         'N_years'       :   N_years_GVG if V=='GVG' else N_years_GXG,
-                        'variable'          :   os.path.splitext(os.path.basename(path_Out))[0],
+                        'variable'          :   os.path.splitext(PBN(path_Out))[0],
                         'details'       :   f'{MdlN} {V} calculated from (path: {path_HD}), via function described in: https://deltares.github.io/imod-python/api/generated/evaluate/imod.evaluate.calculate_gxg.html'}}
         
         DA = GXG[V]
@@ -439,17 +441,17 @@ def Up_MM(MdlN, MdlN_MM_B=None):
     if MdlN_MM_B is not None: # Replace MdlN_B with another MdlN if requested.
         path_QGZ_B = path_QGZ_B.replace(d_paths['MdlN_B'], MdlN_MM_B)
 
-    os.makedirs(os.path.basename(path_QGZ), exist_ok=True)      # Ensure destination folder exists
+    MDs(PBN(path_QGZ), exist_ok=True)      # Ensure destination folder exists
     sh.copy(path_QGZ_B, path_QGZ)                               # Copy the QGIS file
     print(f"Copied QGIS project from {path_QGZ_B} to {path_QGZ}.\nUpdating layer path ...")
 
-    path_temp = os.path.join(os.path.dirname(path_QGZ), 'temp') # Path to temporarily extract QGZ contents
-    os.makedirs(path_temp, exist_ok=True)
+    path_temp = PJ(PDN(path_QGZ), 'temp') # Path to temporarily extract QGZ contents
+    MDs(path_temp, exist_ok=True)
 
     with ZF.ZipFile(path_QGZ_B, 'r') as zip_ref:     # Unzip .qgz
         zip_ref.extractall(path_temp)
 
-    path_QGS = os.path.join(path_temp, os.path.basename(path_QGZ_B).replace('.qgz', '.qgs'))
+    path_QGS = PJ(path_temp, PBN(path_QGZ_B).replace('.qgz', '.qgs'))
     tree = ET.parse(path_QGS)
     root = tree.getroot()
 
@@ -475,7 +477,7 @@ def Up_MM(MdlN, MdlN_MM_B=None):
             else:
                 MdlX = f"{Mdl}{matches[0]}"
                 
-                path_full = os.path.normpath(os.path.join(os.path.dirname(path_QGZ), path.replace(MdlX, MdlN)))
+                path_full = os.path.normpath(PJ(PDN(path_QGZ), path.replace(MdlX, MdlN)))
                 if (MdlX != MdlN) and (os.path.exists(path_full)):
                     path_X = path.replace(MdlX, MdlN)
                     DS.text = f"{path_X}|{suffix}" if suffix else path_X
@@ -491,7 +493,7 @@ def Up_MM(MdlN, MdlN_MM_B=None):
     with ZF.ZipFile(path_QGZ, 'w', ZF.ZIP_DEFLATED) as zipf:   # Zip back into .qgz
         for foldername, _, filenames in os.walk(path_temp):
             for filename in filenames:
-                filepath = os.path.join(foldername, filename)
+                filepath = PJ(foldername, filename)
                 arcname = os.path.relpath(filepath, path_temp)
                 zipf.write(filepath, arcname)
 

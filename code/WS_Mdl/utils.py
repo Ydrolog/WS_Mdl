@@ -1,5 +1,7 @@
 # ***** Utility functions to facilitate more robust modelling. *****
 import os
+from os import listdir as LD, makedirs as MDs
+from os.path import join as PJ, basename as PBN, dirname as PDN, exists as PE
 from pathlib import Path
 import pandas as pd
 from colored import fg, bg, attr
@@ -16,14 +18,14 @@ warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl.workshe
 Pre_Sign = f"{fg(52)}{'*'*80}{attr('reset')}\n\n"
 Sign = f"{fg(52)}\nend_of_transmission\n{'*'*80}{attr('reset')}\n"
 path_WS = 'C:/OD/WS_Mdl'
-path_RunLog = os.path.join(path_WS, 'Mng/WS_RunLog.xlsx')
-path_log = os.path.join(path_WS, 'Mng/log.csv')
+path_RunLog = PJ(path_WS, 'Mng/WS_RunLog.xlsx')
+path_log = PJ(path_WS, 'Mng/log.csv')
 ## Can make get paths function that will provide the general directories, like path_WS, path_Mdl. Those can be derived from a folder structure.
 
 # Get paths from MdlN --------------------------------------------------------------------------------------------------------------
 def MdlN_Se_from_RunLog(MdlN): # Can be made faster. May need to make excel export the RunLog as a csv, so that I can use pd.read_csv instead of pd.read_excel. 
     """Returns RunLog line that corresponds to MdlN as a S."""
-    DF = pd.read_excel(os.path.join(path_WS, 'Mng/WS_RunLog.xlsx'), sheet_name='RunLog')    
+    DF = pd.read_excel(PJ(path_WS, 'Mng/WS_RunLog.xlsx'), sheet_name='RunLog')    
     Se_match = DF.loc[DF['MdlN'] == MdlN]
     if Se_match.empty:
         raise ValueError(f"MdlN {MdlN} not found in RunLog. {fg('indian_red_1c')}Check the spelling and try again.{attr('reset')}")
@@ -38,17 +40,17 @@ def paths_from_MdlN_Se(S, MdlN):
     d_path = {}
     d_path['Mdl']                   =   Mdl
     d_path['MdlN_B']                =   MdlN_B
-    d_path['path_Mdl']              =   os.path.join(path_WS, f'models/{Mdl}')
-    d_path['path_INI']              =   os.path.join(d_path['path_Mdl'], f'code/Mdl_Prep/Mdl_Prep_{MdlN}.ini')
-    d_path['path_BAT']              =   os.path.join(d_path['path_Mdl'], f'code/Mdl_Prep/Mdl_Prep_{MdlN}.bat')
-    d_path['path_PRJ']              =   os.path.join(d_path['path_Mdl'], f'In/PRJ/{MdlN}.prj')
-    d_path['path_Smk']              =   os.path.join(d_path['path_Mdl'], f'code/snakemake/{MdlN}.smk')
-    d_path['path_Smk_temp']         =   os.path.join(d_path['path_Mdl'], f'code/snakemake/temp')
-    d_path['path_MdlN']             =   os.path.join(d_path['path_Mdl'], f"Sim/{MdlN}")
-    d_path['path_Out_HD']           =   os.path.join(d_path['path_MdlN'], f"GWF_1/MODELOUTPUT/HEAD/HEAD")
-    d_path['path_PoP']              =   os.path.join(d_path['path_Mdl'], 'PoP')
-    d_path['path_PoP_Out_MdlN']     =   os.path.join(d_path['path_PoP'], 'Out', MdlN)
-    d_path['path_MM']               =   os.path.join(d_path['path_PoP_Out_MdlN'], f'MM-{MdlN}.qgz')
+    d_path['path_Mdl']              =   PJ(path_WS, f'models/{Mdl}')
+    d_path['path_INI']              =   PJ(d_path['path_Mdl'], f'code/Mdl_Prep/Mdl_Prep_{MdlN}.ini')
+    d_path['path_BAT']              =   PJ(d_path['path_Mdl'], f'code/Mdl_Prep/Mdl_Prep_{MdlN}.bat')
+    d_path['path_PRJ']              =   PJ(d_path['path_Mdl'], f'In/PRJ/{MdlN}.prj')
+    d_path['path_Smk']              =   PJ(d_path['path_Mdl'], f'code/snakemake/{MdlN}.smk')
+    d_path['path_Smk_temp']         =   PJ(d_path['path_Mdl'], f'code/snakemake/temp')
+    d_path['path_MdlN']             =   PJ(d_path['path_Mdl'], f"Sim/{MdlN}")
+    d_path['path_Out_HD']           =   PJ(d_path['path_MdlN'], f"GWF_1/MODELOUTPUT/HEAD/HEAD")
+    d_path['path_PoP']              =   PJ(d_path['path_Mdl'], 'PoP')
+    d_path['path_PoP_Out_MdlN']     =   PJ(d_path['path_PoP'], 'Out', MdlN)
+    d_path['path_MM']               =   PJ(d_path['path_PoP_Out_MdlN'], f'MM-{MdlN}.qgz')
     d_path['path_INI_B']            =   d_path['path_INI'].replace(MdlN, MdlN_B)
     d_path['path_BAT_B']            =   d_path['path_BAT'].replace(MdlN, MdlN_B)
     d_path['path_PRJ_B']            =   d_path['path_PRJ'].replace(MdlN, MdlN_B)
@@ -124,12 +126,12 @@ def Sim_Cfg(*l_MdlN, path_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
 
 def HD_Out_IDF_to_DF(path): #666 can make it save DF if a 2nd path is provided. Unecessary for now.
     """Reads IDF files from the given path and returns a DataFrame with the file names and their corresponding parameters. Parameters are extracted from filnames, based on a standard format. Hence, don't use this for other groups of IDF files, unless you're sure they follow the same format.""" #666 can be generalized later, to work on all sorts of IDF files.
-    Se_Fi_path = pd.Series([os.path.join(path, i) for i in os.listdir(path) if i.lower().endswith('.idf')])
-    DF = pd.DataFrame({'path':Se_Fi_path, 'file': Se_Fi_path.apply(lambda x: os.path.basename(x))})
+    Se_Fi_path = pd.Series([PJ(path, i) for i in LD(path) if i.lower().endswith('.idf')])
+    DF = pd.DataFrame({'path':Se_Fi_path, 'file': Se_Fi_path.apply(lambda x: PBN(x))})
     DF[['type', 'year', 'month', 'day', 'L']] = DF['file'].str.extract(
         r'^(?P<type>[A-Z]+)_(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})\d{6}_L(?P<L>\d+)\.IDF$'
         ).astype({'year': int, 'month': int, 'day': int, 'L': int})
-    # DF.to_csv(os.path.join(path, 'contents.csv'), index=False)
+    # DF.to_csv(PJ(path, 'contents.csv'), index=False)
     return DF
 # ----------------------------------------------------------------------------------------------------------------------------------
 
@@ -181,7 +183,7 @@ def S_from_B_undo(MdlN:str):
             print(f'🟢 - {path_S.split("/")[-1]} deleted successfully!')
     print(Sign)
 
-def Up_log(MdlN: str, d_Up: dict, path_log=os.path.join(path_WS, 'Mng/log.csv')):
+def Up_log(MdlN: str, d_Up: dict, path_log=PJ(path_WS, 'Mng/log.csv')):
     """Update log.csv based on MdlN and key of `updates`."""
     path_lock = path_log + '.lock'  # Create a lock file to prevent concurrent access
     lock = FL(path_lock)
@@ -217,10 +219,10 @@ def RunMng(cores=None, DAG:bool=True):
         print("\n🔴 - No queued runs found in the RunLog.")
     else:
         for i, Se_Ln in DF_q.iterrows():
-            path_Smk = os.path.join(path_WS, f"models/{Se_Ln['model alias']}/code/snakemake/{Se_Ln['MdlN']}.smk")
-            path_log = os.path.join(path_WS, f"models/{Se_Ln['model alias']}/code/snakemake/log/{Se_Ln['MdlN']}_{DT.now().strftime('%Y%m%d_%H%M%S')}.log")
-            path_DAG = os.path.join(path_WS, f"models/{Se_Ln['model alias']}/code/snakemake/DAG/DAG_{Se_Ln['MdlN']}.png")
-            print(f" -- {fg('green')}{os.path.basename(path_Smk)}{attr('reset')}\n")
+            path_Smk = PJ(path_WS, f"models/{Se_Ln['model alias']}/code/snakemake/{Se_Ln['MdlN']}.smk")
+            path_log = PJ(path_WS, f"models/{Se_Ln['model alias']}/code/snakemake/log/{Se_Ln['MdlN']}_{DT.now().strftime('%Y%m%d_%H%M%S')}.log")
+            path_DAG = PJ(path_WS, f"models/{Se_Ln['model alias']}/code/snakemake/DAG/DAG_{Se_Ln['MdlN']}.png")
+            print(f" -- {fg('green')}{PBN(path_Smk)}{attr('reset')}\n")
 
             try:
                 if DAG:
@@ -249,7 +251,7 @@ def reset_Sim(MdlN: str):
         path_MdlN = d_paths['path_MdlN']
         DF = pd.read_csv(path_log) # Read the log file
         path_Smk_temp = d_paths['path_Smk_temp']
-        l_temp = [i for i in os.listdir(path_Smk_temp) if MdlN in i]
+        l_temp = [i for i in LD(path_Smk_temp) if MdlN in i]
 
         if os.path.exists(path_MdlN) or (MdlN in DF['MdlN'].values) or l_temp or os.path.exists(d_paths['path_PoP_Out_MdlN']): # Check if the Sim folder exists or if the MdlN is in the log file
             i = 0
@@ -273,7 +275,7 @@ def reset_Sim(MdlN: str):
             try:
                 print(path_Smk_temp)
                 for l in l_temp:
-                    os.remove(os.path.join(path_Smk_temp, l))
+                    os.remove(PJ(path_Smk_temp, l))
                 print("🟢 - Smk log files deleted successfully.")
                 i += 1
             except:
@@ -307,7 +309,7 @@ def get_elapsed_time_str(start_time: float) -> str:
 #-----------------------------------------------------------------------------------------------------------------------------------
 
 def get_last_MdlN():
-    path_log = os.path.join(path_WS, 'Mng/log.csv')
+    path_log = PJ(path_WS, 'Mng/log.csv')
     DF = pd.read_csv(path_log)
     DF.loc[:-2, 'Sim end DT'] = DF.loc[:-2, 'Sim end DT'].apply(pd.to_datetime, dayfirst=True)
     DF['Sim end DT'] = pd.to_datetime(DF['Sim end DT'], dayfirst=True)
