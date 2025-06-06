@@ -1,4 +1,5 @@
 # --- Imports ---
+
 from WS_Mdl.utils import Up_log, Pa_WS, INI_to_d, get_elapsed_time_str, get_MdlN_paths
 import WS_Mdl.utils as U
 import WS_Mdl.utils_imod as UIM
@@ -12,8 +13,9 @@ sys.stdout.reconfigure(encoding='utf-8')
 sys.stderr.reconfigure(encoding='utf-8')
 
 # --- Variables ---
+
 MdlN        =   "NBr13"
-MdlN_B_RIV  = 'NBr1'     # Baseline for RIV files
+MdlN_B_RIV  =   'NBr1'     # Baseline for RIV files
 Mdl         =   ''.join([i for i in MdlN if i.isalpha()])
 
 Pa_Mdl            =   PJ(Pa_WS, f'models/{Mdl}') 
@@ -39,6 +41,13 @@ l_In_PrP_RIV    = [str(file) for file in pathlib.Path(Pa_RIV).glob("*.idf") if "
 l_Out_PrP_RIV   = [PJ(Pa_RIV_MdlN, PBN(i).replace(MdlN_B_RIV, MdlN)) for i in l_In_PrP_RIV]
 
 # --- Rules ---
+
+def fail(job, excecution):
+    Up_log(MdlN, {  'Sim end DT': DT.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    'End Status': 'Failed'})
+onerror: fail
+
+
 rule all: # Final rule
     input:
         Pa_LST_Sim,
@@ -106,7 +115,7 @@ rule Sim: # Runs the simulation via BAT file.
         shell(Pa_BAT_RUN)
         Up_log(MdlN, {  'Sim end DT':   DT.now().strftime("%Y-%m-%d %H:%M:%S"),
                         'Sim Dur':      get_elapsed_time_str(DT_Sim_Start),
-                        'End Status':   'completed'})
+                        'End Status':   'Completed'})
 
 ## -- PoP ---
 rule PRJ_to_TIF:
@@ -135,17 +144,9 @@ rule Up_MM:
         log_Up_MM_done
     rule:
         G.Up_MM(MdlN)                   # Update MM 
+        Up_log(MdlN, {  'PoP end DT':   DT.now().strftime("%Y-%m-%d %H:%M:%S"),
+                        'End Status':   'PoPed'}) # Update log
         pathlib.Path(output[0]).touch() # Create the file to mark the rule as done.
-
-# rule fail: # Runs only if the Sim has failed, to update the log.
-#     input:
-#         Pa_LST_Sim
-#     output:
-#         temp(Pa_fail) # need to add this to ruleall
-#     run:
-#         Up_log(MdlN, {  'Sim end DT': DT.now().strftime("%Y-%m-%d %H:%M:%S"),
-#                         'End Status': 'Failed'})
-#         raise Exception("Simulation failed.")
 
 
 # --- Junkyard ---

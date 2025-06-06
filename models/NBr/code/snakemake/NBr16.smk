@@ -43,6 +43,13 @@ log_Up_MM_done      =   f"{Pa_Smk}/temp/Log_Up_MM_done_{MdlN}"
 
 
 # --- Rules ---
+
+def fail(job, excecution):
+    Up_log(MdlN, {  'Sim end DT': DT.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    'End Status': 'Failed'})
+onerror: fail
+
+
 rule all: # Final rule
     input:
         log_Sim_done,
@@ -143,7 +150,8 @@ rule Up_MM:
         log_Up_MM_done
     run:
         G.Up_MM(MdlN, MdlN_MM_B=MdlN_MM_B)     # Update MM 
-        Up_log(MdlN, {  'Sim start DT'  :   DT_Sim_Start.strftime("%Y-%m-%d %H:%M:%S")})
+        Up_log(MdlN, {  'PoP end DT':   DT.now().strftime("%Y-%m-%d %H:%M:%S"),
+                        'End Status':   'PoPed'}) # Update log
         pathlib.Path(output[0]).touch()     # Create the file to mark the rule as done.
 
 

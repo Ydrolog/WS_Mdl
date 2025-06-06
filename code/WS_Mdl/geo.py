@@ -498,7 +498,7 @@ def Up_MM(MdlN, MdlN_MM_B=None):
                 zipf.write(filepath, arcname)
 
     sh.rmtree(Pa_temp)  # Remove the temporary folder
-    print(f"\n🟢 MM for {MdlN} has been updated.\n")
+    print(f"\n🟢🟢🟢 MM for {MdlN} has been updated.")
     print(Sign)
 # ----------------------------------------------------------------------------------------------------------------------------------
 

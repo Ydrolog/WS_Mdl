@@ -68,6 +68,11 @@ def get_MdlN_paths(MdlN: str, verbose=False): #666 Can be split into two as both
     if verbose:
         print(f"🟢 - {MdlN} paths extracted from RunLog and returned as dictionary with keys:\n{', '.join(d_Pa.keys())}")
     return d_Pa
+
+def get_Mdl(MdlN: str):
+    """ Returns model alias for a given MdlN. """
+    return ''.join([i for i in MdlN if i.isalpha()])
+
 # ----------------------------------------------------------------------------------------------------------------------------------
 
 # READ FILES -----------------------------------------------------------------------------------------------------------------------
@@ -213,8 +218,7 @@ def RunMng(cores=None, DAG:bool=True):
 
     print(f"--- Reading RunLog ...", end='')
     DF = read_RunLog()
-    DF_q = DF.loc[ ((DF['Start Status'] == 'Queued') & ((DF['End Status'].isna()) | (DF['End Status']=='Failed')))  |
-                   ((DF['Start Status'] == 'Re-queued'))] # _q for queued. Only Run Queued runs that aren't running or have finished.
+    DF_q = DF.loc[ ((DF['Start Status'] == 'Queued') & ((DF['End Status'].isna()) | (DF['End Status']=='Failed')))] # _q for queued. Only Run Queued runs that aren't running or have finished.
     print(' completed!\n')
 
     print('--- Running snakemake files:')
@@ -245,9 +249,9 @@ def reset_Sim(MdlN: str):
         3. Deletes Smk log files for MdlN.
         4. Deletes PoP folder for MdlN.
     """
-    
+
+    print(Pre_Sign)    
     permission = input(f"This will delete the Sim/{MdlN} folder and clear the corresponding line of the log.csv. Are you sure you want to proceed? (y/n): ").strip().lower()
-    print(f"{Pre_Sign}Resetting the simulation for {MdlN}.\n")
     
     if permission == 'y':
         d_Pa = get_MdlN_paths(MdlN) # Get default directories
@@ -276,7 +280,6 @@ def reset_Sim(MdlN: str):
                 print(f"🔴 - failed to update log file.")
             
             try:
-                print(Pa_Smk_temp)
                 for l in l_temp:
                     os.remove(PJ(Pa_Smk_temp, l))
                 print("🟢 - Smk log files deleted successfully.")
@@ -294,13 +297,13 @@ def reset_Sim(MdlN: str):
                 print(f"🔴 - failed to delete PoP Out folder.")
 
             if i==4:
-                print("\n🟢 - ALL files were successfully removed.")
+                print("\n🟢🟢🟢 - ALL files were successfully removed.")
             else:
-                print(f"🟡 - {i}/4 sub-processes finished successfully.")
+                print(f"🟡🟡🟡 - {i}/4 sub-processes finished successfully.")
         else:
-            print(f"🔴 - Items do not exist (Sim folder, log entry, Smk log files, PoP Out folder). No need to reset.")
+            print(f"🔴🔴🔴 - Items do not exist (Sim folder, log entry, Smk log files, PoP Out folder). No need to reset.")
     else:
-        print(f"🔴 - Reset cancelled by user (you).")
+        print(f"🔴🔴🔴 - Reset cancelled by user (you).")
     print(Sign)
 
 def get_elapsed_time_str(start_time: float) -> str:
