@@ -1,4 +1,5 @@
 # --- Imports ---
+# *** enable all #1 lines and disable/comment out all P_LST_Sim lines before re-runing ***
 
 from WS_Mdl.utils import Up_log, Pa_WS, INI_to_d, get_elapsed_time_str, get_MdlN_paths
 import WS_Mdl.utils as U
@@ -14,27 +15,32 @@ sys.stderr.reconfigure(encoding='utf-8')
 
 # --- Variables ---
 
+## Options
 MdlN        =   "NBr13"
 MdlN_B_RIV  =   'NBr1'     # Baseline for RIV files
-Mdl         =   ''.join([i for i in MdlN if i.isalpha()])
+Mdl         =   U.get_Mdl(MdlN)
+rules    =   "(L == 1)"
 
-Pa_Mdl            =   PJ(Pa_WS, f'models/{Mdl}') 
-workdir:                Pa_Mdl
-Pa_Smk            =   PJ(Pa_Mdl, 'code/snakemake')
-Pa_temp           =   PJ(Pa_Smk, 'temp')
-Pa_Sim            =   PJ(Pa_Mdl, 'Sim')
-Pa_MdlN           =   PJ(Pa_Sim, f'{MdlN}')
-Pa_BAT_RUN        =   PJ(Pa_MdlN, 'RUN.BAT')
+## Paths
+Pa_Mdl          =   PJ(Pa_WS, f'models/{Mdl}') 
+workdir:            Pa_Mdl
+Pa_Smk          =   PJ(Pa_Mdl, 'code/snakemake')
+Pa_temp         =   PJ(Pa_Smk, 'temp')
+Pa_Sim          =   PJ(Pa_Mdl, 'Sim')
+Pa_MdlN         =   PJ(Pa_Sim, f'{MdlN}')
+Pa_BAT_RUN      =   PJ(Pa_MdlN, 'RUN.BAT')
 Pa_OBS, Pa_NAM  =   [PJ(Pa_MdlN, 'GWF_1', i) for i in [f'MODELINPUT/{MdlN}.OBS', f'{MdlN}.NAM']]
 Pa_HED, Pa_CBC  =   [PJ(Pa_MdlN, 'GWF_1/MODELOUTPUT', i) for i in ['HEAD/HEAD.HED', 'BUDGET/BUDGET.CBC']]
-Pa_LST_Sim        =   PJ(Pa_MdlN, 'mfsim.lst')
+Pa_LST_Sim      =   PJ(Pa_MdlN, 'mfsim.lst')
 
+## Temp files (for completion validation)
 log_Init_done       =   f"{Pa_Smk}/temp/Log_init_done_{MdlN}"
 log_Sim_done        =   f"{Pa_Smk}/temp/Log_Sim_done_{MdlN}"
 log_PRJ_to_TIF_done =   f"{Pa_Smk}/temp/Log_PRJ_to_TIF_done_{MdlN}"
 log_GXG_done        =   f"{Pa_Smk}/temp/Log_GXG_done_{MdlN}"
 log_Up_MM_done      =   f"{Pa_Smk}/temp/Log_Up_MM_done_{MdlN}"
 
+## RIV Options
 Pa_RIV        = PJ(Pa_Mdl, 'In/RIV')
 Pa_RIV_MdlN   = PJ(Pa_RIV, f'{MdlN}')
 l_In_PrP_RIV    = [str(file) for file in pathlib.Path(Pa_RIV).glob("*.idf") if "RIV_Stg" in file.name and MdlN_B_RIV in file.name]
@@ -51,7 +57,7 @@ onerror: fail
 rule all: # Final rule
     input:
         Pa_LST_Sim,
-        #log_Sim_done,  # This should have been enabled based on NBr16+ Smk methodology, but I don't want to re-run the Sim
+        #1 log_Sim_done,  # This should have been enabled based on NBr16+ Smk methodology, but I don't want to re-run the Sim
         log_Up_MM_done
         
 ## -- PrP --
@@ -100,7 +106,7 @@ rule add_OBS:
         Pa_OBS
     run:
         UIM.add_OBS(MdlN, "BEGIN OPTIONS\n\tDIGITS 6\nEND OPTIONS")
-        # Up_log(MdlN, {  'Add OBS start DT': DT.now().strftime("%Y-%m-%d %H:%M:%S")})
+        #1 Up_log(MdlN, {  'Add OBS start DT': DT.now().strftime("%Y-%m-%d %H:%M:%S")})
 
 ## -- Sim ---
 rule Sim: # Runs the simulation via BAT file.
@@ -108,11 +114,14 @@ rule Sim: # Runs the simulation via BAT file.
         Pa_OBS
     output:
         Pa_LST_Sim
+        #1 log_Sim_done,  # This should have been enabled based on NBr16+ Smk methodology, but I don't want to re-run the Sim
+
     run:
         os.chdir(Pa_MdlN) # Change directory to the model folder.
         DT_Sim_Start = DT.now()
         Up_log(MdlN, {  'Sim start DT': DT_Sim_Start.strftime("%Y-%m-%d %H:%M:%S")})
         shell(Pa_BAT_RUN)
+        #1 pathlib.Path(output[0]).touch() 
         Up_log(MdlN, {  'Sim end DT':   DT.now().strftime("%Y-%m-%d %H:%M:%S"),
                         'Sim Dur':      get_elapsed_time_str(DT_Sim_Start),
                         'End Status':   'Completed'})
@@ -121,6 +130,7 @@ rule Sim: # Runs the simulation via BAT file.
 rule PRJ_to_TIF:
     input:
         Pa_LST_Sim
+        #1 log_Sim_done,  # This should have been enabled based on NBr16+ Smk methodology, but I don't want to re-run the Sim
     output:
         temp(log_PRJ_to_TIF_done)
     run:
@@ -130,6 +140,7 @@ rule PRJ_to_TIF:
 rule GXG:
     input:
         Pa_LST_Sim
+        #1 log_Sim_done,  # This should have been enabled based on NBr16+ Smk methodology, but I don't want to re-run the Sim
     output:
         temp(log_GXG_done)
     run:
@@ -142,7 +153,7 @@ rule Up_MM:
         log_GXG_done
     output:
         log_Up_MM_done
-    rule:
+    run:
         G.Up_MM(MdlN)                   # Update MM 
         Up_log(MdlN, {  'PoP end DT':   DT.now().strftime("%Y-%m-%d %H:%M:%S"),
                         'End Status':   'PoPed'}) # Update log

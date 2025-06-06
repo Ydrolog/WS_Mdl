@@ -322,7 +322,7 @@ def PRJ_to_TIF(MdlN):
     print(Sign)
 
 # HD_IDF speciic PoP (could be extended/generalized at a later stage) --------------------------------------------------------------
-def HD_IDF_Mo_Avg_to_MBTIF(MdlN: str, N_cores:int=None, crs:str=crs, DF_rules:str=None):
+def HD_IDF_Mo_Avg_to_MBTIF(MdlN: str, N_cores:int=None, crs:str=crs, rules:str=None):
     """Reads Sim Out IDF files from the model directory and calculates Mo Avg for each L. Saves them as MultiBand TIF files - each band representing the Mo Avg HD for each L."""
     print(Pre_Sign)
     print(f"*** {MdlN} *** - HD_IDF_Mo_Avg_to_MBTIF")
@@ -333,8 +333,8 @@ def HD_IDF_Mo_Avg_to_MBTIF(MdlN: str, N_cores:int=None, crs:str=crs, DF_rules:st
 
     # Read the IDF files to a DataFrame. Apply rules. Group.
     DF = U.HD_Out_IDF_to_DF(Pa_HD)
-    if DF_rules is not None:
-        DF = DF.query(DF_rules)
+    if rules is not None:
+        DF = DF.query(rules)
     DF_grouped = DF.groupby(['year', 'month'])['path']
 
     Pa_Mo_AVG_Fo = PJ(Pa_PoP, f'Out/{MdlN}/HD_Mo_AVG') # path where Mo AVG files are stored
@@ -366,7 +366,7 @@ def _HD_IDF_Mo_Avg_to_MBTIF_process_Mo(year, month, paths, MdlN, Pa_Mo_AVG_Fo, P
     DA_to_MBTIF(XA_mean, Pa_Out, d_MtDt, crs=crs, _print=False)
     return f"*** {MdlN} *** - {year}-{month:02d} 🟢 "
 
-def HD_IDF_GXG_to_TIF(MdlN: str, N_cores:int=None, crs:str=crs, DF_rules:str=None):
+def HD_IDF_GXG_to_TIF(MdlN: str, N_cores:int=None, crs:str=crs, rules:str=None):
     """Reads Sim Out IDF files from the model directory and calculates GXG for each L. Saves them as MultiBand TIF files - each band representing one of the GXG params for a L."""
 
     print(Pre_Sign)
@@ -376,10 +376,10 @@ def HD_IDF_GXG_to_TIF(MdlN: str, N_cores:int=None, crs:str=crs, DF_rules:str=Non
     d_Pa = U.get_MdlN_paths(MdlN)
     Pa_PoP, Pa_HD = [ d_Pa[v] for v in ['Pa_PoP', 'Pa_Out_HD'] ]
 
-    # Apply rules to DF if DF_rules is not None.
+    # Apply rules to DF if rules is not None.
     DF = U.HD_Out_IDF_to_DF(Pa_HD)
-    if DF_rules is not None:
-        DF = DF.query(DF_rules)
+    if rules is not None:
+        DF = DF.query(rules)
 
     if N_cores is None:
         N_cores = max(os.cpu_count() - 2, 1)

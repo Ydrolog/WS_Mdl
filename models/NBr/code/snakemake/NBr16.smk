@@ -1,4 +1,5 @@
 # --- Imports ---
+
 from WS_Mdl.utils import Up_log, Pa_WS, INI_to_d, get_elapsed_time_str, get_MdlN_paths
 import WS_Mdl.utils as U
 import WS_Mdl.utils_imod as UIM
@@ -20,26 +21,26 @@ MdlN        =   "NBr16"
 MdlN_B      =   'Nbr15'
 MdlN_MM_B   =   'NBr12'
 Mdl         =   ''.join([i for i in MdlN if i.isalpha()])
-DF_rules    =   "(L == 1)"
+rules    =   "(L == 1)"
 
 ## Paths
-Pa_Mdl                        =   os.path.join(Pa_WS, f'models/{Mdl}') 
-workdir:                            Pa_Mdl
-Pa_Smk                        =   os.path.join(Pa_Mdl, 'code/snakemake')
-Pa_temp                       =   os.path.join(Pa_Smk, 'temp')
-Pa_Sim                        =   os.path.join(Pa_Mdl, 'Sim')
-Pa_MdlN                       =   os.path.join(Pa_Sim, f'{MdlN}')
-Pa_BAT_RUN                    =   os.path.join(Pa_MdlN, 'RUN.BAT')
-Pa_OBS, Pa_NAM, Pa_SFR    =   [os.path.join(Pa_MdlN, 'GWF_1', i) for i in [f'MODELINPUT/{MdlN}.OBS6', f'{MdlN}.NAM', f'MODELINPUT/{MdlN}.SFR6']]
-Pa_SFR_B                      =   Pa_SFR.replace(MdlN, MdlN_B)
-Pa_HED, Pa_CBC              =   [os.path.join(Pa_MdlN, 'GWF_1/MODELOUTPUT', i) for i in ['HEAD/HEAD.HED', 'BUDGET/BUDGET.CBC']]
+Pa_Mdl                  =   os.path.join(Pa_WS, f'models/{Mdl}') 
+workdir:                    Pa_Mdl
+Pa_Smk                  =   os.path.join(Pa_Mdl, 'code/snakemake')
+Pa_temp                 =   os.path.join(Pa_Smk, 'temp')
+Pa_Sim                  =   os.path.join(Pa_Mdl, 'Sim')
+Pa_MdlN                 =   os.path.join(Pa_Sim, f'{MdlN}')
+Pa_BAT_RUN              =   os.path.join(Pa_MdlN, 'RUN.BAT')
+Pa_OBS, Pa_NAM, Pa_SFR  =   [os.path.join(Pa_MdlN, 'GWF_1', i) for i in [f'MODELINPUT/{MdlN}.OBS6', f'{MdlN}.NAM', f'MODELINPUT/{MdlN}.SFR6']]
+Pa_SFR_B                =   Pa_SFR.replace(MdlN, MdlN_B)
+Pa_HED, Pa_CBC          =   [os.path.join(Pa_MdlN, 'GWF_1/MODELOUTPUT', i) for i in ['HEAD/HEAD.HED', 'BUDGET/BUDGET.CBC']]
 
 ## Temp files (for completion validation)
-log_Init_done       =   f"{Pa_Smk}/temp/Log_init_done_{MdlN}"
-log_Sim_done        =   f"{Pa_Smk}/temp/Log_Sim_done_{MdlN}"
-log_PRJ_to_TIF_done =   f"{Pa_Smk}/temp/Log_PRJ_to_TIF_done_{MdlN}"
-log_GXG_done        =   f"{Pa_Smk}/temp/Log_GXG_done_{MdlN}"
-log_Up_MM_done      =   f"{Pa_Smk}/temp/Log_Up_MM_done_{MdlN}"
+log_Init_done           =   f"{Pa_Smk}/temp/Log_init_done_{MdlN}"
+log_Sim_done            =   f"{Pa_Smk}/temp/Log_Sim_done_{MdlN}"
+log_PRJ_to_TIF_done     =   f"{Pa_Smk}/temp/Log_PRJ_to_TIF_done_{MdlN}"
+log_GXG_done            =   f"{Pa_Smk}/temp/Log_GXG_done_{MdlN}"
+log_Up_MM_done          =   f"{Pa_Smk}/temp/Log_Up_MM_done_{MdlN}"
 
 
 # --- Rules ---
@@ -139,7 +140,7 @@ rule GXG:
     output:
         temp(log_GXG_done)
     run:
-        G.HD_IDF_GXG_to_TIF(MdlN, DF_rules=DF_rules)
+        G.HD_IDF_GXG_to_TIF(MdlN, rules=rules)
         pathlib.Path(output[0]).touch() # Create the file to mark the rule as done.
 
 rule Up_MM:
@@ -153,17 +154,6 @@ rule Up_MM:
         Up_log(MdlN, {  'PoP end DT':   DT.now().strftime("%Y-%m-%d %H:%M:%S"),
                         'End Status':   'PoPed'}) # Update log
         pathlib.Path(output[0]).touch()     # Create the file to mark the rule as done.
-
-
-# rule fail: # Runs only if the Sim has failed, to update the log.
-#     input:
-#         Pa_LST_Sim
-#     output:
-#         temp(Pa_fail) # need to add this to ruleall
-#     run:
-#         Up_log(MdlN, {  'Sim end DT': DT.now().strftime("%Y-%m-%d %H:%M:%S"),
-#                         'End Status': 'Failed'})
-#         raise Exception("Simulation failed.")
 
 
 # --- Junkyard ---
