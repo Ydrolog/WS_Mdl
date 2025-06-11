@@ -45,7 +45,7 @@ log_Up_MM_done          =   f"{Pa_Smk}/temp/Log_Up_MM_done_{MdlN}"
 
 # --- Rules ---
 
-def fail(job, excecution):
+def fail(job, excecution): # Gets activated if any rule fails.
     Up_log(MdlN, {  'Sim end DT': DT.now().strftime("%Y-%m-%d %H:%M:%S"),
                     'End Status': 'Failed'})
 onerror: fail

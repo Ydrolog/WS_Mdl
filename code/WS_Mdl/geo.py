@@ -322,49 +322,137 @@ def PRJ_to_TIF(MdlN):
     print(Sign)
 
 # HD_IDF speciic PoP (could be extended/generalized at a later stage) --------------------------------------------------------------
-def HD_IDF_Mo_Avg_to_MBTIF(MdlN: str, N_cores:int=None, crs:str=crs, rules:str=None):
-    """Reads Sim Out IDF files from the model directory and calculates Mo Avg for each L. Saves them as MultiBand TIF files - each band representing the Mo Avg HD for each L."""
-    print(Pre_Sign)
-    print(f"*** {MdlN} *** - HD_IDF_Mo_Avg_to_MBTIF")
+def HD_IDF_Agg_to_TIF(MdlN:str, rules=None, N_cores:int = None, crs:str = crs, Gp: list[str] = ['year', 'month'], Agg_F: str = 'mean'):
+    """
+    General wrapper to:
+      1) read all IDF metadata into a DataFrame,
+      2) filter by `rules`,
+      3) add any needed Gp columns (season, Hy_year, quarter),
+      4) group by `Gp`,
+      5) for each group, apply `agg_func` along time and write a single‐band TIFF.
 
-    # Get paths
+    Parameters
+    ----------
+    MdlN : str
+        Model name (e.g. 'NBr13').
+    rules : None or str
+        A pandas-query string to subset/filter the IDF-DF before Gp (e.g. "(L == 1)").
+    N_cores : int or None
+        Number of worker processes for parallel execution. By default: None → use (cpu_count() - 2).
+    crs : str
+        Coordinate reference system for the output TIFs. By default: G.crs.
+    Gp : list of str
+        Which DataFrame columns to group by. Common examples:
+        - ['year','month']        → monthly aggregates
+        - ['season_year','season']→ seasonal aggregates
+        - ['Hy_year']             → hydrological‐year aggregates
+        - ['year','quarter']      → quarterly aggregates
+    agg_func : str
+        Name of the aggregation method to call on the xarray.DataArray (e.g. 'mean','min','max','median').
+        This must exactly match a DataArray method (e.g. XA.mean(dim='time')).
+    """
+    print(Pre_Sign)
+    print(f"*** {MdlN} *** - HD_IDF_Agg_to_TIF\n")
+
+    # 1. Get paths
     d_Pa = U.get_MdlN_paths(MdlN)
     Pa_PoP, Pa_HD = [ d_Pa[v] for v in ['Pa_PoP', 'Pa_Out_HD'] ]
 
-    # Read the IDF files to a DataFrame. Apply rules. Group.
+    # 2. Read the IDF files to DF. Add extracols. Apply rules. Group.
     DF = U.HD_Out_IDF_to_DF(Pa_HD)
-    if rules is not None:
+    if rules:
         DF = DF.query(rules)
-    DF_grouped = DF.groupby(['year', 'month'])['path']
-
-    Pa_Mo_AVG_Fo = PJ(Pa_PoP, f'Out/{MdlN}/HD_Mo_AVG') # path where Mo AVG files are stored
-    MDs(Pa_Mo_AVG_Fo, exist_ok=True) # Create the directory if it doesn't exist
-
+    DF_Gp = DF.groupby(Gp)['path']
+    
+    # 3. Prep Out Dir
+    Pa_Out_Dir  = PJ(Pa_PoP, f'Out/{MdlN}/HD_Agg')
+    os.makedirs(Pa_Out_Dir, exist_ok=True)
+    
+    # 4. Decide N of cores
     if N_cores is None:
-        N_cores = max(os.cpu_count() - 2, 1) # Leave 2 cores free for other tasks. If there aren't enough cores available, set to 1.
+        N_cores = max(os.cpu_count() - 2, 1)
+    
+    # 5. Launch one job per group
+    start = DT.now()
+    with PPE(max_workers=N_cores) as exe:
+        futures = []
+        for Gp_keys, paths in DF_Gp:
+            group_name = HD_Agg_name(Gp_keys, Gp) # user‐defined helper to turn keys → a nice string, e.g. "2010_1" or "2020_Winter"
 
-    start = DT.now() # Start time
-    with PPE(max_workers=N_cores) as E:
-        futures = [E.submit(_HD_IDF_Mo_Avg_to_MBTIF_process_Mo, year, month, list(paths), MdlN, Pa_Mo_AVG_Fo, Pa_HD, crs)
-                   for (year, month), paths in DF_grouped]
-        for f in futures:
-            print('\t', f.result(), '- Elapsed time (from start):', DT.now() - start)
+            # we’ll write one single‐band GeoTiff per group
+            Pa_Out = PJ(Pa_Out_Dir, f"HD_{group_name}_{MdlN}.tif")
 
-    print('*** {MdlN} *** - Total elapsed:', DT.now() - start)
+            params = {'MdlN': str(MdlN), 'N_cores': str(N_cores), 'crs': str(crs), 'rules': str(rules)}
+
+            futures.append(exe.submit(_HD_IDF_Agg_to_TIF_process,
+                                    paths=list(paths),
+                                    Agg_F=Agg_F,
+                                    Pa_Out=Pa_Out,
+                                    crs=crs,
+                                    params=params))
+
+        for f in futures: # wait & report
+            print('\t', f.result(), 'elapsed:', DT.now() - start)
+
+    print(f"🟢🟢🟢 | Total elapsed time: {DT.now() - start}")
     print(Sign)
 
-def _HD_IDF_Mo_Avg_to_MBTIF_process_Mo(year, month, paths, MdlN, Pa_Mo_AVG_Fo, Pa_HD, crs):
-    """Only for use within HD_IDF_Mo_Avg_to_MBTIF - to utilize multiprocessing."""
-    XA = imod.formats.idf.open(list(paths)) # Read the files to an Xarray
-    XA_mean = XA.mean(dim='time') # Calculate monthly mean
+def _HD_IDF_Agg_to_TIF_process(paths, Agg_F, Pa_Out, crs, params):
+    """
+    Only for use within HD_IDF_Mo_Avg_to_MBTIF - to utilize multiprocessing.
+    Reads IDFs, aggregates along time, writes each layer as a single-band TIF.
+    """
+    XA     = imod.formats.idf.open(paths)
+    XA_agg = getattr(XA, Agg_F)(dim='time')
+    base   = Pa_Out[:-4]  # strip “.tif”
+    for layer in XA_agg.layer.values:
+        DA     = XA_agg.sel(layer=layer).drop_vars('layer')
+        Out    = f"{base}_L{layer}.tif"
+        d_MtDt = {f'{Agg_F}':  {'AVG'          :   float(DA.mean().values),
+                                'coordinates'   :   XA.coords,
+                                'variable'      :   os.path.splitext(PBN(Pa_Out))[0],
+                                'details'       :   f'Calculated using WS_Mdl.geo.py using the following params: {params}'}}
 
-    Pa_Out = PJ(Pa_Mo_AVG_Fo, f'HD_AVG_{year}{month:02d}_{MdlN}.tif') # Create the output path
+        DA_to_TIF(DA, Out, d_MtDt, crs=crs)
+    return f"{os.path.basename(base)} 🟢 "
 
-    d_MtDt = {str(L): {'layer': L} for L in XA.coords['layer'].values}
-    d_MtDt['all'] = {'parameters': XA.coords,
-                     'Description': f'Monthly mean GW heads per layer for {year}-{month:02d}, produced by aggregating {MdlN} output IDF files. Output IDF files are in {Pa_HD}.'}
-    DA_to_MBTIF(XA_mean, Pa_Out, d_MtDt, crs=crs, _print=False)
-    return f"*** {MdlN} *** - {year}-{month:02d} 🟢 "
+def HD_Agg_name(group_keys, grouping): #666 could be moved to util
+    if not isinstance(group_keys, (tuple, list)):
+        group_keys = (group_keys,)
+
+    if grouping == ['year', 'month']:           # year & month → "YYYYMM"
+        year, month = group_keys
+        return f"{year}{month:02d}"
+
+    if grouping == ['month']:                   # month alone → "MM"
+        (month,) = group_keys
+        return f"{month:02d}"
+
+    if grouping == ['year']:                    # year alone → "YYYY"
+        (year,) = group_keys
+        return str(year)
+
+    if grouping == ['season_year', 'season']:   # season_year & season → "YYYY_Season"
+        season_year, season = group_keys
+        return f"{season_year}_{season}"
+
+    if grouping == ['season']:                  # season alone → "Season"
+        (season,) = group_keys
+        return season
+
+    if grouping == ['water_year']:              # water_year → "WYYY"
+        (wy,) = group_keys
+        return f"WY{wy}"
+
+    if grouping == ['year', 'quarter']:         # year & quarter → "YYYY_Q#"
+        year, quarter = group_keys
+        return f"{year}_{quarter}"
+
+    if grouping == ['quarter']:                 # quarter alone → "Q#"
+        (quarter,) = group_keys
+        return quarter
+
+    return "_".join(str(k) for k in group_keys) # fallback: join all keys with underscore
 
 def HD_IDF_GXG_to_TIF(MdlN: str, N_cores:int=None, crs:str=crs, rules:str=None):
     """Reads Sim Out IDF files from the model directory and calculates GXG for each L. Saves them as MultiBand TIF files - each band representing one of the GXG params for a L."""
@@ -376,7 +464,7 @@ def HD_IDF_GXG_to_TIF(MdlN: str, N_cores:int=None, crs:str=crs, rules:str=None):
     d_Pa = U.get_MdlN_paths(MdlN)
     Pa_PoP, Pa_HD = [ d_Pa[v] for v in ['Pa_PoP', 'Pa_Out_HD'] ]
 
-    # Apply rules to DF if rules is not None.
+    # Read DF and apply rules to DF if rules is not None.
     DF = U.HD_Out_IDF_to_DF(Pa_HD)
     if rules is not None:
         DF = DF.query(rules)
@@ -391,7 +479,8 @@ def HD_IDF_GXG_to_TIF(MdlN: str, N_cores:int=None, crs:str=crs, rules:str=None):
         for f in futures:
             print('\t', f.result(), '- Elapsed time (from start):', DT.now() - start)
 
-    print('Total elapsed:', DT.now() - start)
+    print('🟢🟢🟢 - Total elapsed:', DT.now() - start)
+    print(Sign)
 
 def _HD_IDF_GXG_to_TIF_per_L(DF, L, MdlN, Pa_PoP, Pa_HD, crs):
     """Only for use within HD_IDF_GXG_to_TIF - to utilize multiprocessing."""
@@ -498,7 +587,7 @@ def Up_MM(MdlN, MdlN_MM_B=None):
                 zipf.write(filepath, arcname)
 
     sh.rmtree(Pa_temp)  # Remove the temporary folder
-    print(f"\n🟢🟢🟢 MM for {MdlN} has been updated.")
+    print(f"\n🟢🟢🟢 | MM for {MdlN} has been updated.")
     print(Sign)
 # ----------------------------------------------------------------------------------------------------------------------------------
 
