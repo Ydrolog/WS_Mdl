@@ -24,6 +24,17 @@ import sys
 crs = "EPSG:28992"
 
 # TIF ------------------------------------------------------------------------------------------------------------------------------
+def DA_stats(DA, verbose:bool=False):
+    d_stats =  {'mean'      :   DA.mean().values,
+                'sum'       :   DA.sum().values,
+                'max'       :   DA.max().values,
+                'min'       :   DA.min().values,
+                'std'       :   DA.std().values}
+    if verbose:
+        print(d_stats)
+
+    return d_stats
+
 def IDF_to_TIF(Pa_IDF: str, Pa_TIF: Optional[str] = None, MtDt: Optional[Dict] = None, crs=crs):
     """ Converts IDF file to TIF file.
         If Pa_TIF is not provided, it'll be the same as Pa_IDF, except for the file type ending.
@@ -370,11 +381,11 @@ def HD_IDF_Agg_to_TIF(MdlN:str, rules=None, N_cores:int = None, crs:str = crs, G
     
     # 4. Decide N of cores
     if N_cores is None:
-        N_cores = max(os.cpu_count() - 2, 1)
+        N_cores = max(os.cpu_count() - 2, 1)    # Leave 2 cores free for other tasks by default. If there aren't enough cores available, set to 1.
     
     # 5. Launch one job per group
     start = DT.now()
-    with PPE(max_workers=N_cores) as exe:
+    with PPE(max_workers=N_cores) as E:
         futures = []
         for Gp_keys, paths in DF_Gp:
             group_name = HD_Agg_name(Gp_keys, Gp) # user‐defined helper to turn keys → a nice string, e.g. "2010_1" or "2020_Winter"
@@ -384,7 +395,7 @@ def HD_IDF_Agg_to_TIF(MdlN:str, rules=None, N_cores:int = None, crs:str = crs, G
 
             params = {'MdlN': str(MdlN), 'N_cores': str(N_cores), 'crs': str(crs), 'rules': str(rules)}
 
-            futures.append(exe.submit(_HD_IDF_Agg_to_TIF_process,
+            futures.append(E.submit(_HD_IDF_Agg_to_TIF_process,
                                     paths=list(paths),
                                     Agg_F=Agg_F,
                                     Pa_Out=Pa_Out,
@@ -479,7 +490,7 @@ def HD_IDF_GXG_to_TIF(MdlN: str, N_cores:int=None, crs:str=crs, rules:str=None):
         for f in futures:
             print('\t', f.result(), '- Elapsed time (from start):', DT.now() - start)
 
-    print('🟢🟢🟢 - Total elapsed:', DT.now() - start)
+    print('🟢🟢🟢 | Total elapsed:', DT.now() - start)
     print(Sign)
 
 def _HD_IDF_GXG_to_TIF_per_L(DF, L, MdlN, Pa_PoP, Pa_HD, crs):

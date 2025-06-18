@@ -18,11 +18,11 @@ DEFAULT_STEPS        = [1000.0, 100.0, 50.0, 20.0, 10.0, 5.0, 2.0, 1.0, 0.5, 0.2
 # ─────────────────────────────────────────────────────────────────────────────
 # (B) Helper functions using the parameters where needed.
 
-def choose_classification(raw_min, raw_max, steps, class_counts):
+def choose_classification(raw_min, raw_max, steps, N_class):
     raw_range = raw_max - raw_min
     best = None  # will hold (padding, –step, N, new_min, new_max)
     for step in steps:
-        for N in class_counts:
+        for N in N_class:
             total_span = N * step
             if total_span < raw_range:
                 continue
@@ -46,7 +46,7 @@ def choose_classification(raw_min, raw_max, steps, class_counts):
     if best is None:
         # fallback (very large raw_range)
         step = 1.0
-        N = max(class_counts)
+        N = max(N_class)
         new_min = math.floor(raw_min)
         new_max = new_min + N * step
         return step, N, new_min, new_max
@@ -77,20 +77,20 @@ def build_items_no_endcaps(color_ramp, step, N, new_min):
 
 # ─────────────────────────────────────────────────────────────────────────────
 # (C) The main reclassification function. It takes optional arguments; if the caller omits them, we use the DEFAULT_*..
-def nice_steps(palette_name = None, class_counts = None, step_sizes   = None):
+def nice_steps(Ptt = None, N_class = None, step_sizes   = None):
     """
     Reclassify all currently selected single-band rasters in the Layers panel,
     using:
-      • class_counts:   a list of integer class counts (e.g. [8,9,…,15]) → pick best.
-      • palette_name:   name of a color ramp in the default style (e.g. "Spectral").
+      • N_class:   a list of integer class counts (e.g. [8,9,…,15]) → pick best.
+      • Ptt:   name of a color ramp in the default style (e.g. "Spectral").
       • step_sizes:     list of allowed step sizes (e.g. [2,1,0.5,…]).
     Any argument left as None will fall back to its DEFAULT_* counterpart.
     """
     # Use defaults if the user didn’t supply anything:
-    if class_counts is None:
-        class_counts = DEFAULT_CLASS_COUNTS
-    if palette_name is None:
-        palette_name = DEFAULT_PALETTE
+    if N_class is None:
+        N_class = DEFAULT_CLASS_COUNTS
+    if Ptt is None:
+        Ptt = DEFAULT_PALETTE
     if step_sizes is None:
         step_sizes = DEFAULT_STEPS
 
@@ -104,8 +104,8 @@ def nice_steps(palette_name = None, class_counts = None, step_sizes   = None):
     style = QgsStyle().defaultStyle()
 
     # If the user asked for “Spectral_r”, strip the “_r” and mark it inverted:
-    if palette_name.endswith("_r"):
-        base_name = palette_name[:-2]  # “Spectral”
+    if Ptt.endswith("_r"):
+        base_name = Ptt[:-2]  # “Spectral”
         if style.colorRamp(base_name) is None:
             # fallback if even “Spectral” isn’t found
             base_name = style.colorRampNames()[0]
@@ -113,9 +113,9 @@ def nice_steps(palette_name = None, class_counts = None, step_sizes   = None):
         color_ramp.invert()
     else:
         # Otherwise just grab the named ramp normally
-        if style.colorRamp(palette_name) is None:
-            palette_name = style.colorRampNames()[0]
-        color_ramp = style.colorRamp(palette_name)
+        if style.colorRamp(Ptt) is None:
+            Ptt = style.colorRampNames()[0]
+        color_ramp = style.colorRamp(Ptt)
 
     for layer in selected_layers:
         if layer.type() != layer.RasterLayer:
@@ -129,7 +129,7 @@ def nice_steps(palette_name = None, class_counts = None, step_sizes   = None):
             continue
 
         # 1) Choose the best (step, N, new_min, new_max) from our lists:
-        step, num_classes, new_min, new_max = choose_classification(raw_min, raw_max, step_sizes, class_counts)
+        step, num_classes, new_min, new_max = choose_classification(raw_min, raw_max, step_sizes, N_class)
 
         # 2) Build a discrete pseudocolor shader with exactly N intervals:
         shader = QgsColorRampShader()
@@ -168,17 +168,17 @@ def nice_steps(palette_name = None, class_counts = None, step_sizes   = None):
 #      reclassify_selected_layers()
 #
 #  • Force exactly 7 classes (ignore the 8–15 range):
-#      reclassify_selected_layers(class_counts=[7])
+#      reclassify_selected_layers(N_class=[7])
 #
 #  • Use a “Blues” ramp instead of “Spectral”:
-#      reclassify_selected_layers(palette_name="Blues")
+#      reclassify_selected_layers(Ptt="Blues")
 #
 #  • Use only 5, 10, or 15 classes (so it picks whichever of those best fits):
-#      reclassify_selected_layers(class_counts=[5, 10, 15])
+#      reclassify_selected_layers(N_class=[5, 10, 15])
 #
 #  • Try only coarse steps 10, 20, 50 (and force 8–12 classes):
 #      reclassify_selected_layers(
-#          class_counts=list(range(8, 13)),
+#          N_class=list(range(8, 13)),
 #          step_sizes=[50.0, 20.0, 10.0]
 #      )
 # ─────────────────────────────────────────────────────────────────────────────

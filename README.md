@@ -47,24 +47,6 @@ All model sub-folders contain the same folder structure for consistency. Files i
 
 ---
 
-# Python Env installation guide
-Follow the steps below, to install the WS python Env. Then use it whenever you want to run any command related to this project. This way all dependencies will be satisfied.
-1. Each Env version is linked to a MdlN (more about MdlNs in the RunLog (./Mng/WS_RunLog.xlsx). Replace <MdlN> below with the Env version you want to install. Differences between versions are miniscule, but it's advised to stick to the Env version that corresponds to your Sim. Not all Sims have a unique Env, because it's not always necessary to make amendments to the previous Env. In this case use the latest Env before the Sim you want to execute.<br>
-mamba env create -f Env_<MdlN>.yml
-
-2. Install this project's python library. this asumes that you've made a symbolic link, as described above. Otherwise replace the path.<br>
-pip install -e C:\OD\WS_Mdl\code (or pip install -e C:\OD\WS_Mdl\code --use-pep517)
-
----
-
-## Terminal tools
-
-There is a list of terminal tools that facilitate common tasks for this project. Those are listed in C:/OD/WS_Mdl/code/setup.py, with a brief description.<br>
-To add another terminal command, you need to add it to the setup file (similar to the other commands), and make a script. Then you need to run step 2 from the python Env installation guide above.<br>
-It's also possible to run python function from C:\OD\WS_Mdl\code\WS_Mdl\WS_Mdl.py via "WS_Mdl <function> <arg1> <arg2> ...".
-
----
-
 # Guide to install SW for this project
 (optional software starts with "Opt:", the rest is mandatory)
 
@@ -74,10 +56,23 @@ mklink /D C:\OD "C:\Users\<User>\OneDrive - Universiteit Utrecht"
 
 1. Opt:	Double Commander
 cd "C:\Users\mkarampasi\OneDrive - Universiteit Utrecht\Software\InstalledOutsideSoftwareCenter"
-.\doublecmd-1.1.22.x86_64-win64.exe
+.\doublecmd-1.1.22.x86_64-win64.exe <br>
 Opt: replace files in C:\Users\<User>\AppData\Roaming\doublecmd\ with files in C:\OD\Software\Settings\Double Commander\ (might need to enable view Hidden files)
 
 2. Python Env (with snakmake)
-TO BE WRITTEN
+Install the python env necessary for this project following this guide:
+./code/Env/how_to_make_Env.txt
+(C:\OD\WS_Mdl\code\Env\How_to_make_env.txt)
 
-... and more ... (to be completed)
+(3. Opt: PS7 - #666 I should make a guide later)
+
+(4. Opt: QGIS - #666 I should make a guide later. This is only needed on the PC used to review outputs) 
+---
+
+## Terminal tools
+
+There is a list of terminal tools that facilitate common tasks for this project. Those are listed in C:/OD/WS_Mdl/code/setup.py, with a brief description.<br>
+To add another terminal command, you need to add it to the setup file (similar to the other commands), and make a script. Then you need to run step 2 from the python Env installation guide above.<br>
+It's also possible to run python function from C:\OD\WS_Mdl\code\WS_Mdl\WS_Mdl.py via "WS_Mdl <function> <arg1> <arg2> ...".
+
+---

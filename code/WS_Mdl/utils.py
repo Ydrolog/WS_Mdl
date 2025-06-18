@@ -112,8 +112,11 @@ def INI_to_d(Pa_INI:str) -> dict:
     return d_INI
 
 def Mdl_Dmns_from_INI(Pa_INI): # 666 Can be improved. It should take a MdlN instead of a path. Makes things easier.
-    """Returns model dimension parameters. Common use:
-    Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = WS.Mdl_Dmns_from_INI(path)"""
+    """
+    Returns model dimension parameters. Common use:
+    import WS_Mdl.utils as U
+    Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = U.Mdl_Dmns_from_INI(path)
+    """
     d_INI = INI_to_d(Pa_INI)
     Xmin, Ymin, Xmax, Ymax = [float(i) for i in d_INI['WINDOW'].split(',')]
     cellsize = float(d_INI['CELLSIZE'])
@@ -169,6 +172,58 @@ def HD_Out_IDF_to_DF(path, add_extra_cols: bool = True): #666 can make it save D
     # DF.to_csv(PJ(path, 'contents.csv'), index=False)
     
     return DF
+# ----------------------------------------------------------------------------------------------------------------------------------
+
+# Formatting -----------------------------------------------------------------------------------------------------------------------
+def DF_to_MF_block(DF, Min_width=4, indent='    ', Max_decimals=4):
+    DF = DF.rename(columns={ DF.columns[0] : '#'+DF.columns[0] }) # comment out header, so that MF6 doesn't read it.
+    DF_str = DF.copy().astype(str)
+
+    # Detect columns with floats or decimals
+    decimal_cols = []
+    for col in DF_str.columns:
+        # Try converting to float, if success and decimals exist, mark column
+        try:
+            floats = DF_str[col].astype(float)
+            # Check if any value has decimals
+            if any(floats % 1 != 0):
+                decimal_cols.append(col)
+        except Exception:
+            continue
+
+    # Determine max decimals per decimal column
+    max_decimals = {}
+    for col in decimal_cols:
+        floats = DF_str[col].astype(float)
+        # Count decimals per value
+        decimals_count = [len(str(f).split('.')[-1]) if '.' in str(f) else 0 for f in DF_str[col]]
+        max_decimals[col] = min(max(decimals_count), Max_decimals)
+
+    # Format decimal columns with fixed decimals, pad zeros
+    for col in decimal_cols:
+        decimals = max_decimals[col]
+        DF_str[col] = DF_str[col].astype(float).map(lambda x: f"{x:.{decimals}f}")
+
+    # Convert all columns to strings after formatting decimals
+    DF_str = DF_str.astype(str)
+
+    # Compute width per column: max(header length, max value length, Min_width)
+    widths = {}
+    for col in DF_str.columns:
+        max_val_len = DF_str[col].map(len).max()
+        widths[col] = max(len(col), max_val_len, Min_width)
+
+    # Prepare header line (right aligned)
+    header_line = indent + ' '.join(col.rjust(widths[col]) for col in DF_str.columns)
+
+    lines = [header_line]
+
+    # Prepare data lines (right aligned)
+    for _, row in DF_str.iterrows():
+        line = indent + ' '.join(row[col].rjust(widths[col]) for col in DF_str.columns)
+        lines.append(line)
+
+    return '\n'.join(lines) + '\n'
 # ----------------------------------------------------------------------------------------------------------------------------------
 
 # Sim Prep + Run -------------------------------------------------------------------------------------------------------------------
