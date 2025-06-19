@@ -542,7 +542,7 @@ def Up_MM(MdlN, MdlN_MM_B=None):
         Pa_QGZ_B = Pa_QGZ_B.replace(d_Pa['MdlN_B'], MdlN_MM_B)
 
     MDs(PBN(Pa_QGZ), exist_ok=True)      # Ensure destination folder exists
-    sh.copy(Pa_QGZ_B, Pa_QGZ)                               # Copy the QGIS file
+    sh.copy(Pa_QGZ_B, Pa_QGZ)            # Copy the QGIS file
     print(f"Copied QGIS project from {Pa_QGZ_B} to {Pa_QGZ}.\nUpdating layer path ...")
 
     Pa_temp = PJ(PDN(Pa_QGZ), 'temp') # Path to temporarily extract QGZ contents
@@ -551,11 +551,12 @@ def Up_MM(MdlN, MdlN_MM_B=None):
     with ZF.ZipFile(Pa_QGZ_B, 'r') as zip_ref:     # Unzip .qgz
         zip_ref.extractall(Pa_temp)
 
-    Pa_QGS = PJ(Pa_temp, PBN(Pa_QGZ_B).replace('.qgz', '.qgs'))
+    Pa_QGS = PJ(Pa_temp, os.listdir(Pa_temp)[0])  # Path to the unzipped QGIS project file. This used to be: Pa_QGS = PJ(Pa_temp, PBN(Pa_QGZ).replace('.qgz', '.qgs')), but the extracted file name may vary.
     tree = ET.parse(Pa_QGS)
     root = tree.getroot()
 
-    for i, DS in enumerate(root.iter('datasource')):                  # Update datasource paths
+    # Update datasource paths
+    for i, DS in enumerate(root.iter('datasource')):                  
         DS_text = DS.text
         # print(i, DS_text)
         
