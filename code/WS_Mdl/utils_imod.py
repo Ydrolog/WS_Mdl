@@ -14,7 +14,7 @@ import pandas as pd
 from tqdm import tqdm # Track progress of the loop
 
 # PRJ related ----------------------------------------------------------------------------------------------------------------------
-def read_PRJ_with_OBS(Pa_PRJ):
+def read_PRJ_with_OBS(Pa_PRJ, verbose:bool=True):
     """imod.formats.prj.read_projectfile struggles with .prj files that contain OBS blocks. This will read the PRJ file and return a tuple. The first item is a PRJ dictionary (as imod.formats.prj would return) and also a list of the OBS block lines."""
     with open(Pa_PRJ, "r") as f:
         lines = f.readlines()
@@ -54,7 +54,7 @@ def PRJ_to_DF(MdlN):#, verbose:bool=True): #666 adding verbose behaviour enables
     Pa_AppData = os.path.normpath(PJ(os.getenv('APPDATA'), '../'))
     t_Pa_replace = (Pa_AppData, PJ(Pa_WS, 'models', Mdl)) # For some reason imod.idf.read reads the path incorrectly, so I have to replace the incorrect part.
 
-    d_PRJ, OBS = read_PRJ_with_OBS(d_Pa['Pa_PRJ'])
+    d_PRJ, OBS = read_PRJ_with_OBS(d_Pa['PRJ'])
 
     columns = ['package', 'parameter','time', 'active', 'is_constant', 'layer', 'factor', 'addition', 'constant', 'path']
     DF = pd.DataFrame(columns=columns) # Main DF to store all the packages
@@ -139,7 +139,7 @@ def add_OBS(MdlN:str, Opt:str="BEGIN OPTIONS\nEND OPTIONS"):
     print(Pre_Sign)
     print('Running add_OBS ...')
     d_Pa = get_MdlN_paths(MdlN) # Get default directories
-    Pa_MdlN, Pa_INI, Pa_PRJ = (d_Pa[k] for k in ['Pa_MdlN', "Pa_INI", "Pa_PRJ"]) # and pass them to objects that will be used in the function
+    Pa_MdlN, Pa_INI, Pa_PRJ = (d_Pa[k] for k in ['Pa_MdlN', 'INI', 'PRJ']) # and pass them to objects that will be used in the function
     
     # Extract info from INI file.
     d_INI = INI_to_d(Pa_INI)
@@ -206,7 +206,7 @@ def run_Mdl(Se_Ln, DF_Opt): #666 think if this can be improved to take only 1 ar
 
     # Get default directories
     d_Pa = get_MdlN_paths(MdlN)
-    MdlN_B, Pa_Mdl, Pa_MdlN, Pa_INI, Pa_BAT, Pa_PRJ = (d_Pa[k] for k in ['MdlN_B', 'Pa_Mdl', 'Pa_MdlN', "Pa_INI", "Pa_BAT", "Pa_PRJ"])
+    MdlN_B, Pa_Mdl, Pa_MdlN, Pa_INI, Pa_BAT, Pa_PRJ = (d_Pa[k] for k in ['MdlN_B', 'Pa_Mdl', 'Pa_MdlN', 'INI', 'BAT', 'PRJ'])
         
     # Define commands and their working directories
     d_Cmds = {Pa_BAT: PDN(Pa_BAT),
@@ -252,7 +252,7 @@ def run_Mdl_print_only(Se_Ln, DF_Opt): #666 think if this can be improved to tak
 
     # Get default directories
     d_Pa = get_MdlN_paths(MdlN)
-    MdlN_B, Pa_Mdl, Pa_MdlN, Pa_INI, Pa_BAT, Pa_PRJ = (d_Pa[k] for k in ['MdlN_B', 'Pa_Mdl', 'Pa_MdlN', "Pa_INI", "Pa_BAT", "Pa_PRJ"])
+    MdlN_B, Pa_Mdl, Pa_MdlN, Pa_INI, Pa_BAT, Pa_PRJ = (d_Pa[k] for k in ['MdlN_B', 'Pa_Mdl', 'Pa_MdlN', 'INI', 'BAT', 'PRJ'])
         
     # Define commands and their working directories
     d_Cmds = {Pa_BAT: PDN(Pa_BAT),

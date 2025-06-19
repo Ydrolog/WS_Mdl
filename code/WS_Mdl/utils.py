@@ -25,6 +25,7 @@ Pa_log = PJ(Pa_WS, 'Mng/log.csv')
 # Get paths from MdlN --------------------------------------------------------------------------------------------------------------
 def MdlN_Se_from_RunLog(MdlN): # Can be made faster. May need to make excel export the RunLog as a csv, so that I can use pd.read_csv instead of pd.read_excel. 
     """Returns RunLog line that corresponds to MdlN as a S."""
+
     DF = pd.read_excel(PJ(Pa_WS, 'Mng/WS_RunLog.xlsx'), sheet_name='RunLog')    
     Se_match = DF.loc[DF['MdlN'] == MdlN]
     if Se_match.empty:
@@ -37,28 +38,41 @@ def paths_from_MdlN_Se(S, MdlN):
     Mdl, SimN_B = S[['model alias', 'B SimN']]
     MdlN_B = Mdl + str(SimN_B)
     
+    ## Non paths + General paths
     d_Pa = {}
-    d_Pa['Mdl']                   =   Mdl
-    d_Pa['MdlN_B']                =   MdlN_B
+    d_Pa['Mdl']                 =   Mdl
+    d_Pa['MdlN_B']              =   MdlN_B
     d_Pa['Pa_Mdl']              =   PJ(Pa_WS, f'models/{Mdl}')
-    d_Pa['Pa_INI']              =   PJ(d_Pa['Pa_Mdl'], f'code/Mdl_Prep/Mdl_Prep_{MdlN}.ini')
-    d_Pa['Pa_BAT']              =   PJ(d_Pa['Pa_Mdl'], f'code/Mdl_Prep/Mdl_Prep_{MdlN}.bat')
-    d_Pa['Pa_PRJ']              =   PJ(d_Pa['Pa_Mdl'], f'In/PRJ/{MdlN}.prj')
-    d_Pa['Pa_Smk']              =   PJ(d_Pa['Pa_Mdl'], f'code/snakemake/{MdlN}.smk')
-    d_Pa['Pa_Smk_temp']         =   PJ(d_Pa['Pa_Mdl'], f'code/snakemake/temp')
+    d_Pa['Smk_temp']         =   PJ(d_Pa['Pa_Mdl'], f'code/snakemake/temp')
+    d_Pa['PoP']              =   PJ(d_Pa['Pa_Mdl'], 'PoP')
+
+    ## S Sim paths (grouped based on: pre-run, run, post-run)
+    d_Pa['INI']              =   PJ(d_Pa['Pa_Mdl'], f'code/Mdl_Prep/Mdl_Prep_{MdlN}.ini')
+    d_Pa['BAT']              =   PJ(d_Pa['Pa_Mdl'], f'code/Mdl_Prep/Mdl_Prep_{MdlN}.bat')
+    d_Pa['PRJ']              =   PJ(d_Pa['Pa_Mdl'], f'In/PRJ/{MdlN}.prj')
+    d_Pa['Smk']              =   PJ(d_Pa['Pa_Mdl'], f'code/snakemake/{MdlN}.smk')
+
     d_Pa['Pa_MdlN']             =   PJ(d_Pa['Pa_Mdl'], f"Sim/{MdlN}")
-    d_Pa['Pa_Out_HD']           =   PJ(d_Pa['Pa_MdlN'], f"GWF_1/MODELOUTPUT/HEAD/HEAD")
-    d_Pa['Pa_PoP']              =   PJ(d_Pa['Pa_Mdl'], 'PoP')
-    d_Pa['Pa_PoP_Out_MdlN']     =   PJ(d_Pa['Pa_PoP'], 'Out', MdlN)
-    d_Pa['Pa_MM']               =   PJ(d_Pa['Pa_PoP_Out_MdlN'], f'MM-{MdlN}.qgz')
-    d_Pa['Pa_INI_B']            =   d_Pa['Pa_INI'].replace(MdlN, MdlN_B)
-    d_Pa['Pa_BAT_B']            =   d_Pa['Pa_BAT'].replace(MdlN, MdlN_B)
-    d_Pa['Pa_PRJ_B']            =   d_Pa['Pa_PRJ'].replace(MdlN, MdlN_B)
-    d_Pa['Pa_Smk_B']            =   d_Pa['Pa_Smk'].replace(MdlN, MdlN_B)
+    d_Pa['LST_Sim']             =   PJ(d_Pa['Pa_MdlN'], "mfsim.lst") # Sim LST file
+    d_Pa['LST_Mdl']             =   PJ(d_Pa['Pa_MdlN'], f"GWF_1/{MdlN}.lst") # Mdl LST file
+
+    d_Pa['Out_HD']           =   PJ(d_Pa['Pa_MdlN'], f"GWF_1/MODELOUTPUT/HEAD/HEAD")
+    d_Pa['PoP_Out_MdlN']     =   PJ(d_Pa['PoP'], 'Out', MdlN)
+    d_Pa['MM']               =   PJ(d_Pa['PoP_Out_MdlN'], f'MM-{MdlN}.qgz')
+
+    ## B Sim paths
+    d_Pa['INI_B']            =   d_Pa['INI'].replace(MdlN, MdlN_B)
+    d_Pa['BAT_B']            =   d_Pa['BAT'].replace(MdlN, MdlN_B)
+    d_Pa['PRJ_B']            =   d_Pa['PRJ'].replace(MdlN, MdlN_B)
+    d_Pa['Smk_B']            =   d_Pa['Smk'].replace(MdlN, MdlN_B)
+
     d_Pa['Pa_MdlN_B']           =   d_Pa['Pa_MdlN'].replace(MdlN, MdlN_B)
-    d_Pa['Pa_Out_HD_B']         =   d_Pa['Pa_Out_HD'].replace(MdlN, MdlN_B)
-    d_Pa['Pa_PoP_Out_MdlN_B']   =   d_Pa['Pa_PoP_Out_MdlN'].replace(MdlN, MdlN_B)
-    d_Pa['Pa_MM_B']             =   d_Pa['Pa_MM'].replace(MdlN, MdlN_B)
+    d_Pa['LST_Sim_B']             =   d_Pa['LST_Sim'].replace(MdlN, MdlN_B) # Sim LST file
+    d_Pa['LST_Mdl_B']             =   d_Pa['LST_Mdl'].replace(MdlN, MdlN_B) # Mdl LST file
+
+    d_Pa['Out_HD_B']         =   d_Pa['Out_HD'].replace(MdlN, MdlN_B)
+    d_Pa['PoP_Out_MdlN_B']   =   d_Pa['PoP_Out_MdlN'].replace(MdlN, MdlN_B)
+    d_Pa['MM_B']             =   d_Pa['MM'].replace(MdlN, MdlN_B)
 
     return d_Pa
 
@@ -125,16 +139,6 @@ def Mdl_Dmns_from_INI(Pa_INI): # 666 Can be improved. It should take a MdlN inst
     print(f"🟢 - model dimensions extracted from {Pa_INI}.")
     return Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C
 
-def Sim_Cfg(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
-    print(f"\n{'-'*100}\nOpening all configuration files for specified runs with the default program.\nIt's assumed that Notepad++ is installed in: {Pa_NP}.\nIf false, provide the correct path to Notepad++ (or another text editor) as the last argument to this function.\n")
-    
-    l_keys = ['Pa_Smk', 'Pa_BAT', 'Pa_INI', 'Pa_PRJ']
-    l_paths = [get_MdlN_paths(MdlN) for MdlN in l_MdlN]
-    l_files = [paths[k] for k in l_keys for paths in l_paths]
-    sp.Popen([Pa_NP] + l_files)
-    for f in l_files:
-        print(f'🟢 - {f}')
-
 def HD_Out_IDF_to_DF(path, add_extra_cols: bool = True): #666 can make it save DF (e.g. to CSV) if a 2nd path is provided. Unecessary for now.
     """
     Reads all .IDF files in `path` into a DataFrame with columns:
@@ -173,6 +177,31 @@ def HD_Out_IDF_to_DF(path, add_extra_cols: bool = True): #666 can make it save D
     
     return DF
 # ----------------------------------------------------------------------------------------------------------------------------------
+
+# Open files -----------------------------------------------------------------------------------------------------------------------
+def Sim_Cfg(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
+    print(f"\n{'-'*100}\nOpening all configuration files for specified runs with the default program.\nIt's assumed that Notepad++ is installed in: {Pa_NP}.\nIf that's not True, provide the correct path to Notepad++ (or another text editor) as the last argument to this function.\n")
+    
+    l_keys = ['Smk', 'BAT', 'INI', 'PRJ']
+    l_paths = [get_MdlN_paths(MdlN) for MdlN in l_MdlN]
+    l_files = [paths[k] for k in l_keys for paths in l_paths]
+    sp.Popen([Pa_NP] + l_files)
+    for f in l_files:
+        print(f'🟢 - {f}')
+
+def open_LST(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
+    print(f"\n{'-'*100}\nOpening LST files (Mdl+Sim) for specified runs with the default program.\n")
+    print(f"It's assumed that Notepad++ is installed in: {Pa_NP}.\nIf that's not True, provide the correct path to Notepad++ (or another text editor) as the last argument to this function.\n")
+    
+    l_keys = ['LST_Sim', 'LST_Mdl']
+    l_paths = [get_MdlN_paths(MdlN) for MdlN in l_MdlN]
+    l_files = [paths[k] for k in l_keys for paths in l_paths]
+    
+    for f in l_files:
+        sp.Popen([Pa_NP] + [f])
+        print(f'🟢 - {f}')
+# ----------------------------------------------------------------------------------------------------------------------------------
+
 
 # Formatting -----------------------------------------------------------------------------------------------------------------------
 def DF_to_MF_block(DF, Min_width=4, indent='    ', Max_decimals=4):
@@ -231,7 +260,7 @@ def S_from_B(MdlN:str):
     """Copies files that contain Sim options from the B Sim, renames them for the S Sim, and opens them in the default file editor. Assumes default WS_Mdl folder structure (as described in READ_ME.MD)."""    
     print(Pre_Sign)
     d_Pa = get_MdlN_paths(MdlN) # Get default directories
-    MdlN_B, Pa_INI_B, Pa_INI, Pa_BAT_B, Pa_BAT, Pa_Smk, Pa_Smk_B, Pa_PRJ_B, Pa_PRJ = (d_Pa[k] for k in ['MdlN_B', "Pa_INI_B", "Pa_INI", "Pa_BAT_B", "Pa_BAT", "Pa_Smk", "Pa_Smk_B", "Pa_PRJ_B", "Pa_PRJ"]) # and pass them to objects that will be used in the function
+    MdlN_B, Pa_INI_B, Pa_INI, Pa_BAT_B, Pa_BAT, Pa_Smk, Pa_Smk_B, Pa_PRJ_B, Pa_PRJ = (d_Pa[k] for k in ['MdlN_B', 'INI_B', 'INI', 'BAT_B', 'BAT', 'Smk', 'Smk_B', 'PRJ_B', 'PRJ']) # and pass them to objects that will be used in the function
 
     # Copy .INI, .bat, .prj and make default (those apply to every Sim) modifications
     for Pa_B, Pa_S in zip([Pa_Smk_B, Pa_BAT_B, Pa_INI_B], [Pa_Smk, Pa_BAT, Pa_INI]):
@@ -265,7 +294,7 @@ def S_from_B_undo(MdlN:str):
     """Will undo S_from_B by deletting S files"""
     print(Pre_Sign)
     d_Pa = get_MdlN_paths(MdlN) # Get default directories
-    MdlN_B, Pa_INI_B, Pa_INI, Pa_BAT_B, Pa_BAT, Pa_Smk, Pa_Smk_B, Pa_PRJ_B, Pa_PRJ = (d_Pa[k] for k in ['MdlN_B', "Pa_INI_B", "Pa_INI", "Pa_BAT_B", "Pa_BAT", "Pa_Smk", "Pa_Smk_B", "Pa_PRJ_B", "Pa_PRJ"]) # and pass them to objects that will be used in the function
+    MdlN_B, Pa_INI_B, Pa_INI, Pa_BAT_B, Pa_BAT, Pa_Smk, Pa_Smk_B, Pa_PRJ_B, Pa_PRJ = (d_Pa[k] for k in ['MdlN_B', 'INI_B', 'INI', 'BAT_B', 'BAT', 'Smk', 'Smk_B', 'PRJ_B', 'PRJ']) # and pass them to objects that will be used in the function
 
     confirm = input(f"Are you sure you want to delete the Cfg files (.smk, .ini, .bat, .prj) for {MdlN}? (y/n): ").strip().lower()
     if confirm == 'y':
@@ -340,10 +369,10 @@ def reset_Sim(MdlN: str):
         d_Pa = get_MdlN_paths(MdlN) # Get default directories
         Pa_MdlN = d_Pa['Pa_MdlN']
         DF = pd.read_csv(Pa_log) # Read the log file
-        Pa_Smk_temp = d_Pa['Pa_Smk_temp']
+        Pa_Smk_temp = d_Pa['Smk_temp']
         l_temp = [i for i in LD(Pa_Smk_temp) if MdlN in i]
 
-        if os.path.exists(Pa_MdlN) or (MdlN in DF['MdlN'].values) or l_temp or os.path.exists(d_Pa['Pa_PoP_Out_MdlN']): # Check if the Sim folder exists or if the MdlN is in the log file
+        if os.path.exists(Pa_MdlN) or (MdlN in DF['MdlN'].values) or l_temp or os.path.exists(d_Pa['PoP_Out_MdlN']): # Check if the Sim folder exists or if the MdlN is in the log file
             i = 0
 
             try:
@@ -371,9 +400,9 @@ def reset_Sim(MdlN: str):
                 print(f"🔴 - failed to remove Smk log files.")
 
             try:
-                if not os.path.exists(d_Pa['Pa_PoP_Out_MdlN']):
-                    raise FileNotFoundError(f"{d_Pa['Pa_PoP_Out_MdlN']} does not exist.")
-                sp.run(f'rmdir /S /Q "{d_Pa['Pa_PoP_Out_MdlN']}"', shell=True) # Delete the entire Sim folder
+                if not os.path.exists(d_Pa['PoP_Out_MdlN']):
+                    raise FileNotFoundError(f"{d_Pa['PoP_Out_MdlN']} does not exist.")
+                sp.run(f'rmdir /S /Q "{d_Pa['PoP_Out_MdlN']}"', shell=True) # Delete the entire Sim folder
                 print(f"🟢 - PoP Out folder removed successfully.")
                 i += 1
             except:

@@ -157,7 +157,7 @@ def PRJ_to_TIF(MdlN):
     
     # -------------------- Initiate ------------------------------------------------------------------------------------------
     d_Pa = U.get_MdlN_paths(MdlN)                                                        # Get paths
-    Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = U.Mdl_Dmns_from_INI(d_Pa['Pa_INI'])   # Get dimensions
+    Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = U.Mdl_Dmns_from_INI(d_Pa['INI'])   # Get dimensions
     
     DF = UIM.PRJ_to_DF(MdlN) # Read PRJ file to DF
     
@@ -367,7 +367,7 @@ def HD_IDF_Agg_to_TIF(MdlN:str, rules=None, N_cores:int = None, crs:str = crs, G
 
     # 1. Get paths
     d_Pa = U.get_MdlN_paths(MdlN)
-    Pa_PoP, Pa_HD = [ d_Pa[v] for v in ['Pa_PoP', 'Pa_Out_HD'] ]
+    Pa_PoP, Pa_HD = [ d_Pa[v] for v in ['PoP', 'Out_HD'] ]
 
     # 2. Read the IDF files to DF. Add extracols. Apply rules. Group.
     DF = U.HD_Out_IDF_to_DF(Pa_HD)
@@ -473,7 +473,7 @@ def HD_IDF_GXG_to_TIF(MdlN: str, N_cores:int=None, crs:str=crs, rules:str=None):
 
     # Get paths
     d_Pa = U.get_MdlN_paths(MdlN)
-    Pa_PoP, Pa_HD = [ d_Pa[v] for v in ['Pa_PoP', 'Pa_Out_HD'] ]
+    Pa_PoP, Pa_HD = [ d_Pa[v] for v in ['PoP', 'Out_HD'] ]
 
     # Read DF and apply rules to DF if rules is not None.
     DF = U.HD_Out_IDF_to_DF(Pa_HD)
@@ -535,7 +535,7 @@ def Up_MM(MdlN, MdlN_MM_B=None):
     print(f" *****   Creating MM for {MdlN}   ***** ")
     
     d_Pa = U.get_MdlN_paths(MdlN)
-    Pa_QGZ, Pa_QGZ_B = d_Pa['Pa_MM'], d_Pa['Pa_MM_B']
+    Pa_QGZ, Pa_QGZ_B = d_Pa['MM'], d_Pa['MM_B']
     Mdl = U.get_Mdl(MdlN)
 
     if MdlN_MM_B is not None: # Replace MdlN_B with another MdlN if requested.
