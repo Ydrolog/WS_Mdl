@@ -17,9 +17,10 @@ warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl.workshe
 #-----------------------------------------------------------------------------------------------------------------------------------
 Pre_Sign = f"{fg(52)}{'*'*80}{attr('reset')}\n\n"
 Sign = f"{fg(52)}\nend_of_transmission\n{'*'*80}{attr('reset')}\n"
-Pa_WS = 'C:/OD/WS_Mdl'
-Pa_RunLog = PJ(Pa_WS, 'Mng/WS_RunLog.xlsx')
-Pa_log = PJ(Pa_WS, 'Mng/log.csv')
+
+Pa_WS       = 'C:/OD/WS_Mdl'
+Pa_RunLog   = PJ(Pa_WS, 'Mng/WS_RunLog.xlsx')
+Pa_log      = PJ(Pa_WS, 'Mng/log.csv')
 ## Can make get paths function that will provide the general directories, like Pa_WS, Pa_Mdl. Those can be derived from a folder structure.
 
 # Get paths from MdlN --------------------------------------------------------------------------------------------------------------
@@ -41,43 +42,38 @@ def paths_from_MdlN_Se(S, MdlN):
     ## Non paths + General paths
     d_Pa = {}
     d_Pa['Mdl']                 =   Mdl
-    d_Pa['MdlN_B']              =   MdlN_B
+    d_Pa['MdlN']                =   MdlN
     d_Pa['Pa_Mdl']              =   PJ(Pa_WS, f'models/{Mdl}')
-    d_Pa['Smk_temp']         =   PJ(d_Pa['Pa_Mdl'], f'code/snakemake/temp')
-    d_Pa['PoP']              =   PJ(d_Pa['Pa_Mdl'], 'PoP')
+    d_Pa['Smk_temp']            =   PJ(d_Pa['Pa_Mdl'], f'code/snakemake/temp')
+    d_Pa['PoP']                 =   PJ(d_Pa['Pa_Mdl'], 'PoP')
 
     ## S Sim paths (grouped based on: pre-run, run, post-run)
-    d_Pa['INI']              =   PJ(d_Pa['Pa_Mdl'], f'code/Mdl_Prep/Mdl_Prep_{MdlN}.ini')
-    d_Pa['BAT']              =   PJ(d_Pa['Pa_Mdl'], f'code/Mdl_Prep/Mdl_Prep_{MdlN}.bat')
-    d_Pa['PRJ']              =   PJ(d_Pa['Pa_Mdl'], f'In/PRJ/{MdlN}.prj')
-    d_Pa['Smk']              =   PJ(d_Pa['Pa_Mdl'], f'code/snakemake/{MdlN}.smk')
+    d_Pa['INI']                 =   PJ(d_Pa['Pa_Mdl'], f'code/Mdl_Prep/Mdl_Prep_{MdlN}.ini')
+    d_Pa['BAT']                 =   PJ(d_Pa['Pa_Mdl'], f'code/Mdl_Prep/Mdl_Prep_{MdlN}.bat')
+    d_Pa['PRJ']                 =   PJ(d_Pa['Pa_Mdl'], f'In/PRJ/{MdlN}.prj')
+    d_Pa['Smk']                 =   PJ(d_Pa['Pa_Mdl'], f'code/snakemake/{MdlN}.smk')
 
     d_Pa['Pa_MdlN']             =   PJ(d_Pa['Pa_Mdl'], f"Sim/{MdlN}")
     d_Pa['LST_Sim']             =   PJ(d_Pa['Pa_MdlN'], "mfsim.lst") # Sim LST file
     d_Pa['LST_Mdl']             =   PJ(d_Pa['Pa_MdlN'], f"GWF_1/{MdlN}.lst") # Mdl LST file
 
-    d_Pa['Out_HD']           =   PJ(d_Pa['Pa_MdlN'], f"GWF_1/MODELOUTPUT/HEAD/HEAD")
-    d_Pa['PoP_Out_MdlN']     =   PJ(d_Pa['PoP'], 'Out', MdlN)
-    d_Pa['MM']               =   PJ(d_Pa['PoP_Out_MdlN'], f'MM-{MdlN}.qgz')
+    d_Pa['Out_HD']              =   PJ(d_Pa['Pa_MdlN'], f"GWF_1/MODELOUTPUT/HEAD/HEAD")
+    d_Pa['PoP_Out_MdlN']        =   PJ(d_Pa['PoP'], 'Out', MdlN)
+    d_Pa['MM']                  =   PJ(d_Pa['PoP_Out_MdlN'], f'MM-{MdlN}.qgz')
 
     ## B Sim paths
-    d_Pa['INI_B']            =   d_Pa['INI'].replace(MdlN, MdlN_B)
-    d_Pa['BAT_B']            =   d_Pa['BAT'].replace(MdlN, MdlN_B)
-    d_Pa['PRJ_B']            =   d_Pa['PRJ'].replace(MdlN, MdlN_B)
-    d_Pa['Smk_B']            =   d_Pa['Smk'].replace(MdlN, MdlN_B)
-
-    d_Pa['Pa_MdlN_B']           =   d_Pa['Pa_MdlN'].replace(MdlN, MdlN_B)
-    d_Pa['LST_Sim_B']             =   d_Pa['LST_Sim'].replace(MdlN, MdlN_B) # Sim LST file
-    d_Pa['LST_Mdl_B']             =   d_Pa['LST_Mdl'].replace(MdlN, MdlN_B) # Mdl LST file
-
-    d_Pa['Out_HD_B']         =   d_Pa['Out_HD'].replace(MdlN, MdlN_B)
-    d_Pa['PoP_Out_MdlN_B']   =   d_Pa['PoP_Out_MdlN'].replace(MdlN, MdlN_B)
-    d_Pa['MM_B']             =   d_Pa['MM'].replace(MdlN, MdlN_B)
+    for k in list(d_Pa.keys()):
+        if f'{k}_B' not in d_Pa:
+            d_Pa[f'{k}_B'] = d_Pa[k].replace(MdlN, MdlN_B)
 
     return d_Pa
 
 def get_MdlN_paths(MdlN: str, verbose=False): #666 Can be split into two as both S and B aren't allways needed. Or better, I can make a new function that does that for just 1 run.
-    """ Returns a dictionary of useful object (MdlN_B, directories etc.) for a given model. Those need to then be passed to arguments, e.g. Pa_INI_B = Dft_paths['Pa_INI_N']."""
+    """
+    Returns a dictionary of useful objects (mainly paths, but also Mdl, MdlN) for a given MdlN. Those need to then be passed to arguments, e.g.:
+    d_Pa = get_MdlN_paths(MdlN)
+    Pa_INI_B = d_Pa['Pa_INI_N'].
+    """
     d_Pa = paths_from_MdlN_Se( MdlN_Se_from_RunLog((MdlN)), MdlN )
     if verbose:
         print(f"🟢 - {MdlN} paths extracted from RunLog and returned as dictionary with keys:\n{', '.join(d_Pa.keys())}")
@@ -189,7 +185,7 @@ def Sim_Cfg(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
     for f in l_files:
         print(f'🟢 - {f}')
 
-def open_LST(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
+def open_LSTs(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
     print(f"\n{'-'*100}\nOpening LST files (Mdl+Sim) for specified runs with the default program.\n")
     print(f"It's assumed that Notepad++ is installed in: {Pa_NP}.\nIf that's not True, provide the correct path to Notepad++ (or another text editor) as the last argument to this function.\n")
     
@@ -335,7 +331,7 @@ def RunMng(cores=None, DAG:bool=True):
 
     print('--- Running snakemake files:')
     if DF_q.empty:
-        print("\n🔴 - No queued runs found in the RunLog.")
+        print("\n🔴🔴🔴 - No queued runs found in the RunLog.")
     else:
         for i, Se_Ln in DF_q.iterrows():
             Pa_Smk = PJ(Pa_WS, f"models/{Se_Ln['model alias']}/code/snakemake/{Se_Ln['MdlN']}.smk")
@@ -348,9 +344,9 @@ def RunMng(cores=None, DAG:bool=True):
                     sp.run(["snakemake", "--dag", "-s", Pa_Smk, "--cores", str(cores), '|', 'dot', '-Tpng', '-o', f'{Pa_DAG}'], shell=True, check=True)
                 with open(Pa_Smk_log, 'w') as f:
                     sp.run(["snakemake", "-p", "-s", Pa_Smk, "--cores", str(cores)], check=True, stdout=f, stderr=f) # Run snakemake and write output to log file
-                print(f"🟢")
+                print(f"🟢🟢")
             except sp.CalledProcessError as e:
-                print(f"🔴: {e}")
+                print(f"🔴🔴: {e}")
     print(Sign)
 
 def reset_Sim(MdlN: str):
@@ -429,5 +425,5 @@ def get_elapsed_time_str(start_time: float) -> str:
 def get_last_MdlN():
     DF = pd.read_csv(Pa_log)
     DF.loc[:-2, 'Sim end DT'] = DF.loc[:-2, 'Sim end DT'].apply(pd.to_datetime, dayfirst=True)
-    DF['Sim end DT'] = pd.to_datetime(DF['Sim end DT'], dayfirst=True)
+    DF['Sim end DT'] = pd.to_datetime(DF['Sim end DT'], format='mixed', dayfirst=True)
     return  DF.sort_values('Sim end DT', ascending=False).iloc[0]['MdlN']

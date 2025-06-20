@@ -62,7 +62,7 @@ rule log_Init: # Sets status to running, and writes other info about therun. Has
     run:
         import socket
         device = socket.gethostname()
-        d_INI = INI_to_d(get_MdlN_paths(MdlN)['Pa_INI'])
+        d_INI = INI_to_d(get_MdlN_paths(MdlN)['INI'])
         Up_log(MdlN, {  'End Status':       'Running',
                         'PrP start DT':     DT.now().strftime("%Y-%m-%d %H:%M:%S"),
                         "Sim device name":  device,

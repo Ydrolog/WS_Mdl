@@ -322,12 +322,16 @@ def PRJ_to_TIF(MdlN):
                 if not DA.rio.crs: # Ensure DA_Thk has a CRS (if missing, set it)
                     DA.rio.write_crs(crs, inplace=True)  # Replace with correct CRS
 
-                if len(DA.shape) == 3: # If there are multiple paths for the same parameter
-                    DA_to_MBTIF(DA, Pa_TIF, d_MtDt)
-                    print(f'🟢 - multi-band')
-                elif len(DA.shape) == 2:
-                    DA_to_TIF(DA.squeeze(drop=True), Pa_TIF, d_MtDt) # .squeeze cause 2D arrays have extra dimension with size 1 sometimes.
-                    print(f'🟢 - single-band')
+                match len(DA.shape):
+                    case 3:
+                        DA_to_MBTIF(DA, Pa_TIF, d_MtDt) # If there are multiple paths for the same parameter
+                        print("🟢 - multi-band")
+                    case 2:
+                        DA_to_TIF(DA.squeeze(drop=True), Pa_TIF, d_MtDt) # .squeeze cause 2D arrays have extra dimension with size 1 sometimes.
+                        print("🟢 - single-band")
+                    case _:
+                        raise ValueError(f"Unexpected array rank: {DA.ndim}")
+                    
             except Exception as e:
                 print(f"\u274C - Error: {e}")
     print(Sign)
