@@ -24,5 +24,6 @@ WS_Mdl/scripts/Sim_Cfg.py
 WS_Mdl/scripts/__init__.py
 WS_Mdl/scripts/map_DVC.py
 WS_Mdl/scripts/map_gitignore.py
-WS_Mdl/scripts/open_LST.py
+WS_Mdl/scripts/open_LSTs.py
+WS_Mdl/scripts/rerun_Sim.py
 WS_Mdl/scripts/reset_Sim.py

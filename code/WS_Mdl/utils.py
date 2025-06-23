@@ -3,6 +3,7 @@ import os
 from os import listdir as LD, makedirs as MDs
 from os.path import join as PJ, basename as PBN, dirname as PDN, exists as PE
 from pathlib import Path
+import re
 import pandas as pd
 from colored import fg, bg, attr
 import tempfile
@@ -351,7 +352,7 @@ def _RunMng(args):
     Pa_Smk = PJ(Pa_WS, f"models/{Se_Ln['model alias']}/code/snakemake/{Se_Ln['MdlN']}.smk")
     Pa_Smk_log = PJ(Pa_WS, f"models/{Se_Ln['model alias']}/code/snakemake/log/{Se_Ln['MdlN']}_{DT.now().strftime('%Y%m%d_%H%M%S')}.log")
     Pa_DAG = PJ(Pa_WS, f"models/{Se_Ln['model alias']}/code/snakemake/DAG/DAG_{Se_Ln['MdlN']}.png")
-    vprint(f"{fg('green')}{PBN(Pa_Smk)}{attr('reset')}\n")
+    vprint(f"{fg('blue')}{PBN(Pa_Smk)}{attr('reset')}\n")
 
     try:
         if generate_dag:  # DAG parameter passed from RunMng
@@ -477,6 +478,52 @@ def reset_Sim(MdlN: str):
     else:
         print(f"🔴🔴🔴 - Reset cancelled by user (you).")
     vprint(Sign)
+
+def rerun_Sim(MdlN: str, cores=None, DAG:bool=True):
+    """
+    Reruns the simulation by:
+        1. Deleting all files in the MldN folder in the Sim folder.
+        2. Clearing log.csv.
+        3. Deletes Smk log files for MdlN.
+        4. Deletes PoP folder for MdlN.
+        5. Runs S_from_B to prepare the simulation files again.
+    """
+
+    if cores is None:
+        cores = max(cpu_count() - 2, 1)  # Leave 2 cores free for other tasks. If there aren't enough cores available, set to 1.
+
+    reset_Sim(MdlN)
+
+    DF = read_RunLog()
+
+    if MdlN not in DF['MdlN'].values:
+        print(f"🔴🔴🔴 - {MdlN} not found in the RunLog. Cannot rerun.")
+        return
+    else:
+        Se_Ln = DF.loc[DF['MdlN'] == MdlN].squeeze()  # Get the row for the MdlN
+
+        # Prepare arguments for multiprocessing
+        args = [("_", Se_Ln, cores, DAG)]
+
+        # Run models in parallel
+        with Pool(processes=cores) as pool:
+            results = pool.map(_RunMng, args)
+        
+        # Print results
+        for result in results:
+            if len(result) == 2:
+                model_id, success = result
+                if success:
+                    vprint(f"🟢🟢 Model {model_id} completed successfully")
+                else:
+                    print(f"🔴🔴 Model {model_id} failed")
+            else:
+                model_id, success, error = result
+                print(f"🔴🔴 Model {model_id} failed: {error}")
+    
+    vprint(Sign)
+
+
 
 def get_elapsed_time_str(start_time: float) -> str:
     s = int((DT.now() - start_time).total_seconds())

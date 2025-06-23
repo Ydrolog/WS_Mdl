@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import sys
-from WS_Mdl.utils import open_LSTs  # Adjust import as needed
+from WS_Mdl.utils import rerun_Sim  # Adjust import as needed
 
 def main():
     if len(sys.argv) < 2:
@@ -8,7 +8,7 @@ def main():
         sys.exit(1)
 
     for MdlN in sys.argv[1:]:  # Loop through all arguments after the script name
-        open_LSTs(MdlN)
+        rerun_Sim(MdlN)
 
 if __name__ == "__main__":
     main()
