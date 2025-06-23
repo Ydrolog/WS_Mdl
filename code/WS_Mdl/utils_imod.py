@@ -4,7 +4,7 @@ from os import listdir as LD, makedirs as MDs
 from os.path import join as PJ, basename as PBN, dirname as PDN, exists as PE
 import tempfile
 import imod
-from .utils import Sign, Pre_Sign, read_IPF_Spa, INI_to_d, get_MdlN_paths, Pa_WS
+from .utils import Sign, Pre_Sign, read_IPF_Spa, INI_to_d, get_MdlN_paths, Pa_WS, vprint
 from . import utils as U
 import numpy as np
 import subprocess as sp
@@ -59,9 +59,9 @@ def PRJ_to_DF(MdlN):#, verbose:bool=True): #666 adding verbose behaviour enables
     columns = ['package', 'parameter','time', 'active', 'is_constant', 'layer', 'factor', 'addition', 'constant', 'path']
     DF = pd.DataFrame(columns=columns) # Main DF to store all the packages
 
-    print(f' --- Reading PRJ Packages into DF ---')
+    vprint(f' --- Reading PRJ Packages into DF ---')
     for Pkg_name in list(d_PRJ.keys()): # Iterate over packages
-        print(f"\t{Pkg_name:<7}\t...\t", end='')
+        vprint(f"\t{Pkg_name:<7}\t...\t", end='')
         try:
             Pkg = d_PRJ[Pkg_name]
 
@@ -82,15 +82,15 @@ def PRJ_to_DF(MdlN):#, verbose:bool=True): #666 adding verbose behaviour enables
                                 DF.loc[f'{Pkg_name.upper()}_{Par}_Sys{(N)%Pkg['n_system']+1}'] = Ln_DF_path
                             elif (Pkg['n_system']==1):
                                 DF.loc[f"{Pkg_name.upper()}_{Par}"] = Ln_DF_path
-                print('🟢')
+                vprint('🟢')
             else:
-                print(f'\u2012 the package is innactive.')
+                vprint(f'\u2012 the package is innactive.')
         except:
             DF.loc[f'{Pkg_name.upper()}'] = "-"
             DF.loc[f'{Pkg_name.upper()}', 'active'] = 'Failed to read package'
-            print('\u274C')
-    print(f' --- Success! ---')
-    print(f' {"-"*100}')
+            vprint('🟡')
+    vprint('🟢🟢🟢')
+    vprint(f' {"-"*100}')
 
     DF['package'] = DF['package'].str.replace('(',"").str.replace(')','').str.upper()
     DF['suffix'] = DF['path'].apply(lambda x: x.suffix.lower() if hasattr(x, 'suffix') else "-")  # Check if 'suffix' exists # Make suffix column so that paths can be categorized
@@ -136,8 +136,8 @@ def add_OBS(MdlN:str, Opt:str="BEGIN OPTIONS\nEND OPTIONS"):
     """Adds OBS file(s) from PRJ file OBS block to Mdl Sim (which iMOD can't do). Thus the OBS file needs to be written, and then a link to the OBS file needs to be created within the NAM file.
     Assumes OBS IPF file contains the following parameters/columns: 'Id', 'L', 'X', 'Y'"""
 
-    print(Pre_Sign)
-    print('Running add_OBS ...')
+    vprint(Pre_Sign)
+    vprint('Running add_OBS ...')
     d_Pa = get_MdlN_paths(MdlN) # Get default directories
     Pa_MdlN, Pa_INI, Pa_PRJ = (d_Pa[k] for k in ['Pa_MdlN', 'INI', 'PRJ']) # and pass them to objects that will be used in the function
     
@@ -171,7 +171,7 @@ def add_OBS(MdlN:str, Opt:str="BEGIN OPTIONS\nEND OPTIONS"):
         DF_OBS_IPF_MdlAa.sort_values(by=["L", "R", "C"], ascending=[True, True, True], inplace=True) # Let's sort the DF by L, R, C
 
         with open(Pa_OBS, "w") as f: # write OBS file(s)
-            #print(Pa_MdlN, path, Pa_OBS_IPF, sep='\n')
+            #vprint(Pa_MdlN, path, Pa_OBS_IPF, sep='\n')
             f.write(f"# created from {Pa_OBS_IPF}\n")
             f.write(Opt.encode().decode('unicode_escape')) # write optional block
             f.write(f"\n\nBEGIN CONTINUOUS FILEOUT OBS_{OBS_IPF_Fi.split('.')[0]}.csv\n")
@@ -190,8 +190,8 @@ def add_OBS(MdlN:str, Opt:str="BEGIN OPTIONS\nEND OPTIONS"):
             f2.write(l_NAM[0])
             f2.write(fr' OBS6 .\{Pa_OBS_Rel} OBS_{OBS_IPF_Fi.split('.')[0]}')
             f2.write('\nEND PACKAGES')
-        print(f'🟢 - {Pa_OBS} has been added successfully!')
-    print(Sign)
+        vprint(f'🟢 - {Pa_OBS} has been added successfully!')
+    vprint(Sign)
 #-----------------------------------------------------------------------------------------------------------------------------------
 
 # run_Mdl --------------------------------------------------------------------------------------------------------------------------
@@ -202,7 +202,7 @@ def run_Mdl(Se_Ln, DF_Opt): #666 think if this can be improved to take only 1 ar
     - `DF_Opt`: A Pandas DataFrame (PP_Opt sheet of the same spreadsheet)
     """
     MdlN = Se_Ln['MdlN']
-    print(f"--- Executing RunMng for {MdlN}")
+    vprint(f"--- Executing RunMng for {MdlN}")
 
     # Get default directories
     d_Pa = get_MdlN_paths(MdlN)
@@ -221,7 +221,7 @@ def run_Mdl(Se_Ln, DF_Opt): #666 think if this can be improved to take only 1 ar
     with open(log_file, 'w', encoding='utf-8') as f:
         for Cmd, cwd in d_Cmds.items():
             try:
-                print(f" -- Executing: {Cmd}")
+                vprint(f" -- Executing: {Cmd}")
 
                 # Run command in blocking mode, capturing output live
                 process = sp.run(Cmd, shell=True, cwd=cwd,
@@ -235,7 +235,7 @@ def run_Mdl(Se_Ln, DF_Opt): #666 think if this can be improved to take only 1 ar
                 f.write(f"Return Code: {process.returncode}\n{"-"*120}\n\n")
                 f.write(f'{"*"*50}  END OF COMMAND     {"*"*50}\n\n')
 
-                print(f"  - ✓")
+                vprint("  - 🟢")
 
             except sp.CalledProcessError as e:
                 print(f"  - 🔴: {Cmd}\nError: {e.stderr}")
@@ -248,7 +248,7 @@ def run_Mdl_print_only(Se_Ln, DF_Opt): #666 think if this can be improved to tak
     - `DF_Opt`: A Pandas DataFrame (PP_Opt sheet of the same spreadsheet)
     """
     MdlN = Se_Ln['MdlN']
-    print(f"--- Executing RunMng for {MdlN}")
+    vprint(f"--- Executing RunMng for {MdlN}")
 
     # Get default directories
     d_Pa = get_MdlN_paths(MdlN)
@@ -266,8 +266,8 @@ def run_Mdl_print_only(Se_Ln, DF_Opt): #666 think if this can be improved to tak
 
     for Cmd, cwd in d_Cmds.items():
         try:
-            print(f" -- Executing: {Cmd}\nin {cwd}")
-            print(f"  - ✓")
+            vprint(f" -- Executing: {Cmd}\nin {cwd}")
+            vprint("  - 🟢")
 
         except sp.CalledProcessError as e:
             print(f"  - 🔴: {Cmd}\nError: {e.stderr}")
