@@ -8,6 +8,7 @@ from snakemake.io import temp
 from datetime import datetime as DT
 import pathlib
 import os
+from os.path import join as PJ, basename as PBN, dirname as PDN, exists as PE
 import shutil as sh
 import re
 sys.stdout.reconfigure(encoding='utf-8')
@@ -18,22 +19,22 @@ os.environ["PYTHONUNBUFFERED"] = "1"
 
 ## Options
 MdlN        =   "NBr16"
-MdlN_B      =   'Nbr15'
+MdlN_B_SFR  =   'Nbr15'
 MdlN_MM_B   =   'NBr12'
-Mdl         =   ''.join([i for i in MdlN if i.isalpha()])
+Mdl     =   U.get_Mdl(MdlN)
 rules    =   "(L == 1)"
 
 ## Paths
-Pa_Mdl                  =   os.path.join(Pa_WS, f'models/{Mdl}') 
+Pa_Mdl                  =   PJ(Pa_WS, f'models/{Mdl}') 
 workdir:                    Pa_Mdl
-Pa_Smk                  =   os.path.join(Pa_Mdl, 'code/snakemake')
-Pa_temp                 =   os.path.join(Pa_Smk, 'temp')
-Pa_Sim                  =   os.path.join(Pa_Mdl, 'Sim')
-Pa_MdlN                 =   os.path.join(Pa_Sim, f'{MdlN}')
-Pa_BAT_RUN              =   os.path.join(Pa_MdlN, 'RUN.BAT')
-Pa_OBS, Pa_NAM, Pa_SFR  =   [os.path.join(Pa_MdlN, 'GWF_1', i) for i in [f'MODELINPUT/{MdlN}.OBS6', f'{MdlN}.NAM', f'MODELINPUT/{MdlN}.SFR6']]
-Pa_SFR_B                =   Pa_SFR.replace(MdlN, MdlN_B)
-Pa_HED, Pa_CBC          =   [os.path.join(Pa_MdlN, 'GWF_1/MODELOUTPUT', i) for i in ['HEAD/HEAD.HED', 'BUDGET/BUDGET.CBC']]
+Pa_Smk                  =   PJ(Pa_Mdl, 'code/snakemake')
+Pa_temp                 =   PJ(Pa_Smk, 'temp')
+Pa_Sim                  =   PJ(Pa_Mdl, 'Sim')
+Pa_MdlN                 =   PJ(Pa_Sim, f'{MdlN}')
+Pa_BAT_RUN              =   PJ(Pa_MdlN, 'RUN.BAT')
+Pa_OBS, Pa_NAM, Pa_SFR  =   [PJ(Pa_MdlN, 'GWF_1', i) for i in [f'MODELINPUT/{MdlN}.OBS6', f'{MdlN}.NAM', f'MODELINPUT/{MdlN}.SFR6']]
+Pa_SFR_Src, Pa_SFR_Dst  =   PJ(Pa_Mdl, f"In/SFR/{MdlN_B_SFR}/{MdlN_B_SFR}.SFR6"), PJ(Pa_MdlN, f"GWF_1/MODELINPUT/{MdlN}.SFR6")
+Pa_HED, Pa_CBC          =   [PJ(Pa_MdlN, 'GWF_1/MODELOUTPUT', i) for i in ['HEAD/HEAD.HED', 'BUDGET/BUDGET.CBC']]
 
 ## Temp files (for completion validation)
 log_Init_done           =   f"{Pa_Smk}/temp/Log_init_done_{MdlN}"
@@ -80,7 +81,6 @@ rule Mdl_Prep: # Prepares Sim Ins (from Ins) via BAT file.
         PRJ = f"In/PRJ/{MdlN}.prj"
     output:
         Pa_BAT_RUN
-        # Pa_NAM
     shell:
         "call {input.BAT}"
     ## Mdl_Prep Ins (mainly the PRJ) point to a lot of other files. Technically, all of them should be in the Ins of this rule. Practically, they don't need to be. That is because Ins from previous Sims aren't meant to be edited, as they're stamped with a MdlN. If one of the Ins that is new for this run is changed, then the script that edits that In Fi should be part of this snakemake file too.
@@ -94,24 +94,27 @@ rule add_OBS:
     run:
         UIM.add_OBS(MdlN, "BEGIN OPTIONS\n\tDIGITS 6\nEND OPTIONS")
 
-rule add_SFR:
+rule add_SFR_by_copy:
     input:
-        Pa_BAT_RUN
+        Pa_BAT_RUN,
+        Pa_OBS
     output:
-        Pa_SFR
+        Pa_SFR_Dst
     run:
-        sh.copy2(Pa_SFR_B, Pa_SFR)
+        sh.copy2(Pa_SFR_Src, Pa_SFR_Dst)
         with open(Pa_NAM, 'r') as f1:
-            l_lines = f1.readlines()
+            l_lines     = f1.readlines()
+            l_lines[-1] = f" SFR6 ./GWF_1/MODELINPUT/{MdlN}.SFR6 SFR6\n"
         with open(Pa_NAM, 'w') as f2:
             for i in l_lines:
-                f2.write( re.sub(MdlN_B, MdlN, i, flags=re.IGNORECASE))
+                f2.write(i)
+            f2.write('END PACKAGES')
 
 ## -- Sim ---
 rule Sim: # Runs the simulation via BAT file.
     input:
         Pa_OBS,
-        Pa_SFR
+        Pa_SFR_Dst
     output:
         temp(log_Sim_done)
     run:

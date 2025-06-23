@@ -151,7 +151,7 @@ rule Up_MM:
     output:
         log_Up_MM_done
     run:
-        G.Up_MM(MdlN, MdlN_MM_B=MdlN_MM_B)     # Update MM 
+        G.Up_MM(MdlN)     # Update MM 
         Up_log(MdlN, {  'PoP end DT':   DT.now().strftime("%Y-%m-%d %H:%M:%S"),
                         'End Status':   'PoPed'}) # Update log
         pathlib.Path(output[0]).touch()     # Create the file to mark the rule as done.

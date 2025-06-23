@@ -19,7 +19,7 @@ os.environ["PYTHONUNBUFFERED"] = "1"
 
 ## Options
 MdlN        =   "NBr17"
-MdlN_MM_B   =   'NBr16'
+MdlN_MM_B   =   'NBr12'
 Mdl         =   ''.join([i for i in MdlN if i.isalpha()])
 rules    =   "(L == 1)"
 

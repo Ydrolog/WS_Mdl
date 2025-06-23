@@ -12,11 +12,14 @@ import subprocess as sp
 from datetime import datetime as DT
 from multiprocessing import cpu_count
 import warnings
+from multiprocessing import Pool
 warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl.worksheet._read_only")
 
 #-----------------------------------------------------------------------------------------------------------------------------------
 Pre_Sign = f"{fg(52)}{'*'*80}{attr('reset')}\n\n"
 Sign = f"{fg(52)}\nend_of_transmission\n{'*'*80}{attr('reset')}\n"
+bold = '\033[1m'
+bold_off = '\033[0m'
 
 Pa_WS       = 'C:/OD/WS_Mdl'
 Pa_RunLog   = PJ(Pa_WS, 'Mng/WS_RunLog.xlsx')
@@ -317,36 +320,72 @@ def Up_log(MdlN: str, d_Up: dict, Pa_log=Pa_log): #Pa_log=PJ(Pa_WS, 'Mng/log.csv
             except PermissionError:
                 input("log.csv is open. Press Enter after closing the file...")  # Wait for user input
 
-def RunMng(cores=None, DAG:bool=True):
-    """Read the RunLog, and for each queued model, run the corresponding Snakemake file."""
+def _RunMng(args):
+    """Helper function that runs a single model's snakemake workflow."""
+    _, Se_Ln, cores_per_Sim, generate_dag = args
+    Pa_Smk = PJ(Pa_WS, f"models/{Se_Ln['model alias']}/code/snakemake/{Se_Ln['MdlN']}.smk")
+    Pa_Smk_log = PJ(Pa_WS, f"models/{Se_Ln['model alias']}/code/snakemake/log/{Se_Ln['MdlN']}_{DT.now().strftime('%Y%m%d_%H%M%S')}.log")
+    Pa_DAG = PJ(Pa_WS, f"models/{Se_Ln['model alias']}/code/snakemake/DAG/DAG_{Se_Ln['MdlN']}.png")
+    print(f"{fg('green')}{PBN(Pa_Smk)}{attr('reset')}\n")
+
+    try:
+        if generate_dag:  # DAG parameter passed from RunMng
+            sp.run(["snakemake", "--dag", "-s", Pa_Smk, "--cores", str(cores_per_Sim), '|', 'dot', '-Tpng', '-o', f'{Pa_DAG}'], shell=True, check=True)
+        with open(Pa_Smk_log, 'w') as f:
+            sp.run(["snakemake", "-p", "-s", Pa_Smk, "--cores", str(cores_per_Sim)], check=True, stdout=f, stderr=f)
+        return (Se_Ln['MdlN'], True)
+    except sp.CalledProcessError as e:
+        return (Se_Ln['MdlN'], False, str(e))
+
+def RunMng(cores=None, DAG:bool=True, Cct_Sims=None):
+    """
+    Read the RunLog, and for each queued model, run the corresponding Snakemake file.
+    
+    Parameters:
+        cores: Number of cores to allocate to each Snakemake process
+        DAG: Whether to generate a DAG visualization
+        Cct_Sims: Number of models to run simultaneously (defaults to number of available cores)
+    """
     if cores is None:
-        cores = max(cpu_count() - 2, 1) # Leave 2 cores free for other tasks. If there aren't enough cores available, set to 1.
+        cores = max(cpu_count() - 2, 1)  # Leave 2 cores free for other tasks. If there aren't enough cores available, set to 1.
+    
+    print(f"{Pre_Sign}RunMng will run all Sims that are queued in the RunLog.\n") 
 
-    print(f"{Pre_Sign}RunMng will run all Sims that are queued in the RunLog.\n")
-
-    print(f"--- Reading RunLog ...", end='')
+    print(f"Reading RunLog ...", end='')
     DF = read_RunLog()
     DF_q = DF.loc[ ((DF['Start Status'] == 'Queued') & ((DF['End Status'].isna()) | (DF['End Status']=='Failed')))] # _q for queued. Only Run Queued runs that aren't running or have finished.
     print(' completed!\n')
 
-    print('--- Running snakemake files:')
+    if not Cct_Sims:
+        N_Sims = len(DF_q)
+        Cct_Sims = min(N_Sims, cores)  # Number of Sims to run simultaneously, limited by number of queued runs and available cores
+    
+    cores_per_Sim = cores // Cct_Sims  # Number of cores per Sim
+
+    print(f"Found {bold}{len(DF_q)} queued Sims{bold_off} in the RunLog. Will run {bold}{Cct_Sims} Sims simultaneously{bold_off}, using {bold}{cores_per_Sim} cores per Sim{bold_off}.\n")
+
     if DF_q.empty:
         print("\n🔴🔴🔴 - No queued runs found in the RunLog.")
     else:
-        for i, Se_Ln in DF_q.iterrows():
-            Pa_Smk = PJ(Pa_WS, f"models/{Se_Ln['model alias']}/code/snakemake/{Se_Ln['MdlN']}.smk")
-            Pa_Smk_log = PJ(Pa_WS, f"models/{Se_Ln['model alias']}/code/snakemake/log/{Se_Ln['MdlN']}_{DT.now().strftime('%Y%m%d_%H%M%S')}.log")
-            Pa_DAG = PJ(Pa_WS, f"models/{Se_Ln['model alias']}/code/snakemake/DAG/DAG_{Se_Ln['MdlN']}.png")
-            print(f" -- {fg('green')}{PBN(Pa_Smk)}{attr('reset')}\n")
+        # Prepare arguments for multiprocessing
+        args = [(i, row, cores_per_Sim, DAG) for i, row in DF_q.iterrows()]
 
-            try:
-                if DAG:
-                    sp.run(["snakemake", "--dag", "-s", Pa_Smk, "--cores", str(cores), '|', 'dot', '-Tpng', '-o', f'{Pa_DAG}'], shell=True, check=True)
-                with open(Pa_Smk_log, 'w') as f:
-                    sp.run(["snakemake", "-p", "-s", Pa_Smk, "--cores", str(cores)], check=True, stdout=f, stderr=f) # Run snakemake and write output to log file
-                print(f"🟢🟢")
-            except sp.CalledProcessError as e:
-                print(f"🔴🔴: {e}")
+        # Run models in parallel
+        with Pool(processes=Cct_Sims) as pool:
+            results = pool.map(_RunMng, args)
+        
+        # Print results
+        for result in results:
+            if len(result) == 2:
+                model_id, success = result
+                if success:
+                    print(f"🟢🟢 Model {model_id} completed successfully")
+                else:
+                    print(f"🔴🔴 Model {model_id} failed")
+            else:
+                model_id, success, error = result
+                print(f"🔴🔴 Model {model_id} failed: {error}")
+    
     print(Sign)
 
 def reset_Sim(MdlN: str):
