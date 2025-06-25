@@ -17,7 +17,7 @@ from multiprocessing import Pool
 warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl.worksheet._read_only")
 
 #-----------------------------------------------------------------------------------------------------------------------------------
-Pre_Sign = f"{fg(52)}{'*'*80}{attr('reset')}\n\n"
+Pre_Sign = f"{fg(52)}{'*'*80}{attr('reset')}\n"
 Sign = f"{fg(52)}\nend_of_transmission\n{'*'*80}{attr('reset')}\n"
 bold = '\033[1m'
 bold_off = '\033[0m'
@@ -204,7 +204,7 @@ def HD_Out_IDF_to_DF(path, add_extra_cols: bool = True): #666 can make it save D
 
 # Open files -----------------------------------------------------------------------------------------------------------------------
 def Sim_Cfg(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
-    vprint(f"\n{'-'*100}\nOpening all configuration files for specified runs with the default program.\nIt's assumed that Notepad++ is installed in: {Pa_NP}.\nIf that's not True, provide the correct path to Notepad++ (or another text editor) as the last argument to this function.\n")
+    vprint(f"{'-'*100}\nOpening all configuration files for specified runs with the default program.\nIt's assumed that Notepad++ is installed in: {Pa_NP}.\nIf that's not True, provide the correct path to Notepad++ (or another text editor) as the last argument to this function.\n")
     
     l_keys = ['Smk', 'BAT', 'INI', 'PRJ']
     l_paths = [get_MdlN_paths(MdlN) for MdlN in l_MdlN]
@@ -214,7 +214,7 @@ def Sim_Cfg(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
         vprint(f'🟢 - {f}')
 
 def open_LSTs(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
-    vprint(f"\n{'-'*100}\nOpening LST files (Mdl+Sim) for specified runs with the default program.\n")
+    vprint(f"{'-'*100}\nOpening LST files (Mdl+Sim) for specified runs with the default program.\n")
     vprint(f"It's assumed that Notepad++ is installed in: {Pa_NP}.\nIf that's not True, provide the correct path to Notepad++ (or another text editor) as the last argument to this function.\n")
     
     l_keys = ['LST_Sim', 'LST_Mdl']
@@ -352,7 +352,7 @@ def _RunMng(args):
     Pa_Smk = PJ(Pa_WS, f"models/{Se_Ln['model alias']}/code/snakemake/{Se_Ln['MdlN']}.smk")
     Pa_Smk_log = PJ(Pa_WS, f"models/{Se_Ln['model alias']}/code/snakemake/log/{Se_Ln['MdlN']}_{DT.now().strftime('%Y%m%d_%H%M%S')}.log")
     Pa_DAG = PJ(Pa_WS, f"models/{Se_Ln['model alias']}/code/snakemake/DAG/DAG_{Se_Ln['MdlN']}.png")
-    vprint(f"{fg('blue')}{PBN(Pa_Smk)}{attr('reset')}\n")
+    vprint(f"{fg('cyan')}{PBN(Pa_Smk)}{attr('reset')}\n")
 
     try:
         if generate_dag:  # DAG parameter passed from RunMng
@@ -384,11 +384,11 @@ def RunMng(cores=None, DAG:bool=True, Cct_Sims=None):
 
     if not Cct_Sims:
         N_Sims = len(DF_q)
-        Cct_Sims = min(N_Sims, cores)  # Number of Sims to run simultaneously, limited by number of queued runs and available cores
+        Cct_Sims = max(min(N_Sims, cores), 1)  # Number of Sims to run simultaneously, limited by number of queued runs and available cores
     
     cores_per_Sim = cores // Cct_Sims  # Number of cores per Sim
 
-    vprint(f"Found {bold}{len(DF_q)} queued Sims{bold_off} in the RunLog. Will run {bold}{Cct_Sims} Sims simultaneously{bold_off}, using {bold}{cores_per_Sim} cores per Sim{bold_off}.\n")
+    vprint(f"Found {fg('cyan')}{len(DF_q)} queued Sims{attr('reset')} in the RunLog. Will run {fg('cyan')}{Cct_Sims} Sims simultaneously{attr('reset')}, using {bold}{cores_per_Sim} cores per Sim{bold_off}.\n")
 
     if DF_q.empty:
         print("\n🔴🔴🔴 - No queued runs found in the RunLog.")
@@ -522,8 +522,6 @@ def rerun_Sim(MdlN: str, cores=None, DAG:bool=True):
                 print(f"🔴🔴 Model {model_id} failed: {error}")
     
     vprint(Sign)
-
-
 
 def get_elapsed_time_str(start_time: float) -> str:
     s = int((DT.now() - start_time).total_seconds())
