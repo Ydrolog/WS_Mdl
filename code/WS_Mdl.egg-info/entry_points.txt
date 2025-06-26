@@ -10,6 +10,7 @@ Sim_Cfg = WS_Mdl.scripts.Sim_Cfg:main
 WS_Mdl = WS_Mdl.__main__:main
 map_DVC = WS_Mdl.scripts.map_DVC:main
 map_gitignore = WS_Mdl.scripts.map_gitignore:main
+open_LST = WS_Mdl.scripts.open_LST:main
 open_LSTs = WS_Mdl.scripts.open_LSTs:main
 rerun_Sim = WS_Mdl.scripts.rerun_Sim:main
 reset_Sim = WS_Mdl.scripts.reset_Sim:main

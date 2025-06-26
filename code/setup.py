@@ -22,6 +22,7 @@ setup(
             "RunMng=WS_Mdl.scripts.RunMng:main", # Read the RunLog, and for each queued model, run the corresponding Snakemake file.
             "IDF_to_TIF=WS_Mdl.scripts.IDF_to_TIF:main", # Converts IDF to TIF using the provided IDF file.
             "Sim_Cfg=WS_Mdl.scripts.Sim_Cfg:main", # Opens SimCfg files for the provided MdlN.
+            "open_LST=WS_Mdl.scripts.open_LST:main", # Opens LST files for the provided MdlN.
             "open_LSTs=WS_Mdl.scripts.open_LSTs:main", # Opens LST files for the provided MdlN.
             "rerun_Sim=WS_Mdl.scripts.rerun_Sim:main", # Reruns the Sim for the provided MdlN.
         ]

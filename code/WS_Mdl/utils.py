@@ -224,6 +224,18 @@ def open_LSTs(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
     for f in l_files:
         sp.Popen([Pa_NP] + [f])
         vprint(f'🟢 - {f}')
+
+def open_LST(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
+    vprint(f"{'-'*100}\nOpening LST files (Mdl+Sim) for specified runs with the default program.\n")
+    vprint(f"It's assumed that Notepad++ is installed in: {Pa_NP}.\nIf that's not True, provide the correct path to Notepad++ (or another text editor) as the last argument to this function.\n")
+    
+    l_keys = ['LST_Mdl']
+    l_paths = [get_MdlN_paths(MdlN) for MdlN in l_MdlN]
+    l_files = [paths[k] for k in l_keys for paths in l_paths]
+    
+    for f in l_files:
+        sp.Popen([Pa_NP] + [f])
+        vprint(f'🟢 - {f}')
 # ----------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -300,7 +312,7 @@ def S_from_B(MdlN:str):
                     os.startfile(Pa_S) # Then we'll open it to make any other changes we want to make. Except if it's the BAT file
                 vprint(f"🟢 - {Pa_S.split('/')[-1]} created successfully! (from {Pa_B})")
             else:
-                print(f"🔴 - {Pa_S.split('/')[-1]} already exists. If you want it to be replaced, you have to delete it manually before running this command.")
+                print(f"🟡 - {Pa_S.split('/')[-1]} already exists. If you want it to be replaced, you have to delete it manually before running this command.")
         except Exception as e:
             print(f"🔴 - Error copying {Pa_B} to {Pa_S}: {e}")
 
@@ -310,7 +322,7 @@ def S_from_B(MdlN:str):
             os.startfile(Pa_PRJ) # Then we'll open it to make any other changes we want to make.
             vprint(f"🟢 - {Pa_PRJ.split('/')[-1]} created successfully! (from {Pa_PRJ_B})")
         else:
-            print(f"🔴 - {Pa_PRJ.split('/')[-1]} already exists. If you want it to be replaced, you have to delete it manually before running this command.")
+            print(f"🟡 - {Pa_PRJ.split('/')[-1]} already exists. If you want it to be replaced, you have to delete it manually before running this command.")
     except Exception as e:
         print(f"🔴 - Error copying {Pa_PRJ_B} to {Pa_PRJ}: {e}")
     vprint(Sign)
