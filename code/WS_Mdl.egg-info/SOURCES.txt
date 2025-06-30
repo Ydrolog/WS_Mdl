@@ -1,4 +1,4 @@
-setup.py
+pyproject.toml
 C:/OD/WS_Mdl/code/WS_Mdl/scripts/S_from_B.py
 C:/OD/WS_Mdl/code/WS_Mdl/scripts/__init__.py
 WS_Mdl/__init__.py

@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=64.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "WS_Mdl"
+version = "0.1"
+dependencies = [
+  "pandas",
+  "numpy",
+]
+readme = "README.md"        # adjust or remove
+requires-python = ">=3.7"
+
+[project.scripts]
+WS_Mdl            = "WS_Mdl.__main__:main"
+S_from_B          = "WS_Mdl.scripts.S_from_B:main"
+S_from_B_undo     = "WS_Mdl.scripts.S_from_B_undo:main"
+Dir_Fo_size       = "WS_Mdl.scripts.Dir_Fo_size:main"
+map_DVC           = "WS_Mdl.scripts.map_DVC:main"
+map_gitignore     = "WS_Mdl.scripts.map_gitignore:main"
+DVC_add_pattern   = "WS_Mdl.scripts.DVC_add_pattern:main"
+DVC_add_pattern_deep = "WS_Mdl.scripts.DVC_add_pattern_deep:main"
+reset_Sim         = "WS_Mdl.scripts.reset_Sim:main"
+RunMng            = "WS_Mdl.scripts.RunMng:main"
+IDF_to_TIF        = "WS_Mdl.scripts.IDF_to_TIF:main"
+Sim_Cfg           = "WS_Mdl.scripts.Sim_Cfg:main"
+open_LST          = "WS_Mdl.scripts.open_LST:main"
+open_LSTs         = "WS_Mdl.scripts.open_LSTs:main"
+rerun_Sim         = "WS_Mdl.scripts.rerun_Sim:main"
+
+[tool.setuptools.packages.find]
+where   = ["."]
+include = ["WS_Mdl", "WS_Mdl.*"]

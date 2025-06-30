@@ -1,6 +1,7 @@
-Metadata-Version: 2.2
+Metadata-Version: 2.4
 Name: WS_Mdl
 Version: 0.1
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
 Requires-Dist: pandas
 Requires-Dist: numpy
-Dynamic: requires-dist
