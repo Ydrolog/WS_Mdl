@@ -5,29 +5,29 @@ The WS env should be frozen on every change. If no Env is present for a run/Sim 
 1. activate:
 conda activate WS
 
-2. freeze:
+2. freeze (run this in this folder):
 python .\freeze_env_WS.py
 
-This will create a .yml and a .txt file for the conda and pip dependencies respectedly
+This will create a .yml file for the conda and pip dependencies
+WS_Mdl is the only lib that has to be installed separatelly. 
 -----------------------------------------
 
 
 -----------------------------------------
 --- To import/install: ---
 1. install from .yml
-mamba env create -f WS_conda_env_<MdlN>.yml
+mamba env create -f ./WS_env_<MdlN>.yml
 # Can use conda instead of mamba
 
 2. activate env
 conda activate WS
 
-3. install pip dependencies (including WS GitHub package)
-pip install -r pip_env.txt
-
-4. (optional) check conda packages
+3. (optional) check conda packages
 conda list
 
-5. (optional) check pip packages
+4. (optional) check pip packages
 pip list
 
+5. Install WS_Mdl. You'll need to be on the WS_Mdl repo version that corresonds to your MdlN (repo_V Col in RunLog). Then run:
+pip install -e C:\OD\WS_Mdl\code --use-pep517 --no-deps --no-build-isolation
 -----------------------------------------

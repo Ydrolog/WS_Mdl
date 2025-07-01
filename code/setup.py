@@ -4,10 +4,10 @@ setup(
     name="WS_Mdl",
     version="0.1",
     packages=find_packages(),
-    install_requires=[
-        "pandas",
-        "numpy",
-    ],
+    # install_requires=[ # I think those aren't necessary as they're already in the conda environment.
+    #     "pandas",
+    #     "numpy",
+    # ],
     entry_points={
         "console_scripts": [
             "WS_Mdl=WS_Mdl.__main__:main",  # Keep the main command
