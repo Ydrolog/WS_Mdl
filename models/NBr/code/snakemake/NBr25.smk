@@ -33,13 +33,12 @@ Pa_Sim                  =   PJ(Pa_Mdl, 'Sim')
 Pa_MdlN                 =   PJ(Pa_Sim, f'{MdlN}')
 Pa_BAT_RUN              =   PJ(Pa_MdlN, 'RUN.BAT')
 Pa_OBS, Pa_NAM          =   [PJ(Pa_MdlN, 'GWF_1', i) for i in [f'MODELINPUT/{MdlN}.OBS6', f'{MdlN}.NAM']]
-Pa_SFR_Src, Pa_SFR_Dst  =   PJ(Pa_Mdl, f"In/SFR/{MdlN_SFR_SRC}/{MdlN_SFR_SRC}.SFR6"), PJ(Pa_MdlN, f"GWF_1/MODELINPUT/{MdlN}.SFR6")
-Pa_SFR_OBS_Src, Pa_SFR_OBS_Dst  =   PJ(Pa_Mdl, f"In/OBS/{MdlN}.SFR.OBS6"), PJ(Pa_MdlN, f"GWF_1/MODELINPUT/{MdlN}.SFR.OBS6")
+Pa_SFR_Src, Pa_SFR_Dst  =   PJ(Pa_Mdl, f"In/SFR/{MdlN}/{MdlN}.SFR6"), PJ(Pa_MdlN, f"GWF_1/MODELINPUT/{MdlN}.SFR6")
+Pa_SFR_OBS_Src, Pa_SFR_OBS_Dst  =   PJ(Pa_Mdl, f"In/OBS/SFR/{MdlN}/{MdlN}.SFR.OBS6"), PJ(Pa_MdlN, f"GWF_1/MODELINPUT/{MdlN}.SFR.OBS6")
 Pa_HED, Pa_CBC          =   [PJ(Pa_MdlN, 'GWF_1/MODELOUTPUT', i) for i in ['HEAD/HEAD.HED', 'BUDGET/BUDGET.CBC']]
 
 git_hash = shell("git rev-parse HEAD", read=True).strip()
-git_tag  = shell("git describe --tags --exact-match 2>/dev/null || true",
-                 read=True).strip() or "no_tag"
+git_tag  = shell("git describe --tags --exact-match", read=True, allow_error=True).strip() or "no_tag"
 
 ## Temp files (for completion validation)
 log_Init_done           =   f"{Pa_Smk}/temp/Log_init_done_{MdlN}"

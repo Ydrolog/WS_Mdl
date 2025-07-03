@@ -76,6 +76,8 @@ def paths_from_MdlN_Se(S, MdlN):
     d_Pa['Pa_MdlN']             =   PJ(d_Pa['Pa_Mdl'], f"Sim/{MdlN}")
     d_Pa['LST_Sim']             =   PJ(d_Pa['Pa_MdlN'], "mfsim.lst") # Sim LST file
     d_Pa['LST_Mdl']             =   PJ(d_Pa['Pa_MdlN'], f"GWF_1/{MdlN}.lst") # Mdl LST file
+    d_Pa['NAM_Sim']             =   PJ(d_Pa['Pa_MdlN'], "MFSIM.NAM") # Sim LST file
+    d_Pa['NAM_Mdl']             =   PJ(d_Pa['Pa_MdlN'], f"GWF_1/{MdlN}.NAM") # Mdl LST file
 
     d_Pa['Out_HD']              =   PJ(d_Pa['Pa_MdlN'], f"GWF_1/MODELOUTPUT/HEAD/HEAD")
     d_Pa['PoP_Out_MdlN']        =   PJ(d_Pa['PoP'], 'Out', MdlN)
@@ -224,6 +226,19 @@ def open_LSTs(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
     for f in l_files:
         sp.Popen([Pa_NP] + [f])
         vprint(f'🟢 - {f}')
+
+def open_NAMs(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
+    vprint(f"{'-'*100}\nOpening NAM files (Mdl+Sim) for specified runs with the default program.\n")
+    vprint(f"It's assumed that Notepad++ is installed in: {Pa_NP}.\nIf that's not True, provide the correct path to Notepad++ (or another text editor) as the last argument to this function.\n")
+
+    l_keys = ['NAM_Sim', 'NAM_Mdl']
+    l_paths = [get_MdlN_paths(MdlN) for MdlN in l_MdlN]
+    l_files = [paths[k] for k in l_keys for paths in l_paths]
+    
+    for f in l_files:
+        sp.Popen([Pa_NP] + [f])
+        vprint(f'🟢 - {f}')
+
 
 def open_LST(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
     vprint(f"{'-'*100}\nOpening LST files (Mdl+Sim) for specified runs with the default program.\n")
@@ -536,9 +551,12 @@ def rerun_Sim(MdlN: str, cores=None, DAG:bool=True):
     vprint(Sign)
 
 def get_elapsed_time_str(start_time: float) -> str:
-    s = int((DT.now() - start_time).total_seconds())
+    """Returns elapsed time as a formatted string.
+    Format: 'd.hh:mm:ss' for days or 'hh:mm:ss' when less than a day"""
+    elapsed = DT.now() - start_time
+    s = int(elapsed.total_seconds())
     d, h, m, s = s // 86400, (s // 3600) % 24, (s // 60) % 60, s % 60
 
-    if d:   return f"{d}-{h:02}:{m:02}:{s:02}"
+    if d:   return f"{d}.{h:02}:{m:02}:{s:02}"
     return f"{h:02}:{m:02}:{s:02}"
 #-----------------------------------------------------------------------------------------------------------------------------------
