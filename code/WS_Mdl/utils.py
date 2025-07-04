@@ -402,7 +402,7 @@ def RunMng(cores=None, DAG:bool=True, Cct_Sims=None):
     if cores is None:
         cores = max(cpu_count() - 2, 1)  # Leave 2 cores free for other tasks. If there aren't enough cores available, set to 1.
     
-    vprint(f"{Pre_Sign}RunMng will run all Sims that are queued in the RunLog.\n") 
+    vprint(f"{Pre_Sign}RunMng initiated on {str(DT.now()).split('.')[0]}.  All Sims that are queued in the RunLog will be executed.\n") 
 
     vprint(f"Reading RunLog ...", end='')
     DF = read_RunLog()
@@ -418,7 +418,7 @@ def RunMng(cores=None, DAG:bool=True, Cct_Sims=None):
     vprint(f"Found {fg('cyan')}{len(DF_q)} queued Sims{attr('reset')} in the RunLog. Will run {fg('cyan')}{Cct_Sims} Sims simultaneously{attr('reset')}, using {bold}{cores_per_Sim} cores per Sim{bold_off}.\n")
 
     if DF_q.empty:
-        print("\n🔴🔴🔴 - No queued runs found in the RunLog.")
+        print("\n🟡🟡🟡 - No queued runs found in the RunLog.")
     else:
         # Prepare arguments for multiprocessing
         args = [(i, row, cores_per_Sim, DAG) for i, row in DF_q.iterrows()]
