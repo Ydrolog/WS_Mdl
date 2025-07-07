@@ -15,6 +15,7 @@ import re
 sys.stdout.reconfigure(encoding='utf-8')
 sys.stderr.reconfigure(encoding='utf-8')
 os.environ["PYTHONUNBUFFERED"] = "1"
+from filelock import FileLock as FL
 
 # --- Variables ---
 
@@ -124,13 +125,14 @@ rule add_SFR_copy:
         Pa_SFR_Dst
     run:
         sh.copy2(Pa_SFR_Src, Pa_SFR_Dst)
-        with open(Pa_NAM, 'r') as f1:
-            l_lines     = f1.readlines()
+        lock = FL(Pa_NAM + '.lock')  # Create a file lock to prevent concurrent writes
+        with lock, open(Pa_NAM, 'r+') as f:
+            l_lines     = f.readlines()
             l_lines[-1] = f" SFR6 ./GWF_1/MODELINPUT/{MdlN}.SFR6 SFR6\n"
-        with open(Pa_NAM, 'w') as f2:
+            f.seek(0); f.truncate()
             for i in l_lines:
-                f2.write(i)
-            f2.write('END PACKAGES')
+                f.write(i)
+            f.write('END PACKAGES')
 
 rule add_SFR_OBS_copy: # By copying file.
     input:

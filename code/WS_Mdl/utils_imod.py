@@ -12,6 +12,7 @@ from multiprocessing import Process, cpu_count
 import re
 import pandas as pd
 from tqdm import tqdm # Track progress of the loop
+from filelock import FileLock as FL
 
 # PRJ related ----------------------------------------------------------------------------------------------------------------------
 def read_PRJ_with_OBS(Pa_PRJ, verbose:bool=True):
@@ -182,14 +183,19 @@ def add_OBS(MdlN:str, Opt:str="BEGIN OPTIONS\nEND OPTIONS"):
             f.write("END CONTINUOUS\n")
     
         # Open NAM file and add OBS file to it
-        with open(PJ(Pa_MdlN, 'GWF_1', MdlN+'.nam'), 'r') as f1:
-            NAM = f1.read()
-        l_NAM = NAM.split('END PACKAGES')
-        with open(PJ(Pa_MdlN, 'GWF_1', MdlN+'.nam'), 'w') as f2:
-            Pa_OBS_Rel = os.path.relpath(Pa_OBS, Pa_MdlN) # Creates Rel path from full path.
-            f2.write(l_NAM[0])
-            f2.write(fr' OBS6 .\{Pa_OBS_Rel} OBS_{OBS_IPF_Fi.split('.')[0]}')
-            f2.write('\nEND PACKAGES')
+        lock = FL(d_Pa['NAM_Mdl'] + '.lock')  # Create a file lock to prevent concurrent writes
+        with lock, open(d_Pa['NAM_Mdl'], 'r+') as f:
+
+            l_NAM = f.read().split('END PACKAGES')
+            f.seek(0); f.truncate()                  # overwrite in-place
+            Pa_OBS_Rel = os.path.relpath(Pa_OBS, Pa_MdlN)
+
+            f.write(l_NAM[0])
+            f.write(fr' OBS6 .\{Pa_OBS_Rel} OBS_{OBS_IPF_Fi.split(".")[0]}')
+            f.write('\nEND PACKAGES')
+
+            f.flush(); os.fsync(f.fileno())          # ensure it’s on disk
+            # lock is released automatically when the with-block closes
         vprint(f'🟢 - {Pa_OBS} has been added successfully!')
     vprint(Sign)
 #-----------------------------------------------------------------------------------------------------------------------------------
