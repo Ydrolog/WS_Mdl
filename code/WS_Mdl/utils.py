@@ -94,11 +94,55 @@ def get_MdlN_paths(MdlN: str, verbose=False): #666 Can be split into two as both
     """
     Returns a dictionary of useful objects (mainly paths, but also Mdl, MdlN) for a given MdlN. Those need to then be passed to arguments, e.g.:
     d_Pa = get_MdlN_paths(MdlN)
-    Pa_INI_B = d_Pa['Pa_INI_N'].
+    Pa_INI_B = d_Pa['Pa_INI_B'].
     """
     d_Pa = paths_from_MdlN_Se( MdlN_Se_from_RunLog((MdlN)), MdlN )
     if verbose:
         vprint(f"🟢 - {MdlN} paths extracted from RunLog and returned as dictionary with keys:\n{', '.join(d_Pa.keys())}")
+    return d_Pa
+
+def get_MdlN_Pa(MdlN: str, MdlN_B=None, verbose=False):
+    """ 
+    #Improved get_MdlN_paths.# 
+    - Doesn't read RunLog, unless B is set to True. Thus it's much faster.
+    - Returns a dictionary of useful objects (mainly paths, but also Mdl, MdlN) for a given MdlN. Those need to then be passed to arguments, e.g.
+        d_Pa = get_MdlN_Pa(MdlN)
+        Pa_INI = d_Pa['Pa_INI'].
+    """
+
+    if MdlN_B==True:
+        d_Pa = paths_from_MdlN_Se( MdlN_Se_from_RunLog((MdlN)), MdlN )
+    else:
+        ## Non paths + General paths
+        Mdl = get_Mdl(MdlN) # Get model alias from MdlN
+
+        d_Pa = {}
+        d_Pa['Mdl']             =   Mdl
+        d_Pa['MdlN']            =   MdlN
+        d_Pa['Pa_Mdl']          =   PJ(Pa_WS, f'models/{Mdl}')
+        d_Pa['Smk_temp']        =   PJ(d_Pa['Pa_Mdl'], f'code/snakemake/temp')
+        d_Pa['PoP']             =   PJ(d_Pa['Pa_Mdl'], 'PoP')
+
+        ## S Sim paths (grouped based on: pre-run, run, post-run)
+        d_Pa['INI']             =   PJ(d_Pa['Pa_Mdl'], f'code/Mdl_Prep/Mdl_Prep_{MdlN}.ini')
+        d_Pa['BAT']             =   PJ(d_Pa['Pa_Mdl'], f'code/Mdl_Prep/Mdl_Prep_{MdlN}.bat')
+        d_Pa['PRJ']             =   PJ(d_Pa['Pa_Mdl'], f'In/PRJ/{MdlN}.prj')
+        d_Pa['Smk']             =   PJ(d_Pa['Pa_Mdl'], f'code/snakemake/{MdlN}.smk')
+        
+        d_Pa['Pa_MdlN']         =   PJ(d_Pa['Pa_Mdl'], f"Sim/{MdlN}")
+        d_Pa['LST_Sim']         =   PJ(d_Pa['Pa_MdlN'], "mfsim.lst") # Sim LST file
+        d_Pa['LST_Mdl']         =   PJ(d_Pa['Pa_MdlN'], f"GWF_1/{MdlN}.lst") # Mdl LST file
+        d_Pa['NAM_Sim']         =   PJ(d_Pa['Pa_MdlN'], "MFSIM.NAM") # Sim LST file
+        d_Pa['NAM_Mdl']         =   PJ(d_Pa['Pa_MdlN'], f"GWF_1/{MdlN}.NAM") # Mdl LST file
+
+        d_Pa['Out_HD']          =   PJ(d_Pa['Pa_MdlN'], f"GWF_1/MODELOUTPUT/HEAD/HEAD")
+        d_Pa['PoP_Out_MdlN']    =   PJ(d_Pa['PoP'], 'Out', MdlN)
+        d_Pa['MM']              =   PJ(d_Pa['PoP_Out_MdlN'], f'MM-{MdlN}.qgz')
+        
+        if MdlN_B: ## B Sim paths
+            for k in list(d_Pa.keys()):
+                if f'{k}_B' not in d_Pa:
+                    d_Pa[f'{k}_B'] = d_Pa[k].replace(MdlN, MdlN_B)
     return d_Pa
 
 def get_Mdl(MdlN: str):
@@ -205,6 +249,17 @@ def HD_Out_IDF_to_DF(path, add_extra_cols: bool = True): #666 can make it save D
 
 
 # Open files -----------------------------------------------------------------------------------------------------------------------
+def open_(key, *l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
+    vprint(f"{'-'*100}\nOpening LST files (Mdl+Sim) for specified runs with the default program.\n")
+    vprint(f"It's assumed that Notepad++ is installed in: {Pa_NP}.\nIf that's not True, provide the correct path to Notepad++ (or another text editor) as the last argument to this function.\n")
+    
+    l_Pa = [get_MdlN_Pa(MdlN)[key] for MdlN in l_MdlN]
+    
+    for f in l_Pa:
+        sp.Popen([Pa_NP] + [f])
+        vprint(f'🟢 - {f}')
+
+
 def Sim_Cfg(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
     vprint(f"{'-'*100}\nOpening all configuration files for specified runs with the default program.\nIt's assumed that Notepad++ is installed in: {Pa_NP}.\nIf that's not True, provide the correct path to Notepad++ (or another text editor) as the last argument to this function.\n")
     
@@ -238,7 +293,6 @@ def open_NAMs(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
     for f in l_files:
         sp.Popen([Pa_NP] + [f])
         vprint(f'🟢 - {f}')
-
 
 def open_LST(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
     vprint(f"{'-'*100}\nOpening LST files (Mdl+Sim) for specified runs with the default program.\n")
