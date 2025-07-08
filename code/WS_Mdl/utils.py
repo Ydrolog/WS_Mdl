@@ -48,7 +48,7 @@ def MdlN_Se_from_RunLog(MdlN): # Can be made faster. May need to make excel expo
     """Returns RunLog line that corresponds to MdlN as a S."""
 
     DF = pd.read_excel(PJ(Pa_WS, 'Mng/WS_RunLog.xlsx'), sheet_name='RunLog')    
-    Se_match = DF.loc[DF['MdlN'] == MdlN]
+    Se_match = DF.loc[DF['MdlN'].str.lower() == MdlN.lower()] # Match MdlN, case insensitive.
     if Se_match.empty:
         raise ValueError(f"MdlN {MdlN} not found in RunLog. {fg('indian_red_1c')}Check the spelling and try again.{attr('reset')}")
     S = Se_match.squeeze()

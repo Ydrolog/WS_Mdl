@@ -169,6 +169,7 @@ rule PRJ_to_TIF:
         temp(log_PRJ_to_TIF_done)
     run:
         G.PRJ_to_TIF(MdlN)
+        Up_log(MdlN, {  'PRJ_to_TIF':   1})
         pathlib.Path(output[0]).touch() # Create the file to mark the rule as done.
 
 rule GXG:
@@ -178,6 +179,7 @@ rule GXG:
         temp(log_GXG_done)
     run:
         G.HD_IDF_GXG_to_TIF(MdlN, rules=rule_)
+        Up_log(MdlN, {  'GXG':   rule_})
         pathlib.Path(output[0]).touch() # Create the file to mark the rule as done.
 
 rule Up_MM:
@@ -189,5 +191,6 @@ rule Up_MM:
     run:
         G.Up_MM(MdlN, MdlN_MM_B=MdlN_MM_B)     # Update MM 
         Up_log(MdlN, {  'PoP end DT':   DT.now().strftime("%Y-%m-%d %H:%M:%S"),
-                        'End Status':   'PoPed'}) # Update log
+                        'End Status':   'PoPed',
+                        'Up_MM'     :   1}) # Update log
         pathlib.Path(output[0]).touch()     # Create the file to mark the rule as done.
