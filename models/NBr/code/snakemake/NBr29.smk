@@ -91,11 +91,12 @@ rule log_Init: # Sets status to running, and writes other info about therun. Has
 rule freeze_env_to_yml:
     output: log_freeze_env
     run:
-        sp.run(
-            ["python", PJ(Pa_WS,"code/Env/freeze_env_WS.py"), "--MdlN", MdlN],
-            check=True
-        )
-        pathlib.Path(output[0]).touch()
+        try:
+            sp.run(["python", PJ(Pa_WS,"code/Env/freeze_env_WS.py"), "--MdlN", MdlN], check=True)
+            pathlib.Path(output[0]).touch()
+        except Exception:
+            print(f'Error will be written to {output[0]}')
+            open(output[0], "w").close()
 
         
 rule Mdl_Prep: # Prepares Sim Ins (from Ins) via BAT file.

@@ -19,16 +19,11 @@ from typing import Union
 from WS_Mdl import utils as U
 import pandas as pd
 
-__all__: list[str] = ["write_MVR"]
+__all__: list[str] = ["w_MVR"]
 
 # Helper / validation -----------------------------------------------------------------------------
-_EXPECTED_COLS = ["Tgt_L",
-                  "Tgt_R",
-                  "Tgt_C",
-                  "SFR_L",
-                  "SFR_R",
-                  "SFR_C",]
-
+_EXPECTED_COLS = ["Pvd_i",
+                  "Rcv_i"]
 
 def _validate_df(df: pd.DataFrame) -> None:
     """Ensure required columns are present; raise ValueError otherwise."""
@@ -37,9 +32,8 @@ def _validate_df(df: pd.DataFrame) -> None:
         raise ValueError("Input DataFrame is missing required column(s): " + ", ".join(missing))
 
 
-
 # Public writer -----------------------------------------------------------------------------
-def write_MVR(DF: pd.DataFrame,
+def w_MVR(DF: pd.DataFrame,
               source_pkg: str = "DRN",
               receiver_pkg: str = "SFR",
               *,
@@ -67,6 +61,12 @@ def write_MVR(DF: pd.DataFrame,
         Path of the written MVR file.
     """
     _validate_df(DF)
+
+    DF['Pkg1']      = 'DRN'
+    DF['Pkg2']      = 'SFR'
+    DF['MVR_type']  = 'FACTOR'
+    DF['value']     = 1
+    DF = DF[['Pkg1', 'Pvd_i', 'Pkg2', 'Rcv_i', 'MVR_type', 'value']]
 
     filename = Path(filename)
     filename.parent.mkdir(parents=True, exist_ok=True)
@@ -108,13 +108,8 @@ if __name__ == "__main__":  # pragma: no cover
     # Quick smoke test using a tiny dummy DF
     import numpy as np
 
-    dummy = pd.DataFrame({"Tgt_L": [1, 1],
-                          "Tgt_R": [2, 3],
-                          "Tgt_C": [4, 5],
-                          "SFR_L": [1, 1],
-                          "SFR_R": [1, 1],
-                          "SFR_C": [4, 4],
-                          "distance": np.random.rand(2),})
-    
+    dummy = pd.DataFrame({"Pvd_i": [1, 1],
+                          "Rcv_i": [2, 3],})
+
     out = write_MVR(dummy, filename="_test_drn_to_sfr.mvr")
     print("Wrote", out)
