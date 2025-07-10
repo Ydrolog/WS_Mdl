@@ -15,6 +15,7 @@ from multiprocessing import cpu_count
 import warnings
 from multiprocessing import Pool
 warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl.worksheet._read_only")
+from io import StringIO
 
 #-----------------------------------------------------------------------------------------------------------------------------------
 Pre_Sign = f"{fg(52)}{'*'*80}{attr('reset')}\n"
@@ -30,7 +31,7 @@ Pa_log      = PJ(Pa_WS, 'Mng/log.csv')
 ## Can make get paths function that will provide the general directories, like Pa_WS, Pa_Mdl. Those can be derived from a folder structure.
 
 
-# Get MdlN info --------------------------------------------------------------------------------------------------------------------
+# VERBOSE --------------------------------------------------------------------------------------------------------------------------
 def vprint(*args, **kwargs):
     """Prints only if VERBOSE is True."""
     if VERBOSE:
@@ -245,6 +246,102 @@ def HD_Out_IDF_to_DF(path, add_extra_cols: bool = True): #666 can make it save D
     # DF.to_csv(PJ(path, 'contents.csv'), index=False)
     
     return DF
+
+def MF6_block_to_DF(
+    Pa: str | Path,
+    block: str,
+    *,
+    comment_chars: tuple[str, ...] = ("#", "!", "//"),
+    has_header: bool = True,
+    **read_csv_kwargs,
+) -> pd.DataFrame:
+    """
+    Read the lines between ``BEGIN <block>`` and ``END <block>`` in a MODFLOW-6 file
+    into a pandas DataFrame.
+
+    A single comment line that **begins with ``#`` directly in front of the first data
+    row** (i.e. before any non-comment, non-blank line is seen) is interpreted as the
+    column names for the resulting DF, regardless of *has_header*.
+
+    Parameters
+    ----------
+    Pa : str or Path
+        Path to the MF6 file.
+    block : str
+        Block name exactly as it appears after BEGIN / END (case-insensitive).
+    comment_chars : tuple[str, ...], optional
+        One-character prefixes that mark a line as a comment and should be skipped.
+    has_header : bool, optional
+        If True *and* no leading ``#`` header is found, the first non-comment line in
+        the block is treated as column names. If False, columns will be numbered
+        ``col_0, col_1, …``.
+    **read_csv_kwargs
+        Extra arguments forwarded to :pyfunc:`pandas.read_csv` (dtype, sep, na_values,
+        etc.).
+
+    Returns
+    -------
+    pandas.DataFrame
+        A DataFrame containing the block's tabular data.
+    """
+    Pa = Path(Pa)
+    begin_pat = re.compile(rf"^\s*BEGIN\s+{re.escape(block)}\s*$", re.IGNORECASE)
+    end_pat = re.compile(rf"^\s*END\s+{re.escape(block)}\s*$", re.IGNORECASE)
+
+    capture = False
+    buffer: list[str] = []
+    header_line: str | None = None
+
+    with Pa.open("r", encoding="utf-8") as f:
+        for line in f:
+            if not capture and begin_pat.match(line):
+                capture = True
+                continue  # don’t include the BEGIN line itself
+            if capture:
+                if end_pat.match(line):
+                    break  # reached END <block>
+
+                stripped = line.lstrip()
+
+                # Detect and store a single leading '#' comment as header names
+                if any(stripped.startswith(c) for c in comment_chars):
+                    if (
+                        stripped.startswith("#")
+                        and header_line is None
+                        and not buffer  # only if it's immediately before data
+                    ):
+                        header_line = stripped[1:].strip()
+                    continue  # skip all comment lines
+
+                if not stripped:
+                    continue  # skip blank lines
+
+                buffer.append(line)
+
+    if not buffer:
+        raise ValueError(f"Block '{block}' not found or contained no data in {Pa}")
+
+    text = "".join(buffer)
+
+    # Determine how pandas will treat headers inside *text*
+    pandas_header = None if header_line is not None else (0 if has_header else None)
+
+    DF = pd.read_csv(
+        StringIO(text),
+        delim_whitespace=True,  # MF6 tables are whitespace-delimited
+        header=pandas_header,
+        comment=None,  # comments were already handled
+        **read_csv_kwargs,
+    )
+
+    # Apply column names logic
+    if header_line is not None:
+        DF.columns = re.split(r"\s+", header_line.strip())
+    elif not has_header:
+        DF.columns = [f"col_{i}" for i in range(DF.shape[1])]
+
+    return DF
+
 # ----------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -294,7 +391,7 @@ def open_NAMs(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
         sp.Popen([Pa_NP] + [f])
         vprint(f'🟢 - {f}')
 
-def open_LST(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
+def open_LST(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'): #666 To be deprecated later, as open_ does the same thing, but is more versatile.
     vprint(f"{'-'*100}\nOpening LST files (Mdl+Sim) for specified runs with the default program.\n")
     vprint(f"It's assumed that Notepad++ is installed in: {Pa_NP}.\nIf that's not True, provide the correct path to Notepad++ (or another text editor) as the last argument to this function.\n")
     
@@ -310,6 +407,28 @@ def open_LST(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
 
 # Formatting -----------------------------------------------------------------------------------------------------------------------
 def DF_to_MF_block(DF, Min_width=4, indent='    ', Max_decimals=4):
+    """
+    Convert DataFrame to formatted MODFLOW input block.
+
+    Creates a text block with consistent column widths, proper decimal formatting,
+    and indentation for MODFLOW input files. The first column is commented with '#'.
+
+    Parameters
+    ----------
+    DF : pandas.DataFrame
+        DataFrame to format
+    Min_width : int, default=4
+        Minimum width for each column
+    indent : str, default='    '
+        String for line indentation
+    Max_decimals : int, default=4
+        Maximum decimal places for float values
+        
+    Returns
+    -------
+    str
+        Formatted text block with right-aligned columns and consistent formatting
+    """
     DF = DF.rename(columns={ DF.columns[0] : '#'+DF.columns[0] }) # comment out header, so that MF6 doesn't read it.
     DF_str = DF.copy().astype(str)
 
@@ -456,7 +575,7 @@ def RunMng(cores=None, DAG:bool=True, Cct_Sims=None):
     if cores is None:
         cores = max(cpu_count() - 2, 1)  # Leave 2 cores free for other tasks. If there aren't enough cores available, set to 1.
     
-    vprint(f"{Pre_Sign}RunMng initiated on {str(DT.now()).split('.')[0]}.  All Sims that are queued in the RunLog will be executed.\n") 
+    vprint(f"{Pre_Sign}RunMng initiated on {fg('cyan')}{str(DT.now()).split('.')[0]}{attr('reset')}. All Sims that are queued in the RunLog will be executed.\n") 
 
     vprint(f"Reading RunLog ...", end='')
     DF = read_RunLog()
@@ -469,7 +588,7 @@ def RunMng(cores=None, DAG:bool=True, Cct_Sims=None):
     
     cores_per_Sim = cores // Cct_Sims  # Number of cores per Sim
 
-    vprint(f"Found {fg('cyan')}{len(DF_q)} queued Sims{attr('reset')} in the RunLog. Will run {fg('cyan')}{Cct_Sims} Sims simultaneously{attr('reset')}, using {bold}{cores_per_Sim} cores per Sim{bold_off}.\n")
+    vprint(f"Found {fg('cyan')}{len(DF_q)} queued Sim(s){attr('reset')} in the RunLog. Will run {fg('cyan')}{Cct_Sims} Sim(s) simultaneously{attr('reset')}, using {bold}{cores_per_Sim} cores per Sim{bold_off}.\n")
 
     if DF_q.empty:
         print("\n🟡🟡🟡 - No queued runs found in the RunLog.")
@@ -613,4 +732,29 @@ def get_elapsed_time_str(start_time: float) -> str:
 
     if d:   return f"{d}.{h:02}:{m:02}:{s:02}"
     return f"{h:02}:{m:02}:{s:02}"
+#-----------------------------------------------------------------------------------------------------------------------------------
+
+# Edit common text files -----------------------------------------------------------------------------------------------------------
+def add_MVR_to_OPTIONS(Pa):
+    """
+    Opens a MODFLOW 6 input files (based on provided path), finds the OPTIONS block, and adds the MOVER option before the END OPTIONS line. Uses a file lock to ensure thread-safe file editing.
+    
+    Parameters
+    ----------
+    Pa : str
+        Path to the MODFLOW 6 input file
+    """
+    lock = FL(f"{Pa}.lock")
+    
+    with lock:  # Acquire lock before editing file
+        try:
+            with open(Pa) as f:
+                Lns = f.readlines()
+            i = Lns.index('END OPTIONS\n')
+            Lns[i] = '\tMOVER\nEND OPTIONS\n'
+            with open(Pa, 'w') as f:
+                f.writelines(Lns)
+            vprint(f"🟢 - Added MOVER option to {PBN(Pa)}")
+        except Exception as e:
+            print(f"🔴 - Error adding MOVER option to {PBN(Pa)}: {e}")
 #-----------------------------------------------------------------------------------------------------------------------------------

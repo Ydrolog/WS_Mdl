@@ -77,7 +77,7 @@ def build_items_no_endcaps(color_ramp, step, N, new_min):
 
 # ─────────────────────────────────────────────────────────────────────────────
 # (C) The main reclassification function. It takes optional arguments; if the caller omits them, we use the DEFAULT_*..
-def nice_steps(Ptt = None, N_class = None, step_sizes   = None):
+def nice_steps(Ptt = None, N_class = None, step_sizes= None, min=None, max=None):
     """
     Reclassify all currently selected single-band rasters in the Layers panel,
     using:
@@ -123,8 +123,14 @@ def nice_steps(Ptt = None, N_class = None, step_sizes   = None):
 
         provider = layer.dataProvider()
         stats = provider.bandStatistics(1, QgsRasterBandStats.Min | QgsRasterBandStats.Max)
-        raw_min = stats.minimumValue
-        raw_max = stats.maximumValue
+        if min== None:
+            raw_min = stats.minimumValue
+        else:
+            raw_min = min
+        if max== None:
+            raw_max = stats.maximumValue
+        else:
+            raw_max = max
         if raw_min is None or raw_max is None:
             continue
 

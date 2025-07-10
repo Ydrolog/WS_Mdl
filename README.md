@@ -13,7 +13,7 @@ All files you need to run the models should be available within this project fol
 ---
 
 # Rules and Tips
-- .\Mng\Acronyms.xlsx contains acronyms and rules used throughout the project.  This is not just an acronym archive. It also explains the naming convention used throughout this project, so you need to be familiar with its principles when working on with this folder/project. New acronyms should be registered there. Make sure you read the instructions sheet/tab to understand the acronym system, and follow the system's rules when adding new shortcuts.
+- .\Mng\Acronyms.xlsx contains acronyms and rules used throughout the project.  This is not just an acronym archive. It also explains the naming convention used throughout this project, so you need to be familiar with its principles when working on with this folder/project. New acronyms should be registered there. Make sure you read the instructions sheet/tab to understand the acronym system, and follow the system's rules when adding new shortcuts/abbreviations.
 - The folder is version controlled through GitHub (smaller files, e.g. code) (and DVC). You can use "git ls-files" to print all Git tracked files, and "dvc list . --dvc-only --recursive" (warning, it's very slow), to print the files tracked with each of the two methods. Make sure you push at frequent intervals.
 - For good data management, it's advised to include meta-data in data folder that are not self-explanatory. E.g. a read-me file in a folder with IDFs (IDFs may contain spatial data, units etc. but oftentimes their origin/method of production, which can be very useful, is missing from the meta-data).
 

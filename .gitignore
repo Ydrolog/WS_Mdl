@@ -1,6 +1,9 @@
 # Those are created by QGIS, but they're auxilary, so there is no reason to track them
 **.aux.xml
 
+# Shortcuts. Those are usually for personal use.
+**/*.lnk
+
 # MF6 files can be downloaded from USGS (unless Trump deletes them, kekw)
 /software/MF6
 
@@ -34,6 +37,7 @@ models/*/code/snakemake/temp/
 ## DVC files everywhere (except in SS folders) will be un-ignored. Same for .inp files, they're MetaSWAP files that are very small. CAVEAT: the folders where those file reside need to be un-ignored too, otherwise this won't work.
 !**/*.dvc
 !**/*.inp
+
 
 # All SS folders will be ignored. This is placed at the bottom to overwrite anything else.
 **/SS/
