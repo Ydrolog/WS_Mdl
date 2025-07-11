@@ -34,12 +34,12 @@ def _validate_df(df: pd.DataFrame) -> None:
 
 # Public writer -----------------------------------------------------------------------------
 def w_MVR(DF: pd.DataFrame,
-              source_pkg: str = "DRN",
-              receiver_pkg: str = "SFR",
               *,
               filename: Union[str, Path] = "DRN_to_SFR.mvr",
               factor_value: float | int = 1,
-              period: int = 1,) -> Path:
+              period: int = 1,
+              Pkg1: str = "DRN",
+              Pkg2: str = "SFR") -> Path:
     """Write a single-period MVR package file using the **new** column names.
 
     Parameters
@@ -62,8 +62,8 @@ def w_MVR(DF: pd.DataFrame,
     """
     _validate_df(DF)
 
-    DF['Pkg1']      = 'DRN'
-    DF['Pkg2']      = 'SFR'
+    DF['Pkg1']      = Pkg1
+    DF['Pkg2']      = Pkg2
     DF['MVR_type']  = 'FACTOR'
     DF['value']     = 1
     DF = DF[['Pkg1', 'Pvd_i', 'Pkg2', 'Rcv_i', 'MVR_type', 'value']]
@@ -84,8 +84,8 @@ def w_MVR(DF: pd.DataFrame,
     l.append("")
 
     l.append("BEGIN PACKAGES")
-    l.append(f"  {source_pkg}")
-    l.append(f"  {receiver_pkg}")
+    l.append(f"  {Pkg1}")
+    l.append(f"  {Pkg2}")
     l.append("END PACKAGES")
     l.append("")
 
@@ -111,5 +111,5 @@ if __name__ == "__main__":  # pragma: no cover
     dummy = pd.DataFrame({"Pvd_i": [1, 1],
                           "Rcv_i": [2, 3],})
 
-    out = write_MVR(dummy, filename="_test_drn_to_sfr.mvr")
+    out = w_MVR(dummy, filename="_test_drn_to_sfr.mvr")
     print("Wrote", out)

@@ -557,7 +557,7 @@ def _RunMng(args):
     try:
         if generate_dag:  # DAG parameter passed from RunMng
             sp.run(["snakemake", "--dag", "-s", Pa_Smk, "--cores", str(cores_per_Sim), '|', 'dot', '-Tpng', '-o', f'{Pa_DAG}'], shell=True, check=True)
-        with open(Pa_Smk_log, 'w') as f:
+        with open(Pa_Smk_log, 'w', encoding='utf-8-sig') as f:
             sp.run(["snakemake", "-p", "-s", Pa_Smk, "--cores", str(cores_per_Sim)], check=True, stdout=f, stderr=f)
         return (Se_Ln['MdlN'], True)
     except sp.CalledProcessError as e:
