@@ -8,8 +8,8 @@ all_files = LD()
 
 for f in all_files:
     try:
-        new_name = f.replace(".asc", "_NBr1.asc")
+        new_name = f.replace('.asc', '_NBr1.asc')
         os.rename(f, new_name)
-        print(f"Renamed {f} to {new_name}")
+        print(f'Renamed {f} to {new_name}')
     except:
-        print(f"Failed to rename: {F}")
+        print(f'Failed to rename: {F}')

@@ -12,6 +12,7 @@ collapsing nested paths into their highest relevant ancestor. It:
 5. Prints the cleaned set of relative directory paths in POSIX format.
 """
 
+
 class TrieNode:
     def __init__(self):
         self.children = {}
@@ -27,10 +28,13 @@ class TrieNode:
         node.children.clear()
         return True
 
+
 def main():
     result = subprocess.run(
-        ["git", "ls-files", "--others", "--ignored", "--exclude-standard"],
-        stdout=subprocess.PIPE, text=True, check=True
+        ['git', 'ls-files', '--others', '--ignored', '--exclude-standard'],
+        stdout=subprocess.PIPE,
+        text=True,
+        check=True,
     )
 
     base = Path.cwd().resolve()
@@ -40,8 +44,8 @@ def main():
     simplified = set()
     for p in parents:
         try:
-            i = p.parts.index(".dvc")
-            simplified.add(Path(*p.parts[:i+1]))  # e.g., Path(".dvc")
+            i = p.parts.index('.dvc')
+            simplified.add(Path(*p.parts[: i + 1]))  # e.g., Path(".dvc")
         except ValueError:
             simplified.add(p)
 
@@ -55,5 +59,6 @@ def main():
     for path in collapsed:
         print(path.relative_to(base).as_posix())
 
-if __name__ == "__main__":
+
+if __name__ == '__main__':
     main()

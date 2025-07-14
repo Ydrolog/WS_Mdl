@@ -1,22 +1,25 @@
 from qgis.utils import iface
 from qgis.PyQt.QtGui import QColor
-from qgis.core import (QgsRasterBandStats,
-                       QgsColorRampShader,
-                       QgsRasterShader,
-                       QgsSingleBandPseudoColorRenderer,
-                       QgsStyle,
-                       QgsProject)
+from qgis.core import (
+    QgsRasterBandStats,
+    QgsColorRampShader,
+    QgsRasterShader,
+    QgsSingleBandPseudoColorRenderer,
+    QgsStyle,
+    QgsProject,
+)
 import math
 
 # ─────────────────────────────────────────────────────────────────────────────
 # (A) Defaults: if the user doesn’t supply anything, these values are used.
 
 DEFAULT_CLASS_COUNTS = list(range(8, 16))
-DEFAULT_PALETTE      = "Spectral_r"
-DEFAULT_STEPS        = [1000.0, 100.0, 50.0, 20.0, 10.0, 5.0, 2.0, 1.0, 0.5, 0.25, 0.1]
+DEFAULT_PALETTE = 'Spectral_r'
+DEFAULT_STEPS = [1000.0, 100.0, 50.0, 20.0, 10.0, 5.0, 2.0, 1.0, 0.5, 0.25, 0.1]
 
 # ─────────────────────────────────────────────────────────────────────────────
 # (B) Helper functions using the parameters where needed.
+
 
 def choose_classification(raw_min, raw_max, steps, N_class):
     raw_range = raw_max - raw_min
@@ -29,7 +32,7 @@ def choose_classification(raw_min, raw_max, steps, N_class):
 
             # outward rounding:
             new_min = math.floor(raw_min / step) * step
-            new_max = math.ceil (raw_max / step) * step
+            new_max = math.ceil(raw_max / step) * step
 
             # force exact N * step span
             actual = new_max - new_min
@@ -54,14 +57,16 @@ def choose_classification(raw_min, raw_max, steps, N_class):
     _, neg_step, N, new_min, new_max = best
     return -neg_step, N, new_min, new_max
 
+
 def decimal_digits(step):
-    s = f"{step:.3f}"
-    if "." not in s:
+    s = f'{step:.3f}'
+    if '.' not in s:
         return 0
-    s = s.rstrip("0").rstrip(".")
-    if "." in s:
-        return len(s.split(".")[1])
+    s = s.rstrip('0').rstrip('.')
+    if '.' in s:
+        return len(s.split('.')[1])
     return 0
+
 
 def build_items_no_endcaps(color_ramp, step, N, new_min):
     items = []
@@ -71,13 +76,14 @@ def build_items_no_endcaps(color_ramp, step, N, new_min):
         upper = lower + step
         t = float(i) / float(max(N - 1, 1))
         clr = color_ramp.color(t)
-        label = f"{lower:.{digits}f} – {upper:.{digits}f}"
+        label = f'{lower:.{digits}f} – {upper:.{digits}f}'
         items.append(QgsColorRampShader.ColorRampItem(upper, clr, label))
     return items
 
+
 # ─────────────────────────────────────────────────────────────────────────────
 # (C) The main reclassification function. It takes optional arguments; if the caller omits them, we use the DEFAULT_*..
-def nice_steps(Ptt = None, N_class = None, step_sizes= None, min=None, max=None):
+def nice_steps(Ptt=None, N_class=None, step_sizes=None, min=None, max=None):
     """
     Reclassify all currently selected single-band rasters in the Layers panel,
     using:
@@ -97,14 +103,14 @@ def nice_steps(Ptt = None, N_class = None, step_sizes= None, min=None, max=None)
     # Grab the selected layers (must be run from the Python Console):
     selected_layers = iface.layerTreeView().selectedLayers()
     if not selected_layers:
-        iface.messageBar().pushWarning("Reclassification", "No raster layers selected.")
+        iface.messageBar().pushWarning('Reclassification', 'No raster layers selected.')
         return
 
     # Ensure the chosen palette actually exists; otherwise pick the first one:
     style = QgsStyle().defaultStyle()
 
     # If the user asked for “Spectral_r”, strip the “_r” and mark it inverted:
-    if Ptt.endswith("_r"):
+    if Ptt.endswith('_r'):
         base_name = Ptt[:-2]  # “Spectral”
         if style.colorRamp(base_name) is None:
             # fallback if even “Spectral” isn’t found
@@ -123,11 +129,11 @@ def nice_steps(Ptt = None, N_class = None, step_sizes= None, min=None, max=None)
 
         provider = layer.dataProvider()
         stats = provider.bandStatistics(1, QgsRasterBandStats.Min | QgsRasterBandStats.Max)
-        if min== None:
+        if min == None:
             raw_min = stats.minimumValue
         else:
             raw_min = min
-        if max== None:
+        if max == None:
             raw_max = stats.maximumValue
         else:
             raw_max = max
@@ -135,7 +141,9 @@ def nice_steps(Ptt = None, N_class = None, step_sizes= None, min=None, max=None)
             continue
 
         # 1) Choose the best (step, N, new_min, new_max) from our lists:
-        step, num_classes, new_min, new_max = choose_classification(raw_min, raw_max, step_sizes, N_class)
+        step, num_classes, new_min, new_max = choose_classification(
+            raw_min, raw_max, step_sizes, N_class
+        )
 
         # 2) Build a discrete pseudocolor shader with exactly N intervals:
         shader = QgsColorRampShader()
@@ -154,18 +162,19 @@ def nice_steps(Ptt = None, N_class = None, step_sizes= None, min=None, max=None)
         layer.triggerRepaint()
 
         # 3) Expand just this layer’s node (so it doesn’t collapse):
-        root       = QgsProject.instance().layerTreeRoot()
-        node       = root.findLayer(layer.id())
-        model      = iface.layerTreeView().layerTreeModel()
-        proxy      = iface.layerTreeView().model()
+        root = QgsProject.instance().layerTreeRoot()
+        node = root.findLayer(layer.id())
+        model = iface.layerTreeView().layerTreeModel()
+        proxy = iface.layerTreeView().model()
         source_idx = model.node2index(node)
-        proxy_idx  = proxy.mapFromSource(source_idx)
+        proxy_idx = proxy.mapFromSource(source_idx)
         iface.layerTreeView().setExpanded(proxy_idx, True)
 
         print(
             f"Layer '{layer.name()}': raw [{raw_min:.4f} … {raw_max:.4f}] → "
-            f"rounded [{new_min:.4f} … {new_max:.4f}], step={step}, classes={num_classes}"
+            f'rounded [{new_min:.4f} … {new_max:.4f}], step={step}, classes={num_classes}'
         )
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # (D) Example calls:
@@ -191,4 +200,4 @@ def nice_steps(Ptt = None, N_class = None, step_sizes= None, min=None, max=None)
 
 # By default, run with no arguments (i.e. the defaults).
 # If you want to override, call reclassify_selected_layers(...) yourself.
-#nice_steps()
+# nice_steps()

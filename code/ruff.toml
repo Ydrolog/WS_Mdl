@@ -1,0 +1,5 @@
+line-length = 100          # <- your 100-col preference
+
+[format]
+quote-style = "single"     # <- force '
+
