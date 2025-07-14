@@ -1,8 +1,6 @@
 import shutil
 import os
-from os import listdir as LD, makedirs as MDs
-from os.path import join as PJ, basename as PBN, dirname as PDN, exists as PE
-
+from os import listdir as LD
 all_files = LD()
 
 for f in all_files:
