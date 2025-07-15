@@ -26,7 +26,7 @@ from .utils import Pre_Sign, Sign, vprint
 crs = 'EPSG:28992'
 
 
-# TIF ------------------------------------------------------------------------------------------------------------------------------
+# TIF ----------------------------------------------------------------------------
 def DA_stats(DA, verbose: bool = False):
     d_stats = {
         'mean': DA.mean().values,
@@ -190,13 +190,13 @@ def PRJ_to_TIF(MdlN):
     The function uses a DF produced by PRJ_to_DF. It needs to follow a specific format.
     Also creates a .csv file with the TIF file paths to be replaced in the QGIS project."""
 
-    # -------------------- Initiate ------------------------------------------------------------------------------------------
+    # -------------------- Initiate ----------------------------------------------
     d_Pa = U.get_MdlN_paths(MdlN)  # Get paths
     Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = U.Mdl_Dmns_from_INI(d_Pa['INI'])  # Get dimensions
 
     DF = UIM.PRJ_to_DF(MdlN)  # Read PRJ file to DF
 
-    # -------------------- Process time-indepenent packages (most) ------------------------------------------------------------
+    # -------------------- Process time-indepenent packages (most) ---------------
     vprint('\n --- Converting time-independant package IDF files to TIF ---')
     DF_Rgu = DF[
         (DF['time'].isna())  # Only keep regular (time independent) packages
@@ -276,7 +276,7 @@ def PRJ_to_TIF(MdlN):
         except Exception as e:
             print(f'🔴 - Error: {e}')
 
-    # -------------------- Process time-dependent packages (RIV, DRN, WEL) --------------------
+    # ------------- Process time-dependent packages (RIV, DRN, WEL) ---------------------
     ## RIV & DRN
     vprint('\n --- Converting time dependant packages ---')
     DF_time = DF[
@@ -364,7 +364,7 @@ def PRJ_to_TIF(MdlN):
                 vprint('🟢 - IPF average values (per id) converted to GPKG')
             except:
                 vprint('🔴')
-    # -------------------- Process derived packages/parameters (Thk, T) -------------------------------------------------------
+    # -------------------- Process derived packages/parameters (Thk, T) -----------------
     d_Clc_In = {}  # Dictionary to store calculated inputs.
 
     ## Thk. TOP and BOT files have been QA'd in C:\OD\WS_Mdl\code\PrP\Mdl_In_to_MM\Mdl_In_to_MM.ipynb
@@ -473,7 +473,10 @@ def PRJ_to_TIF(MdlN):
     vprint(Sign)
 
 
-# HD_IDF speciic PoP (could be extended/generalized at a later stage) --------------------------------------------------------------
+# --------------------------------------------------------------------------------
+
+
+# HD_IDF speciic PoP (could be extended/generalized at a later stage) ------------
 def HD_IDF_Agg_to_TIF(
     MdlN: str,
     rules=None,
@@ -708,10 +711,10 @@ def _HD_IDF_GXG_to_TIF_per_L(DF, L, MdlN, Pa_PoP, Pa_HD, crs):
     return f'L{L} 🟢'
 
 
-# ---------------------------------------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------
 
 
-# MM Update ------------------------------------------------------------------------------------------------------------------------
+# MM Update ----------------------------------------------------------------------
 def Up_MM(MdlN, MdlN_MM_B=None):
     """Updates the MM (QGIS projct containing model data)."""
 
@@ -789,10 +792,10 @@ def Up_MM(MdlN, MdlN_MM_B=None):
     vprint(Sign)
 
 
-# ---------------------------------------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------
 
 
-# OUTDATED -------------------------------------------------------------------------------------------------------------------------
+# OUTDATED -----------------------------------------------------------------------
 def A_to_Raster_n_IDF(A, IDF_MtDt, Pa_Out, field='HD_L1', crs='EPSG:4326'):
     """This was used in PoP_HD_IDF a long time ago and is now outdated."""
     # 1. Write a GeoTIFF raster with rasterio
@@ -837,4 +840,4 @@ def A_to_Raster_n_IDF(A, IDF_MtDt, Pa_Out, field='HD_L1', crs='EPSG:4326'):
     vprint(f'{idf_path} has been saved (iMOD IDF).')
 
 
-# ---------------------------------------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------

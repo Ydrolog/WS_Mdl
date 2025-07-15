@@ -5,6 +5,7 @@ import shutil as sh
 import subprocess as sp
 import warnings
 from datetime import datetime as DT
+from io import StringIO
 from multiprocessing import Pool, cpu_count
 from os import listdir as LD
 from os.path import basename as PBN
@@ -16,7 +17,6 @@ from colored import attr, fg
 from filelock import FileLock as FL
 
 warnings.filterwarnings('ignore', category=UserWarning, module='openpyxl.worksheet._read_only')
-from io import StringIO
 
 # --------------------------------------------------------------------------------
 Pre_Sign = f'{fg(52)}{"*" * 80}{attr("reset")}\n'
@@ -128,7 +128,7 @@ def get_MdlN_Pa(MdlN: str, MdlN_B=None, verbose=False):
         Pa_INI = d_Pa['Pa_INI'].
     """
 
-    if MdlN_B == True:
+    if MdlN_B:
         d_Pa = paths_from_MdlN_Se(MdlN_Se_from_RunLog((MdlN)), MdlN)
     else:
         ## Non paths + General paths
@@ -191,7 +191,7 @@ def read_IPF_Spa(Pa_IPF):
         l_Ln = f.readlines()
 
     N_C = int(l_Ln[1].strip())  # Number of columns
-    l_C_Nm = [l_Ln[I + 2].split('\n')[0] for I in range(N_C)]  # Extract column names
+    l_C_Nm = [l_Ln[i + 2].split('\n')[0] for i in range(N_C)]  # Extract column names
     DF_IPF = pd.read_csv(Pa_IPF, skiprows=2 + N_C + 1, names=l_C_Nm)
 
     vprint(
@@ -210,10 +210,10 @@ def INI_to_d(Pa_INI: str) -> dict:
     """
     d_INI = {}
     with open(Pa_INI, 'r', encoding='utf-8') as file:
-        for l in file:
-            l = l.strip()
-            if l and not l.startswith('#'):  # Ignore empty lines and comments
-                k, v = l.split('=', 1)  # Split at the first '='
+        for Ln in file:
+            Ln = Ln.strip()
+            if Ln and not Ln.startswith('#'):  # Ignore empty lines and comments
+                k, v = Ln.split('=', 1)  # Split at the first '='
                 d_INI[k.strip().upper()] = v.strip()  # Remove extra spaces
 
     vprint(f'🟢 - INI file {Pa_INI} read successfully. Dictionary created with {len(d_INI)} keys.')
@@ -794,8 +794,8 @@ def reset_Sim(MdlN: str):
                 sp.run(f'rmdir /S /Q "{Pa_MdlN}"', shell=True)  # Delete the entire Sim folder
                 vprint('🟢 - Sim folder removed successfully.')
                 i += 1
-            except:
-                vprint('🔴 - failed to delete Sim folder.')
+            except Exception as e:
+                vprint(f'🔴 - failed to delete Sim folder: {e}')
 
             try:
                 DF[DF['MdlN'] != MdlN].to_csv(
@@ -803,16 +803,16 @@ def reset_Sim(MdlN: str):
                 )  # Remove the log entry for this model
                 vprint('🟢 - Log file updated successfully.')
                 i += 1
-            except:
-                vprint('🔴 - failed to update log file.')
+            except Exception as e:
+                vprint(f'🔴 - failed to update log file: {e}')
 
             try:
-                for l in l_temp:
-                    os.remove(PJ(Pa_Smk_temp, l))
+                for j in l_temp:
+                    os.remove(PJ(Pa_Smk_temp, j))
                 vprint('🟢 - Smk log files deleted successfully.')
                 i += 1
-            except:
-                vprint('🔴 - failed to remove Smk log files.')
+            except Exception as e:
+                vprint(f'🔴 - failed to remove Smk log files: {e}')
 
             try:
                 if not os.path.exists(d_Pa['PoP_Out_MdlN']):
@@ -822,8 +822,8 @@ def reset_Sim(MdlN: str):
                 )  # Delete the entire Sim folder
                 vprint('🟢 - PoP Out folder removed successfully.')
                 i += 1
-            except:
-                vprint('🔴 - failed to delete PoP Out folder.')
+            except Exception as e:
+                vprint(f'🔴 - failed to delete PoP Out folder: {e}')
 
             if i == 4:
                 vprint('\n🟢🟢🟢 - ALL files were successfully removed.')

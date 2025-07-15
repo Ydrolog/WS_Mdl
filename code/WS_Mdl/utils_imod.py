@@ -1,12 +1,8 @@
 # ***** Similar to utils.py, but those utilize imod, which takes a long time to load. *****
 import os
 import re
-import subprocess as sp
 import tempfile
-from multiprocessing import Process, cpu_count
-from os import makedirs as MDs
 from os.path import basename as PBN
-from os.path import dirname as PDN
 from os.path import join as PJ
 
 import imod
@@ -18,7 +14,7 @@ from tqdm import tqdm  # Track progress of the loop
 from .utils import INI_to_d, Pa_WS, Pre_Sign, Sign, get_MdlN_paths, read_IPF_Spa, vprint
 
 
-# PRJ related ----------------------------------------------------------------------------------------------------------------------
+# PRJ related --------------------------------------------------------------------
 def read_PRJ_with_OBS(Pa_PRJ, verbose: bool = True):
     """imod.formats.prj.read_projectfile struggles with .prj files that contain OBS blocks. This will read the PRJ file and return a tuple. The first item is a PRJ dictionary (as imod.formats.prj would return) and also a list of the OBS block lines."""
     with open(Pa_PRJ, 'r') as f:
@@ -118,9 +114,9 @@ def PRJ_to_DF(
                 vprint('🟢')
             else:
                 vprint('\u2012 the package is innactive.')
-        except:
+        except Exception as e:
             DF.loc[f'{Pkg_name.upper()}'] = '-'
-            DF.loc[f'{Pkg_name.upper()}', 'active'] = 'Failed to read package'
+            DF.loc[f'{Pkg_name.upper()}', 'active'] = f'Failed to read package: {e}'
             vprint('🟡')
     vprint('🟢🟢🟢')
     vprint(f' {"-" * 100}')
@@ -175,10 +171,10 @@ def open_PRJ_with_OBS(
     return PRJ, l_OBS_Lns
 
 
-# -------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------
 
 
-# PrSimP related -------------------------------------------------------------------------------------------------------------------
+# PrSimP related -----------------------------------------------------------------
 def add_OBS(MdlN: str, Opt: str = 'BEGIN OPTIONS\nEND OPTIONS'):
     """Adds OBS file(s) from PRJ file OBS block to Mdl Sim (which iMOD can't do). Thus the OBS file needs to be written, and then a link to the OBS file needs to be created within the NAM file.
     Assumes OBS IPF file contains the following parameters/columns: 'Id', 'L', 'X', 'Y'"""
@@ -267,122 +263,10 @@ def add_OBS(MdlN: str, Opt: str = 'BEGIN OPTIONS\nEND OPTIONS'):
     vprint(Sign)
 
 
-# -------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------
 
 
-# run_Mdl --------------------------------------------------------------------------------------------------------------------------
-def run_Mdl(
-    Se_Ln, DF_Opt
-):  # 666 think if this can be improved to take only 1 argument. Function becomes redundant from v.1.0.0, as snakemae files are used instead.
-    """Runs the model from PrP, to PrSimP, to PP.
-    Requires:
-    - `Se_Ln`: A Pandas Series (row from the RunLog sheet of RunLog.xlsx)
-    - `DF_Opt`: A Pandas DataFrame (PP_Opt sheet of the same spreadsheet)
-    """
-    MdlN = Se_Ln['MdlN']
-    vprint(f'--- Executing RunMng for {MdlN}')
-
-    # Get default directories
-    d_Pa = get_MdlN_paths(MdlN)
-    MdlN_B, Pa_Mdl, Pa_MdlN, Pa_INI, Pa_BAT, Pa_PRJ = (
-        d_Pa[k] for k in ['MdlN_B', 'Pa_Mdl', 'Pa_MdlN', 'INI', 'BAT', 'PRJ']
-    )
-
-    # Define commands and their working directories
-    d_Cmds = {
-        Pa_BAT: PDN(Pa_BAT),
-        'activate WS': PDN(Pa_BAT),
-        f'WS_Mdl add_OBS {MdlN} {DF_Opt.loc[DF_Opt["MdlN"] == MdlN, "add_OBS"].values[0]}': PDN(
-            Pa_BAT
-        ),
-        r'.\RUN.BAT': Pa_MdlN,
-    }
-
-    # Generate log file path
-    log_file = PJ(Pa_MdlN, f'Tmnl_Out_{MdlN}.txt')
-    MDs(PDN(log_file), exist_ok=True)
-
-    with open(log_file, 'w', encoding='utf-8') as f:
-        for Cmd, cwd in d_Cmds.items():
-            try:
-                vprint(f' -- Executing: {Cmd}')
-
-                # Run command in blocking mode, capturing output live
-                process = sp.run(
-                    Cmd, shell=True, cwd=cwd, capture_output=True, text=True, check=True
-                )
-
-                # Write output to file
-                f.write(f'{"*" * 50}  START OF COMMAND   {"*" * 50}\n')
-                f.write(f'Command: {Cmd}\n{"-" * 120}\n\n')
-                f.write(f'Output:\n{process.stdout}\n{"-" * 120}\n\n')
-                f.write(f'Errors:\n{process.stderr}\n{"-" * 120}\n\n')
-                f.write(f'Return Code: {process.returncode}\n{"-" * 120}\n\n')
-                f.write(f'{"*" * 50}  END OF COMMAND     {"*" * 50}\n\n')
-
-                vprint('  - 🟢')
-
-            except sp.CalledProcessError as e:
-                print(f'  - 🔴: {Cmd}\nError: {e.stderr}')
-                f.write(f'ERROR: {e.stderr}\n')
-
-
-def run_Mdl_print_only(Se_Ln, DF_Opt):  # 666 think if this can be improved to take only 1 argument.
-    """Runs the model from PrP, to PrSimP, to PP.
-    Requires:
-    - `Se_Ln`: A Pandas Series (row from the RunLog sheet of RunLog.xlsx)
-    - `DF_Opt`: A Pandas DataFrame (PP_Opt sheet of the same spreadsheet)
-    """
-    MdlN = Se_Ln['MdlN']
-    vprint(f'--- Executing RunMng for {MdlN}')
-
-    # Get default directories
-    d_Pa = get_MdlN_paths(MdlN)
-    MdlN_B, Pa_Mdl, Pa_MdlN, Pa_INI, Pa_BAT, Pa_PRJ = (
-        d_Pa[k] for k in ['MdlN_B', 'Pa_Mdl', 'Pa_MdlN', 'INI', 'BAT', 'PRJ']
-    )
-
-    # Define commands and their working directories
-    d_Cmds = {
-        Pa_BAT: PDN(Pa_BAT),
-        'activate WS': PDN(Pa_BAT),
-        f'WS_Mdl add_OBS {MdlN} {DF_Opt.loc[DF_Opt["MdlN"] == MdlN, "add_OBS"].values[0]}': PDN(
-            Pa_BAT
-        ),
-        r'.\RUN.BAT': Pa_MdlN,
-    }
-
-    # Generate log file path
-    log_file = PJ(Pa_MdlN, f'Tmnl_Out_{MdlN}.txt')
-    MDs(PDN(log_file), exist_ok=True)
-
-    for Cmd, cwd in d_Cmds.items():
-        try:
-            vprint(f' -- Executing: {Cmd}\nin {cwd}')
-            vprint('  - 🟢')
-
-        except sp.CalledProcessError as e:
-            print(f'  - 🔴: {Cmd}\nError: {e.stderr}')
-
-
-def run_Mdl_parallel(DF, DF_Opt):
-    queued_Sims = DF.loc[DF['Status'] == 'Queued']
-    num_cores = min(len(queued_Sims), cpu_count())
-    processes = []
-
-    for _, Se_Ln in queued_Sims.iterrows():
-        p = Process(target=run_Mdl, args=(Se_Ln, DF_Opt))
-        processes.append(p)
-        p.start()
-
-    for p in processes:
-        p.join()
-
-
-# -------------------------------------------------------------------------------------------------
-
-
-# IDF processing -------------------------------------------------------------------------------------------------------------------
+# IDF processing -----------------------------------------------------------------
 def IDFs_to_DF(S_Pa_IDF):
     """Reads all .IDF Fis listed in a S_Fi_IDF into DF['IDF']. Returns the DF containing Fi_names and the IDF contents.
     Pa_Fo is the path of the Fo where th files are stored in."""
@@ -398,4 +282,4 @@ def IDFs_to_DF(S_Pa_IDF):
     return DF
 
 
-# -------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------
