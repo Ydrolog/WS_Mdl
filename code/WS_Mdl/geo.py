@@ -191,7 +191,7 @@ def PRJ_to_TIF(MdlN):
     Also creates a .csv file with the TIF file paths to be replaced in the QGIS project."""
 
     # -------------------- Initiate ----------------------------------------------
-    d_Pa = U.get_MdlN_paths(MdlN)  # Get paths
+    d_Pa = U.get_MdlN_Pa(MdlN)  # Get paths
     Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = U.Mdl_Dmns_from_INI(d_Pa['INI'])  # Get dimensions
 
     DF = UIM.PRJ_to_DF(MdlN)  # Read PRJ file to DF
@@ -517,7 +517,7 @@ def HD_IDF_Agg_to_TIF(
     vprint(f'*** {MdlN} *** - HD_IDF_Agg_to_TIF\n')
 
     # 1. Get paths
-    d_Pa = U.get_MdlN_paths(MdlN)
+    d_Pa = U.get_MdlN_Pa(MdlN)
     Pa_PoP, Pa_HD = [d_Pa[v] for v in ['PoP', 'Out_HD']]
 
     # 2. Read the IDF files to DF. Add extracols. Apply rules. Group.
@@ -643,7 +643,7 @@ def HD_IDF_GXG_to_TIF(MdlN: str, N_cores: int = None, crs: str = crs, rules: str
     vprint(f'*** {MdlN} *** - HD_IDF_GXG_to_TIF\n')
 
     # Get paths
-    d_Pa = U.get_MdlN_paths(MdlN)
+    d_Pa = U.get_MdlN_Pa(MdlN)
     Pa_PoP, Pa_HD = [d_Pa[v] for v in ['PoP', 'Out_HD']]
 
     # Read DF and apply rules to DF if rules is not None.

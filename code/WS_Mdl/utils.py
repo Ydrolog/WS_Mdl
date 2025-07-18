@@ -103,19 +103,16 @@ def paths_from_MdlN_Se(S, MdlN):
     return d_Pa
 
 
-def get_MdlN_paths(
-    MdlN: str, verbose=False
-):  # 666 Can be split into two as both S and B aren't allways needed. Or better, I can make a new function that does that for just 1 run.
+def get_MdlN_paths(MdlN: str, verbose=False):
     """
     Returns a dictionary of useful objects (mainly paths, but also Mdl, MdlN) for a given MdlN. Those need to then be passed to arguments, e.g.:
     d_Pa = get_MdlN_paths(MdlN)
     Pa_INI_B = d_Pa['Pa_INI_B'].
     """
     d_Pa = paths_from_MdlN_Se(MdlN_Se_from_RunLog((MdlN)), MdlN)
-    if verbose:
-        vprint(
-            f'🟢 - {MdlN} paths extracted from RunLog and returned as dictionary with keys:\n{", ".join(d_Pa.keys())}'
-        )
+    vprint(
+        f'🟢 - {MdlN} paths extracted from RunLog and returned as dictionary with keys:\n{", ".join(d_Pa.keys())}'
+    )
     return d_Pa
 
 
@@ -415,7 +412,7 @@ def Sim_Cfg(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
     )
 
     l_keys = ['Smk', 'BAT', 'INI', 'PRJ']
-    l_paths = [get_MdlN_paths(MdlN) for MdlN in l_MdlN]
+    l_paths = [get_MdlN_Pa(MdlN) for MdlN in l_MdlN]
     l_files = [paths[k] for k in l_keys for paths in l_paths]
     sp.Popen([Pa_NP] + l_files)
     for f in l_files:
@@ -431,7 +428,7 @@ def open_LSTs(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
     )
 
     l_keys = ['LST_Sim', 'LST_Mdl']
-    l_paths = [get_MdlN_paths(MdlN) for MdlN in l_MdlN]
+    l_paths = [get_MdlN_Pa(MdlN) for MdlN in l_MdlN]
     l_files = [paths[k] for k in l_keys for paths in l_paths]
 
     for f in l_files:
@@ -448,7 +445,7 @@ def open_NAMs(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
     )
 
     l_keys = ['NAM_Sim', 'NAM_Mdl']
-    l_paths = [get_MdlN_paths(MdlN) for MdlN in l_MdlN]
+    l_paths = [get_MdlN_Pa(MdlN) for MdlN in l_MdlN]
     l_files = [paths[k] for k in l_keys for paths in l_paths]
 
     for f in l_files:
@@ -467,7 +464,7 @@ def open_LST(
     )
 
     l_keys = ['LST_Mdl']
-    l_paths = [get_MdlN_paths(MdlN) for MdlN in l_MdlN]
+    l_paths = [get_MdlN_Pa(MdlN) for MdlN in l_MdlN]
     l_files = [paths[k] for k in l_keys for paths in l_paths]
 
     for f in l_files:
@@ -774,7 +771,7 @@ def reset_Sim(MdlN: str):
     )
 
     if permission == 'y':
-        d_Pa = get_MdlN_paths(MdlN)  # Get default directories
+        d_Pa = get_MdlN_Pa(MdlN)  # Get default directories
         Pa_MdlN = d_Pa['Pa_MdlN']
         DF = pd.read_csv(Pa_log)  # Read the log file
         Pa_Smk_temp = d_Pa['Smk_temp']

@@ -11,11 +11,11 @@ import pandas as pd
 from filelock import FileLock as FL
 from tqdm import tqdm  # Track progress of the loop
 
-from .utils import INI_to_d, Pa_WS, Pre_Sign, Sign, get_MdlN_paths, read_IPF_Spa, vprint
+from .utils import INI_to_d, Pa_WS, Pre_Sign, Sign, get_MdlN_Pa, read_IPF_Spa, vprint
 
 
 # PRJ related --------------------------------------------------------------------
-def read_PRJ_with_OBS(Pa_PRJ, verbose: bool = True):
+def read_PRJ_with_OBS(Pa_PRJ):
     """imod.formats.prj.read_projectfile struggles with .prj files that contain OBS blocks. This will read the PRJ file and return a tuple. The first item is a PRJ dictionary (as imod.formats.prj would return) and also a list of the OBS block lines."""
     with open(Pa_PRJ, 'r') as f:
         lines = f.readlines()
@@ -45,14 +45,11 @@ def read_PRJ_with_OBS(Pa_PRJ, verbose: bool = True):
     return PRJ, l_OBS_Lns
 
 
-def PRJ_to_DF(
-    MdlN,
-):  # , verbose:bool=True): #666 adding verbose behaviour enables print surpression when verbose=False
+def PRJ_to_DF(MdlN):
     """Leverages read_PRJ_with_OBS to produce a DF with the PRJ data.
     Could have been included in utils.py based on dependencies, but utils_imod.py fits it better as it's almost alwaysused after read_PRJ_with_OBS (so the libs will be already loaded)."""
-    # print = print if verbose else lambda *a, **k: None
 
-    d_Pa = get_MdlN_paths(MdlN)
+    d_Pa = get_MdlN_Pa(MdlN)
 
     Mdl = ''.join([c for c in MdlN if not c.isdigit()])
     Pa_AppData = os.path.normpath(PJ(os.getenv('APPDATA'), '../'))
@@ -139,10 +136,11 @@ def PRJ_to_DF(
     return DF
 
 
-def open_PRJ_with_OBS(
-    Pa_PRJ,
-):  # 666 gives error cause it tries to read files referenced by PRJ using a default user directory as base.
+def open_PRJ_with_OBS(Pa_PRJ):
     """imod.formats.prj.read_projectfile struggles with .prj files that contain OBS blocks. This will read the PRJ file and return a tuple. The first item is a PRJ dictionary (as imod.formats.prj would return) and also a list of the OBS block lines."""
+
+    Dir_PRJ = os.path.dirname(Pa_PRJ)  # Directory of the PRJ file
+
     with open(Pa_PRJ, 'r') as f:
         lines = f.readlines()
 
@@ -161,7 +159,45 @@ def open_PRJ_with_OBS(
             l_filtered_Lns.append(line)  # Keep everything else
 
     # Write to a temporary file
-    with tempfile.NamedTemporaryFile(delete=False, mode='w', suffix='.prj') as temp_file:
+    with tempfile.NamedTemporaryFile(
+        delete=False, mode='w', suffix='.prj', dir=Dir_PRJ
+    ) as temp_file:
+        temp_file.writelines(l_filtered_Lns)
+        Pa_PRJ_temp = temp_file.name
+
+    PRJ = imod.prj.open_projectfile_data(Pa_PRJ_temp)  # Load the PRJ file without OBS
+    os.remove(Pa_PRJ_temp)  # Delete temp PRJ file as it's not needed anymore.
+
+    return PRJ, l_OBS_Lns
+
+
+def open_PRJ_with_OBS_old(Pa_PRJ):
+    """imod.formats.prj.read_projectfile struggles with .prj files that contain OBS blocks. This will read the PRJ file and return a tuple. The first item is a PRJ dictionary (as imod.formats.prj would return) and also a list of the OBS block lines.
+    - This is an old version that uses imod.formats.prj.open_projectfile_data, which is much slower than imod.formats.prj.open_projectfile. Use open_PRJ_with_OBS instead."""
+
+    Dir_PRJ = os.path.dirname(Pa_PRJ)  # Directory of the PRJ file
+
+    with open(Pa_PRJ, 'r') as f:
+        lines = f.readlines()
+
+    l_filtered_Lns, l_OBS_Lns = [], []
+    skip_block = False
+
+    for line in lines:
+        if '(obs)' in line.lower():  # Start of OBS block
+            skip_block = True
+            l_OBS_Lns.append(line)  # Keep the header
+        elif skip_block and line.strip() == '':  # End of OBS block
+            skip_block = False
+        elif skip_block:
+            l_OBS_Lns.append(line)  # Store OBS content
+        else:
+            l_filtered_Lns.append(line)  # Keep everything else
+
+    # Write to a temporary file
+    with tempfile.NamedTemporaryFile(
+        delete=False, mode='w', suffix='.prj', dir=Dir_PRJ
+    ) as temp_file:
         temp_file.writelines(l_filtered_Lns)
         Pa_PRJ_temp = temp_file.name
 
@@ -181,7 +217,7 @@ def add_OBS(MdlN: str, Opt: str = 'BEGIN OPTIONS\nEND OPTIONS'):
 
     vprint(Pre_Sign)
     vprint('Running add_OBS ...')
-    d_Pa = get_MdlN_paths(MdlN)  # Get default directories
+    d_Pa = get_MdlN_Pa(MdlN)  # Get default directories
     Pa_MdlN, Pa_INI, Pa_PRJ = (
         d_Pa[k] for k in ['Pa_MdlN', 'INI', 'PRJ']
     )  # and pass them to objects that will be used in the function
