@@ -1,11 +1,13 @@
 # Those are created by QGIS, but they're auxilary, so there is no reason to track them
 **.aux.xml
+**/*.tmp
 
 # Shortcuts. Those are usually for personal use.
 **/*.lnk
 
 # MF6 files can be downloaded from USGS (unless Trump deletes them, kekw)
 /software/MF6
+/other/coupled_model_example
 
 ## models requires a complicated ignore list
 # 1st line ignores files under In by default.
@@ -38,10 +40,11 @@ models/*/code/snakemake/temp/
 !**/*.dvc
 !**/*.inp
 
-
 # All SS folders will be ignored. This is placed at the bottom to overwrite anything else.
 **/SS/
 **/SS/**
+**/temp/
+**/temp/**
 
 # Excel lock files.
 ~$*.xls*

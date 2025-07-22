@@ -391,18 +391,16 @@ def MF6_block_to_DF(
 
 
 # Open files ---------------------------------------------------------------------
-def open_(key, *l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
+def open_(key, *l_MdlN, Pa=r'C:\Program Files\Notepad++\notepad++.exe'):
+    vprint(f'{"-" * 100}\nOpening {key} file(s) for specified run(s) with the default program.\n')
     vprint(
-        f'{"-" * 100}\nOpening LST files (Mdl+Sim) for specified runs with the default program.\n'
-    )
-    vprint(
-        f"It's assumed that Notepad++ is installed in: {Pa_NP}.\nIf that's not True, provide the correct path to Notepad++ (or another text editor) as the last argument to this function.\n"
+        f"It's assumed that Notepad++ is installed in: {Pa}.\nIf that's not True, provide the correct path to Notepad++ (or another text editor) as the last argument (Pa) to this function.\n"
     )
 
     l_Pa = [get_MdlN_Pa(MdlN)[key] for MdlN in l_MdlN]
 
     for f in l_Pa:
-        sp.Popen([Pa_NP] + [f])
+        sp.Popen([Pa] + [f])
         vprint(f'🟢 - {f}')
 
 

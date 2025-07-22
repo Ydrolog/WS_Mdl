@@ -137,7 +137,7 @@ def PRJ_to_DF(MdlN):
 
 
 def open_PRJ_with_OBS(Pa_PRJ):
-    """imod.formats.prj.read_projectfile struggles with .prj files that contain OBS blocks. This will read the PRJ file and return a tuple. The first item is a PRJ dictionary (as imod.formats.prj would return) and also a list of the OBS block lines."""
+    """imod.formats.prj.read_projectfile struggles with .prj files that contain OBS blocks. This will read the PRJ file and return a tuple. The first item is a PRJ dictionary (as imod.formats.prj would return), the 2nd is a list of the OBS block lines."""
 
     Dir_PRJ = os.path.dirname(Pa_PRJ)  # Directory of the PRJ file
 
@@ -172,8 +172,9 @@ def open_PRJ_with_OBS(Pa_PRJ):
 
 
 def open_PRJ_with_OBS_old(Pa_PRJ):
-    """imod.formats.prj.read_projectfile struggles with .prj files that contain OBS blocks. This will read the PRJ file and return a tuple. The first item is a PRJ dictionary (as imod.formats.prj would return) and also a list of the OBS block lines.
-    - This is an old version that uses imod.formats.prj.open_projectfile_data, which is much slower than imod.formats.prj.open_projectfile. Use open_PRJ_with_OBS instead."""
+    """imod.formats.prj.read_projectfile struggles with .prj files that contain OBS blocks. This will read the PRJ file and return a tuple. The first item is a PRJ dictionary (as imod.formats.prj would return), the 2nd is a list of the OBS block lines.
+    - This is an old version that uses imod.formats.prj.open_projectfile_data, which is much slower than imod.formats.prj.open_projectfile. Use open_PRJ_with_OBS instead.
+    - Actually I think the speed difference is attributed to the fact that the data were already read into memory. There is no significant difference in speed when reading the PRJ file for the first time (betwen the two functions)."""
 
     Dir_PRJ = os.path.dirname(Pa_PRJ)  # Directory of the PRJ file
 
