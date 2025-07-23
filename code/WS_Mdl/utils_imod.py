@@ -8,6 +8,7 @@ from os.path import join as PJ
 import imod
 import numpy as np
 import pandas as pd
+import xarray as xr
 from filelock import FileLock as FL
 from tqdm import tqdm  # Track progress of the loop
 
@@ -317,6 +318,89 @@ def IDFs_to_DF(S_Pa_IDF):
             except Exception as e:
                 print(f'Error reading {p}: {e}')
     return DF
+
+
+# --------------------------------------------------------------------------------
+
+
+# xarray processing -----------------------------------------------------------------
+def xr_describe(data, name: str = None):
+    """
+    Generates descriptive statistics for an xarray DataArray or Dataset,
+    including value statistics and coordinate ranges.
+
+    If a Dataset is provided, it will describe each DataArray within it.
+    """
+
+    def _describe_da(da: xr.DataArray, da_name: str):
+        """Helper function to describe a single DataArray."""
+        print(f'--- Statistics for: {da_name} ---')
+
+        # Explicitly load data into memory to work with NumPy arrays
+        da = da.load()
+
+        # --- Value Statistics ---
+        # Check if the data is numeric before calculating statistics
+        if np.issubdtype(da.dtype, np.number):
+            if da.count().item() > 0:
+                stats = {
+                    'count': da.count().item(),
+                    'mean': da.mean().item(),
+                    'std': da.std().item(),
+                    'min': da.min().item(),
+                    '25%': da.quantile(0.25).item(),
+                    '50%': da.median().item(),
+                    '75%': da.quantile(0.75).item(),
+                    'max': da.max().item(),
+                }
+                value_stats = pd.Series(stats, name=da_name)
+                print(value_stats)
+            else:
+                print('Array has no valid data (all NaNs or empty).')
+        else:
+            # For non-numeric data, show a simpler summary
+            print(f'Variable is non-numeric (dtype: {da.dtype}).')
+            unique_vals, counts = np.unique(da.values, return_counts=True)
+            print('Unique values and their counts:')
+            for val, count in zip(unique_vals, counts):
+                print(f'  - {val}: {count}')
+
+        # --- Coordinate Ranges ---
+        print('\n--- Coordinate Summary ---')
+        for coord_name in da.coords:
+            coord = da.coords[coord_name]
+            if coord.ndim == 1:
+                summary = {'count': coord.size}
+
+                c_min = coord.min().values
+                c_max = coord.max().values
+
+                if np.issubdtype(coord.dtype, np.datetime64):
+                    summary['min'] = pd.to_datetime(c_min).strftime('%Y-%m-%d')
+                    summary['max'] = pd.to_datetime(c_max).strftime('%Y-%m-%d')
+                else:
+                    summary['min'] = c_min.item()
+                    summary['max'] = c_max.item()
+
+                if np.issubdtype(coord.dtype, np.number) and coord.size > 1:
+                    diffs = np.diff(coord.values)
+                    if np.allclose(diffs, diffs[0]):
+                        summary['step'] = diffs[0].item()
+
+                print(f'- {coord_name} ({coord.dtype}):')
+                print(pd.Series(summary).to_string())
+                print()
+        print('-' * 30)
+
+    if isinstance(data, xr.DataArray):
+        _describe_da(data, name or data.name or 'DataArray')
+    elif isinstance(data, xr.Dataset):
+        if name:
+            print(f'--- Describing Dataset: {name} ---')
+        for var_name, da in data.data_vars.items():
+            _describe_da(da, var_name)
+    else:
+        print(f'Input must be an xarray.DataArray or xarray.Dataset, but got {type(data)}')
 
 
 # --------------------------------------------------------------------------------
