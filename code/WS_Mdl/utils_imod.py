@@ -12,7 +12,16 @@ import xarray as xr
 from filelock import FileLock as FL
 from tqdm import tqdm  # Track progress of the loop
 
-from .utils import INI_to_d, Pa_WS, Pre_Sign, Sign, get_MdlN_Pa, read_IPF_Spa, vprint
+from .utils import (
+    INI_to_d,
+    Mdl_Dmns_from_INI,
+    Pa_WS,
+    Pre_Sign,
+    Sign,
+    get_MdlN_Pa,
+    read_IPF_Spa,
+    vprint,
+)
 
 
 # PRJ related --------------------------------------------------------------------
@@ -401,6 +410,254 @@ def xr_describe(data, name: str = None):
             _describe_da(da, var_name)
     else:
         print(f'Input must be an xarray.DataArray or xarray.Dataset, but got {type(data)}')
+
+
+def xr_clip_Mdl_Aa(
+    xr_data: xr.DataArray | xr.Dataset,
+    MdlN: str = None,
+    Pa_INI: str = None,
+    l_L=None,
+    Lmin: int = None,
+    Lmax: int = None,
+    x_dim: str = 'x',
+    y_dim: str = 'y',
+    L_dim: str = 'layer',
+) -> xr.DataArray | xr.Dataset:
+    """
+    Clips an xarray DataArray or Dataset to the model area defined in an INI file, with optional layer subsetting.
+
+    Parameters:
+    -----------
+    xr_data : xr.DataArray or xr.Dataset
+        The xarray data to clip
+    MdlN : str, optional
+        Model name to automatically get INI path via get_MdlN_Pa
+    Pa_INI : str, optional
+        Direct path to INI file (alternative to MdlN)
+    l_L : list-like, optional
+        List of layers to select (e.g., [1, 3, 5])
+    Lmin : int, optional
+        Minimum layer index (inclusive)
+    Lmax : int, optional
+        Maximum layer index (inclusive)
+    x_dim : str, default 'x'
+        Name of the x coordinate dimension
+    y_dim : str, default 'y'
+        Name of the y coordinate dimension
+    L_dim : str, default 'layer'
+        Name of the layer coordinate dimension
+
+    Returns:
+    --------
+    xr.DataArray or xr.Dataset
+        Clipped xarray data
+
+    Raises:
+    -------
+    ValueError
+        If neither MdlN nor Pa_INI is provided, or if required dimensions are missing
+    """
+
+    # Get INI file path
+    if Pa_INI is None:
+        if MdlN is None:
+            raise ValueError('Either MdlN or Pa_INI must be provided')
+        d_Pa = get_MdlN_Pa(MdlN)
+        Pa_INI = d_Pa['INI']
+
+    # Get model dimensions from INI file
+    Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = Mdl_Dmns_from_INI(Pa_INI)
+
+    # Check if required dimensions exist
+    if x_dim not in xr_data.coords:
+        raise ValueError(
+            f"X dimension '{x_dim}' not found in data coordinates: {list(xr_data.coords.keys())}"
+        )
+    if y_dim not in xr_data.coords:
+        raise ValueError(
+            f"Y dimension '{y_dim}' not found in data coordinates: {list(xr_data.coords.keys())}"
+        )
+
+    vprint(f'Clipping xarray data to model area: X=[{Xmin}, {Xmax}], Y=[{Ymin}, {Ymax}]')
+
+    # Check y-coordinate order and adjust slice accordingly
+    y_coords = xr_data.coords[y_dim].values
+    if len(y_coords) > 1 and y_coords[0] > y_coords[-1]:  # Descending order (big to small)
+        y_slice = slice(Ymax, Ymin)
+        vprint('Y coordinates in descending order, using slice(Ymax, Ymin)')
+    else:  # Ascending order (small to big) or single value
+        y_slice = slice(Ymin, Ymax)
+        vprint('Y coordinates in ascending order, using slice(Ymin, Ymax)')
+
+    # Clip to spatial extent
+    clipped = xr_data.sel({x_dim: slice(Xmin, Xmax), y_dim: y_slice})
+
+    # Handle layer subsetting if layer dimension exists
+    if L_dim in xr_data.coords:
+        if l_L is not None:
+            vprint(f'Selecting specific layers: {l_L}')
+            clipped = clipped.sel({L_dim: l_L})
+        elif Lmin is not None or Lmax is not None:
+            # Build slice for layer range
+            layer_slice = slice(Lmin, Lmax)
+            vprint(f'Selecting layer range: {Lmin} to {Lmax}')
+            clipped = clipped.sel({L_dim: layer_slice})
+    elif l_L is not None or Lmin is not None or Lmax is not None:
+        vprint(f"Warning: Layer subsetting requested but dimension '{L_dim}' not found in data")
+
+    vprint('🟢🟢🟢 - Successfully clipped xarray data to model area')
+    return clipped
+
+
+def xr_compare_As(
+    array1: xr.DataArray,
+    array2: xr.DataArray,
+    name1: str = 'Array 1',
+    name2: str = 'Array 2',
+    x_dim: str = 'x',
+    y_dim: str = 'y',
+    tolerance: float = 1e-10,
+    title: str = None,
+) -> dict:
+    """
+    Provides comprehensive diagnostics for comparing two xarray DataArrays.
+
+    Parameters:
+    -----------
+    array1 : xr.DataArray
+        First array to compare
+    array2 : xr.DataArray
+        Second array to compare
+    name1 : str, default "Array 1"
+        Name/description for the first array
+    name2 : str, default "Array 2"
+        Name/description for the second array
+    x_dim : str, default 'x'
+        Name of the x coordinate dimension
+    y_dim : str, default 'y'
+        Name of the y coordinate dimension
+    tolerance : float, default 1e-10
+        Tolerance for considering values as different
+    title : str, optional
+        Custom title for the diagnostic output
+
+    Returns:
+    --------
+    dict
+        Dictionary containing comparison results and statistics
+    """
+
+    if title is None:
+        title = f'=== Diagnostic Analysis: {name1} vs {name2} ==='
+
+    print(title)
+    print(f'{name1} shape: {array1.shape}')
+    print(f'{name2} shape: {array2.shape}')
+    print(f'{name1} dtype: {array1.dtype}')
+    print(f'{name2} dtype: {array2.dtype}')
+
+    # Initialize results dictionary
+    results = {
+        'shapes_identical': array1.shape == array2.shape,
+        'dtypes_identical': array1.dtype == array2.dtype,
+        'arrays_identical': array1.identical(array2),
+        'arrays_equal': array1.equals(array2),
+    }
+
+    # Check if shapes match
+    print(f'\nShapes identical: {results["shapes_identical"]}')
+
+    # Check coordinate differences
+    coords_to_check = []
+    if x_dim in array1.coords and x_dim in array2.coords:
+        coords_to_check.append(x_dim)
+    if y_dim in array1.coords and y_dim in array2.coords:
+        coords_to_check.append(y_dim)
+
+    for coord_name in coords_to_check:
+        coord_identical = array1[coord_name].identical(array2[coord_name])
+        results[f'{coord_name}_coords_identical'] = coord_identical
+        print(f'{coord_name.upper()} coordinates identical: {coord_identical}')
+
+        if not coord_identical:
+            coord1, coord2 = array1.coords[coord_name], array2.coords[coord_name]
+            print(
+                f'  {coord_name.upper()} {name1} range: {coord1.min().values:.1f} to {coord1.max().values:.1f}'
+            )
+            print(
+                f'  {coord_name.upper()} {name2} range: {coord2.min().values:.1f} to {coord2.max().values:.1f}'
+            )
+
+            # Check spacing if coordinates have more than one value
+            if len(coord1) > 1:
+                spacing1 = float(coord1.diff(coord_name)[0].values)
+                print(f'  {coord_name.upper()} {name1} spacing: {spacing1:.1f}')
+            if len(coord2) > 1:
+                spacing2 = float(coord2.diff(coord_name)[0].values)
+                print(f'  {coord_name.upper()} {name2} spacing: {spacing2:.1f}')
+
+    # Check if data values are the same (ignoring coordinates/metadata)
+    print(f'Data values equal (equals): {results["arrays_equal"]}')
+
+    # Check value differences if possible
+    try:
+        # Check if we can align them for comparison
+        if results['shapes_identical']:
+            # Try interpolating array2 to array1 coordinates for comparison
+            if x_dim in array2.coords and y_dim in array2.coords:
+                array2_aligned = array2.interp(
+                    {x_dim: array1[x_dim], y_dim: array1[y_dim]}, method='nearest'
+                )
+            else:
+                array2_aligned = array2
+
+            diff = array1 - array2_aligned
+            max_diff = abs(diff).max().values
+            num_different = (abs(diff) > tolerance).sum().values
+
+            results['max_absolute_difference'] = max_diff
+            results['num_different_cells'] = num_different
+
+            print(f'Maximum absolute difference (after alignment): {max_diff}')
+            print(f'Number of different cells (tolerance={tolerance}): {num_different}')
+        else:
+            print('Cannot compare values directly due to different shapes')
+            results['max_absolute_difference'] = None
+            results['num_different_cells'] = None
+    except Exception as e:
+        print(f'Error comparing values: {e}')
+        results['max_absolute_difference'] = None
+        results['num_different_cells'] = None
+
+    # Check data ranges
+    try:
+        min1, max1 = array1.min().values, array1.max().values
+        min2, max2 = array2.min().values, array2.max().values
+        results['array1_range'] = (min1, max1)
+        results['array2_range'] = (min2, max2)
+
+        print(f'\n{name1} min/max: {min1}/{max1}')
+        print(f'{name2} min/max: {min2}/{max2}')
+    except Exception as e:
+        print(f'Error calculating min/max: {e}')
+        results['array1_range'] = None
+        results['array2_range'] = None
+
+    # Check for any NaN differences
+    try:
+        has_nan1 = array1.isnull().any().values
+        has_nan2 = array2.isnull().any().values
+        results['array1_has_nan'] = has_nan1
+        results['array2_has_nan'] = has_nan2
+
+        print(f'{name1} has NaN: {has_nan1}')
+        print(f'{name2} has NaN: {has_nan2}')
+    except Exception as e:
+        print(f'Error checking for NaN values: {e}')
+        results['array1_has_nan'] = None
+        results['array2_has_nan'] = None
+
+    return results
 
 
 # --------------------------------------------------------------------------------
