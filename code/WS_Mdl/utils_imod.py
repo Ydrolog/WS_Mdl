@@ -6,10 +6,13 @@ from os.path import basename as PBN
 from os.path import join as PJ
 
 import imod
+
+# import primod
 import numpy as np
 import pandas as pd
 import xarray as xr
 from filelock import FileLock as FL
+from imod import mf6
 from tqdm import tqdm  # Track progress of the loop
 
 from .utils import (
@@ -22,6 +25,14 @@ from .utils import (
     read_IPF_Spa,
     vprint,
 )
+
+custom_characters = {
+    'negative': '🔴',
+    'neutral': '🟡',
+    'positive': '🟢',
+    'no action required': '⚪️',
+    'already good': '⚫️',
+}
 
 
 # PRJ related --------------------------------------------------------------------
@@ -95,9 +106,7 @@ def PRJ_to_DF(MdlN):
                     k for k in Pkg.keys() if k not in {'active', 'n_system', 'time'}
                 ]  # Make list from package keys/parameters
                 for Par in l_Par[:]:  # Iterate over parameters
-                    for N, L in enumerate(
-                        Pkg[Par]
-                    ):  # differentiate between packages (have time) and modules.
+                    for N, L in enumerate(Pkg[Par]):  # differentiate between packages (have time) and modules.
                         Ln_DF_path = {
                             **L,
                             'package': Pkg_name,
@@ -106,16 +115,14 @@ def PRJ_to_DF(MdlN):
 
                         if 'time' in d_PRJ[Pkg_name].keys():
                             if Pkg['n_system'] > 1:
-                                DF.loc[
-                                    f'{Pkg_name.upper()}_{Par}_Sys{(N) % Pkg["n_system"] + 1}_{L["time"]}'
-                                ] = Ln_DF_path
+                                DF.loc[f'{Pkg_name.upper()}_{Par}_Sys{(N) % Pkg["n_system"] + 1}_{L["time"]}'] = (
+                                    Ln_DF_path
+                                )
                             elif Pkg['n_system'] == 1:
                                 DF.loc[f'{Pkg_name.upper()}_{Par}'] = Ln_DF_path
                         else:
                             if Pkg['n_system'] > 1:
-                                DF.loc[
-                                    f'{Pkg_name.upper()}_{Par}_Sys{(N) % Pkg["n_system"] + 1}'
-                                ] = Ln_DF_path
+                                DF.loc[f'{Pkg_name.upper()}_{Par}_Sys{(N) % Pkg["n_system"] + 1}'] = Ln_DF_path
                             elif Pkg['n_system'] == 1:
                                 DF.loc[f'{Pkg_name.upper()}_{Par}'] = Ln_DF_path
                 vprint('🟢')
@@ -169,9 +176,7 @@ def open_PRJ_with_OBS(Pa_PRJ):
             l_filtered_Lns.append(line)  # Keep everything else
 
     # Write to a temporary file
-    with tempfile.NamedTemporaryFile(
-        delete=False, mode='w', suffix='.prj', dir=Dir_PRJ
-    ) as temp_file:
+    with tempfile.NamedTemporaryFile(delete=False, mode='w', suffix='.prj.tmp', dir=Dir_PRJ) as temp_file:
         temp_file.writelines(l_filtered_Lns)
         Pa_PRJ_temp = temp_file.name
 
@@ -206,9 +211,7 @@ def open_PRJ_with_OBS_old(Pa_PRJ):
             l_filtered_Lns.append(line)  # Keep everything else
 
     # Write to a temporary file
-    with tempfile.NamedTemporaryFile(
-        delete=False, mode='w', suffix='.prj', dir=Dir_PRJ
-    ) as temp_file:
+    with tempfile.NamedTemporaryFile(delete=False, mode='w', suffix='.prj', dir=Dir_PRJ) as temp_file:
         temp_file.writelines(l_filtered_Lns)
         Pa_PRJ_temp = temp_file.name
 
@@ -216,6 +219,125 @@ def open_PRJ_with_OBS_old(Pa_PRJ):
     os.remove(Pa_PRJ_temp)  # Delete temp PRJ file as it's not needed anymore.
 
     return PRJ, l_OBS_Lns
+
+
+def regrid_PRJ(PRJ, MdlN: str = None, x_CeCes=None, y_CeCes=None, method='linear'):
+    """
+    Regrid all spatial data in PRJ to target discretization.
+    If x_CeCes and y_CeCes are provided, they will be used as the target grid.
+    If MdlN is provided, it will use the model's spatial dimensions from the INI file.
+
+    """
+
+    if x_CeCes is not None and y_CeCes is not None:
+        dx = x_CeCes[1] - x_CeCes[0] if len(x_CeCes) > 1 else 0
+        dy = y_CeCes[1] - y_CeCes[0] if len(y_CeCes) > 1 else 0
+
+    elif MdlN:  # If MdlN is provided, get the model's spatial dimensions from INI file
+        x_CeCes, y_CeCes = get_CeCes_from_INI(MdlN)
+        dx = x_CeCes[1] - x_CeCes[0] if len(x_CeCes) > 1 else 0
+        dy = y_CeCes[1] - y_CeCes[0] if len(y_CeCes) > 1 else 0
+
+    else:  # If MdlN is not provided, use default values
+        vprint('🔴🔴🔴 - Either MdlN or x_CeCes and y_CeCes must be provided. Cancelling regridding...')
+        return  # Stop regridding if no valid grid is provided
+
+    vprint(f'\nTarget grid: {len(x_CeCes)}x{len(y_CeCes)} cells at {dx:.1f}x{dy:.1f} m resolution')
+    vprint(
+        f'\nTarget extents: X=[{x_CeCes.min():.1f}, {x_CeCes.max():.1f}], Y=[{y_CeCes.min():.1f}, {y_CeCes.max():.1f}]'
+    )
+
+    PRJ_regridded = {}
+
+    for key, data in PRJ.items():
+        vprint(f'Processing {key}...')
+
+        if isinstance(data, dict):
+            # Handle nested dictionaries (like 'cap', 'bnd')
+            PRJ_regridded[key] = {}
+            for sub_key, sub_data in data.items():
+                PRJ_regridded[key][sub_key] = regrid_DA(sub_data, x_CeCes, y_CeCes, dx, dy, f'{key}.{sub_key}', method)
+        else:
+            # Handle top-level data
+            PRJ_regridded[key] = regrid_DA(data, x_CeCes, y_CeCes, dx, dy, key, method)
+
+    vprint('🟢🟢🟢 - Regridding complete.')
+    return PRJ_regridded
+
+
+def regrid_DA(DA, x_CeCes, y_CeCes, dx, dy, item_name, method='linear'):
+    """Handle regridding of individual DA items"""
+
+    # Skip if not xarray or no spatial dimensions
+    if not hasattr(DA, 'dims') or not ('x' in DA.dims and 'y' in DA.dims):
+        vprint(f'  {item_name}: ⚪️ - No spatial dims - keeping original')
+        return DA
+
+    # Get target grid properties
+    Xmin, Xmax = x_CeCes.min(), x_CeCes.max()
+    Ymin, Ymax = y_CeCes.min(), y_CeCes.max()
+
+    # First, clip DA to target model area to get comparable sizes
+    # Handle y-coordinate order (descending vs ascending)
+    DA_y = DA.y.values
+    if len(DA_y) > 1 and DA_y[0] > DA_y[-1]:  # Descending order
+        y_slice = slice(Ymax, Ymin)
+    else:  # Ascending order
+        y_slice = slice(Ymin, Ymax)
+
+    try:
+        # Clip to target area
+        DA_clipped = DA.sel(x=slice(Xmin, Xmax), y=y_slice)
+        DA_x, DA_y = DA_clipped.x.values, DA_clipped.y.values
+    except Exception as e:
+        vprint(f'  {item_name}: 🔴 - Could not clip to target area ({e}) - proceeding with full DA')
+        DA_clipped = DA
+        DA_x, DA_y = DA.x.values, DA.y.values
+
+    # Check if clipped DA is already on target grid
+    if len(DA_x) > 1 and len(DA_y) > 1:
+        DA_dx = DA_x[1] - DA_x[0]
+        DA_dy = abs(DA_y[1] - DA_y[0])
+
+        # Compare with tolerance
+        same_resolution = np.isclose(DA_dx, dx, atol=1e-6) and np.isclose(DA_dy, dy, atol=1e-6)
+        same_size = len(DA_x) == len(x_CeCes) and len(DA_y) == len(y_CeCes)
+
+        # Check if coordinates match (within tolerance)
+        coords_match = False
+        if same_size:
+            try:
+                coords_match = np.allclose(DA_x, x_CeCes, atol=1e-6) and np.allclose(DA_y, y_CeCes, atol=1e-6)
+            except Exception:
+                coords_match = False
+
+        if same_resolution and same_size and coords_match:
+            vprint(f'  {item_name}: ⚫️ - Already on target grid')
+            return DA_clipped
+
+    # Handle special DA types
+    if 'ibound' in item_name.lower():
+        # Use nearest neighbor for boundary conditions
+        method = 'nearest'
+        vprint(f'  {item_name}: ⚪️ - Using nearest neighbor for boundary conditions')
+    elif any(x in item_name.lower() for x in ['landuse', 'soil_unit', 'zone']):
+        # Use nearest neighbor for categorical DA
+        method = 'nearest'
+        vprint(f'  {item_name}: ⚪️ - Using nearest neighbor for categorical data')
+    elif 'area' in item_name.lower():
+        # Special handling for area fields - scale by grid ratio
+        regridded = DA.interp(x=x_CeCes, y=y_CeCes, method='linear')
+        grid_ratio = (len(DA.x) * len(DA.y)) / (len(x_CeCes) * len(y_CeCes))
+        return regridded * grid_ratio
+
+    # Standard interpolation
+    try:
+        regridded = DA.interp(x=x_CeCes, y=y_CeCes, method=method)
+        vprint(f'  {item_name}: 🟢 - {DA.sizes} -> {regridded.sizes}')
+        return regridded
+    except Exception as e:
+        vprint(f'  {item_name}: 🔴 - Regridding failed ({e}) - keeping original')
+        return DA
 
 
 # --------------------------------------------------------------------------------
@@ -249,17 +371,11 @@ def add_OBS(MdlN: str, Opt: str = 'BEGIN OPTIONS\nEND OPTIONS'):
     # Iterate through OBS files of OBS blocks and add them to the Sim
     for i, path in enumerate(l_IPF):
         Pa_OBS_IPF = os.path.abspath(PJ(Pa_MdlN, path))  # path of IPF file. To be read.
-        OBS_IPF_Fi = PBN(
-            Pa_OBS_IPF
-        )  # Filename of OBS file to be added to Sim (to be added without ending)
+        OBS_IPF_Fi = PBN(Pa_OBS_IPF)  # Filename of OBS file to be added to Sim (to be added without ending)
         if i == 0:
-            Pa_OBS = PJ(
-                Pa_MdlN, f'GWF_1/MODELINPUT/{MdlN}.OBS6'
-            )  # path of OBS file. To be written.
+            Pa_OBS = PJ(Pa_MdlN, f'GWF_1/MODELINPUT/{MdlN}.OBS6')  # path of OBS file. To be written.
         else:
-            Pa_OBS = PJ(
-                Pa_MdlN, f'GWF_1/MODELINPUT/{MdlN}_N{i}.OBS6'
-            )  # path of OBS file. To be written.
+            Pa_OBS = PJ(Pa_MdlN, f'GWF_1/MODELINPUT/{MdlN}_N{i}.OBS6')  # path of OBS file. To be written.
 
         DF_OBS_IPF = read_IPF_Spa(
             Pa_OBS_IPF
@@ -332,7 +448,7 @@ def IDFs_to_DF(S_Pa_IDF):
 # --------------------------------------------------------------------------------
 
 
-# xarray processing -----------------------------------------------------------------
+# xarray processing --------------------------------------------------------------
 def xr_describe(data, name: str = None):
     """
     Generates descriptive statistics for an xarray DataArray or Dataset,
@@ -470,13 +586,9 @@ def xr_clip_Mdl_Aa(
 
     # Check if required dimensions exist
     if x_dim not in xr_data.coords:
-        raise ValueError(
-            f"X dimension '{x_dim}' not found in data coordinates: {list(xr_data.coords.keys())}"
-        )
+        raise ValueError(f"X dimension '{x_dim}' not found in data coordinates: {list(xr_data.coords.keys())}")
     if y_dim not in xr_data.coords:
-        raise ValueError(
-            f"Y dimension '{y_dim}' not found in data coordinates: {list(xr_data.coords.keys())}"
-        )
+        raise ValueError(f"Y dimension '{y_dim}' not found in data coordinates: {list(xr_data.coords.keys())}")
 
     vprint(f'Clipping xarray data to model area: X=[{Xmin}, {Xmax}], Y=[{Ymin}, {Ymax}]')
 
@@ -581,12 +693,8 @@ def xr_compare_As(
 
         if not coord_identical:
             coord1, coord2 = array1.coords[coord_name], array2.coords[coord_name]
-            print(
-                f'  {coord_name.upper()} {name1} range: {coord1.min().values:.1f} to {coord1.max().values:.1f}'
-            )
-            print(
-                f'  {coord_name.upper()} {name2} range: {coord2.min().values:.1f} to {coord2.max().values:.1f}'
-            )
+            print(f'  {coord_name.upper()} {name1} range: {coord1.min().values:.1f} to {coord1.max().values:.1f}')
+            print(f'  {coord_name.upper()} {name2} range: {coord2.min().values:.1f} to {coord2.max().values:.1f}')
 
             # Check spacing if coordinates have more than one value
             if len(coord1) > 1:
@@ -605,9 +713,7 @@ def xr_compare_As(
         if results['shapes_identical']:
             # Try interpolating array2 to array1 coordinates for comparison
             if x_dim in array2.coords and y_dim in array2.coords:
-                array2_aligned = array2.interp(
-                    {x_dim: array1[x_dim], y_dim: array1[y_dim]}, method='nearest'
-                )
+                array2_aligned = array2.interp({x_dim: array1[x_dim], y_dim: array1[y_dim]}, method='nearest')
             else:
                 array2_aligned = array2
 
@@ -658,6 +764,84 @@ def xr_compare_As(
         results['array2_has_nan'] = None
 
     return results
+
+
+# --------------------------------------------------------------------------------
+
+
+# Standard options ---------------------------------------------------------------
+def mf6_solution_moderate_settings(
+    modelnames: list[str] = ['imported_model'],
+    print_option: str = 'summary',
+    outer_csvfile: str | None = None,
+    inner_csvfile: str | None = None,
+    no_ptc: bool | None = None,
+    outer_dvclose: float = 0.001,
+    outer_maximum: int = 150,
+    under_relaxation: str = 'dbd',
+    under_relaxation_theta: float = 0.9,
+    under_relaxation_kappa: float = 0.0001,
+    under_relaxation_gamma: float = 0.0,
+    under_relaxation_momentum: float = 0.0,
+    backtracking_number: int = 0,
+    backtracking_tolerance: float = 0.0,
+    backtracking_reduction_factor: float = 0.0,
+    backtracking_residual_limit: float = 0.0,
+    inner_maximum: int = 30,
+    inner_dvclose: float = 0.001,
+    inner_rclose: float = 100.0,
+    rclose_option: str = 'strict',
+    linear_acceleration: str = 'bicgstab',
+    relaxation_factor: float = 0.97,
+    preconditioner_levels: int = 0,
+    preconditioner_drop_tolerance: float = 0.0,
+    number_orthogonalizations: int = 0,
+):
+    """Returns a mf6.Solution object with moderate settings for model solution.
+    These settings are suitable for most models, but can be adjusted as needed."""
+
+    return mf6.Solution(
+        modelnames=modelnames,
+        print_option=print_option,
+        outer_csvfile=outer_csvfile,
+        inner_csvfile=inner_csvfile,
+        no_ptc=no_ptc,
+        outer_dvclose=outer_dvclose,
+        outer_maximum=outer_maximum,
+        under_relaxation=under_relaxation,
+        under_relaxation_theta=under_relaxation_theta,
+        under_relaxation_kappa=under_relaxation_kappa,
+        under_relaxation_gamma=under_relaxation_gamma,
+        under_relaxation_momentum=under_relaxation_momentum,
+        backtracking_number=backtracking_number,
+        backtracking_tolerance=backtracking_tolerance,
+        backtracking_reduction_factor=backtracking_reduction_factor,
+        backtracking_residual_limit=backtracking_residual_limit,
+        inner_maximum=inner_maximum,
+        inner_dvclose=inner_dvclose,
+        inner_rclose=inner_rclose,
+        rclose_option=rclose_option,
+        linear_acceleration=linear_acceleration,
+        relaxation_factor=relaxation_factor,
+        preconditioner_levels=preconditioner_levels,
+        preconditioner_drop_tolerance=preconditioner_drop_tolerance,
+        number_orthogonalizations=number_orthogonalizations,
+    )
+
+
+# --------------------------------------------------------------------------------
+
+
+# numpy --------------------------------------------------------------------------
+def get_CeCes_from_INI(MdlN: str):
+    """Get centroids of the model grid from the INI file of the model.
+    Returns x_CeCes, y_CeCes."""
+
+    Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = Mdl_Dmns_from_INI(get_MdlN_Pa(MdlN)['INI'])
+    dx = float(cellsize)
+    dy = -float(cellsize)
+
+    return np.arange(Xmin + dx / 2, Xmax, dx), np.arange(Ymax + dy / 2, Ymin, dy)
 
 
 # --------------------------------------------------------------------------------

@@ -40,9 +40,9 @@ models/*/code/snakemake/temp/
 !**/*.dvc
 !**/*.inp
 
-# All SS folders will be ignored. This is placed at the bottom to overwrite anything else.
-**/SS/
-**/SS/**
+# All Ss folders will be ignored. This is placed at the bottom to overwrite anything else.
+**/Ss/
+**/Ss/**
 **/temp/
 **/temp/**
 

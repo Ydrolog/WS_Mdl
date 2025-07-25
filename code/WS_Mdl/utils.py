@@ -23,6 +23,7 @@ Pre_Sign = f'{fg(52)}{"*" * 80}{attr("reset")}\n'
 Sign = f'{fg(52)}\nend_of_transmission\n{"*" * 80}{attr("reset")}\n'
 bold = '\033[1m'
 bold_off = '\033[0m'
+custom_characters = ['🔴', '🟡', '🟢']
 
 VERBOSE = (
     True  # Use set_verbose to change this to true and get more information printed to the console.

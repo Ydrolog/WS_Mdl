@@ -25,6 +25,8 @@ from .utils import Pre_Sign, Sign, vprint
 
 crs = 'EPSG:28992'
 
+custom_characters = ['🔴', '🟡', '🟢']
+
 
 # TIF ----------------------------------------------------------------------------
 def DA_stats(DA, verbose: bool = False):
