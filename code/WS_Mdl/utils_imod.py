@@ -287,11 +287,10 @@ def regrid_DA(DA, x_CeCes, y_CeCes, dx, dy, item_name, method='linear'):
 
     try:
         # Clip to target area
-        DA_clipped = DA.sel(x=slice(Xmin, Xmax), y=y_slice)
-        DA_x, DA_y = DA_clipped.x.values, DA_clipped.y.values
+        DA = DA.sel(x=slice(Xmin, Xmax), y=y_slice)
+        DA_x, DA_y = DA.x.values, DA.y.values
     except Exception as e:
         vprint(f'  {item_name}: 🔴 - Could not clip to target area ({e}) - proceeding with full DA')
-        DA_clipped = DA
         DA_x, DA_y = DA.x.values, DA.y.values
 
     # Check if clipped DA is already on target grid
@@ -313,7 +312,7 @@ def regrid_DA(DA, x_CeCes, y_CeCes, dx, dy, item_name, method='linear'):
 
         if same_resolution and same_size and coords_match:
             vprint(f'  {item_name}: ⚫️ - Already on target grid')
-            return DA_clipped
+            return DA
 
     # Handle special DA types
     if 'ibound' in item_name.lower():
@@ -327,12 +326,18 @@ def regrid_DA(DA, x_CeCes, y_CeCes, dx, dy, item_name, method='linear'):
     elif 'area' in item_name.lower():
         # Special handling for area fields - scale by grid ratio
         regridded = DA.interp(x=x_CeCes, y=y_CeCes, method='linear')
-        grid_ratio = (len(DA.x) * len(DA.y)) / (len(x_CeCes) * len(y_CeCes))
-        return regridded * grid_ratio
+        grid_ratio = (len(x_CeCes) * len(y_CeCes)) / (len(DA.x) * len(DA.y))
+        regridded = regridded * grid_ratio
+        # Attach dx and dy attributes to the regridded DataArray
+        regridded = regridded.assign_coords(dx=dx, dy=dy)
+        vprint(f'  {item_name}: 🟢 - Area field regridded with grid ratio scaling')
+        return regridded
 
-    # Standard interpolation
+    # Standard interpolation (including special cases above)
     try:
         regridded = DA.interp(x=x_CeCes, y=y_CeCes, method=method)
+        # Attach dx and dy attributes to the regridded DataArray
+        regridded = regridded.assign_coords(dx=dx, dy=dy)
         vprint(f'  {item_name}: 🟢 - {DA.sizes} -> {regridded.sizes}')
         return regridded
     except Exception as e:
