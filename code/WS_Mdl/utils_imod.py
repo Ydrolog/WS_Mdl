@@ -2,7 +2,10 @@
 import os
 import re
 import tempfile
+from os import makedirs as MDs
 from os.path import basename as PBN
+from os.path import dirname as PDN
+from os.path import exists as PE
 from os.path import join as PJ
 
 import imod
@@ -154,7 +157,10 @@ def PRJ_to_DF(MdlN):
 
 
 def open_PRJ_with_OBS(Pa_PRJ):
-    """imod.formats.prj.read_projectfile struggles with .prj files that contain OBS blocks. This will read the PRJ file and return a tuple. The first item is a PRJ dictionary (as imod.formats.prj would return), the 2nd is a list of the OBS block lines."""
+    """
+    imod.formats.prj.read_projectfile struggles with .prj files that contain OBS blocks. This will read the PRJ file and return a tuple. The first item is a PRJ dictionary (as imod.formats.prj would return), the 2nd is a list of the OBS block lines.
+    ATM this is safer, as it can deal with both PRJ files with and without OBS blocks.
+    """
 
     Dir_PRJ = os.path.dirname(Pa_PRJ)  # Directory of the PRJ file
 
@@ -273,27 +279,8 @@ def regrid_DA(DA, x_CeCes, y_CeCes, dx, dy, item_name, method='linear'):
         vprint(f'  {item_name}: ⚪️ - No spatial dims - keeping original')
         return DA
 
-    # Get target grid properties
-    Xmin, Xmax = x_CeCes.min(), x_CeCes.max()
-    Ymin, Ymax = y_CeCes.min(), y_CeCes.max()
-
-    # First, clip DA to target model area to get comparable sizes
-    # Handle y-coordinate order (descending vs ascending)
-    DA_y = DA.y.values
-    if len(DA_y) > 1 and DA_y[0] > DA_y[-1]:  # Descending order
-        y_slice = slice(Ymax, Ymin)
-    else:  # Ascending order
-        y_slice = slice(Ymin, Ymax)
-
-    try:
-        # Clip to target area
-        DA = DA.sel(x=slice(Xmin, Xmax), y=y_slice)
-        DA_x, DA_y = DA.x.values, DA.y.values
-    except Exception as e:
-        vprint(f'  {item_name}: 🔴 - Could not clip to target area ({e}) - proceeding with full DA')
-        DA_x, DA_y = DA.x.values, DA.y.values
-
-    # Check if clipped DA is already on target grid
+    # Check if DA is already on target grid before doing anything
+    DA_x, DA_y = DA.x.values, DA.y.values
     if len(DA_x) > 1 and len(DA_y) > 1:
         DA_dx = DA_x[1] - DA_x[0]
         DA_dy = abs(DA_y[1] - DA_y[0])
@@ -328,14 +315,17 @@ def regrid_DA(DA, x_CeCes, y_CeCes, dx, dy, item_name, method='linear'):
         regridded = DA.interp(x=x_CeCes, y=y_CeCes, method='linear')
         grid_ratio = (len(x_CeCes) * len(y_CeCes)) / (len(DA.x) * len(DA.y))
         regridded = regridded * grid_ratio
+
         # Attach dx and dy attributes to the regridded DataArray
         regridded = regridded.assign_coords(dx=dx, dy=dy)
         vprint(f'  {item_name}: 🟢 - Area field regridded with grid ratio scaling')
         return regridded
 
-    # Standard interpolation (including special cases above)
+    # Option A: Interpolate first, then clip to target bounds
+    # This is simpler but computationally more expensive for large arrays
     try:
         regridded = DA.interp(x=x_CeCes, y=y_CeCes, method=method)
+
         # Attach dx and dy attributes to the regridded DataArray
         regridded = regridded.assign_coords(dx=dx, dy=dy)
         vprint(f'  {item_name}: 🟢 - {DA.sizes} -> {regridded.sizes}')
@@ -343,6 +333,54 @@ def regrid_DA(DA, x_CeCes, y_CeCes, dx, dy, item_name, method='linear'):
     except Exception as e:
         vprint(f'  {item_name}: 🔴 - Regridding failed ({e}) - keeping original')
         return DA
+
+
+def mete_grid_Cvt_to_AbsPa(Pa_PRJ: str, PRJ: dict = None):
+    """
+    Converts mete_grid.inp paths to absolute paths in the PRJ file.
+    This is necessary because imod doesn't handle relative paths in mete_grid.inp correctly.
+    - Pa_PRJ is necessary cause it is used in the path conversion.
+    - PRJ is optional, if not provided, it will be loaded from Pa_PRJ.
+    Returns Pa of mete_grid.inp with absolute paths.
+    """
+
+    Dir_PRJ = PDN(Pa_PRJ)
+
+    if not PRJ:  # If PRJ is not provided, load it from Pa_PRJ
+        PRJ_, PRJ_OBS = open_PRJ_with_OBS(Pa_PRJ)
+        PRJ, period_data = PRJ_[0], PRJ_[1]
+        return None
+
+    Pa_mete_grid = PRJ['extra']['paths'][2][0]  # 3rd file (index 2) (by default. immutable order)
+
+    # Load mete_grid, edit and save it
+    Pa_mete_grid_AbsPa = PJ(PDN(Pa_mete_grid), 'temp', 'mete_grid.inp')
+    if not PE(PDN(Pa_mete_grid_AbsPa)):
+        MDs(PDN(Pa_mete_grid_AbsPa))
+
+    DF = pd.read_csv(Pa_mete_grid, header=None, names=['N', 'Y', 'P', 'PET'])
+    DF.P = DF.P.apply(lambda x: os.path.abspath(PJ(Dir_PRJ, x)))
+    DF.PET = DF.PET.apply(lambda x: os.path.abspath(PJ(Dir_PRJ, x)))  # Fixed: was DF.P instead of DF.PET
+
+    # Write CSV with proper format to avoid imod parsing issues with newlines
+    # imod doesn't strip newlines from paths, so we need to format carefully
+    corrected_lines = []
+    for index, row in DF.iterrows():
+        # Add quotes around paths like the original format
+        line = f'{row["N"]},{row["Y"]},"{row["P"]}","{row["PET"]}"'
+        corrected_lines.append(line)
+
+    # Write without newlines in path columns
+    with open(Pa_mete_grid_AbsPa, 'w') as f:
+        for i, line in enumerate(corrected_lines):
+            if i == len(corrected_lines) - 1:  # Last line - no newline
+                f.write(line)
+            else:
+                f.write(line + '\n')
+
+    print(f'Created corrected mete_grid.inp: {Pa_mete_grid_AbsPa}')
+
+    return Pa_mete_grid_AbsPa
 
 
 # --------------------------------------------------------------------------------

@@ -25,9 +25,7 @@ bold = '\033[1m'
 bold_off = '\033[0m'
 custom_characters = ['🔴', '🟡', '🟢']
 
-VERBOSE = (
-    True  # Use set_verbose to change this to true and get more information printed to the console.
-)
+VERBOSE = True  # Use set_verbose to change this to true and get more information printed to the console.
 
 Pa_WS = 'C:/OD/WS_Mdl'
 Pa_RunLog = PJ(Pa_WS, 'Mng/WS_RunLog.xlsx')
@@ -111,9 +109,7 @@ def get_MdlN_paths(MdlN: str, verbose=False):
     Pa_INI_B = d_Pa['Pa_INI_B'].
     """
     d_Pa = paths_from_MdlN_Se(MdlN_Se_from_RunLog((MdlN)), MdlN)
-    vprint(
-        f'🟢 - {MdlN} paths extracted from RunLog and returned as dictionary with keys:\n{", ".join(d_Pa.keys())}'
-    )
+    vprint(f'🟢 - {MdlN} paths extracted from RunLog and returned as dictionary with keys:\n{", ".join(d_Pa.keys())}')
     return d_Pa
 
 
@@ -253,9 +249,7 @@ def HD_Out_IDF_to_DF(
     DF = pd.DataFrame({'path': Se_Fi_path, 'file': Se_Fi_path.apply(lambda x: PBN(x))})
     DF[['type', 'year', 'month', 'day', 'L']] = (
         DF['file']
-        .str.extract(
-            r'^(?P<type>[A-Z]+)_(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})\d{6}_L(?P<L>\d+)\.IDF$'
-        )
+        .str.extract(r'^(?P<type>[A-Z]+)_(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})\d{6}_L(?P<L>\d+)\.IDF$')
         .astype({'year': int, 'month': int, 'day': int, 'L': int})
     )
 
@@ -419,9 +413,7 @@ def Sim_Cfg(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
 
 
 def open_LSTs(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
-    vprint(
-        f'{"-" * 100}\nOpening LST files (Mdl+Sim) for specified runs with the default program.\n'
-    )
+    vprint(f'{"-" * 100}\nOpening LST files (Mdl+Sim) for specified runs with the default program.\n')
     vprint(
         f"It's assumed that Notepad++ is installed in: {Pa_NP}.\nIf that's not True, provide the correct path to Notepad++ (or another text editor) as the last argument to this function.\n"
     )
@@ -436,9 +428,7 @@ def open_LSTs(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
 
 
 def open_NAMs(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
-    vprint(
-        f'{"-" * 100}\nOpening NAM files (Mdl+Sim) for specified runs with the default program.\n'
-    )
+    vprint(f'{"-" * 100}\nOpening NAM files (Mdl+Sim) for specified runs with the default program.\n')
     vprint(
         f"It's assumed that Notepad++ is installed in: {Pa_NP}.\nIf that's not True, provide the correct path to Notepad++ (or another text editor) as the last argument to this function.\n"
     )
@@ -455,9 +445,7 @@ def open_NAMs(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
 def open_LST(
     *l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'
 ):  # 666 To be deprecated later, as open_ does the same thing, but is more versatile.
-    vprint(
-        f'{"-" * 100}\nOpening LST files (Mdl+Sim) for specified runs with the default program.\n'
-    )
+    vprint(f'{"-" * 100}\nOpening LST files (Mdl+Sim) for specified runs with the default program.\n')
     vprint(
         f"It's assumed that Notepad++ is installed in: {Pa_NP}.\nIf that's not True, provide the correct path to Notepad++ (or another text editor) as the last argument to this function.\n"
     )
@@ -498,9 +486,7 @@ def DF_to_MF_block(DF, Min_width=4, indent='    ', Max_decimals=4):
     str
         Formatted text block with right-aligned columns and consistent formatting
     """
-    DF = DF.rename(
-        columns={DF.columns[0]: '#' + DF.columns[0]}
-    )  # comment out header, so that MF6 doesn't read it.
+    DF = DF.rename(columns={DF.columns[0]: '#' + DF.columns[0]})  # comment out header, so that MF6 doesn't read it.
     DF_str = DF.copy().astype(str)
 
     # Detect columns with floats or decimals
@@ -610,9 +596,7 @@ def S_from_B_undo(MdlN: str):
     )  # and pass them to objects that will be used in the function
 
     confirm = (
-        input(
-            f'Are you sure you want to delete the Cfg files (.smk, .ini, .bat, .prj) for {MdlN}? (y/n): '
-        )
+        input(f'Are you sure you want to delete the Cfg files (.smk, .ini, .bat, .prj) for {MdlN}? (y/n): ')
         .strip()
         .lower()
     )
@@ -639,9 +623,7 @@ def Up_log(MdlN: str, d_Up: dict, Pa_log=Pa_log):  # Pa_log=PJ(Pa_WS, 'Mng/log.c
                 DF.to_csv(Pa_log, date_format='%Y-%m-%d %H:%M')  # Save back to CSV
                 break  # Break if successful
             except PermissionError:
-                input(
-                    'log.csv is open. Press Enter after closing the file...'
-                )  # Wait for user input
+                input('log.csv is open. Press Enter after closing the file...')  # Wait for user input
 
 
 def _RunMng(args):
@@ -707,10 +689,7 @@ def RunMng(cores=None, DAG: bool = True, Cct_Sims=None):
     vprint('Reading RunLog ...', end='')
     DF = read_RunLog()
     DF_q = DF.loc[
-        (
-            (DF['Start Status'] == 'Queued')
-            & ((DF['End Status'].isna()) | (DF['End Status'] == 'Failed'))
-        )
+        ((DF['Start Status'] == 'Queued') & ((DF['End Status'].isna()) | (DF['End Status'] == 'Failed')))
     ]  # _q for queued. Only Run Queued runs that aren't running or have finished.
     vprint(' completed!\n')
 
@@ -777,10 +756,7 @@ def reset_Sim(MdlN: str):
         l_temp = [i for i in LD(Pa_Smk_temp) if MdlN in i]
 
         if (
-            os.path.exists(Pa_MdlN)
-            or (MdlN in DF['MdlN'].values)
-            or l_temp
-            or os.path.exists(d_Pa['PoP_Out_MdlN'])
+            os.path.exists(Pa_MdlN) or (MdlN in DF['MdlN'].values) or l_temp or os.path.exists(d_Pa['PoP_Out_MdlN'])
         ):  # Check if the Sim folder exists or if the MdlN is in the log file
             i = 0
 
@@ -794,9 +770,7 @@ def reset_Sim(MdlN: str):
                 vprint(f'🔴 - failed to delete Sim folder: {e}')
 
             try:
-                DF[DF['MdlN'] != MdlN].to_csv(
-                    Pa_log, index=False
-                )  # Remove the log entry for this model
+                DF[DF['MdlN'] != MdlN].to_csv(Pa_log, index=False)  # Remove the log entry for this model
                 vprint('🟢 - Log file updated successfully.')
                 i += 1
             except Exception as e:
@@ -813,9 +787,7 @@ def reset_Sim(MdlN: str):
             try:
                 if not os.path.exists(d_Pa['PoP_Out_MdlN']):
                     raise FileNotFoundError(f'{d_Pa["PoP_Out_MdlN"]} does not exist.')
-                sp.run(
-                    f'rmdir /S /Q "{d_Pa["PoP_Out_MdlN"]}"', shell=True
-                )  # Delete the entire Sim folder
+                sp.run(f'rmdir /S /Q "{d_Pa["PoP_Out_MdlN"]}"', shell=True)  # Delete the entire Sim folder
                 vprint('🟢 - PoP Out folder removed successfully.')
                 i += 1
             except Exception as e:
