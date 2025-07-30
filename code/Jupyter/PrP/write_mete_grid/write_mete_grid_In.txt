@@ -1,4 +1,4 @@
-# file used to define inputs for write_mete_grid.py
+# file used to define inputs for w_mete_grid.py
 date_start = '2010-01-01' # Use '%Y-%m-%d' format
 date_end = '2018-12-31' # Use '%Y-%m-%d' format
 Mdl='NBr' # Has to be a str

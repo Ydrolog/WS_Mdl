@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def read_asc(file_path):
+def r_asc(file_path):
     """Reads an .asc file and returns the metadata and array data."""
     with open(file_path, 'r') as file:
         # Read metadata (first 6 lines)

@@ -2,17 +2,22 @@
 # <span style="font-size:24px; font-family:'Roboto'; font-weight:bold;">
 # Script to write a mete_grid.inp file
 # </span><br>
-# Will read inputs from write_mete_grid_In.txt to write the mete_grid.inp, which will be placed in the corresponding folder.
+# Will read inputs from w_mete_grid_In.txt to write the mete_grid.inp, which will be placed in the corresponding folder.
 
 # %% [markdown]
 # ## 1. Options
 
 # %%
-import pandas as pd
 import os
-from os import listdir as LD, makedirs as MDs
-from os.path import join as PJ, basename as PBN, dirname as PDN, exists as PE
 from datetime import datetime as DT
+from os import listdir as LD
+from os import makedirs as MDs
+from os.path import basename as PBN
+from os.path import dirname as PDN
+from os.path import exists as PE
+from os.path import join as PJ
+
+import pandas as pd
 
 # %%
 with open('./write_mete_grid_In.txt', 'r') as file:

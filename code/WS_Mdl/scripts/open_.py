@@ -2,8 +2,9 @@
 """Open Mdl LST file for specified models."""
 
 import sys
+
 import WS_Mdl.utils as U
-from WS_Mdl.utils import open_  # Adjust import as needed
+from WS_Mdl.utils import o_  # Adjust import as needed
 
 
 def main():
@@ -14,7 +15,7 @@ def main():
         sys.exit(1)
 
     try:
-        open_(sys.argv[1], *sys.argv[2:])
+        o_(sys.argv[1], *sys.argv[2:])
     except Exception as e:
         print(f'Error opening files: {e}')
         sys.exit(1)

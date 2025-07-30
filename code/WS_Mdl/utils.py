@@ -175,11 +175,11 @@ def get_last_MdlN():
 
 # READ FILES ---------------------------------------------------------------------
 # 666 to be iproved later by replacing paths with MdlN. I'll have to make get_MdlN_paths_noB, where RunLog won't be read. Path of one MdlN will be calculated off of standard folder structure.
-def read_RunLog():
+def r_RunLog():
     return pd.read_excel(Pa_RunLog, sheet_name='RunLog').dropna(subset='runN')  # Read RunLog
 
 
-def read_IPF_Spa(Pa_IPF):
+def r_IPF_Spa(Pa_IPF):
     """Reads IPF file without temporal component - i.e. no linked TS text files. Returns a DF created from just the IPF file."""
     with open(Pa_IPF, 'r') as f:
         l_Ln = f.readlines()
@@ -386,7 +386,7 @@ def MF6_block_to_DF(
 
 
 # Open files ---------------------------------------------------------------------
-def open_(key, *l_MdlN, Pa=r'C:\Program Files\Notepad++\notepad++.exe'):
+def o_(key, *l_MdlN, Pa=r'C:\Program Files\Notepad++\notepad++.exe'):
     """Opens files at default locations, as specified by get_MdlN_Pa()."""
     if key not in get_MdlN_Pa('NBr1').keys():
         raise ValueError(f'\nInvalid key: {key}.\nValid keys are: {", ".join(get_MdlN_Pa("NBr1").keys())}')
@@ -417,7 +417,7 @@ def Sim_Cfg(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
         vprint(f'🟢 - {f}')
 
 
-def open_LSTs(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
+def o_LSTs(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
     vprint(f'{"-" * 100}\nOpening LST files (Mdl+Sim) for specified runs with the default program.\n')
     vprint(
         f"It's assumed that Notepad++ is installed in: {Pa_NP}.\nIf that's not True, provide the correct path to Notepad++ (or another text editor) as the last argument to this function.\n"
@@ -432,7 +432,7 @@ def open_LSTs(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
         vprint(f'🟢 - {f}')
 
 
-def open_NAMs(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
+def o_NAMs(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
     vprint(f'{"-" * 100}\nOpening NAM files (Mdl+Sim) for specified runs with the default program.\n')
     vprint(
         f"It's assumed that Notepad++ is installed in: {Pa_NP}.\nIf that's not True, provide the correct path to Notepad++ (or another text editor) as the last argument to this function.\n"
@@ -447,9 +447,9 @@ def open_NAMs(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
         vprint(f'🟢 - {f}')
 
 
-def open_LST(
+def o_LST(
     *l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'
-):  # 666 To be deprecated later, as open_ does the same thing, but is more versatile.
+):  # 666 To be deprecated later, as o_ does the same thing, but is more versatile.
     vprint(f'{"-" * 100}\nOpening LST files (Mdl+Sim) for specified runs with the default program.\n')
     vprint(
         f"It's assumed that Notepad++ is installed in: {Pa_NP}.\nIf that's not True, provide the correct path to Notepad++ (or another text editor) as the last argument to this function.\n"
@@ -692,7 +692,7 @@ def RunMng(cores=None, DAG: bool = True, Cct_Sims=None):
     )
 
     vprint('Reading RunLog ...', end='')
-    DF = read_RunLog()
+    DF = r_RunLog()
     DF_q = DF.loc[
         ((DF['Start Status'] == 'Queued') & ((DF['End Status'].isna()) | (DF['End Status'] == 'Failed')))
     ]  # _q for queued. Only Run Queued runs that aren't running or have finished.
@@ -828,7 +828,7 @@ def rerun_Sim(MdlN: str, cores=None, DAG: bool = True):
 
     reset_Sim(MdlN)
 
-    DF = read_RunLog()
+    DF = r_RunLog()
 
     if MdlN not in DF['MdlN'].values:
         print(f'🔴🔴🔴 - {MdlN} not found in the RunLog. Cannot rerun.')

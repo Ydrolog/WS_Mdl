@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import sys
 
-from WS_Mdl.utils import open_LSTs  # Adjust import as needed
+from WS_Mdl.utils import o_LSTs  # Adjust import as needed
 
 
 def main():
@@ -10,7 +10,7 @@ def main():
         sys.exit(1)
 
     for MdlN in sys.argv[1:]:  # Loop through all arguments after the script name
-        open_LSTs(MdlN)
+        o_LSTs(MdlN)
 
 
 if __name__ == '__main__':

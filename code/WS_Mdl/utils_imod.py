@@ -39,7 +39,7 @@ custom_characters = {
 
 
 # PRJ related --------------------------------------------------------------------
-def read_PRJ_with_OBS(Pa_PRJ):
+def r_PRJ_with_OBS(Pa_PRJ):
     """imod.formats.prj.read_projectfile struggles with .prj files that contain OBS blocks. This will read the PRJ file and return a tuple. The first item is a PRJ dictionary (as imod.formats.prj would return) and also a list of the OBS block lines."""
     with open(Pa_PRJ, 'r') as f:
         lines = f.readlines()
@@ -70,8 +70,8 @@ def read_PRJ_with_OBS(Pa_PRJ):
 
 
 def PRJ_to_DF(MdlN):
-    """Leverages read_PRJ_with_OBS to produce a DF with the PRJ data.
-    Could have been included in utils.py based on dependencies, but utils_imod.py fits it better as it's almost alwaysused after read_PRJ_with_OBS (so the libs will be already loaded)."""
+    """Leverages r_PRJ_with_OBS to produce a DF with the PRJ data.
+    Could have been included in utils.py based on dependencies, but utils_imod.py fits it better as it's almost alwaysused after r_PRJ_with_OBS (so the libs will be already loaded)."""
 
     d_Pa = get_MdlN_Pa(MdlN)
 
@@ -82,7 +82,7 @@ def PRJ_to_DF(MdlN):
         PJ(Pa_WS, 'models', Mdl),
     )  # For some reason imod.idf.read reads the path incorrectly, so I have to replace the incorrect part.
 
-    d_PRJ, OBS = read_PRJ_with_OBS(d_Pa['PRJ'])
+    d_PRJ, OBS = r_PRJ_with_OBS(d_Pa['PRJ'])
 
     columns = [
         'package',
@@ -156,7 +156,7 @@ def PRJ_to_DF(MdlN):
     return DF
 
 
-def open_PRJ_with_OBS(Pa_PRJ):
+def o_PRJ_with_OBS(Pa_PRJ):
     """
     imod.formats.prj.read_projectfile struggles with .prj files that contain OBS blocks. This will read the PRJ file and return a tuple. The first item is a PRJ dictionary (as imod.formats.prj would return), the 2nd is a list of the OBS block lines.
     ATM this is safer, as it can deal with both PRJ files with and without OBS blocks.
@@ -192,9 +192,9 @@ def open_PRJ_with_OBS(Pa_PRJ):
     return PRJ, l_OBS_Lns
 
 
-def open_PRJ_with_OBS_old(Pa_PRJ):
+def o_PRJ_with_OBS_old(Pa_PRJ):
     """imod.formats.prj.read_projectfile struggles with .prj files that contain OBS blocks. This will read the PRJ file and return a tuple. The first item is a PRJ dictionary (as imod.formats.prj would return), the 2nd is a list of the OBS block lines.
-    - This is an old version that uses imod.formats.prj.open_projectfile_data, which is much slower than imod.formats.prj.open_projectfile. Use open_PRJ_with_OBS instead.
+    - This is an old version that uses imod.formats.prj.open_projectfile_data, which is much slower than imod.formats.prj.open_projectfile. Use o_PRJ_with_OBS instead.
     - Actually I think the speed difference is attributed to the fact that the data were already read into memory. There is no significant difference in speed when reading the PRJ file for the first time (betwen the two functions)."""
 
     Dir_PRJ = os.path.dirname(Pa_PRJ)  # Directory of the PRJ file
@@ -347,7 +347,7 @@ def mete_grid_Cvt_to_AbsPa(Pa_PRJ: str, PRJ: dict = None):
     Dir_PRJ = PDN(Pa_PRJ)
 
     if not PRJ:  # If PRJ is not provided, load it from Pa_PRJ
-        PRJ_, PRJ_OBS = open_PRJ_with_OBS(Pa_PRJ)
+        PRJ_, PRJ_OBS = o_PRJ_with_OBS(Pa_PRJ)
         PRJ, period_data = PRJ_[0], PRJ_[1]
         return None
 
@@ -405,7 +405,7 @@ def add_OBS(MdlN: str, Opt: str = 'BEGIN OPTIONS\nEND OPTIONS'):
     # N_R, N_C = int( - (Ymin - Ymax) / cellsize ), int( (Xmax - Xmin) / cellsize ),
 
     # Read PRJ file to extract OBS block info - list of OBS files to be added.
-    l_OBS_lines = read_PRJ_with_OBS(Pa_PRJ)[1]
+    l_OBS_lines = r_PRJ_with_OBS(Pa_PRJ)[1]
     pattern = r"['\",]([^'\",]*?\.ipf)"  # Regex pattern to extract file paths ending in .ipf
     l_IPF = [
         match.group(1) for line in l_OBS_lines for match in re.finditer(pattern, line)
