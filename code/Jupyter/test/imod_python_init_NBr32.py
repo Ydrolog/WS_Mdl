@@ -26,7 +26,7 @@ dx = dy = float(d_INI['CELLSIZE'])
 
 
 # # Load PRJ
-PRJ_, PRJ_OBS = UIM.open_PRJ_with_OBS(Pa_PRJ)
+PRJ_, PRJ_OBS = UIM.o_PRJ_with_OBS(Pa_PRJ)
 
 PRJ, period_data = PRJ_[0], PRJ_[1]
 
@@ -520,7 +520,7 @@ Sim_MF6_AoI.write(d_Pa['Pa_MdlN'])
 #     Parameters:
 #     -----------
 #     prj_dict : dict
-#         The PRJ dictionary from open_projectfile_data
+#         The PRJ dictionary from o_projectfile_data
 #     x_min, x_max, y_min, y_max : float
 #         Bounding box coordinates
 #     """
