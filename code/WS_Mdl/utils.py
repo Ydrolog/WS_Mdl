@@ -387,7 +387,8 @@ def MF6_block_to_DF(
 
 # Open files ---------------------------------------------------------------------
 def open_(key, *l_MdlN, Pa=r'C:\Program Files\Notepad++\notepad++.exe'):
-    if key not in [get_MdlN_Pa('NBr1').keys()]:
+    """Opens files at default locations, as specified by get_MdlN_Pa()."""
+    if key not in get_MdlN_Pa('NBr1').keys():
         raise ValueError(f'\nInvalid key: {key}.\nValid keys are: {", ".join(get_MdlN_Pa("NBr1").keys())}')
         return
 

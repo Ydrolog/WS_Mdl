@@ -1,0 +1,27 @@
+[project]
+authors = ["JoerivanEngelen <joeri.vanengelen@deltares.nl>"]
+channels = ["conda-forge"]
+description = "Add a short description here"
+name = "pixi"
+platforms = ["win-64"]
+version = "0.1.0"
+
+[tasks]
+install = "pip install git+https://github.com/Deltares/imod_coupler.git#subdirectory=pre-processing"
+
+
+[dependencies]
+xugrid = "*"
+filelock = "*"
+geopandas = "*"
+rioxarray = "*"
+bottleneck = "*"
+jupyter = "*"
+pandamesh = "*"
+pip = "*"
+pytest = "*"
+primod = ">=2024.3.0,<2025"
+
+[pypi-dependencies]
+imod = { git = "https://github.com/Deltares/imod-python.git" }
+imod_coupler = { git = "https://github.com/Deltares/imod_coupler.git" }

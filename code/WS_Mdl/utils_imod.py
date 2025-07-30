@@ -25,7 +25,7 @@ from .utils import (
     Pre_Sign,
     Sign,
     get_MdlN_Pa,
-    read_IPF_Spa,
+    r_IPF_Spa,
     vprint,
 )
 
@@ -420,7 +420,7 @@ def add_OBS(MdlN: str, Opt: str = 'BEGIN OPTIONS\nEND OPTIONS'):
         else:
             Pa_OBS = PJ(Pa_MdlN, f'GWF_1/MODELINPUT/{MdlN}_N{i}.OBS6')  # path of OBS file. To be written.
 
-        DF_OBS_IPF = read_IPF_Spa(
+        DF_OBS_IPF = r_IPF_Spa(
             Pa_OBS_IPF
         )  # Get list of OBS items (without temporal dimension, as it's uneccessary for the OBS file, and takes ages to load)
         DF_OBS_IPF_MdlAa = DF_OBS_IPF.loc[
