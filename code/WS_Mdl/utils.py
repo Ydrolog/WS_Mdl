@@ -633,7 +633,7 @@ def Up_log(MdlN: str, d_Up: dict, Pa_log=Pa_log):  # Pa_log=PJ(Pa_WS, 'Mng/log.c
 
 def _RunMng(args):
     """Helper function that runs a single model's snakemake workflow."""
-    _, Se_Ln, cores_per_Sim, generate_dag = args
+    _, Se_Ln, cores_per_Sim, generate_dag, no_temp = args
     Pa_Smk = PJ(Pa_WS, f'models/{Se_Ln["model alias"]}/code/snakemake/{Se_Ln["MdlN"]}.smk')
     Pa_Smk_log = PJ(
         Pa_WS,
@@ -662,8 +662,11 @@ def _RunMng(args):
                 check=True,
             )
         with open(Pa_Smk_log, 'w', encoding='utf-8-sig') as f:
+            cmd = ['snakemake', '-p', '-s', Pa_Smk, '--cores', str(cores_per_Sim)]
+            if no_temp:
+                cmd.append('--notemp')
             sp.run(
-                ['snakemake', '-p', '-s', Pa_Smk, '--cores', str(cores_per_Sim)],
+                cmd,
                 check=True,
                 stdout=f,
                 stderr=f,
@@ -673,7 +676,7 @@ def _RunMng(args):
         return (Se_Ln['MdlN'], False, str(e))
 
 
-def RunMng(cores=None, DAG: bool = True, Cct_Sims=None):
+def RunMng(cores=None, DAG: bool = True, Cct_Sims=None, no_temp: bool = True):
     """
     Read the RunLog, and for each queued model, run the corresponding Snakemake file.
 
@@ -714,7 +717,7 @@ def RunMng(cores=None, DAG: bool = True, Cct_Sims=None):
         print('\n🟡🟡🟡 - No queued runs found in the RunLog.')
     else:
         # Prepare arguments for multiprocessing
-        args = [(i, row, cores_per_Sim, DAG) for i, row in DF_q.iterrows()]
+        args = [(i, row, cores_per_Sim, DAG, no_temp) for i, row in DF_q.iterrows()]
 
         # Run models in parallel
         with Pool(processes=Cct_Sims) as pool:
