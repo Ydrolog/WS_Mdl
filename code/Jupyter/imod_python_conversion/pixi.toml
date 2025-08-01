@@ -20,8 +20,6 @@ jupyter = "*"
 pandamesh = "*"
 pip = "*"
 pytest = "*"
-primod = ">=2024.3.0,<2025"
 
 [pypi-dependencies]
 imod = { git = "https://github.com/Deltares/imod-python.git" }
-imod_coupler = { git = "https://github.com/Deltares/imod_coupler.git" }

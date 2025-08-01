@@ -45,6 +45,8 @@ models/*/code/snakemake/temp/
 **/Ss/**
 **/temp/
 **/temp/**
+**/ipynb_checkpoints/
+**/ipynb_checkpoints/**
 
 # Excel lock files.
 ~$*.xls*

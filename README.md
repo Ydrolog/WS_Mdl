@@ -37,11 +37,12 @@ the models folder structure is described in more detail below because it is comp
 All model sub-folders contain the same folder structure for consistency. Files in those folders are only relevant to this Mdl. The Fo Str is described below:
 - code: Contains code specific to each Mdl. e.g. Mdl_Prep contains the .bat & .ini file to prepare a Mdl run.
 - doc: self-explanatory
-- In: model inputs, organized by iMOD package/module (organized by type). Only contains files that are used directly in the model - i.e. no raw data etc.
-- MM: Contains 3 types of elements:
-- general information layers, e.g. rivers, background map etc. - Those elements are used in the MM regardless of run.
-- In files converted to GIS layers for review and visualization. Most inputs remain the same as the B for a run, but some have to be re-referenced on each Sim. This is done by changing the data-source of the layer (programmatically).
-- PoP: contains a model map for each Sim. Post processed output (PoPed Out) is unique to each Sim. Thus, the baseline MM gets copied and the output layers, which are relatively referenced, automatically get linked to the new Sim's PoPed Out.
+- In: model inputs, organized by iMOD package/module (organized by type). Raw data shouldnt' be stored here. It's ok to have MtDt files and/or rasters here (for ease of use). It's even ok to have simple code too, but if it's routine code it needs to be moved somewhere more central (./code of ./models/*/code).
+- PoP: Contains post-processed (PoPed) files. More specifically:
+	common:	general information layers, e.g. rivers, background map etc. - Those elements are used in the MM regardless of run.
+	In:		files converted to GIS layers for review and visualization. Most inputs remain the same as the B for a run, but some have to be re-referenced on each Sim. This is done by changing the data-source of the layer (programmatically).
+	Clc_In:	shapefiles created from In Calcs. e.g. transmissivity = K * b (thickness)
+	Out		contains a model map for each Sim. Post processed output (PoPed Out) is unique to each Sim. Thus, the baseline MM gets copied and the output layers, which are relatively referenced, automatically get linked to the new Sim's PoPed Out.
 - PrP: Pre-Processing. Can include raw or intermediate data, or even scripts/JupNotes to create the In files.
 - Sim: Simulation folders. 1 for each Sim. Unfortunately, the way iMOD is designed, Mdl Output needs to be saved here. Organized by Sim.
 
