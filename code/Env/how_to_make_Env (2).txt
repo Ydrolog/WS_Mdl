@@ -1,0 +1,73 @@
+# NEW GUIDE - env managemet py pixi ##########
+-----------------------------------------
+--- Intro ---
+This project uses pixi for managing dependencies. Why? Cause it's more robust/secure and fast than conda or any other package manager. 
+For more details check: https://pixi.sh/latest/
+
+--- Download and install pixi ---
+- either follow their instructions on the website (https://pixi.sh/latest/installation/).
+- or if you have/prefer conda (I haven't tried this, but it should work):
+	install -c conda-forge pixi 
+
+--- To re-create the env that was used for Sim ---
+1. If you don't have the project files, you'll need to clone the repo.
+git clone https://github.com/Ydrolog/WS_Mdl
+Not all files re public, you'll need to request the rest from the project owner(s).
+
+2. Navigate to the main repo folder using a terminal of your choice. If you've followed README.md's suggestion, that'll be C:\OD\WS_Mdl.
+e.g.:
+cd C:\OD\WS_Mdl
+
+3. Copy the tag or hash of the commit of the run you want to recreate from ./Mng/RunLog.xlsx.
+
+4. Switch to commit of the run you want to recreate:
+git checkout <hash/tag>
+
+5. Run:
+pixi install --frozen
+
+This will give you an environment identical to the Sim's.
+
+-----------------------------------------
+--- To export: ---
+1. You don't have to do anything manually. If you've editted the WS_Mdl package, the new tag and hash will be recorded in the RunLog.
+2. If you want to install a new library, use:
+
+
+-----------------------------------------
+
+
+########## THE GUIDE BELOW IS THE OLD. That way of env management applies from 04/08, NBr32, hash b5dfc2b backwards. ##########
+-----------------------------------------
+--- To freeze/export: ---
+The WS env should be frozen on every change. If no Env is present for a run/Sim you want to repeat, assume that the previous one will do the job.
+
+1. activate:
+conda activate WS
+
+2. freeze (run this in this folder):
+python .\freeze_env_WS.py
+
+This will create a .yml file for the conda and pip dependencies
+WS_Mdl is the only lib that has to be installed separatelly. 
+-----------------------------------------
+
+
+-----------------------------------------
+--- To import/install: ---
+1. install from .yml
+mamba env create -f ./WS_env_<MdlN>.yml
+# Can use conda instead of mamba
+
+2. activate env
+conda activate WS
+
+3. (optional) check conda packages
+conda list
+
+4. (optional) check pip packages
+pip list
+
+5. Install WS_Mdl. You'll need to be on the WS_Mdl repo version that corresonds to your MdlN (repo_V Col in RunLog). Then run:
+pip install -e C:\OD\WS_Mdl\code --use-pep517 --no-deps --no-build-isolation
+-----------------------------------------

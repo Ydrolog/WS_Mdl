@@ -22,4 +22,4 @@ pip = "*"
 pytest = "*"
 
 [pypi-dependencies]
-imod = { git = "https://github.com/Deltares/imod-python.git" }
+imod = { git = "https://github.com/Deltares/imod-python.git", rev = "28de6f78680c730a23a67474396f9466b18dcd12"}
