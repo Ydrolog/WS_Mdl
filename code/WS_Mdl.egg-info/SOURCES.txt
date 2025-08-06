@@ -11,9 +11,6 @@ Env/WS_pip_env_NBr16.txt
 Env/WS_pip_env_NBr18.txt
 Env/WS_pip_env_NBr22.txt
 Env/freeze_env_WS.py
-Env/how_to_make_Env.txt
-PoP/HD_IDFs/PoP_HD_IDFs_NBr13.ipynb
-PrP/Mdl_In_to_MM/Mdl_In_to_MM_NBr13.ipynb
 QGIS/Sblg.py
 WS_Mdl/__init__.py
 WS_Mdl/__main__.py

@@ -23,3 +23,4 @@ pytest = "*"
 
 [pypi-dependencies]
 imod = { git = "https://github.com/Deltares/imod-python.git", rev = "28de6f78680c730a23a67474396f9466b18dcd12"}
+WS_Mdl = { path = 'C:\OD\WS_Mdl\code', editable = true }

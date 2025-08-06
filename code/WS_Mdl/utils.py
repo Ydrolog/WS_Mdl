@@ -2,7 +2,9 @@
 import os
 import re
 import shutil as sh
+import subprocess
 import subprocess as sp
+import sys
 import warnings
 from datetime import datetime as DT
 from io import StringIO
@@ -28,7 +30,7 @@ custom_characters = ['🔴', '🟡', '🟢']
 VERBOSE = True  # Use set_verbose to change this to true and get more information printed to the console.
 
 Pa_WS = 'C:/OD/WS_Mdl'
-Pa_RunLog = PJ(Pa_WS, 'Mng/WS_RunLog.xlsx')
+Pa_RunLog = PJ(Pa_WS, 'Mng/RunLog.xlsx')
 Pa_log = PJ(Pa_WS, 'Mng/log.csv')
 ## Can make get paths function that will provide the general directories, like Pa_WS, Pa_Mdl. Those can be derived from a folder structure.
 
@@ -55,7 +57,7 @@ def MdlN_Se_from_RunLog(
 ):  # Can be made faster. May need to make excel export the RunLog as a csv, so that I can use pd.read_csv instead of pd.read_excel.
     """Returns RunLog line that corresponds to MdlN as a S."""
 
-    DF = pd.read_excel(PJ(Pa_WS, 'Mng/WS_RunLog.xlsx'), sheet_name='RunLog')
+    DF = pd.read_excel(PJ(Pa_WS, 'Mng/RunLog.xlsx'), sheet_name='RunLog')
     Se_match = DF.loc[DF['MdlN'].str.lower() == MdlN.lower()]  # Match MdlN, case insensitive.
     if Se_match.empty:
         raise ValueError(
@@ -871,6 +873,49 @@ def get_elapsed_time_str(start_time: float) -> str:
     if d:
         return f'{d}.{h:02}:{m:02}:{s:02}'
     return f'{h:02}:{m:02}:{s:02}'
+
+
+def run_cmd(cmd, check=True, capture=False):
+    return subprocess.run(cmd, check=check, capture_output=capture, text=True)
+
+
+def freeze_pixi_env():
+    """
+    Freeze the current Python environment by committing changes to tracked files in the git repository.
+    The pixi env freezes everything in pixi.lock. The only package that's not included in pixi.lock - WS_Mdl can also be restored to a previous state by checking out a specific commit.
+    """
+
+    l_Fi_to_track = ['WS_Mdl/pixi.toml', 'WS_Mdl/pixi.lock', 'WS_Mdl/']
+
+    try:
+        # Ensure we are in repo root
+        Pa_repo = run_cmd(['git', 'rev-parse', '--show-toplevel'], capture=True).stdout.strip()
+        print(f'Repo root: {Pa_repo}')
+        Path(Pa_repo)  # not really needed but keeps structure
+
+        # Check for changes in the relevant files
+        diff_cmd = ['git', 'status', '--porcelain'] + l_Fi_to_track
+        changes = run_cmd(diff_cmd, capture=True).stdout.strip()
+
+        if not changes:
+            print('No changes to tracked env/code files. Nothing to commit.')
+            return
+
+        print('Changes detected:\n' + changes)
+
+        # Stage changes
+        run_cmd(['git', 'add'] + l_Fi_to_track)
+        print('Staged changes.')
+
+        # Commit with timestamp
+        now = DT.now().strftime('%Y-%m-%d %H:%M:%S')
+        commit_msg = f'Model run prep – {now}'
+        run_cmd(['git', 'commit', '-m', commit_msg])
+        print(f"Committed changes with message: '{commit_msg}'")
+
+    except subprocess.CalledProcessError as e:
+        print(f'Error running command: {e}', file=sys.stderr)
+        sys.exit(1)
 
 
 # --------------------------------------------------------------------------------

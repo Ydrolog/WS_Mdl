@@ -116,7 +116,7 @@ Changes to be committed:
         new file:   Mng/RunLog_extra_Info/emails/RE New Modflow6.6.0.msg
         new file:   Mng/WS-Mdl_Par_per_Fi.xlsx
         new file:   Mng/WS_Mdl_Ipvs.xlsx
-        new file:   Mng/WS_RunLog.xlsx
+        new file:   Mng/RunLog.xlsx
         new file:   READ_ME.md
         new file:   _Cmds_to_make_git.txt
         new file:   code/DA/KNMI23_CC_Sc_TS_DA.ipynb
@@ -255,7 +255,7 @@ After doing this, you may fix the identity used for this commit with:
  create mode 100644 Mng/RunLog_extra_Info/emails/RE New Modflow6.6.0.msg
  create mode 100644 Mng/WS-Mdl_Par_per_Fi.xlsx
  create mode 100644 Mng/WS_Mdl_Ipvs.xlsx
- create mode 100644 Mng/WS_RunLog.xlsx
+ create mode 100644 Mng/RunLog.xlsx
  create mode 100644 READ_ME.md
  create mode 100644 _Cmds_to_make_git.txt
  create mode 100644 code/DA/KNMI23_CC_Sc_TS_DA.ipynb

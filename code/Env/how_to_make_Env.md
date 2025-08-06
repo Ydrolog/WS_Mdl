@@ -14,22 +14,24 @@ This guide explains how we use **Pixi** to create, reproduce, and share the soft
 1. If you don't have the files for this project, you'll need to **clone** the repo.
 git clone https://github.com/Ydrolog/WS_Mdl C:\OD\WS_Mdl
 C:\OD\WS_Mdl is the default location. If you want it somewhere else, feel free to change the path, but that may make things more complicated later.
-Not all files re public, you'll need to request the rest from the project owner(s).
+Not all files are public, you'll need to request the rest from the project owner(s).
 
-2. The pixi env is installed in C:\OD\WS_Mdl\code, as there are no scripts in the other folder that use it. Make it your active dir if not already true:
-cd C:\OD\WS_Mdl
+2. The pixi env is installed in C:\OD\WS_Mdl\code, as there is no code in the other folders that need to use it. Make it your active dir if you're not already there.
+cd C:\OD\WS_Mdl\code
 
 3. **Copy** tag or hash.
-   *Open* `./Mng/RunLog.xlsx` and copy the *Tag* or *Hash* column for the run you want.
+   *Open* `./Mng/RunLog.xlsx` and copy the *Tag* or *Hash* column for the Sim you want to re-run.
 
 4. **Checkout** that commit:
 git checkout <hash/tag>
 
 5. **Re-build** env:
-pixi install --frozen
+pixi run install --frozen # This uses both the pixi.lock and pixi.toml files to ensure reinstallation of locked package versions.
+pixi run install # This only requires the pixi.toml file. It should work, but it's less secure.
 
-6. **WS_Mdl** lib:
-pip install -e C:\OD\WS_Mdl\code --use-pep517 --no-build-isolation
+6. Optional: **WS_Mdl** lib:
+pixi run --no-lockfile-update pip install -e C:\OD\WS_Mdl\code # (pip install -e C:\OD\WS_Mdl\code (--use-pep517 --no-build-isolation) could also work)
+Run this whenever you want to update WS_Mdl. It's in edit mode, so any small changes (e.g. code in exiting files) are updated automatically. I use this when I make a new terminal tool and I want to add it to path.
 
 This will give you an environment identical to the Sim's.
 To activate it run:
