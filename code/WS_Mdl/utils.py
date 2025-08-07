@@ -2,7 +2,6 @@
 import os
 import re
 import shutil as sh
-import subprocess
 import subprocess as sp
 import sys
 import warnings
@@ -25,11 +24,17 @@ Pre_Sign = f'{fg(52)}{"*" * 80}{attr("reset")}\n'
 Sign = f'{fg(52)}\nend_of_transmission\n{"*" * 80}{attr("reset")}\n'
 bold = '\033[1m'
 bold_off = '\033[0m'
-custom_characters = ['🔴', '🟡', '🟢']
+custom_characters = {
+    'negative': '🔴',
+    'neutral': '🟡',
+    'positive': '🟢',
+    'no action required': '⚪️',
+    'already done': '⚫️',
+}
 
 VERBOSE = True  # Use set_verbose to change this to true and get more information printed to the console.
 
-Pa_WS = 'C:/OD/WS_Mdl'
+Pa_WS = 'C:/OD/WS_Mdl'  # 666 this can be read as the repo root. But this might be complicated to implement, as it would require reading the git config file. For now, it's hardcoded.
 Pa_RunLog = PJ(Pa_WS, 'Mng/RunLog.xlsx')
 Pa_log = PJ(Pa_WS, 'Mng/log.csv')
 ## Can make get paths function that will provide the general directories, like Pa_WS, Pa_Mdl. Those can be derived from a folder structure.
@@ -86,6 +91,7 @@ def paths_from_MdlN_Se(S, MdlN):
     d_Pa['PRJ'] = PJ(d_Pa['Pa_Mdl'], f'In/PRJ/{MdlN}.prj')
     d_Pa['Smk'] = PJ(d_Pa['Pa_Mdl'], f'code/snakemake/{MdlN}.smk')
 
+    d_Pa['Sim'] = PJ(d_Pa['Pa_Mdl'], 'Sim')  # Sim folder
     d_Pa['Pa_MdlN'] = PJ(d_Pa['Pa_Mdl'], f'Sim/{MdlN}')
     d_Pa['LST_Sim'] = PJ(d_Pa['Pa_MdlN'], 'mfsim.lst')  # Sim LST file
     d_Pa['LST_Mdl'] = PJ(d_Pa['Pa_MdlN'], f'GWF_1/{MdlN}.lst')  # Mdl LST file
@@ -143,6 +149,7 @@ def get_MdlN_Pa(MdlN: str, MdlN_B=None, verbose=False):
         d_Pa['PRJ'] = PJ(d_Pa['Pa_Mdl'], f'In/PRJ/{MdlN}.prj')
         d_Pa['Smk'] = PJ(d_Pa['Pa_Mdl'], f'code/snakemake/{MdlN}.smk')
 
+        d_Pa['Sim'] = PJ(d_Pa['Pa_Mdl'], 'Sim')  # Sim folder
         d_Pa['Pa_MdlN'] = PJ(d_Pa['Pa_Mdl'], f'Sim/{MdlN}')
         d_Pa['LST_Sim'] = PJ(d_Pa['Pa_MdlN'], 'mfsim.lst')  # Sim LST file
         d_Pa['LST_Mdl'] = PJ(d_Pa['Pa_MdlN'], f'GWF_1/{MdlN}.lst')  # Mdl LST file
@@ -745,7 +752,7 @@ def reset_Sim(MdlN: str):
     Resets the simulation by:
         1. Deleting all files in the MldN folder in the Sim folder.
         2. Clearing log.csv.
-        3. Deletes Smk log files for MdlN.
+        3. Deletes Smk temp files for MdlN.
         4. Deletes PoP folder for MdlN.
     """
 
@@ -763,10 +770,13 @@ def reset_Sim(MdlN: str):
         Pa_MdlN = d_Pa['Pa_MdlN']
         DF = pd.read_csv(Pa_log)  # Read the log file
         Pa_Smk_temp = d_Pa['Smk_temp']
-        l_temp = [i for i in LD(Pa_Smk_temp) if MdlN in i]
+        l_temp = [i for i in LD(Pa_Smk_temp) if MdlN.lower() in i.lower()]
 
         if (
-            os.path.exists(Pa_MdlN) or (MdlN in DF['MdlN'].values) or l_temp or os.path.exists(d_Pa['PoP_Out_MdlN'])
+            os.path.exists(Pa_MdlN)
+            or (MdlN.lower() in DF['MdlN'].str.lower().values)
+            or l_temp
+            or os.path.exists(d_Pa['PoP_Out_MdlN'])
         ):  # Check if the Sim folder exists or if the MdlN is in the log file
             i = 0
 
@@ -780,19 +790,24 @@ def reset_Sim(MdlN: str):
                 vprint(f'🔴 - failed to delete Sim folder: {e}')
 
             try:
-                DF[DF['MdlN'] != MdlN].to_csv(Pa_log, index=False)  # Remove the log entry for this model
-                vprint('🟢 - Log file updated successfully.')
+                DF[DF['MdlN'].str.lower() != MdlN.lower()].to_csv(
+                    Pa_log, index=False
+                )  # Remove the log entry for this model
+                vprint('🟢 - log.csv file updated successfully.')
                 i += 1
             except Exception as e:
-                vprint(f'🔴 - failed to update log file: {e}')
+                vprint(f'🔴 - failed to update log.csv file: {e}')
 
             try:
-                for j in l_temp:
-                    os.remove(PJ(Pa_Smk_temp, j))
-                vprint('🟢 - Smk log files deleted successfully.')
-                i += 1
+                if l_temp:
+                    for j in l_temp:
+                        os.remove(PJ(Pa_Smk_temp, j))
+                    vprint('🟢 - Smk temp files deleted successfully.')
+                    i += 1
+                else:
+                    vprint('🟡 - No Smk temp files found to delete.')
             except Exception as e:
-                vprint(f'🔴 - failed to remove Smk log files: {e}')
+                vprint(f'🔴 - failed to remove Smk temp files: {e}')
 
             try:
                 if not os.path.exists(d_Pa['PoP_Out_MdlN']):
@@ -876,45 +891,59 @@ def get_elapsed_time_str(start_time: float) -> str:
 
 
 def run_cmd(cmd, check=True, capture=False):
-    return subprocess.run(cmd, check=check, capture_output=capture, text=True)
+    return sp.run(cmd, check=check, capture_output=capture, text=True)
 
 
-def freeze_pixi_env():
+def freeze_pixi_env(MdlN: str):
     """
     Freeze the current Python environment by committing changes to tracked files in the git repository.
     The pixi env freezes everything in pixi.lock. The only package that's not included in pixi.lock - WS_Mdl can also be restored to a previous state by checking out a specific commit.
     """
 
-    l_Fi_to_track = ['WS_Mdl/pixi.toml', 'WS_Mdl/pixi.lock', 'WS_Mdl/']
+    l_Fi_to_track = [PJ(Pa_WS, i) for i in ['code/pixi.toml', 'code/pixi.lock', 'code/WS_Mdl']]
 
     try:
         # Ensure we are in repo root
         Pa_repo = run_cmd(['git', 'rev-parse', '--show-toplevel'], capture=True).stdout.strip()
         print(f'Repo root: {Pa_repo}')
-        Path(Pa_repo)  # not really needed but keeps structure
 
         # Check for changes in the relevant files
         diff_cmd = ['git', 'status', '--porcelain'] + l_Fi_to_track
         changes = run_cmd(diff_cmd, capture=True).stdout.strip()
 
         if not changes:
-            print('No changes to tracked env/code files. Nothing to commit.')
-            return
+            print('⚪️ No changes to tracked env/code files. Nothing to commit.')
+            return None, None
 
-        print('Changes detected:\n' + changes)
+        print('🟢 Changes detected:\n' + changes)
 
         # Stage changes
         run_cmd(['git', 'add'] + l_Fi_to_track)
-        print('Staged changes.')
+        print('🟢 Staged changes.')
 
         # Commit with timestamp
         now = DT.now().strftime('%Y-%m-%d %H:%M:%S')
-        commit_msg = f'Model run prep – {now}'
+        commit_msg = f'{MdlN} env snapshot - {now}'
         run_cmd(['git', 'commit', '-m', commit_msg])
-        print(f"Committed changes with message: '{commit_msg}'")
+        print(f"🟢🟢🟢 Committed changes with message: '{commit_msg}'")
 
-    except subprocess.CalledProcessError as e:
-        print(f'Error running command: {e}', file=sys.stderr)
+        # Get the commit hash of the just-created commit
+        commit_hash = run_cmd(['git', 'rev-parse', 'HEAD'], capture=True).stdout.strip()
+        print(f'🟢 Commit hash: {commit_hash}')
+
+        # Get the tag of the latest commit (if any)
+        try:
+            tag_result = run_cmd(['git', 'describe', '--tags', '--exact-match', 'HEAD'], capture=True)
+            tag = tag_result.stdout.strip()
+            print(f'🟢 Tag: {tag}')
+        except sp.CalledProcessError:
+            tag = '-'
+            print('⚪️ No tag found for this commit. Only the hash will be recorded.')
+
+        return commit_hash, tag
+
+    except sp.CalledProcessError as e:
+        print(f'🔴🔴🔴 Error running command: {e}', file=sys.stderr)
         sys.exit(1)
 
 

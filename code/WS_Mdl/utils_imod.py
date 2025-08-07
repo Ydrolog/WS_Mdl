@@ -34,7 +34,7 @@ custom_characters = {
     'neutral': '🟡',
     'positive': '🟢',
     'no action required': '⚪️',
-    'already good': '⚫️',
+    'already done': '⚫️',
 }
 
 

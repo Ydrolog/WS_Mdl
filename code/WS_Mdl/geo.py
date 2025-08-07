@@ -25,7 +25,13 @@ from .utils import Pre_Sign, Sign, vprint
 
 crs = 'EPSG:28992'
 
-custom_characters = ['🔴', '🟡', '🟢']
+custom_characters = {
+    'negative': '🔴',
+    'neutral': '🟡',
+    'positive': '🟢',
+    'no action required': '⚪️',
+    'already done': '⚫️',
+}
 
 
 # TIF ----------------------------------------------------------------------------
@@ -54,9 +60,7 @@ def IDF_to_TIF(Pa_IDF: str, Pa_TIF: Optional[str] = None, MtDt: Optional[Dict] =
         Ogn_DT = DT.fromtimestamp(os.path.getctime(Pa_IDF)).strftime(
             '%Y-%m-%d %H:%M:%S'
         )  # Get OG (IDF) file's date modified.
-        Cvt_DT = DT.now().strftime(
-            '%Y-%m-%d %H:%M:%S'
-        )  # Get current time, to write time of convertion to comment
+        Cvt_DT = DT.now().strftime('%Y-%m-%d %H:%M:%S')  # Get current time, to write time of convertion to comment
 
         N_R, N_C = A.shape
 
@@ -137,9 +141,7 @@ def DA_to_TIF(DA, Pa_Out, d_MtDt, crs=crs, _print=False):
     ) as Dst:
         Dst.write(DA.values, 1)  # Write the 2D data as band 1
         Dst.set_band_description(1, band_key)  # Give the band a useful name
-        Dst.update_tags(
-            1, **band_meta
-        )  # Write each row field as a separate metadata tag on this band
+        Dst.update_tags(1, **band_meta)  # Write each row field as a separate metadata tag on this band
     if _print:
         vprint(f'🟢 - DA_to_TIF finished successfully for: {Pa_Out}')
 
@@ -155,30 +157,24 @@ def DA_to_MBTIF(DA, Pa_Out, d_MtDt, crs=crs, _print=False):
 
     transform = DA.rio.transform()
 
-    with (
-        rasterio.open(
-            Pa_Out,  # 666 add ask-to-overwrite function (preferably to any function/command in this Lib that writes a file.)
-            'w',
-            driver='GTiff',
-            height=DA.shape[1],
-            width=DA.shape[2],
-            count=DA.shape[0],
-            dtype=str(DA.dtype),
-            crs=crs,
-            transform=transform,
-            photometric='MINISBLACK',
-        ) as Dst
-    ):
+    with rasterio.open(
+        Pa_Out,  # 666 add ask-to-overwrite function (preferably to any function/command in this Lib that writes a file.)
+        'w',
+        driver='GTiff',
+        height=DA.shape[1],
+        width=DA.shape[2],
+        count=DA.shape[0],
+        dtype=str(DA.dtype),
+        crs=crs,
+        transform=transform,
+        photometric='MINISBLACK',
+    ) as Dst:
         for i in range(DA.shape[0]):  # Write each band.
-            Dst.write(
-                DA[i].values, i + 1
-            )  # Write the actual pixels for this band (i+1 is the band index in Rasterio)
+            Dst.write(DA[i].values, i + 1)  # Write the actual pixels for this band (i+1 is the band index in Rasterio)
             Dst.set_band_description(
                 i + 1, band_keys[i]
             )  # Set a band description that QGIS will show as "Band 01: <description>"
-            Dst.update_tags(
-                i + 1, **band_MtDt[i]
-            )  # Write each row field as a separate metadata tag on this band
+            Dst.update_tags(i + 1, **band_MtDt[i])  # Write each row field as a separate metadata tag on this band
 
         if 'all' in d_MtDt:  # If "all" exists, write dataset-wide metadata (NOT tied to a band)
             Dst.update_tags(**d_MtDt['all'])  # Set global metadata for the whole dataset
@@ -240,25 +236,21 @@ def PRJ_to_TIF(MdlN):
                 if DF_Par.shape[0] > 1:  # If there are multiple paths for the same parameter
                     for i, R in DF_Par.iterrows():
                         d_MtDt[f'{R["parameter"]}_L{R["layer"]}_{R["MdlN"]}'] = {
-                            ('origin_path' if col == 'path' else col): str(val)
-                            for col, val in R.items()
+                            ('origin_path' if col == 'path' else col): str(val) for col, val in R.items()
                         }
-                    DA = imod.formats.idf.open(
-                        list(DF_Par['path']), pattern='{name}_L{layer}_'
-                    ).sel(x=slice(Xmin, Xmax), y=slice(Ymax, Ymin))
+                    DA = imod.formats.idf.open(list(DF_Par['path']), pattern='{name}_L{layer}_').sel(
+                        x=slice(Xmin, Xmax), y=slice(Ymax, Ymin)
+                    )
                     DA_to_MBTIF(DA, Pa_TIF, d_MtDt)
                     vprint('🟢 - multi-band')
                 else:
                     try:
-                        DA = imod.formats.idf.open(
-                            list(DF_Par['path']), pattern='{name}_L{layer}_'
-                        ).sel(x=slice(Xmin, Xmax), y=slice(Ymax, Ymin))
+                        DA = imod.formats.idf.open(list(DF_Par['path']), pattern='{name}_L{layer}_').sel(
+                            x=slice(Xmin, Xmax), y=slice(Ymax, Ymin)
+                        )
                         d_MtDt[
                             f'{DF_Par["parameter"].values[0]}_L{DF_Par["layer"].values[0]}_{DF_Par["MdlN"].values[0]}'
-                        ] = {
-                            ('origin_path' if col == 'path' else col): str(val)
-                            for col, val in R.items()
-                        }
+                        ] = {('origin_path' if col == 'path' else col): str(val) for col, val in R.items()}
                         DA_to_TIF(
                             DA.squeeze(drop=True), Pa_TIF, d_MtDt
                         )  # .squeeze cause 2D arrays have extra dimension with size 1 sometimes.
@@ -268,8 +260,7 @@ def PRJ_to_TIF(MdlN):
                             x=slice(Xmin, Xmax), y=slice(Ymax, Ymin)
                         )
                         d_MtDt[f'{DF_Par["parameter"].values[0]}_{DF_Par["MdlN"].values[0]}'] = {
-                            ('origin_path' if col == 'path' else col): str(val)
-                            for col, val in R.items()
+                            ('origin_path' if col == 'path' else col): str(val) for col, val in R.items()
                         }
                         DA_to_TIF(
                             DA.squeeze(drop=True), Pa_TIF, d_MtDt
@@ -307,8 +298,7 @@ def PRJ_to_TIF(MdlN):
                 ## Build a dictionary mapping each band’s name to its row’s metadata.
                 d_MtDt = {
                     f'{R["parameter"]}_L{R["layer"]}_{R["MdlN"]}': {
-                        ('origin_path' if col == 'path' else col): str(val)
-                        for col, val in R.items()
+                        ('origin_path' if col == 'path' else col): str(val) for col, val in R.items()
                     }
                 }
 
@@ -344,8 +334,7 @@ def PRJ_to_TIF(MdlN):
             try:
                 DF_IPF = imod.formats.ipf.read(R['path'])
                 DF_IPF = DF_IPF.loc[
-                    ((DF_IPF['x'] > Xmin) & (DF_IPF['x'] < Xmax))
-                    & ((DF_IPF['y'] > Ymin) & (DF_IPF['y'] < Ymax))
+                    ((DF_IPF['x'] > Xmin) & (DF_IPF['x'] < Xmax)) & ((DF_IPF['y'] > Ymin) & (DF_IPF['y'] < Ymax))
                 ].copy()  # Slice to OBS within the Mdl Aa
 
                 if ('q_m3' in DF_IPF.columns) and ('id' not in DF_IPF.columns):
@@ -354,9 +343,7 @@ def PRJ_to_TIF(MdlN):
                     )  # One of the IPF files has q_m3 instead of id in it's fields. Don't ask me why, but it has to be dealt with.
 
                 # 666 I'll only save the average flow now
-                DF_IPF_AVG = DF_IPF.groupby('id')[
-                    DF_IPF.select_dtypes(include=np.number).columns
-                ].agg(np.mean)
+                DF_IPF_AVG = DF_IPF.groupby('id')[DF_IPF.select_dtypes(include=np.number).columns].agg(np.mean)
                 _GDF_AVG = gpd.GeoDataFrame(
                     DF_IPF_AVG, geometry=gpd.points_from_xy(DF_IPF_AVG['x'], DF_IPF_AVG['y'])
                 ).set_crs(crs=crs)
@@ -372,19 +359,17 @@ def PRJ_to_TIF(MdlN):
     ## Thk. TOP and BOT files have been QA'd in C:\OD\WS_Mdl\code\PrP\Mdl_In_to_MM\Mdl_In_to_MM.ipynb
     vprint(' --- Converting calculated inputs to TIF ---')
 
-    DA_TOP = imod.formats.idf.open(
-        list(DF_Rgu[DF_Rgu['parameter'] == 'top']['path']), pattern='{name}_L{layer}_'
-    ).sel(x=slice(Xmin, Xmax), y=slice(Ymax, Ymin))
+    DA_TOP = imod.formats.idf.open(list(DF_Rgu[DF_Rgu['parameter'] == 'top']['path']), pattern='{name}_L{layer}_').sel(
+        x=slice(Xmin, Xmax), y=slice(Ymax, Ymin)
+    )
     DA_BOT = imod.formats.idf.open(
         list(DF_Rgu[DF_Rgu['parameter'] == 'bottom']['path']), pattern='{name}_L{layer}_'
     ).sel(x=slice(Xmin, Xmax), y=slice(Ymax, Ymin))
-    DA_Kh = imod.formats.idf.open(
-        list(DF_Rgu[DF_Rgu['parameter'] == 'kh']['path']), pattern='{name}_L{layer}_'
-    ).sel(x=slice(Xmin, Xmax), y=slice(Ymax, Ymin))
+    DA_Kh = imod.formats.idf.open(list(DF_Rgu[DF_Rgu['parameter'] == 'kh']['path']), pattern='{name}_L{layer}_').sel(
+        x=slice(Xmin, Xmax), y=slice(Ymax, Ymin)
+    )
 
-    DA_Thk = (DA_TOP - DA_BOT).squeeze(
-        drop=True
-    )  # Let's make a dictionary to store Info about each parameter
+    DA_Thk = (DA_TOP - DA_BOT).squeeze(drop=True)  # Let's make a dictionary to store Info about each parameter
     MdlN_Pkg = Mdl + str(
         max(DF_Rgu.loc[DF_Rgu['package'].isin(['TOP', 'BOT']), 'MdlN'].str.extract(r'(\d+)')[0])
     )  # 666 the largest number from the TOP and BOT MdlNs
@@ -394,8 +379,7 @@ def PRJ_to_TIF(MdlN):
         'MdlN_Pkg': MdlN_Pkg,
         'MtDt': {
             **{
-                f'thickness_L{i + 1}_{MdlN_Pkg}': {'layer': f'L{i + 1}'}
-                for i in range(DA_Thk.shape[0])
+                f'thickness_L{i + 1}_{MdlN_Pkg}': {'layer': f'L{i + 1}'} for i in range(DA_Thk.shape[0])
             },  # Per-layer metadata
             'all': {
                 'description': "Layer thickness calculated as 'top - bottom' per layer.",
@@ -406,11 +390,7 @@ def PRJ_to_TIF(MdlN):
     ## T
     DA_T = DA_Thk * DA_Kh
     MdlN_Pkg = Mdl + str(
-        max(
-            DF_Rgu.loc[DF_Rgu['package'].isin(['TOP', 'BOT', 'NPF']), 'MdlN'].str.extract(r'(\d+)')[
-                0
-            ]
-        )
+        max(DF_Rgu.loc[DF_Rgu['package'].isin(['TOP', 'BOT', 'NPF']), 'MdlN'].str.extract(r'(\d+)')[0])
     )  # the largest number from the TOP and BOT MdlNs
     d_Clc_In['T'] = {
         'Par': 'transmissivity',
@@ -418,8 +398,7 @@ def PRJ_to_TIF(MdlN):
         'MdlN_Pkg': MdlN_Pkg,
         'MtDt': {
             **{
-                f'transmissivity_L{i + 1}_{MdlN_Pkg}': {'layer': f'L{i + 1}'}
-                for i in range(DA_Thk.shape[0])
+                f'transmissivity_L{i + 1}_{MdlN_Pkg}': {'layer': f'L{i + 1}'} for i in range(DA_Thk.shape[0])
             },  # Per-layer metadata
             'all': {
                 'description': "Layer transmissivity (horizontal) calculated as '(top - bottom)*Kh' per layer.",
@@ -458,9 +437,7 @@ def PRJ_to_TIF(MdlN):
 
                 match len(DA.shape):
                     case 3:
-                        DA_to_MBTIF(
-                            DA, Pa_TIF, d_MtDt
-                        )  # If there are multiple paths for the same parameter
+                        DA_to_MBTIF(DA, Pa_TIF, d_MtDt)  # If there are multiple paths for the same parameter
                         vprint('🟢 - multi-band')
                     case 2:
                         DA_to_TIF(
@@ -658,10 +635,7 @@ def HD_IDF_GXG_to_TIF(MdlN: str, N_cores: int = None, crs: str = crs, rules: str
     start = DT.now()  # Start time
 
     with PPE(max_workers=N_cores) as E:
-        futures = [
-            E.submit(_HD_IDF_GXG_to_TIF_per_L, DF, L, MdlN, Pa_PoP, Pa_HD, crs)
-            for L in DF['L'].unique()
-        ]
+        futures = [E.submit(_HD_IDF_GXG_to_TIF_per_L, DF, L, MdlN, Pa_PoP, Pa_HD, crs) for L in DF['L'].unique()]
         for f in futures:
             vprint('\t', f.result(), '- Elapsed time (from start):', DT.now() - start)
 
