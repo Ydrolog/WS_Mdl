@@ -10,7 +10,7 @@ mklink /D C:\OD "C:\Users\<User>\OneDrive - Universiteit Utrecht"<br>
 The symbolic link can be deleted using:<br>
 rmdir C:\OD
 
-The model files are shared only upon request. You can get the public files by cloning the repo:
+The model files are shared only upon request. **Clone** the repo to get the publicly avaialble files:
 git clone https://github.com/Ydrolog/WS_Mdl
 ---
 
@@ -19,6 +19,11 @@ git clone https://github.com/Ydrolog/WS_Mdl
 - **.\Mng\Acronyms.xlsx** contains acronyms and rules used throughout the project.  This is not just an acronym archive. It also explains how the **naming convention**, used throughout this project, works. You need to be familiar with the principles in this file when working on with this folder/project. New acronyms should be registered there. Make sure you read the instructions sheet/tab to understand the acronym system, and follow the system's rules when adding new shortcuts/abbreviations.
 - The folder is version controlled through **GitHub** (smaller files, e.g. **code**) and **DVC**. You can use "`git ls-files`" to print all Git tracked files, and "`dvc list . --dvc-only --recursive`" (warning, it's very slow), to print the files tracked with each of the two methods. Make sure you push at frequent intervals.
 - For good **data management**, it's advised to include **metadata** in data folders, where the origin of the data isn't self-explanatory. E.g. a README file in a folder with IDFs (IDFs may contain spatial data, units etc. but oftentimes their origin/method of production, which can be very useful, is missing from the metadata).
+---
+
+
+# Knowledge requirements
+You need to be familiar with Groundwater Modelling concepts, version control/GitHub... TBC
 ---
 
 
@@ -36,7 +41,7 @@ the models folder structure is described in more detail below because it is comp
 ---
 
 
-## Models
+## Model(s)
 All model sub-folders contain the same folder structure for consistency. Files in those folders are only relevant to this Mdl. The Fo Str is described below:
 - **code**:	Contains code specific to each Mdl. e.g. Mdl_Prep contains the .bat & .ini file to prepare a Mdl run.
 - **doc**:	self-explanatory
@@ -63,10 +68,10 @@ cd "C:\Users\mkarampasi\OneDrive - Universiteit Utrecht\Software\InstalledOutsid
 .\doublecmd-1.1.22.x86_64-win64.exe <br>
 Opt: replace files in C:\Users\<User>\AppData\Roaming\doublecmd\ with files in C:\OD\Software\Settings\Double Commander\ (might need to enable view Hidden files)
 
-2. **Python Env** (with snakmake)
-Install the **Python** env necessary for this project following this guide:
+2. **pixi Env** (with snakmake)
+Install the pixi env, necessary for this project, following this guide:
 ./code/Env/how_to_make_Env.md
-(C:\OD\WS_Mdl\**code**\Env\How_to_make_env.md)
+(C:\OD\WS_Mdl\code\Env\How_to_make_env.md)
 
 3. (Opt: **PS7** - #666 I should make a guide later)
 
@@ -79,4 +84,5 @@ Install the **Python** env necessary for this project following this guide:
 There is a list of **terminal tools** that facilitate common tasks for this project. Those are listed in C:/OD/WS_Mdl/code/setup.py, with a brief description.<br>
 To add another terminal command, you need to add it to the setup file (similar to the other commands), and make a script. Then you need to install WS_Mdl (as explained in the Python Env installation guide above).<br>
 It's also possible to run Python functions from C:\OD\WS_Mdl\code\WS_Mdl\ modules via "`WS_Mdl.module` <function> <arg1> <arg2> ...".
+
 ---

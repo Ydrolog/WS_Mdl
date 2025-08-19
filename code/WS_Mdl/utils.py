@@ -151,6 +151,7 @@ def get_MdlN_Pa(MdlN: str, MdlN_B=None, verbose=False):
 
         d_Pa['Sim'] = PJ(d_Pa['Pa_Mdl'], 'Sim')  # Sim folder
         d_Pa['Pa_MdlN'] = PJ(d_Pa['Pa_Mdl'], f'Sim/{MdlN}')
+        d_Pa['TOML'] = PJ(d_Pa['Pa_MdlN'], 'imod_coupler.toml')
         d_Pa['LST_Sim'] = PJ(d_Pa['Pa_MdlN'], 'mfsim.lst')  # Sim LST file
         d_Pa['LST_Mdl'] = PJ(d_Pa['Pa_MdlN'], f'GWF_1/{MdlN}.lst')  # Mdl LST file
         d_Pa['NAM_Sim'] = PJ(d_Pa['Pa_MdlN'], 'MFSIM.NAM')  # Sim LST file
@@ -923,9 +924,8 @@ def freeze_pixi_env(MdlN: str):
 
         # Commit with timestamp
         now = DT.now().strftime('%Y-%m-%d %H:%M:%S')
-        commit_msg = f'{MdlN} env snapshot - {now}'
+        commit_msg = f'#auto {MdlN} env snapshot - {now}'
         run_cmd(['git', 'commit', '-m', commit_msg])
-        print(f"🟢🟢🟢 Committed changes with message: '{commit_msg}'")
 
         # Get the commit hash of the just-created commit
         commit_hash = run_cmd(['git', 'rev-parse', 'HEAD'], capture=True).stdout.strip()
@@ -939,6 +939,8 @@ def freeze_pixi_env(MdlN: str):
         except sp.CalledProcessError:
             tag = '-'
             print('⚪️ No tag found for this commit. Only the hash will be recorded.')
+
+        print(f"🟢🟢🟢 Committed changes with message: '{commit_msg}'")
 
         return commit_hash, tag
 

@@ -2,6 +2,7 @@
 import os
 import re
 import tempfile
+from datetime import datetime as DT
 from os import makedirs as MDs
 from os.path import basename as PBN
 from os.path import dirname as PDN
@@ -15,7 +16,7 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 from filelock import FileLock as FL
-from imod import mf6
+from imod import mf6, msw
 from tqdm import tqdm  # Track progress of the loop
 
 from .utils import (
@@ -35,7 +36,7 @@ custom_characters = {
     'positive': '🟢',
     'no action required': '⚪️',
     'already done': '⚫️',
-}
+}  # Rule for using multiple e.g. 🟢🟢🟢. Use 2 when a function returns an object. Use 3 for more impactful functions that save a file, or complete a longer process, like commiting git changes. In all other cases use 1.
 
 
 # PRJ related --------------------------------------------------------------------
@@ -135,7 +136,7 @@ def PRJ_to_DF(MdlN):
             DF.loc[f'{Pkg_name.upper()}'] = '-'
             DF.loc[f'{Pkg_name.upper()}', 'active'] = f'Failed to read package: {e}'
             vprint('🟡')
-    vprint('🟢🟢🟢')
+    vprint('🟢🟢')
     vprint(f' {"-" * 100}')
 
     DF['package'] = DF['package'].str.replace('(', '').str.replace(')', '').str.upper()
@@ -189,6 +190,7 @@ def o_PRJ_with_OBS(Pa_PRJ):
     PRJ = imod.prj.open_projectfile_data(Pa_PRJ_temp)  # Load the PRJ file without OBS
     os.remove(Pa_PRJ_temp)  # Delete temp PRJ file as it's not needed anymore.
 
+    vprint(f'🟢🟢 - PRJ loaded from {Pa_PRJ}')
     return PRJ, l_OBS_Lns
 
 
@@ -267,7 +269,7 @@ def regrid_PRJ(PRJ, MdlN: str = None, x_CeCes=None, y_CeCes=None, method='linear
             # Handle top-level data
             PRJ_regridded[key] = regrid_DA(data, x_CeCes, y_CeCes, dx, dy, key, method)
 
-    vprint('🟢🟢🟢 - Regridding complete.')
+    vprint('🟢🟢🟢 - PRJ has been regridded successfully!')
     return PRJ_regridded
 
 
@@ -381,6 +383,331 @@ def mete_grid_Cvt_to_AbsPa(Pa_PRJ: str, PRJ: dict = None):
     print(f'Created corrected mete_grid.inp: {Pa_mete_grid_AbsPa}')
 
     return Pa_mete_grid_AbsPa
+
+
+# --------------------------------------------------------------------------------
+
+# Mdl related -----------------------------------------------------------------
+
+
+def Mdl_Prep(MdlN: str):
+    # Load paths and variables from PRJ & INI
+    d_Pa = get_MdlN_Pa(MdlN)
+    Pa_PRJ = d_Pa['PRJ']
+    Dir_PRJ = PDN(Pa_PRJ)
+    d_INI = INI_to_d(d_Pa['INI'])
+    Xmin, Ymin, Xmax, Ymax = [float(i) for i in d_INI['WINDOW'].split(',')]
+    SP_date_1st, SP_date_last = [
+        DT.strftime(DT.strptime(d_INI[f'{i}'], '%Y%m%d'), '%Y-%m-%d') for i in ['SDATE', 'EDATE']
+    ]
+    dx = dy = float(d_INI['CELLSIZE'])
+
+    # Load PRJ & regrid it to Mdl Aa
+    PRJ_, PRJ_OBS = o_PRJ_with_OBS(Pa_PRJ)
+    PRJ, period_data = PRJ_[0], PRJ_[1]
+    PRJ_regrid = regrid_PRJ(
+        PRJ, MdlN
+    )  # Using original PRJ to load MF6 Mdl gives warnings (and it's very slow). Regridding works much better though.
+
+    # Set outer boundaries to -1. Otherwise CHD won't be loaded properly.
+    BND = PRJ_regrid['bnd']['ibound']
+    BND.loc[:, [BND.y[0], BND.y[-1]], :] = -1  # Top and bottom rows
+    BND.loc[:, :, [BND.x[0], BND.x[-1]]] = -1  # Left and right columns
+    vprint('🟢 - Boundary conditions set successfully!')
+
+    # Load MF6 Simulation
+    times = pd.date_range(SP_date_1st, SP_date_last, freq='D')
+    Sim_MF6 = mf6.Modflow6Simulation.from_imod5_data(
+        PRJ_regrid, period_data, times
+    )  # It can be further sped up by multi-processing, but this is not implemented yet.
+    vprint('🟢 - MF6 Simulation loaded successfully!')
+    Sim_MF6[f'{MdlN}'] = Sim_MF6.pop('imported_model')  # Rename imported_model to MdlN.
+
+    # Pass the Sim components to objects.
+    MF6_Mdl = Sim_MF6[f'{MdlN}']
+    MF6_Mdl['oc'] = mf6.OutputControl(save_head='last', save_budget='last')
+    Sim_MF6['ims'] = mf6_solution_moderate_settings()  # Mimic iMOD5's "Moderate" settings.
+    MF6_DIS = Sim_MF6[f'{MdlN}']['dis']
+
+    # Load MSW
+    PRJ_MSW = {'cap': PRJ_regrid.copy()['cap'], 'extra': PRJ_regrid.copy()['extra']}  # Isolate MSW keys from PRJ.
+    PRJ_MSW['extra']['paths'][2][0] = mete_grid_Cvt_to_AbsPa(
+        Pa_PRJ, PRJ
+    )  ## Fix mete_grid.inp relative paths. Replace the mete_grid.inp path in the PRJ_MSW_for_MSW dictionary
+    MSW_Mdl = msw.MetaSwapModel.from_imod5_data(PRJ_MSW, MF6_DIS, times)  # Load MSW model from PRJ
+    vprint('🟢 - MSW Simulation loaded successfully!')
+
+    # Clip models
+    Sim_MF6_AoI = Sim_MF6.clip_box(x_min=Xmin, x_max=Xmax, y_min=Ymin, y_max=Ymax)
+    MF6_Mdl_AoI = Sim_MF6_AoI[f'{MdlN}']
+    MSW_Mdl_AoI = MSW_Mdl.clip_box(
+        x_min=Xmin, x_max=Xmax, y_min=Ymin, y_max=Ymax
+    )  # clip_box doesn't clip the packages I clipped beforehand, but it clips non raster-like packages like WEL and removes packages that are not in the AoI.
+    print(f'MF6 Model AoI DIS shape: {MF6_Mdl_AoI["dis"].dataset.sizes}')
+    print(f'MSW Model AoI grid shape: {MSW_Mdl_AoI["grid"].dataset.sizes}')
+    print('🟢 Both models successfully clipped to Area of Interest with compatible discretization!')
+
+    MF6_Mdl_AoI['dis'].dataset.equals(MF6_Mdl['dis'].dataset)
+
+    # Sense check code to ensure the AoI models are correct exists in imod_python_init_NBr32.ipynb
+
+    # Load models into memory
+    for pkg in MF6_Mdl_AoI.values():
+        pkg.dataset.load()
+
+    for pkg in MSW_Mdl_AoI.values():
+        pkg.dataset.load()
+
+    # # Cleanup
+
+    # # MF6
+    # # Create mask from current regridded model (not the old one)
+    # mask = MF6_Mdl_AoI.domain #666 mask needs to be checked and potentially updated with -1 values at the edge of the Mdl Aa.
+    # Sim_MF6_AoI.mask_all_models(mask)
+    # DIS_AoI = MF6_Mdl_AoI["dis"]
+
+    # ### Check if the packages are the same
+    # MF6_Mdl_AoI = Sim_MF6_AoI[f'{MdlN}']
+    # # Compare the keys of both models
+    # keys_equal = MF6_Mdl.keys() == MF6_Mdl_AoI.keys()
+
+    # # Get the actual keys for detailed comparison
+    # original_keys = set(MF6_Mdl.keys())
+    # aoi_keys = set(MF6_Mdl_AoI.keys())
+
+    # print("=== DETAILED KEY COMPARISON ===")
+    # print(f"Original model has {len(original_keys)} packages:")
+    # for key in sorted(original_keys):
+    #     print(f"  - {key}")
+
+    # print(f"\nAoI model has {len(aoi_keys)} packages:")
+    # for key in sorted(aoi_keys):
+    #     print(f"  - {key}")
+
+    # # Find differences
+    # missing_in_aoi = original_keys - aoi_keys
+    # extra_in_aoi = aoi_keys - original_keys
+    # common_keys = original_keys & aoi_keys
+
+    # print(f"\n=== DIFFERENCES ===")
+    # if missing_in_aoi:
+    #     print(f"Packages REMOVED in AoI model ({len(missing_in_aoi)}):")
+    #     for key in sorted(missing_in_aoi):
+    #         print(f"  ❌ {key}")
+    #         # Try to understand why it was removed
+    #         try:
+    #             pkg = MF6_Mdl[key]
+    #             if hasattr(pkg, 'dataset') and hasattr(pkg.dataset, 'sizes'):
+    #                 print(f"     Size in original: {dict(pkg.dataset.sizes)}")
+    #         except:
+    #             pass
+    # else:
+    #     print("✅ No packages removed in AoI model")
+
+    # if extra_in_aoi:
+    #     print(f"\nPackages ADDED in AoI model ({len(extra_in_aoi)}):")
+    #     for key in sorted(extra_in_aoi):
+    #         print(f"  ➕ {key}")
+    # else:
+    #     print("✅ No packages added in AoI model")
+
+    # print(f"\nCommon packages: {len(common_keys)}/{len(original_keys)} ({100*len(common_keys)/len(original_keys):.1f}%)")
+
+    # # Show why packages might be missing
+    # if missing_in_aoi:
+    #     print(f"\n=== WHY PACKAGES WERE REMOVED ===")
+    #     print("Packages are typically removed from AoI models when:")
+    #     print("1. They have no data within the clipped boundary")
+    #     print("2. All their stress points/cells fall outside the AoI")
+    #     print("3. The clip_box() method filters out empty packages" \
+    #     "")
+    #     print("\nThis is normal behavior and indicates successful spatial filtering!")
+    # # Analyze the data content of common packages
+    # print("=== PACKAGE DATA COMPARISON ===")
+    # print("Comparing spatial dimensions and data ranges for common packages:\n")
+
+    # for key in sorted(common_keys):
+    #     print(f"📦 {key}:")
+    #     try:
+    #         orig_pkg = MF6_Mdl[key]
+    #         aoi_pkg = MF6_Mdl_AoI[key]
+
+    #         # Compare dataset sizes
+    #         if hasattr(orig_pkg, 'dataset') and hasattr(aoi_pkg, 'dataset'):
+    #             orig_sizes = dict(orig_pkg.dataset.sizes)
+    #             aoi_sizes = dict(aoi_pkg.dataset.sizes)
+
+    #             print(f"   Original sizes: {orig_sizes}")
+    #             print(f"   AoI sizes:      {aoi_sizes}")
+
+    #             # Calculate reduction ratios
+    #             for dim in ['x', 'y']:
+    #                 if dim in orig_sizes and dim in aoi_sizes:
+    #                     reduction = aoi_sizes[dim] / orig_sizes[dim]
+    #                     print(f"   {dim} reduction: {reduction:.3f} ({aoi_sizes[dim]}/{orig_sizes[dim]} cells)")
+
+    #             # Check if data values are the same (for first few values)
+    #             if hasattr(orig_pkg.dataset, 'data_vars') and hasattr(aoi_pkg.dataset, 'data_vars'):
+    #                 common_vars = set(orig_pkg.dataset.data_vars) & set(aoi_pkg.dataset.data_vars)
+    #                 if common_vars:
+    #                     var = list(common_vars)[0]  # Check first variable
+    #                     orig_data = orig_pkg.dataset[var]
+    #                     aoi_data = aoi_pkg.dataset[var]
+
+    #                     # Check if AoI data is a subset of original
+    #                     if 'x' in orig_data.dims and 'y' in orig_data.dims:
+    #                         print(f"   Variable '{var}': Data appears to be spatially clipped ✓")
+    #                     else:
+    #                         print(f"   Variable '{var}': Non-spatial data")
+    #         else:
+    #             print("   No dataset attributes to compare")
+
+    #     except Exception as e:
+    #         print(f"   ⚠️  Error comparing {key}: {e}")
+
+    #     print()  # Empty line for readability
+    # # Compare coordinate bounds to verify clipping worked correctly
+    # print("=== COORDINATE BOUNDS COMPARISON ===")
+    # print(f"Target clipping bounds: X({Xmin:.1f}, {Xmax:.1f}), Y({Ymin:.1f}, {Ymax:.1f})")
+    # print()
+
+    # # Check DIS package bounds (most reliable for spatial extent)
+    # if 'dis' in common_keys:
+    #     try:
+    #         orig_dis = MF6_Mdl['dis']
+    #         aoi_dis = MF6_Mdl_AoI['dis']
+
+    #         # Original bounds
+    #         orig_x_min, orig_x_max = float(orig_dis.dataset.x.min()), float(orig_dis.dataset.x.max())
+    #         orig_y_min, orig_y_max = float(orig_dis.dataset.y.min()), float(orig_dis.dataset.y.max())
+
+    #         # AoI bounds
+    #         aoi_x_min, aoi_x_max = float(aoi_dis.dataset.x.min()), float(aoi_dis.dataset.x.max())
+    #         aoi_y_min, aoi_y_max = float(aoi_dis.dataset.y.min()), float(aoi_dis.dataset.y.max())
+
+    #         print("Original model bounds:")
+    #         print(f"   X: {orig_x_min:.1f} to {orig_x_max:.1f} (range: {orig_x_max-orig_x_min:.1f})")
+    #         print(f"   Y: {orig_y_min:.1f} to {orig_y_max:.1f} (range: {orig_y_max-orig_y_min:.1f})")
+
+    #         print("\nAoI model bounds:")
+    #         print(f"   X: {aoi_x_min:.1f} to {aoi_x_max:.1f} (range: {aoi_x_max-aoi_x_min:.1f})")
+    #         print(f"   Y: {aoi_y_min:.1f} to {aoi_y_max:.1f} (range: {aoi_y_max-aoi_y_min:.1f})")
+
+    #         # Verify clipping worked as expected
+    #         x_within_bounds = (aoi_x_min >= Xmin-dx) and (aoi_x_max <= Xmax+dx)
+    #         y_within_bounds = (aoi_y_min >= Ymin-dy) and (aoi_y_max <= Ymax+dy)
+
+    #         print(f"\nClipping verification:")
+    #         print(f"   X bounds within target: {'✓' if x_within_bounds else '✗'}")
+    #         print(f"   Y bounds within target: {'✓' if y_within_bounds else '✗'}")
+
+    #         if x_within_bounds and y_within_bounds:
+    #             print("   🎉 Clipping successful!")
+    #         else:
+    #             print("   ⚠️  Clipping may not have worked as expected")
+
+    #         # Calculate area reduction
+    #         orig_area = (orig_x_max - orig_x_min) * (orig_y_max - orig_y_min)
+    #         aoi_area = (aoi_x_max - aoi_x_min) * (aoi_y_max - aoi_y_min)
+    #         area_ratio = aoi_area / orig_area
+
+    #         print(f"\nArea reduction:")
+    #         print(f"   Original area: {orig_area:,.0f} m²")
+    #         print(f"   AoI area: {aoi_area:,.0f} m²")
+    #         print(f"   Ratio: {area_ratio:.4f} ({area_ratio*100:.2f}%)")
+
+    #     except Exception as e:
+    #         print(f"Error comparing DIS bounds: {e}")
+    # else:
+    #     print("DIS package not found in common keys - cannot compare bounds")
+    # # Print the names of common packages
+    # print("=== COMMON PACKAGES ===")
+    # print(f"These {len(common_keys)} packages are present in both models:")
+    # for i, key in enumerate(sorted(common_keys), 1):
+    #     print(f"{i:2d}. {key}")
+    # MF6_Mdl_AoI.keys()
+    # MF6_Mdl['chd_merged']['head'].isel(time=0, layer=0).isel(x=range(0,10), y=range(0,10)).plot.imshow(cmap='viridis')
+    # MF6_Mdl_AoI['chd_merged']['head'].isel(time=0, layer=0).plot.imshow(cmap='viridis')
+    # Seems like CHD has finally been applied correctly!
+    # This is ok. The only missing package is one of the WEL packages, which has no items in the model area.
+    # ### Cleanup MF6
+    # try:
+    #     for Pkg in [i for i in MF6_Mdl_AoI.keys() if ('riv' in i.lower()) or ('drn' in i.lower())]:
+    #         MF6_Mdl_AoI[Pkg].cleanup(DIS_AoI)
+    # except:
+    #     print('Failed to cleanup packaes. Proceeding without cleanup. Fingers crossed!')
+    # ### MSW
+    # # Cleanup MetaSWAP
+    # MSW_Mdl_AoI["grid"].dataset["rootzone_depth"] = MSW_Mdl_AoI["grid"].dataset["rootzone_depth"].fillna(1.0)
+    # ## Couple
+    # metamod_coupling = primod.MetaModDriverCoupling(mf6_model=f'{MdlN}', mf6_recharge_package="msw-rch", mf6_wel_package="msw-sprinkling")
+    # metamod = primod.MetaMod(MSW_Mdl_AoI, Sim_MF6_AoI, coupling_list=[metamod_coupling])
+    # os.makedirs(d_Pa['Pa_MdlN'], exist_ok=True) # Create simulation directory if it doesn't exist
+    # # Those can be changed to relative paths.
+    # Pa_MF6_DLL = r"C:\OD\WS_Mdl\software\iMOD5\bin\iMOD_coupler\libmf6.dll"
+    # Pa_MSW_DLL = r"C:\OD\WS_Mdl\software\iMOD5\bin\iMOD_coupler\MetaSWAP.dll"
+    # metamod.write(directory=d_Pa['Pa_MdlN'], modflow6_dll=Pa_MF6_DLL, metaswap_dll=Pa_MSW_DLL, metaswap_dll_dependency=PDN(Pa_MF6_DLL))
+    # # Review execution times per cell
+    # t = show_cell_times()
+    # # Execute model
+    # # Execute the coupled model
+    # print("🚀 Starting coupled model execution...")
+    # print(f"Model directory: {d_Pa['Pa_MdlN']}")
+
+    # # Check what files were written
+    # print("\n📁 Checking written model files:")
+    # if PE(d_Pa['Pa_MdlN']):
+    #     model_files = LD(d_Pa['Pa_MdlN'])
+    #     for file in sorted(model_files):
+    #         print(f"  - {file}")
+
+    #     # Look for the main execution file (usually .toml or similar)
+    #     toml_files = [f for f in model_files if f.endswith('.toml')]
+    #     if toml_files:
+    #         print(f"\n🎯 Found TOML configuration file: {toml_files[0]}")
+    #         main_toml = PJ(d_Pa['Pa_MdlN'], toml_files[0])
+
+    #         # Since we have the DLL paths, we can try to execute using the iMOD coupler
+    #         # The iMOD coupler typically needs the .toml file as input
+    #         coupler_exe = PJ(PDN(Pa_MF6_DLL), "imodc.exe")
+
+    #         if PE(coupler_exe):
+    #             print(f"✅ Found iMOD coupler: {coupler_exe}")
+    #             print(f"🔄 Executing: {coupler_exe} {main_toml}")
+
+    #             # Execute the model (this will take some time)
+    #             import subprocess
+    #             try:
+    #                 result = subprocess.run([coupler_exe, main_toml],
+    #                                     cwd=d_Pa['Pa_MdlN'],
+    #                                     capture_output=True,
+    #                                     text=True,
+    #                                     timeout=3600)  # 1 hour timeout
+
+    #                 print(f"Return code: {result.returncode}")
+    #                 if result.stdout:
+    #                     print("STDOUT:")
+    #                     print(result.stdout)
+    #                 if result.stderr:
+    #                     print("STDERR:")
+    #                     print(result.stderr)
+
+    #                 if result.returncode == 0:
+    #                     print("✅ Model execution completed successfully!")
+    #                 else:
+    #                     print(f"❌ Model execution failed with return code {result.returncode}")
+
+    #             except subprocess.TimeoutExpired:
+    #                 print("⏰ Model execution timed out after 1 hour")
+    #             except Exception as e:
+    #                 print(f"❌ Error executing model: {e}")
+    #         else:
+    #             print(f"❌ iMOD coupler not found at: {coupler_exe}")
+    #             print("You may need to execute the model manually using the iMOD coupler")
+    #     else:
+    #         print("❌ No TOML configuration file found")
+    # else:
+    #     print(f"❌ Model directory not found: {d_Pa['Pa_MdlN']}")
 
 
 # --------------------------------------------------------------------------------
@@ -660,7 +987,7 @@ def xr_clip_Mdl_Aa(
     elif l_L is not None or Lmin is not None or Lmax is not None:
         vprint(f"Warning: Layer subsetting requested but dimension '{L_dim}' not found in data")
 
-    vprint('🟢🟢🟢 - Successfully clipped xarray data to model area')
+    vprint('🟢🟢 - Successfully clipped xarray data to model area')
     return clipped
 
 

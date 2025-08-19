@@ -1,35 +1,46 @@
-# NEW GUIDE - env managemet py pixi ##########
+# pixi Env guide
 -----------------------------------------
-This project uses pixi for managing dependencies. Why? Cause it's more robust/secure and fast than conda or any other package manager. 
+This project uses **pixi** for managing dependencies. Why? So that Sims are reproducible and old code works.
+Pixi is also more robust/secure and fast than conda or any other package manager that I know, hence it was chosen.
 For more details check: https://pixi.sh/latest/
 
-This guide explains how we use **Pixi** to create, reproduce, and share the software environment for the *WS_Mdl* project.
+This guide explains how to use **pixi** to create, reproduce, and share the software environment for the *WS_Mdl* project.
 
 ## 1. Download and install pixi.
 - either follow their instructions on the website (https://pixi.sh/latest/installation/).
 - or if you have/prefer conda (I haven't tried this, but it should work):
-	install -c conda-forge pixi 
+	install -c conda-forge pixi
 
-## 2. To re-create the env that was used for Sim.
-1. If you don't have the files for this project, you'll need to **clone** the repo.
+## 2. Clone env.
+If you don't have the files for this project, you'll need to **clone** the repo.
 git clone https://github.com/Ydrolog/WS_Mdl C:\OD\WS_Mdl
 C:\OD\WS_Mdl is the default location. If you want it somewhere else, feel free to change the path, but that may make things more complicated later.
 Not all files are public, you'll need to request the rest from the project owner(s).
 
-2. The pixi env is installed in C:\OD\WS_Mdl\code, as there is no code in the other folders that need to use it. Make it your active dir if you're not already there.
-cd C:\OD\WS_Mdl\code
+## 3. (re)create previous pixi env.
+(This can be replaced by a script that only requires the Run to reproduce as input)
+The main reason to recreate a pixi env is to reproduce an older Sim.
+Most of the time, a Sim should run on most versions of the repo. But recreating the env ensures identical results, so you're advised to do so.
 
-3. **Copy** tag or hash.
+1. Ensure you've committed any work before doing this. (git add, git commit etc.)
+
+2. Register new/repeat Sims in the RunLog. It's safer and simpler to have more Sims than to remove the old ones. "Sim numbers are free, the pain of Sim confusion is priceless"
+Make sure you write in the descriptio which Sims you're repeating and how you're recreating them (could be a reference to this file...)
+
+3. **Copy** tag or hash of the Sim you want to recreate.
    *Open* `./Mng/RunLog.xlsx` and copy the *Tag* or *Hash* column for the Sim you want to re-run.
 
-4. **Checkout** that commit:
-git checkout <hash/tag>
+4. **Restore** env defining files:
+git restore --source <sha_or_tag> --pathspec-from-file=C:\WS_Mdl\code\Env\pixi_env_Fis.txt
 
-5. **Re-build** env:
-pixi run install --frozen # This uses both the pixi.lock and pixi.toml files to ensure reinstallation of locked package versions.
-pixi run install # This only requires the pixi.toml file. It should work, but it's less secure.
+5. Change directory
+cd C:\WS_Mdl\code
 
-6. Optional: **WS_Mdl** lib:
+6. **Re-build** env:
+pixi install --frozen # This uses both the pixi.lock and pixi.toml files to ensure reinstallation of locked package versions.
+pixi install # This only requires the pixi.toml file. It should work, but it's less secure.
+
+7. Optional: **WS_Mdl refresh**:
 pixi run --no-lockfile-update pip install -e C:\OD\WS_Mdl\code # (pip install -e C:\OD\WS_Mdl\code (--use-pep517 --no-build-isolation) could also work)
 Run this whenever you want to update WS_Mdl. It's in edit mode, so any small changes (e.g. code in exiting files) are updated automatically. I use this when I make a new terminal tool and I want to add it to path.
 
@@ -48,13 +59,13 @@ pixi add --pypi "rasterio>=1.3"
 3. **Solve & lock**
    pixi install          # updates pixi.lock
 
-3. **Freeze**. Don't forget to add the changes to your next commit, e.g.:
+4. **Freeze**. Don't forget to add the changes to your next commit, e.g.:
    git add pixi.toml pixi.lock
    git commit -m "Add rasterio 1.3+"
 -----------------------------------------
 
 
-# THE GUIDE BELOW IS THE OLD ONE. That way of env management applies from 04/08, NBr32, hash b5dfc2b backwards.
+# THE GUIDE BELOW IS THE OLD ONE. That way of env management was used for the last time on 04/08, NBr32, hash b5dfc2b.
 -----------------------------------------
 --- To freeze/export: ---
 The WS env should be frozen on every change. If no Env is present for a run/Sim you want to repeat, assume that the previous one will do the job.
