@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doublecmd>
+  <History>
+    <Navigation>
+      <Item>C:\OD\WS_Mdl\code\build\</Item>
+      <Item>C:\OD\WS_Mdl\code\</Item>
+      <Item>C:\OD\WS_Mdl\code\Env\</Item>
+      <Item>C:\OD\WS_Mdl\</Item>
+      <Item>C:\OD\WS_Mdl\other\</Item>
+      <Item>C:\OD\WS_Mdl\other\double_commander_settings\</Item>
+      <Item>C:\OD\</Item>
+      <Item>C:\Users\Karam014\AppData\Roaming\doublecmd\</Item>
+      <Item>C:\Users\Karam014\OneDrive - Universiteit Utrecht\Coding\</Item>
+      <Item>C:\Users\Karam014\OneDrive - Universiteit Utrecht\</Item>
+      <Item>C:\Users\Karam014\</Item>
+      <Item>C:\Users\Karam014\AppData\</Item>
+      <Item>C:\Users\Karam014\AppData\Roaming\</Item>
+      <Item>C:\Users\</Item>
+      <Item>C:\</Item>
+      <Item>C:\Program Files\</Item>
+      <Item>C:\OD\WS_Mdl\code\build\Double_Commander_settings\</Item>
+      <Item>C:\Program Files\Double Commander\</Item>
+      <Item>C:\Program Files\Double Commander\language\</Item>
+      <Item>C:\Program Files\Double Commander\highlighters\</Item>
+      <Item>C:\Program Files\Double Commander\doc\</Item>
+      <Item>C:\Program Files\Double Commander\default\</Item>
+      <Item>C:\Program Files (x86)\</Item>
+      <Item>C:\Users\Karam014\OneDrive - Universiteit Utrecht\Software\</Item>
+      <Item>C:\Users\Karam014\OneDrive - Universiteit Utrecht\Software\Settings\</Item>
+      <Item>C:\Users\Karam014\OneDrive - Universiteit Utrecht\Software\Settings\Double Commander\</Item>
+      <Item>C:\OD\WS_Mdl\models\</Item>
+      <Item>C:\OD\WS_Mdl\models\NBr\</Item>
+      <Item>C:\OD\WS_Mdl\models\NBr\code\</Item>
+      <Item>C:\OD\WS_Mdl\models\NBr\code\snakemake\</Item>
+      <Item>C:\OD\WS_Mdl\code\.pixi\</Item>
+      <Item>C:\OD\WS_Mdl\code\.pixi\envs\</Item>
+      <Item>C:\OD\WS_Mdl\code\.pixi\envs\default\</Item>
+      <Item>C:\OD\WS_Mdl\code\WS_Mdl\</Item>
+      <Item>C:\OD\Documents\TeachingAssistance\Principles of GW Flow\</Item>
+      <Item>C:\OD\Documents\TeachingAssistance\</Item>
+      <Item>C:\OD\Documents\</Item>
+      <Item>C:\OD\Documents\PrePhD\</Item>
+      <Item>C:\OD\WS_Mdl\models\NBr\Sim\NBr32\</Item>
+      <Item>C:\OD\WS_Mdl\models\NBr\Sim\NBr32\modflow6\</Item>
+      <Item>C:\OD\WS_Mdl\models\NBr\Sim\NBr32\metaswap\</Item>
+      <Item>C:\OD\WS_Mdl\models\NBr\In\CAP\</Item>
+      <Item>C:\OD\WS_Mdl\models\NBr\In\CAP\mete_grid\</Item>
+      <Item>C:\OD\WS_Mdl\models\NBr\In\CAP\mete_grid\NBr5\</Item>
+      <Item>C:\OD\WS_Mdl\models\NBr\In\CAP\mete_grid\NBr3\</Item>
+      <Item>C:\OD\WS_Mdl\models\NBr\In\CAP\mete_grid\NBr2\</Item>
+      <Item>C:\OD\WS_Mdl\models\NBr\In\CAP\mete_grid\NBr1\</Item>
+      <Item>C:\OD\WS_Mdl\models\NBr\In\CAP\mete_grid\NBr5\temp\</Item>
+      <Item>C:\OD\WS_Mdl\models\NBr\In\CAP\mete_grid\NBr5\temp\temp\</Item>
+      <Item>C:\OD\WS_Mdl\models\NBr\In\CAP\mete_grid\NBr5\temp\temp\temp\</Item>
+      <Item>C:\OD\WS_Mdl\models\NBr\In\</Item>
+    </Navigation>
+    <CommandLine>
+      <Item>activate WS</Item>
+      <Item>activate imod</Item>
+      <Item>test.py</Item>
+    </CommandLine>
+    <FileMask>
+      <Item>PoP_HD_IDFs_NBr13</Item>
+      <Item>temp_lines</Item>
+      <Item>open</Item>
+      <Item>read</Item>
+      <Item>write</Item>
+      <Item>SS</Item>
+      <Item>*.tmp</Item>
+      <Item>primod</Item>
+      <Item>.ini</Item>
+    </FileMask>
+    <VolumeSize/>
+    <CreateDirectories>
+      <Item Tag="0">double_commander_settings</Item>
+      <Item Tag="0">pixi_test</Item>
+      <Item Tag="0">pixi trouble</Item>
+      <Item Tag="0">SS</Item>
+      <Item Tag="0">Christopher_data</Item>
+      <Item Tag="0">other</Item>
+      <Item Tag="0">test.py</Item>
+      <Item Tag="0">NBr27</Item>
+      <Item Tag="0">SFR</Item>
+      <Item Tag="0">NBr25</Item>
+      <Item Tag="0">rivercourse</Item>
+      <Item Tag="0">CrossSections</Item>
+      <Item Tag="0">NBr15</Item>
+      <Item Tag="0">NBr7</Item>
+      <Item Tag="0">PS7</Item>
+      <Item Tag="0">profle</Item>
+      <Item Tag="0">WS_Mdl</Item>
+      <Item Tag="0">.dummy</Item>
+      <Item Tag="0">dynlib</Item>
+      <Item Tag="0">doc</Item>
+    </CreateDirectories>
+    <SearchText>
+      <Item Tag="0">SSYSTEM= 0</Item>
+      <Item Tag="0">SSYSTEM= 1</Item>
+      <Item Tag="0">SSYSTEM=1</Item>
+    </SearchText>
+    <SearchTextPath/>
+    <ReplaceText/>
+    <ReplaceTextPath/>
+    <RenameNameMask/>
+    <RenameExtMask/>
+    <SearchDirectories>
+      <Item>C:\OD\WS_Mdl\code\</Item>
+      <Item>C:\OD\WS_Mdl\models\NBr\In\PRJ\</Item>
+      <Item>C:\OD\WS_Mdl\</Item>
+      <Item>C:\mamba_envs\WS\</Item>
+      <Item>C:\OD\WS_Mdl\models\NBr\code\Mdl_Prep\</Item>
+    </SearchDirectories>
+    <SearchExcludeFiles/>
+    <SearchExcludeDirectories>
+      <Item>code</Item>
+    </SearchExcludeDirectories>
+  </History>
+</doublecmd>
