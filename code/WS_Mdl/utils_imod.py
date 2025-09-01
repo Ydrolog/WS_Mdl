@@ -27,6 +27,7 @@ from .utils import (
     Sign,
     get_MdlN_Pa,
     r_IPF_Spa,
+    set_verbose,
     vprint,
 )
 
@@ -306,11 +307,9 @@ def regrid_DA(DA, x_CeCes, y_CeCes, dx, dy, item_name, method='linear'):
     if 'ibound' in item_name.lower():
         # Use nearest neighbor for boundary conditions
         method = 'nearest'
-        vprint(f'  {item_name}: ⚪️ - Using nearest neighbor for boundary conditions')
     elif any(x in item_name.lower() for x in ['landuse', 'soil_unit', 'zone']):
         # Use nearest neighbor for categorical DA
         method = 'nearest'
-        vprint(f'  {item_name}: ⚪️ - Using nearest neighbor for categorical data')
     elif 'area' in item_name.lower():
         # Special handling for area fields - scale by grid ratio
         regridded = DA.interp(x=x_CeCes, y=y_CeCes, method='linear')
@@ -329,7 +328,7 @@ def regrid_DA(DA, x_CeCes, y_CeCes, dx, dy, item_name, method='linear'):
 
         # Attach dx and dy attributes to the regridded DataArray
         regridded = regridded.assign_coords(dx=dx, dy=dy)
-        vprint(f'  {item_name}: 🟢 - {DA.sizes} -> {regridded.sizes}')
+        vprint(f'  {item_name}: 🟢 - {DA.sizes} -> {regridded.sizes}. Method: {method}.')
         return regridded
     except Exception as e:
         vprint(f'  {item_name}: 🔴 - Regridding failed ({e}) - keeping original')
@@ -389,11 +388,13 @@ def mete_grid_Cvt_to_AbsPa(Pa_PRJ: str, PRJ: dict = None):
 # Mdl related -----------------------------------------------------------------
 
 
-def Mdl_Prep(MdlN: str, Pa_MF6_DLL: str = None, Pa_MSW_DLL: str = None):
+def Mdl_Prep(MdlN: str, Pa_MF6_DLL: str = None, Pa_MSW_DLL: str = None, verbose=False):
     """
     Prepares Sim Fis from In Fis.
     Ins need to be read and processed, then MF6 and MSW need to be coupled. Then Sim Ins can be written.
     """
+
+    set_verbose(verbose)
 
     # Load paths and variables from PRJ & INI
     d_Pa = get_MdlN_Pa(MdlN)
@@ -430,13 +431,13 @@ def Mdl_Prep(MdlN: str, Pa_MF6_DLL: str = None, Pa_MSW_DLL: str = None):
         PRJ_regrid, period_data, times
     )  # It can be further sped up by multi-processing, but this is not implemented yet.
     vprint('🟢 - MF6 Simulation loaded successfully!')
-    Sim_MF6[f'{MdlN}'] = Sim_MF6.pop('imported_model')  # Rename imported_model to MdlN.
+    # Sim_MF6[f'{MdlN}'] = Sim_MF6.pop('imported_model')  # Rename imported_model to MdlN.
 
     # Pass the Sim components to objects.
-    MF6_Mdl = Sim_MF6[f'{MdlN}']
+    MF6_Mdl = Sim_MF6['imported_model']
     MF6_Mdl['oc'] = mf6.OutputControl(save_head='last', save_budget='last')
     Sim_MF6['ims'] = mf6_solution_moderate_settings()  # Mimic iMOD5's "Moderate" settings.
-    MF6_DIS = Sim_MF6[f'{MdlN}']['dis']
+    MF6_DIS = Sim_MF6['imported_model']['dis']
 
     # Load MSW
     PRJ_MSW = {'cap': PRJ_regrid.copy()['cap'], 'extra': PRJ_regrid.copy()['extra']}  # Isolate MSW keys from PRJ.
@@ -448,7 +449,7 @@ def Mdl_Prep(MdlN: str, Pa_MF6_DLL: str = None, Pa_MSW_DLL: str = None):
 
     # Clip models
     Sim_MF6_AoI = Sim_MF6.clip_box(x_min=Xmin, x_max=Xmax, y_min=Ymin, y_max=Ymax)
-    MF6_Mdl_AoI = Sim_MF6_AoI[f'{MdlN}']
+    MF6_Mdl_AoI = Sim_MF6_AoI['imported_model']
     MSW_Mdl_AoI = MSW_Mdl.clip_box(
         x_min=Xmin, x_max=Xmax, y_min=Ymin, y_max=Ymax
     )  # clip_box doesn't clip the packages I clipped beforehand, but it clips non raster-like packages like WEL and removes packages that are not in the AoI.
@@ -484,7 +485,7 @@ def Mdl_Prep(MdlN: str, Pa_MF6_DLL: str = None, Pa_MSW_DLL: str = None):
 
     # Coupling
     metamod_coupling = primod.MetaModDriverCoupling(
-        mf6_model=f'{MdlN}', mf6_recharge_package='msw-rch', mf6_wel_package='msw-sprinkling'
+        mf6_model='imported_model', mf6_recharge_package='msw-rch', mf6_wel_package='msw-sprinkling'
     )
     metamod = primod.MetaMod(MSW_Mdl_AoI, Sim_MF6_AoI, coupling_list=[metamod_coupling])
     os.makedirs(d_Pa['Pa_MdlN'], exist_ok=True)  # Create simulation directory if it doesn't exist

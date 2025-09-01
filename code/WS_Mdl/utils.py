@@ -661,6 +661,8 @@ def _RunMng(args):
         if generate_dag:  # DAG parameter passed from RunMng
             sp.run(
                 [
+                    'pixi',
+                    'run',
                     'snakemake',
                     '--dag',
                     '-s',
@@ -700,6 +702,9 @@ def RunMng(cores=None, DAG: bool = True, Cct_Sims=None, no_temp: bool = True):
         DAG: Whether to generate a DAG visualization
         Cct_Sims: Number of models to run simultaneously (defaults to number of available cores)
     """
+
+    os.chdir(PJ(Pa_WS, 'code'))
+
     if cores is None:
         cores = max(
             cpu_count() - 2, 1
@@ -920,7 +925,7 @@ def freeze_pixi_env(MdlN: str):
         changes = run_cmd(diff_cmd, capture=True).stdout.strip()
 
         if not changes:
-            print('⚪️ No changes to tracked env/code files. Nothing to commit.')
+            print('⚪️⚪️⚪️ No changes to tracked env/code files. Nothing to commit.')
             return None, None
 
         print('🟢 Changes detected:\n' + changes)
