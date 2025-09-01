@@ -659,27 +659,10 @@ def _RunMng(args):
 
     try:
         if generate_dag:  # DAG parameter passed from RunMng
-            sp.run(
-                [
-                    'pixi',
-                    'run',
-                    'snakemake',
-                    '--dag',
-                    '-s',
-                    Pa_Smk,
-                    '--cores',
-                    str(cores_per_Sim),
-                    '|',
-                    'dot',
-                    '-Tpng',
-                    '-o',
-                    f'{Pa_DAG}',
-                ],
-                shell=True,
-                check=True,
-            )
+            cmd = f'pixi run snakemake --dag -s "{Pa_Smk}" --cores {cores_per_Sim} | pixi run dot -Tpng -o "{Pa_DAG}"'
+            sp.run(cmd, shell=True, check=True)
         with open(Pa_Smk_log, 'w', encoding='utf-8-sig') as f:
-            cmd = ['snakemake', '-p', '-s', Pa_Smk, '--cores', str(cores_per_Sim)]
+            cmd = ['pixi', 'run', 'snakemake', '-p', '-s', Pa_Smk, '--cores', str(cores_per_Sim)]
             if no_temp:
                 cmd.append('--notemp')
             sp.run(
