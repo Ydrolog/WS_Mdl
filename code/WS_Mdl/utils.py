@@ -10,6 +10,7 @@ from io import StringIO
 from multiprocessing import Pool, cpu_count
 from os import listdir as LD
 from os.path import basename as PBN
+from os.path import dirname as PDN
 from os.path import join as PJ
 from pathlib import Path
 
@@ -160,6 +161,10 @@ def get_MdlN_Pa(MdlN: str, MdlN_B=None, verbose=False):
         d_Pa['Out_HD'] = PJ(d_Pa['Pa_MdlN'], 'GWF_1/MODELOUTPUT/HEAD/HEAD')
         d_Pa['PoP_Out_MdlN'] = PJ(d_Pa['PoP'], 'Out', MdlN)
         d_Pa['MM'] = PJ(d_Pa['PoP_Out_MdlN'], f'MM-{MdlN}.qgz')
+
+        d_Pa['coupler_Exe'] = PJ(Pa_WS, r'software/iMOD5/bin/iMOD_coupler/imodc.exe')
+        d_Pa['MF6_DLL'] = PJ(PDN(d_Pa['coupler_Exe']), 'libmf6.dll')
+        d_Pa['MSW_DLL'] = PJ(PDN(d_Pa['coupler_Exe']), 'MetaSWAP.dll')
 
         if MdlN_B:  ## B Sim paths
             for k in list(d_Pa.keys()):
@@ -897,11 +902,13 @@ def run_cmd(cmd, check=True, capture=False):
 
 def freeze_pixi_env(MdlN: str):
     """
-    Freeze the current Python environment by committing changes to tracked files in the git repository.
-    The pixi env freezes everything in pixi.lock. The only package that's not included in pixi.lock - WS_Mdl can also be restored to a previous state by checking out a specific commit.
+    Freezes the current Python environment by committing changes to tracked files in the git repository.
+    The pixi env freezes everything in pixi.lock. The only package that's not included in pixi.lock (WS_Mdl) can also be restored to a previous state by checking out a specific commit.
     """
 
-    l_Fi_to_track = [PJ(Pa_WS, i) for i in ['code/pixi.toml', 'code/pixi.lock', 'code/WS_Mdl']]
+    l_Fi_to_track = [
+        PJ(Pa_WS, i) for i in ['code/pixi.toml', 'code/pixi.lock', 'code/WS_Mdl']
+    ]  # If any of these code files changes, the env needs to be frozen.
 
     try:
         # Ensure we are in repo root
