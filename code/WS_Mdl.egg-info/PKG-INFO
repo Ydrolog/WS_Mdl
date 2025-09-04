@@ -5,4 +5,5 @@ Requires-Dist: pandas
 Requires-Dist: colored
 Requires-Dist: rasterio
 Requires-Dist: xarray
+Requires-Dist: openpyxl
 Dynamic: requires-dist

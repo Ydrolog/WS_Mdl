@@ -54,6 +54,11 @@ def set_verbose(v: bool):
     VERBOSE = v
 
 
+def bprint(*args, **kwargs):
+    """Prints Bold."""
+    print(f'{bold}', *args, f'{bold_off}', **kwargs)
+
+
 # --------------------------------------------------------------------------------
 
 
@@ -165,6 +170,9 @@ def get_MdlN_Pa(MdlN: str, MdlN_B=None, verbose=False):
         d_Pa['coupler_Exe'] = PJ(Pa_WS, r'software/iMOD5/bin/iMOD_coupler/imodc.exe')
         d_Pa['MF6_DLL'] = PJ(PDN(d_Pa['coupler_Exe']), 'libmf6.dll')
         d_Pa['MSW_DLL'] = PJ(PDN(d_Pa['coupler_Exe']), 'MetaSWAP.dll')
+
+        d_Pa['code'] = PJ(Pa_WS, 'code')
+        d_Pa['pixi'] = PJ(Pa_WS, 'pixi.toml')
 
         if MdlN_B:  ## B Sim paths
             for k in list(d_Pa.keys()):
@@ -657,20 +665,34 @@ def _RunMng(args):
     Pa_DAG = PJ(Pa_WS, f'models/{Se_Ln["model alias"]}/code/snakemake/DAG/DAG_{Se_Ln["MdlN"]}.png')
     vprint(f'{fg("cyan")}{PBN(Pa_Smk)}{attr("reset")}\n')
 
+    # add once near your other paths
+    Pa_Pixi = PJ(Pa_WS, 'pixi.toml')  # <-- path to the manifest file
+
     try:
         if generate_dag:  # DAG parameter passed from RunMng
-            cmd = f'pixi run snakemake --dag -s "{Pa_Smk}" --cores {cores_per_Sim} | pixi run dot -Tpng -o "{Pa_DAG}"'
-            sp.run(cmd, shell=True, check=True)
+            cmd = (
+                f'pixi run --manifest-path "{Pa_Pixi}" snakemake --dag -s "{Pa_Smk}" --cores {cores_per_Sim} '
+                f'| pixi run --manifest-path "{Pa_Pixi}" dot -Tpng -o "{Pa_DAG}"'
+            )
+        sp.run(cmd, shell=True, check=True)
+
         with open(Pa_Smk_log, 'w', encoding='utf-8-sig') as f:
-            cmd = ['pixi', 'run', 'snakemake', '-p', '-s', Pa_Smk, '--cores', str(cores_per_Sim)]
+            cmd = [
+                'pixi',
+                'run',
+                '--manifest-path',
+                Pa_Pixi,
+                'snakemake',
+                '-p',
+                '-s',
+                Pa_Smk,
+                '--cores',
+                str(cores_per_Sim),
+            ]
+
             if no_temp:
                 cmd.append('--notemp')
-            sp.run(
-                cmd,
-                check=True,
-                stdout=f,
-                stderr=f,
-            )
+            sp.run(cmd, shell=False, check=True, stdout=f, stderr=f)
         return (Se_Ln['MdlN'], True)
     except sp.CalledProcessError as e:
         return (Se_Ln['MdlN'], False, str(e))

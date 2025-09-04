@@ -1,0 +1,69 @@
+Assuming unrestricted shared filesystem usage.
+host: UU120516
+Building DAG of jobs...
+Provided cores: 10
+Rules claiming more threads will be scaled down.
+Job stats:
+job                count
+---------------  -------
+all                    1
+debug_env              1
+freeze_pixi_env        1
+iMPy_Mdl_Prep          1
+log_Init               1
+total                  5
+
+Select jobs to execute...
+Execute 2 jobs...
+
+[Mon Sep  1 18:24:59 2025]
+localrule freeze_pixi_env:
+    input: C:/OD/WS_Mdl/code/pixi.toml, C:/OD/WS_Mdl/code/pixi.lock, C:/OD/WS_Mdl/code/WS_Mdl
+    output: C:/OD/WS_Mdl/models/NBr/code/snakemake/temp/Log_freeze_env_NBr32
+    jobid: 4
+    reason: Missing output files: C:/OD/WS_Mdl/models/NBr/code/snakemake/temp/Log_freeze_env_NBr32
+    resources: tmpdir=C:\Users\Karam014\AppData\Local\Temp
+Shell command: None
+
+[Mon Sep  1 18:24:59 2025]
+localrule debug_env:
+    output: C:/OD/WS_Mdl/models/NBr/code/snakemake/temp/Log_debug_env_NBr32
+    jobid: 3
+    reason: Missing output files: C:/OD/WS_Mdl/models/NBr/code/snakemake/temp/Log_debug_env_NBr32
+    resources: tmpdir=C:\Users\Karam014\AppData\Local\Temp
+Shell command: None
+RuleException:
+FileNotFoundError in file "C:\OD\WS_Mdl\models\NBr\code\snakemake\NBr32.smk", line 76:
+[WinError 2] The system cannot find the file specified
+  File "C:\OD\WS_Mdl\models\NBr\code\snakemake\NBr32.smk", line 76, in __rule_debug_env
+  File "C:\mamba_envs\WS\Lib\subprocess.py", line 548, in run
+  File "C:\mamba_envs\WS\Lib\subprocess.py", line 1026, in __init__
+  File "C:\mamba_envs\WS\Lib\subprocess.py", line 1538, in _execute_child
+[Mon Sep  1 18:24:59 2025]
+Error in rule debug_env:
+    message: None
+    jobid: 3
+    output: C:/OD/WS_Mdl/models/NBr/code/snakemake/temp/Log_debug_env_NBr32
+[main 77d2a27] #auto NBr32 env snapshot - 2025-09-01 18:24:59
+ 1 file changed, 3 insertions(+), 20 deletions(-)
+[Mon Sep  1 18:24:59 2025]
+Finished jobid: 4 (Rule: freeze_pixi_env)
+1 of 5 steps (20%) done
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look below for error messages
+[Mon Sep  1 18:24:59 2025]
+Error in rule debug_env:
+    message: None
+    jobid: 3
+    output: C:/OD/WS_Mdl/models/NBr/code/snakemake/temp/Log_debug_env_NBr32
+Complete log(s): C:\OD\WS_Mdl\models\NBr\.snakemake\log\2025-09-01T182459.257444.snakemake.log
+WorkflowError:
+At least one job did not complete successfully.
+🐍 Python executable: C:\mamba_envs\WS\python.exe
+Repo root: C:/Users/Karam014/OneDrive - Universiteit Utrecht/WS_Mdl
+🟢 Changes detected:
+M code/WS_Mdl/utils.py
+🟢 Staged changes.
+🟢 Commit hash: 77d2a27626d3db6d905bad77e986db6f471a25d4
+⚪️ No tag found for this commit. Only the hash will be recorded.
+🟢🟢🟢 Committed changes with message: '#auto NBr32 env snapshot - 2025-09-01 18:24:59'

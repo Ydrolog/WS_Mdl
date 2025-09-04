@@ -437,7 +437,7 @@ def Mdl_Prep(MdlN: str, Pa_MF6_DLL: str = None, Pa_MSW_DLL: str = None, verbose=
     MF6_Mdl = Sim_MF6['imported_model']
     MF6_Mdl['oc'] = mf6.OutputControl(save_head='last', save_budget='last')
     Sim_MF6['ims'] = mf6_solution_moderate_settings()  # Mimic iMOD5's "Moderate" settings.
-    MF6_DIS = Sim_MF6['imported_model']['dis']
+    MF6_DIS = MF6_Mdl['dis']
 
     # Load MSW
     PRJ_MSW = {'cap': PRJ_regrid.copy()['cap'], 'extra': PRJ_regrid.copy()['extra']}  # Isolate MSW keys from PRJ.
