@@ -1,0 +1,90 @@
+{
+    "fact_svat.inp": [
+        "vegetation type",
+        "day number",
+        "soil cover",
+        "leaf area index",
+        "interception capacity",
+        "vegetation factor",
+        "factor for interception evaporation",
+        "factor for bare soil evaporation",
+        "factor for ponding",
+        "crop height",
+        "dynamic root zone depth"
+    ],
+    "init_svat.inp": [
+        "pF of root zone"
+    ],
+    "luse_svat.inp": [
+        "index of land use type",
+        "name of land use type",
+        "index of vegetation type",
+        "Jarvis parameter for o2 stress",
+        "Jarvis parameter for drought stress",
+        "p1 Feddes function",
+        "p2 Feddes function",
+        "p3h Feddes function",
+        "p3l Feddes function",
+        "p4 Feddes function",
+        "t3 Feddes function",
+        "t3 Feddes function_",
+        "pressure head begin sprinkling/drought stress alpha begin sprinkling",
+        "fraction evaporated sprinkling water",
+        "gift in rotational period",
+        "duration gift",
+        "rotational period",
+        "beginning of sprinkling period (season)",
+        "end of sprinkling period",
+        "albedo in Penman-Monteith (PM)",
+        "crop resistance, dry leaves in PM",
+        "crop resistance, wet leaves in PM",
+        "soil resistance in PM",
+        "extinction coefficient diffuse light",
+        "extinction coefficient direct light",
+        "option parameter for interception",
+        "interception capacity per LAI, Rutter",
+        "intercept of interception evaporation",
+        "interception capacity per LAI, Von H",
+        "free throughflow coefficient, Gash",
+        "stem flow coefficient, Gash",
+        "interception capacity of canopy, Gash",
+        "average rainfall intensity, Gash",
+        "average evaporation intensity Gash",
+        "max. concentration for no salt stress, Maas & Hoffman model",
+        "decline of salt stress coefficient per unit of salt concentration, Maas & Hoffman",
+        "id",
+        "name"
+    ],
+    "mete_grid.inp": [
+        "time from 00:00:00",
+        "year number",
+        "path\\name precipitation grid",
+        "path\\name evapotranspiration grid(reference crop values)",
+        "path\\name min. day temperature grid",
+        "path\\name max. day temperature grid",
+        "path\\name mean temperature grid",
+        "path\\name relative sunshine duration grid",
+        "path\\name radiation grid",
+        "path\\name humidity grid",
+        "path\\name wind speed grid"
+    ],
+    "sel_key_svat_per.inp": [
+        "do not include variable in database",
+        "include variable in database, make idf file with unit m (m3 per active m2)",
+        "include variable in database, make idf file, with unit m3",
+        "include variable in database, make idf file, with unit m and m3"
+    ],
+    "tiop_sim.inp": [
+        "time from beginning of year at 00:00:00",
+        "year number",
+        "option number"
+    ],
+    "para_sim.inp": [
+        "vegetation type",
+        "path of crop file, including name of the crop file itself",
+        "time of crop emergence",
+        "time of crop harvest",
+        "Crop type",
+        "Type of initialization"
+    ]
+}
