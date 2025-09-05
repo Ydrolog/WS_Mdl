@@ -168,9 +168,9 @@ def get_MdlN_Pa(MdlN: str, MdlN_B=None, verbose=False):
         d_Pa['PoP_Out_MdlN'] = PJ(d_Pa['PoP'], 'Out', MdlN)
         d_Pa['MM'] = PJ(d_Pa['PoP_Out_MdlN'], f'MM-{MdlN}.qgz')
 
-        d_Pa['coupler_Exe'] = PJ(Pa_WS, r'software/iMOD5/bin/iMOD_coupler/imodc.exe')
-        d_Pa['MF6_DLL'] = PJ(PDN(d_Pa['coupler_Exe']), 'libmf6.dll')
-        d_Pa['MSW_DLL'] = PJ(PDN(d_Pa['coupler_Exe']), 'MetaSWAP.dll')
+        d_Pa['coupler_Exe'] = PJ(Pa_WS, r'software/iMOD5/IMC_2024.4/imodc.exe')
+        d_Pa['MF6_DLL'] = PJ(PDN(d_Pa['coupler_Exe']), './modflow6/libmf6.dll')
+        d_Pa['MSW_DLL'] = PJ(PDN(d_Pa['coupler_Exe']), './metaswap/MetaSWAP.dll')
 
         d_Pa['code'] = PJ(Pa_WS, 'code')
         d_Pa['pixi'] = PJ(Pa_WS, 'pixi.toml')
