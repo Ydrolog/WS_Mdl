@@ -600,6 +600,22 @@ def DF_to_MF_block(DF, Min_width=4, indent='    ', Max_decimals=4):
     return '\n'.join(lines) + '\n'
 
 
+def mete_grid_add_missing_Cols(Pa, Pa_Out=None):
+    """
+    Add missing columns to the mete_grid.inp file if required:
+    Ensures the file has 11 columns by adding default 'NoValue' entries for any
+    """
+    if Pa_Out is None:
+        Pa_Out = Pa
+
+    DF_mete_grid = pd.read_csv(PJ(Pa), header=None)
+
+    if DF_mete_grid.shape[1] < 11:
+        for col in range(DF_mete_grid.shape[1], 11):
+            DF_mete_grid[col] = 'NoValue'  # Add missing columns with default value 'NoValue'
+        DF_mete_grid.to_csv(PJ(Pa_Out), header=False, index=False, quoting=2)  # quoting=2 so that strings are quoted
+
+
 # --------------------------------------------------------------------------------
 
 
