@@ -24,8 +24,10 @@ warnings.filterwarnings('ignore', category=UserWarning, module='openpyxl.workshe
 # --------------------------------------------------------------------------------
 Pre_Sign = f'{fg(52)}{"*" * 80}{attr("reset")}\n'
 Sign = f'{fg(52)}\nend_of_transmission\n{"*" * 80}{attr("reset")}\n'
+style_reset = '\033[0m'
 bold = '\033[1m'
-bold_off = '\033[0m'
+dim = '\033[2m'
+
 custom_characters = {
     'negative': '🔴',
     'neutral': '🟡',
@@ -57,7 +59,7 @@ def set_verbose(v: bool):
 
 def bprint(*args, **kwargs):
     """Prints Bold."""
-    print(f'{bold}', *args, f'{bold_off}', **kwargs)
+    print(f'{bold}', *args, f'{style_reset}', **kwargs)
 
 
 # --------------------------------------------------------------------------------
@@ -117,7 +119,7 @@ def paths_from_MdlN_Se(S, MdlN):
     return d_Pa
 
 
-def get_MdlN_paths(MdlN: str, verbose=False):
+def get_MdlN_paths(MdlN: str):
     """
     Returns a dictionary of useful objects (mainly paths, but also Mdl, MdlN) for a given MdlN. Those need to then be passed to arguments, e.g.:
     d_Pa = get_MdlN_paths(MdlN)
@@ -159,6 +161,7 @@ def get_MdlN_Pa(MdlN: str, MdlN_B=None, verbose=False):
         d_Pa['Sim'] = PJ(d_Pa['Pa_Mdl'], 'Sim')  # Sim folder
         d_Pa['Pa_MdlN'] = PJ(d_Pa['Pa_Mdl'], f'Sim/{MdlN}')
         d_Pa['TOML'] = PJ(d_Pa['Pa_MdlN'], 'imod_coupler.toml')
+        d_Pa['TOML_iMOD5'] = PJ(d_Pa['Pa_MdlN'], f'{MdlN}.toml')
         d_Pa['LST_Sim'] = PJ(d_Pa['Pa_MdlN'], 'mfsim.lst')  # Sim LST file
         d_Pa['LST_Mdl'] = PJ(d_Pa['Pa_MdlN'], f'GWF_1/{MdlN}.lst')  # Mdl LST file
         d_Pa['NAM_Sim'] = PJ(d_Pa['Pa_MdlN'], 'MFSIM.NAM')  # Sim LST file
@@ -643,7 +646,7 @@ def S_from_B(MdlN: str):
                     os.startfile(
                         Pa_S
                     )  # Then we'll open it to make any other changes we want to make. Except if it's the BAT file
-                vprint(f'🟢 - {Pa_S.split("/")[-1]} created successfully! (from {Pa_B})')
+                vprint(f'🟢 - {Pa_S.split("/")[-1]} created successfully! {dim}(copy of {Pa_B}){style_reset}')
             else:
                 print(
                     f'🟡 - {Pa_S.split("/")[-1]} already exists. If you want it to be replaced, you have to delete it manually before running this command.'
@@ -664,13 +667,18 @@ def S_from_B(MdlN: str):
             )
     except Exception as e:
         print(f'🔴 - Error copying {Pa_PRJ_B} to {Pa_PRJ}: {e}')
+
     vprint(Sign)
 
 
 def S_from_B_undo(MdlN: str):
     """Will undo S_from_B by deletting S files"""
     vprint(Pre_Sign)
+
+    set_verbose(False)  # Suppress vprint from get_MdlN_paths
     d_Pa = get_MdlN_paths(MdlN)  # Get default directories
+    set_verbose(True)  # Re-enable vprint
+
     MdlN_B, Pa_INI_B, Pa_INI, Pa_BAT_B, Pa_BAT, Pa_Smk, Pa_Smk_B, Pa_PRJ_B, Pa_PRJ = (
         d_Pa[k] for k in ['MdlN_B', 'INI_B', 'INI', 'BAT_B', 'BAT', 'Smk', 'Smk_B', 'PRJ_B', 'PRJ']
     )  # and pass them to objects that will be used in the function
@@ -684,6 +692,7 @@ def S_from_B_undo(MdlN: str):
         for Pa_S in [Pa_Smk, Pa_BAT, Pa_INI, Pa_PRJ]:
             os.remove(Pa_S)  # Delete the S files
             vprint(f'🟢 - {Pa_S.split("/")[-1]} deleted successfully!')
+
     vprint(Sign)
 
 
@@ -787,7 +796,7 @@ def RunMng(cores=None, DAG: bool = True, Cct_Sims=None, no_temp: bool = True):
     cores_per_Sim = cores // Cct_Sims  # Number of cores per Sim
 
     vprint(
-        f'Found {fg("cyan")}{len(DF_q)} queued Sim(s){attr("reset")} in the RunLog. Will run {fg("cyan")}{Cct_Sims} Sim(s) simultaneously{attr("reset")}, using {bold}{cores_per_Sim} cores per Sim{bold_off}.\n'
+        f'Found {fg("cyan")}{len(DF_q)} queued Sim(s){attr("reset")} in the RunLog. Will run {fg("cyan")}{Cct_Sims} Sim(s) simultaneously{attr("reset")}, using {bold}{cores_per_Sim} cores per Sim{style_reset}.\n'
     )
 
     if DF_q.empty:
