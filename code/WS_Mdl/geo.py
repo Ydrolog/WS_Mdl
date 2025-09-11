@@ -15,9 +15,11 @@ from typing import Dict, Optional
 import geopandas as gpd
 import imod
 import numpy as np
+import pandas as pd
 import rasterio
 import xarray as xr
 from rasterio.transform import from_bounds
+from shapely.geometry import LineString, Point
 
 from . import utils as U
 from . import utils_imod as UIM
@@ -685,6 +687,112 @@ def _HD_IDF_GXG_to_TIF_per_L(DF, L, MdlN, Pa_PoP, Pa_HD, crs):
         DA_to_TIF(DA, Pa_Out, d_MtDt, crs=crs, _print=False)
 
     return f'L{L} 🟢'
+
+
+# --------------------------------------------------------------------------------
+
+
+# SFR ----------------------------------------------------------------------------
+def SFR_to_GPKG(MdlN: str, crs: str = 28992, Pa_SFR=None, radius: float = None):
+    """Reads SFR package file and converts it to a GeoDataFrame, then saves it as a GPKG file."""
+
+    # Prep
+    d_Pa = U.get_MdlN_Pa(MdlN)
+
+    if Pa_SFR is None:
+        Pa_SFR = d_Pa['SFR']
+
+    if not os.path.exists(Pa_SFR):
+        vprint(f'🔴 ERROR: SFR file not found at {Pa_SFR}. Cannot proceed.')
+        return
+
+    if radius is None:
+        d_INI = U.INI_to_d(d_Pa['INI'])
+        radius = float(d_INI['CELLSIZE'])
+
+    # Load PkgDt DF
+    l_Lns = U.r_Txt_Lns(Pa_SFR)
+
+    PkgDt_start = next(i for i, l in enumerate(l_Lns) if 'BEGIN PACKAGEDATA' in l) + 2
+    PkgDt_end = next(i for i, l in enumerate(l_Lns) if 'END PACKAGEDATA' in l)
+    PkgDt_Cols = [
+        'ifno',
+        'L',
+        'R',
+        'C',
+        'rlen',
+        'rwid',
+        'rgrd',
+        'rtp',
+        'rbth',
+        'rhk',
+        'man',
+        'ncon',
+        'ustrf',
+        'ndv',
+        'aux',
+        'X',
+        'Y',
+    ]
+
+    PkgDt_data = [l.split() for l in l_Lns[PkgDt_start:PkgDt_end] if l.strip() and not l.strip().startswith('#')]
+
+    for row in PkgDt_data:  # Robust fix: if only one 'NONE' and it's at index 1, replace with three 'NONE's
+        if row.count('NONE') == 1 and row[1] == 'NONE':
+            row[1:2] = ['NONE', 'NONE', 'NONE']
+
+    DF_PkgDt = pd.DataFrame(PkgDt_data, columns=PkgDt_Cols)
+
+    # Clean DF
+    DF_PkgDt = DF_PkgDt.replace(['NONE', '', 'NaN', 'nan'], pd.NA)  # 1) normalize NA-like tokens and strip spaces
+    DF_PkgDt = DF_PkgDt.apply(lambda s: s.str.strip() if s.dtype == 'object' else s)
+
+    l_Num_Cols = [c for c in DF_PkgDt.columns if c != 'aux']  # 2) choose numeric columns and coerce
+    DF_PkgDt[l_Num_Cols] = DF_PkgDt[l_Num_Cols].apply(pd.to_numeric)
+
+    DF_PkgDt = DF_PkgDt.convert_dtypes()  # 3) optional: get nullable ints/floats
+
+    # CONNECTIONDATA
+    Conn_start = next(i for i, l in enumerate(l_Lns) if 'BEGIN CONNECTIONDATA' in l) + 1
+    Conn_end = next(i for i, l in enumerate(l_Lns) if 'END CONNECTIONDATA' in l)
+    Conn_data = [
+        (int(parts[0]), [int(x) for x in parts[1:]])
+        for l in l_Lns[Conn_start + 1 : Conn_end]
+        if (parts := l.strip().split())
+    ]
+
+    DF_Conn = pd.DataFrame(Conn_data, columns=['reach_N', 'connections'])
+    DF_Conn['downstream'] = DF_Conn['connections'].apply(lambda l_Conns: next((-x for x in l_Conns if x < 0), None))
+    DF_Conn['downstream'] = DF_Conn['downstream'].astype('Int64')
+
+    ## Merge
+    DF = pd.merge(DF_PkgDt, DF_Conn[['reach_N', 'downstream']], left_on='ifno', right_on='reach_N', how='left')
+    DF.insert(0, 'reach_N', DF.pop('reach_N'))
+    DF.drop('ifno', axis=1, inplace=True)
+    DF = pd.merge(
+        DF,
+        DF[['reach_N', 'X', 'Y']].rename(columns={'reach_N': 'downstream', 'X': 'DStr_X', 'Y': 'DStr_Y'}),
+        on='downstream',
+        how='left',
+    )
+
+    GDF = DF.copy()
+    GDF['geometry'] = GDF.apply(
+        lambda row: LineString([(row['X'], row['Y']), (row['DStr_X'], row['DStr_Y'])])
+        if pd.notnull(row['DStr_X']) and pd.notnull(row['DStr_Y'])
+        else Point(row['X'], row['Y']).buffer(radius),
+        axis=1,
+    )
+
+    # Save to GPKG
+    GDF = gpd.GeoDataFrame(GDF, geometry='geometry', crs=28992)  # Set CRS as needed
+
+    Pa_SHP = PJ(d_Pa['PoP'], f'In/SFR/SFR_{MdlN}.gpkg')
+
+    os.makedirs(PDN(Pa_SHP), exist_ok=True)
+    GDF.to_file(Pa_SHP, driver='GPKG')
+
+    vprint(f'🟢 - SFR for {MdlN} has been converted to GPKG and saved at {Pa_SHP}.')
 
 
 # --------------------------------------------------------------------------------

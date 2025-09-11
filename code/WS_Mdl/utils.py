@@ -152,12 +152,21 @@ def get_MdlN_Pa(MdlN: str, MdlN_B=None, verbose=False):
         d_Pa['Smk_temp'] = PJ(d_Pa['Pa_Mdl'], 'code/snakemake/temp')
         d_Pa['PoP'] = PJ(d_Pa['Pa_Mdl'], 'PoP')
 
+        d_Pa['code'] = PJ(Pa_WS, 'code')
+        d_Pa['pixi'] = PJ(Pa_WS, 'pixi.toml')
+
+        d_Pa['coupler_Exe'] = PJ(Pa_WS, r'software/iMOD5/IMC_2024.4/imodc.exe')
+        d_Pa['MF6_DLL'] = PJ(PDN(d_Pa['coupler_Exe']), './modflow6/libmf6.dll')
+        d_Pa['MSW_DLL'] = PJ(PDN(d_Pa['coupler_Exe']), './metaswap/MetaSWAP.dll')
+
         ## S Sim paths (grouped based on: pre-run, run, post-run)
+        # Pre-run
         d_Pa['INI'] = PJ(d_Pa['Pa_Mdl'], f'code/Mdl_Prep/Mdl_Prep_{MdlN}.ini')
         d_Pa['BAT'] = PJ(d_Pa['Pa_Mdl'], f'code/Mdl_Prep/Mdl_Prep_{MdlN}.bat')
         d_Pa['PRJ'] = PJ(d_Pa['Pa_Mdl'], f'In/PRJ/{MdlN}.prj')
         d_Pa['Smk'] = PJ(d_Pa['Pa_Mdl'], f'code/snakemake/{MdlN}.smk')
 
+        # Run
         d_Pa['Sim'] = PJ(d_Pa['Pa_Mdl'], 'Sim')  # Sim folder
         d_Pa['Pa_MdlN'] = PJ(d_Pa['Pa_Mdl'], f'Sim/{MdlN}')
         d_Pa['TOML'] = PJ(d_Pa['Pa_MdlN'], 'imod_coupler.toml')
@@ -166,17 +175,12 @@ def get_MdlN_Pa(MdlN: str, MdlN_B=None, verbose=False):
         d_Pa['LST_Mdl'] = PJ(d_Pa['Pa_MdlN'], f'GWF_1/{MdlN}.lst')  # Mdl LST file
         d_Pa['NAM_Sim'] = PJ(d_Pa['Pa_MdlN'], 'MFSIM.NAM')  # Sim LST file
         d_Pa['NAM_Mdl'] = PJ(d_Pa['Pa_MdlN'], f'GWF_1/{MdlN}.NAM')  # Mdl LST file
+        d_Pa['SFR'] = PJ(d_Pa['Pa_MdlN'], f'GWF_1/MODELINPUT/{MdlN}.SFR6')
 
+        # Post-run
         d_Pa['Out_HD'] = PJ(d_Pa['Pa_MdlN'], 'GWF_1/MODELOUTPUT/HEAD/HEAD')
         d_Pa['PoP_Out_MdlN'] = PJ(d_Pa['PoP'], 'Out', MdlN)
         d_Pa['MM'] = PJ(d_Pa['PoP_Out_MdlN'], f'MM-{MdlN}.qgz')
-
-        d_Pa['coupler_Exe'] = PJ(Pa_WS, r'software/iMOD5/IMC_2024.4/imodc.exe')
-        d_Pa['MF6_DLL'] = PJ(PDN(d_Pa['coupler_Exe']), './modflow6/libmf6.dll')
-        d_Pa['MSW_DLL'] = PJ(PDN(d_Pa['coupler_Exe']), './metaswap/MetaSWAP.dll')
-
-        d_Pa['code'] = PJ(Pa_WS, 'code')
-        d_Pa['pixi'] = PJ(Pa_WS, 'pixi.toml')
 
         if MdlN_B:  ## B Sim paths
             for k in list(d_Pa.keys()):
@@ -442,6 +446,17 @@ def MSW_In_to_DF(
     except Exception as e:
         vprint(Fi, '🔴', e)
         return
+
+
+def SFR_to_GDF(Pa_SFR):
+    return
+
+
+def r_Txt_Lns(Pa):
+    """Reads a text file and returns its lines as a list."""
+    with open(Pa, 'r', encoding='utf-8') as f:
+        l_Ln = f.readlines()
+    return l_Ln
 
 
 # --------------------------------------------------------------------------------
