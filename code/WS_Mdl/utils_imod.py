@@ -31,12 +31,12 @@ from .utils import (
     vprint,
 )
 
-custom_characters = {
-    'negative': '🔴',
-    'neutral': '🟡',
-    'positive': '🟢',
-    'no action required': '⚪️',
-    'already done': '⚫️',
+CuCh = {
+    '-': '🔴',  # negative
+    '0': '🟡',  # neutral
+    '+': '🟢',  # positive
+    '=': '⚪️',  # no action required
+    'x': '⚫️',  # already done
 }  # Rule for using multiple e.g. 🟢🟢🟢. Use 2 when a function returns an object. Use 3 for more impactful functions that save a file, or complete a longer process, like commiting git changes. In all other cases use 1.
 
 
@@ -73,7 +73,7 @@ def r_PRJ_with_OBS(Pa_PRJ):
 
 def PRJ_to_DF(MdlN):
     """Leverages r_PRJ_with_OBS to produce a DF with the PRJ data.
-    Could have been included in utils.py based on dependencies, but utils_imod.py fits it better as it's almost alwaysused after r_PRJ_with_OBS (so the libs will be already loaded)."""
+    Could have been included in utils.py based on dependencies, but utils_imod.py fits it better as it's almost always used after r_PRJ_with_OBS (so the libs will be already loaded)."""
 
     d_Pa = get_MdlN_Pa(MdlN)
 
@@ -385,7 +385,7 @@ def mete_grid_Cvt_to_AbsPa(Pa_PRJ: str, PRJ: dict = None):
 
 # --------------------------------------------------------------------------------
 
-# Mdl related -----------------------------------------------------------------
+# Mdl related --------------------------------------------------------------------
 
 
 def Mdl_Prep(MdlN: str, Pa_MF6_DLL: str = None, Pa_MSW_DLL: str = None, verbose=False):

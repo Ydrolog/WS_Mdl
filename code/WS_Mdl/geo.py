@@ -27,12 +27,12 @@ from .utils import Pre_Sign, Sign, vprint
 
 crs = 'EPSG:28992'
 
-custom_characters = {
-    'negative': '🔴',
-    'neutral': '🟡',
-    'positive': '🟢',
-    'no action required': '⚪️',
-    'already done': '⚫️',
+CuCh = {
+    '-': '🔴',  # negative
+    '0': '🟡',  # neutral
+    '+': '🟢',  # positive
+    '=': '⚪️',  # no action required
+    'x': '⚫️',  # already done
 }
 
 

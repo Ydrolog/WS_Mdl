@@ -28,12 +28,12 @@ style_reset = '\033[0m'
 bold = '\033[1m'
 dim = '\033[2m'
 
-custom_characters = {
-    'negative': '🔴',
-    'neutral': '🟡',
-    'positive': '🟢',
-    'no action required': '⚪️',
-    'already done': '⚫️',
+CuCh = {
+    '-': '🔴',  # negative
+    '0': '🟡',  # neutral
+    '+': '🟢',  # positive
+    '=': '⚪️',  # no action required
+    'x': '⚫️',  # already done
 }
 
 VERBOSE = True  # Use set_verbose to change this to true and get more information printed to the console.
