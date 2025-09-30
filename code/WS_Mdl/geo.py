@@ -693,7 +693,7 @@ def _HD_IDF_GXG_to_TIF_per_L(DF, L, MdlN, Pa_PoP, Pa_HD, crs):
 
 
 # SFR ----------------------------------------------------------------------------
-def SFR_to_GPKG(MdlN: str, crs: str = 28992, Pa_SFR=None, radius: float = None):
+def SFR_to_GPkg(MdlN: str, crs: str = 28992, Pa_SFR=None, radius: float = None):
     """Reads SFR package file and converts it to a GeoDataFrame, then saves it as a GPKG file."""
 
     # Prep
@@ -713,8 +713,8 @@ def SFR_to_GPKG(MdlN: str, crs: str = 28992, Pa_SFR=None, radius: float = None):
     # Load PkgDt DF
     l_Lns = U.r_Txt_Lns(Pa_SFR)
 
-    PkgDt_start = next(i for i, l in enumerate(l_Lns) if 'BEGIN PACKAGEDATA' in l) + 2
-    PkgDt_end = next(i for i, l in enumerate(l_Lns) if 'END PACKAGEDATA' in l)
+    PkgDt_start = next(i for i, l in enumerate(l_Lns) if 'BEGIN PACKAGEDATA' in l.upper()) + 2
+    PkgDt_end = next(i for i, l in enumerate(l_Lns) if 'END PACKAGEDATA' in l.upper())
     PkgDt_Cols = [
         'ifno',
         'L',
@@ -753,8 +753,8 @@ def SFR_to_GPKG(MdlN: str, crs: str = 28992, Pa_SFR=None, radius: float = None):
     DF_PkgDt = DF_PkgDt.convert_dtypes()  # 3) optional: get nullable ints/floats
 
     # CONNECTIONDATA
-    Conn_start = next(i for i, l in enumerate(l_Lns) if 'BEGIN CONNECTIONDATA' in l) + 1
-    Conn_end = next(i for i, l in enumerate(l_Lns) if 'END CONNECTIONDATA' in l)
+    Conn_start = next(i for i, l in enumerate(l_Lns) if 'BEGIN CONNECTIONDATA' in l.upper()) + 1
+    Conn_end = next(i for i, l in enumerate(l_Lns) if 'END CONNECTIONDATA' in l.upper())
     Conn_data = [
         (int(parts[0]), [int(x) for x in parts[1:]])
         for l in l_Lns[Conn_start + 1 : Conn_end]

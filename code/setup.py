@@ -30,6 +30,7 @@ setup(
             'o_NAMs=WS_Mdl.scripts.o_NAMs:main',  # Opens NAM files for the provided MdlN.
             'rerun_Sim=WS_Mdl.scripts.rerun_Sim:main',  # Reruns the Sim for the provided MdlN.
             'o_=WS_Mdl.scripts.o_:main',  # Opens LST files for the provided MdlN.
+            'SFR_to_GPkg=WS_Mdl.scripts.SFR_to_GPkg:main',  # Converts SFR data to GeoPackage format.
         ]
     },
 )

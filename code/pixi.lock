@@ -112,6 +112,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/ipython_pygments_lexers-1.1.1-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/ipywidgets-8.1.7-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/isoduration-20.11.0-pyhd8ed1ab_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/itables-2.5.2-pyh80e38bb_1.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/jasper-4.2.7-h8ad263b_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/jedi-0.19.2-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/jinja2-3.1.6-pyhd8ed1ab_0.conda
@@ -2014,6 +2015,22 @@ packages:
   - pkg:pypi/isoduration?source=hash-mapping
   size: 19832
   timestamp: 1733493720346
+- conda: https://conda.anaconda.org/conda-forge/noarch/itables-2.5.2-pyh80e38bb_1.conda
+  sha256: 19997a33055111de3567a950e3ed57cede73c9c42d546be0c96ea297be9c7d30
+  md5: 8d417a153364d3fdb19511bb2d3e0f22
+  depends:
+  - ipython
+  - numpy
+  - packaging
+  - pandas
+  - python >=3.10
+  - typing-extensions
+  license: MIT
+  license_family: MIT
+  purls:
+  - pkg:pypi/itables?source=hash-mapping
+  size: 1266731
+  timestamp: 1756845271815
 - conda: https://conda.anaconda.org/conda-forge/win-64/jasper-4.2.7-h8ad263b_0.conda
   sha256: fb38c0368c931efb8e5b0daae3a161c5a078c65cde6134cb3ccef3c91b9ee1e3
   md5: 003bfb6efdbc87d2ee71206a19af65f0
@@ -5398,7 +5415,7 @@ packages:
 - pypi: C:/Users/Karam014/OneDrive - Universiteit Utrecht/WS_Mdl/code
   name: ws-mdl
   version: '0.1'
-  sha256: a1d3e8d64e14d09d521bb76c67756e79c64bfe45b9c8398433ce6f18b7819919
+  sha256: d24db4ced79f715baff73e1c337a4ae958f0298d6880d76bb0cafc7862d2316c
   requires_dist:
   - pandas
   - colored

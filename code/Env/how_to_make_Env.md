@@ -41,7 +41,7 @@ pixi install --frozen # This uses both the pixi.lock and pixi.toml files to ensu
 pixi install # This only requires the pixi.toml file. It should work, but it's less secure.
 
 7. Optional: **WS_Mdl refresh**:
-pixi run --manifest-path C:/OD/WS_Mdl/code/pixi.toml --no-lockfile-update pip install -e code # (pip install -e C:\OD\WS_Mdl\code (--use-pep517 --no-build-isolation) could also work)
+pixi run --manifest-path C:/OD/WS_Mdl/code/pixi.toml --no-lockfile-update pip install -e code # (pip install -e C:\OD\WS_Mdl\code (--use-pep517 --no-build-isolation) could also work) # This might be redundant, i.e. updates are reflected imedeately.
 Run this whenever you want to update WS_Mdl. It's in edit mode, so any small changes (e.g. code in exiting files) are updated automatically. I use this when I make a new terminal tool and I want to add it to path.
 
 This will give you an environment identical to the Sim's.
