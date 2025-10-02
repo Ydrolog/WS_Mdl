@@ -20,9 +20,9 @@ jupyter = "*"
 pandamesh = "*"
 pip = "*"
 pytest = "*"
-sfrmaker = ">=0.11.3,<0.12"
 itables = ">=2.5.2,<3"
 
 [pypi-dependencies]
 imod = { git = "https://github.com/Deltares/imod-python.git", rev = "28de6f78680c730a23a67474396f9466b18dcd12"}
 WS_Mdl = { path = 'C:\OD\WS_Mdl\code', editable = true }
+sfrmaker = "==0.12.1"

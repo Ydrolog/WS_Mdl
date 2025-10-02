@@ -894,9 +894,9 @@ def RunMng(cores=None, DAG: bool = True, Cct_Sims=None, no_temp: bool = True):
     vprint(Sign)
 
 
-def reset_Sim(MdlN: str):
+def reset_Sim(MdlN: str, ask_permission: bool = True, Pa_log=Pa_log):
     """
-    Resets the simulation by:
+    Resets the simulation (like if it never happened, but with the files to recreate it still there.) by:
         1. Deleting all files in the MldN folder in the Sim folder.
         2. Clearing log.csv.
         3. Deletes Smk temp files for MdlN.
@@ -904,13 +904,16 @@ def reset_Sim(MdlN: str):
     """
 
     vprint(Pre_Sign)
-    permission = (
-        input(
-            f'This will delete the Sim/{MdlN} folder and clear the corresponding line of the log.csv. Are you sure you want to proceed? (y/n): '
+    if ask_permission:
+        permission = (
+            input(
+                f'This will delete the Sim/{MdlN} folder and change the status of the corresponding line of log.csv to "removed_Out". Are you sure you want to proceed? (y/n):\n'
+            )
+            .strip()
+            .lower()
         )
-        .strip()
-        .lower()
-    )
+    else:
+        permission = 'y'
 
     if permission == 'y':
         d_Pa = get_MdlN_Pa(MdlN)  # Get default directories
@@ -927,7 +930,7 @@ def reset_Sim(MdlN: str):
         ):  # Check if the Sim folder exists or if the MdlN is in the log file
             i = 0
 
-            try:
+            try:  # --- Remove Sim folder ---
                 if not os.path.exists(Pa_MdlN):
                     raise FileNotFoundError(f'{Pa_MdlN} does not exist.')
                 sp.run(f'rmdir /S /Q "{Pa_MdlN}"', shell=True)  # Delete the entire Sim folder
@@ -936,7 +939,7 @@ def reset_Sim(MdlN: str):
             except Exception as e:
                 vprint(f'🔴 - failed to delete Sim folder: {e}')
 
-            try:
+            try:  # --- Remove log.csv entry ---
                 DF[DF['MdlN'].str.lower() != MdlN.lower()].to_csv(
                     Pa_log, index=False
                 )  # Remove the log entry for this model
@@ -945,7 +948,7 @@ def reset_Sim(MdlN: str):
             except Exception as e:
                 vprint(f'🔴 - failed to update log.csv file: {e}')
 
-            try:
+            try:  # --- Remove temp Smk files ---
                 if l_temp:
                     for j in l_temp:
                         os.remove(PJ(Pa_Smk_temp, j))
@@ -956,10 +959,10 @@ def reset_Sim(MdlN: str):
             except Exception as e:
                 vprint(f'🔴 - failed to remove Smk temp files: {e}')
 
-            try:
+            try:  # --- Remove PoP folder ---
                 if not os.path.exists(d_Pa['PoP_Out_MdlN']):
                     raise FileNotFoundError(f'{d_Pa["PoP_Out_MdlN"]} does not exist.')
-                sp.run(f'rmdir /S /Q "{d_Pa["PoP_Out_MdlN"]}"', shell=True)  # Delete the entire Sim folder
+                sp.run(f'rmdir /S /Q "{d_Pa["PoP_Out_MdlN"]}"', shell=True)  # Delete the entire PoP folder
                 vprint('🟢 - PoP Out folder removed successfully.')
                 i += 1
             except Exception as e:
@@ -969,6 +972,65 @@ def reset_Sim(MdlN: str):
                 vprint('\n🟢🟢🟢 - ALL files were successfully removed.')
             else:
                 vprint(f'🟡🟡🟡 - {i}/4 sub-processes finished successfully.')
+        else:
+            print(
+                '🔴🔴🔴 - Items do not exist (Sim folder, log entry, Smk log files, PoP Out folder). No need to reset.'
+            )
+    else:
+        print('🔴🔴🔴 - Reset cancelled by user (you).')
+    vprint(Sign)
+
+
+def remove_Sim_Out(MdlN: str, ask_permission: bool = True, Pa_log=Pa_log):
+    """
+    Removes Sim Out, but not the PoP. Specifically:
+        1. Deletes all files in the MldN folder in the Sim folder.
+        2. Changes log.csv status to "removed_Out".
+    """
+
+    vprint(Pre_Sign)
+    if ask_permission:
+        permission = (
+            input(
+                f'This will delete the Sim/{MdlN} folder and change the status of the corresponding line of log.csv to "removed_Out". Are you sure you want to proceed? (y/n):\n'
+            )
+            .strip()
+            .lower()
+        )
+    else:
+        permission = 'y'
+
+    if permission == 'y':
+        d_Pa = get_MdlN_Pa(MdlN)  # Get default directories
+        Pa_MdlN = d_Pa['Pa_MdlN']
+        DF = pd.read_csv(Pa_log)  # Read the log file
+
+        if os.path.exists(Pa_MdlN) or (
+            MdlN.lower() in DF['MdlN'].str.lower().values
+        ):  # Check if the Sim folder exists or if the MdlN is in the log file
+            i = 0
+
+            try:  # --- Remove Sim folder ---
+                if not os.path.exists(Pa_MdlN):
+                    raise FileNotFoundError(f'{Pa_MdlN} does not exist.')
+                sp.run(f'rmdir /S /Q "{Pa_MdlN}"', shell=True)  # Delete the entire Sim folder
+                vprint('🟢 - Sim folder removed successfully.')
+                i += 1
+            except Exception as e:
+                vprint(f'🔴 - failed to delete Sim folder: {e}')
+
+            try:  # --- Change log.csv entry ---
+                DF.loc[DF['MdlN'].str.lower() == MdlN.lower(), 'End Status'] = 'Removed Output'
+                DF.to_csv(Pa_log, index=False)  # Save back to CSV
+                vprint('🟢 - log.csv file updated successfully.')
+                i += 1
+            except Exception as e:
+                vprint(f'🔴 - failed to update log.csv file: {e}')
+
+            if i == 2:
+                vprint('\n🟢🟢🟢 - ALL files were successfully removed.')
+            else:
+                vprint(f'🟡🟡🟡 - {i}/2 sub-processes finished successfully.')
         else:
             print(
                 '🔴🔴🔴 - Items do not exist (Sim folder, log entry, Smk log files, PoP Out folder). No need to reset.'
