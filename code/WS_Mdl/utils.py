@@ -524,7 +524,8 @@ def o_(key, *l_MdlN, Pa=r'C:\Program Files\Notepad++\notepad++.exe'):
         raise ValueError(f'\nInvalid key: {key}.\nValid keys are: {", ".join(get_MdlN_Pa("NBr1").keys())}')
         return
 
-    vprint(f'{"-" * 100}\nOpening {key} file(s) for specified run(s) with the default program.\n')
+    vprint(Pre_Sign)
+    vprint(f'\nOpening {key} file(s) for specified run(s) with the default program.\n')
     vprint(
         f"It's assumed that Notepad++ is installed in: {Pa}.\nIf that's not True, provide the correct path to Notepad++ (or another text editor) as the last argument (Pa) to this function.\n"
     )
@@ -534,6 +535,7 @@ def o_(key, *l_MdlN, Pa=r'C:\Program Files\Notepad++\notepad++.exe'):
     for f in l_Pa:
         sp.Popen([Pa] + [f])
         vprint(f'🟢 - {f}')
+    vprint(Sign)
 
 
 def Sim_Cfg(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
@@ -797,7 +799,7 @@ def _RunMng(args):
     vprint(f'{fg("cyan")}{PBN(Pa_Smk)}{attr("reset")}\n')
 
     # add once near your other paths
-    Pa_Pixi = PJ(Pa_WS, 'pixi.toml')  # <-- path to the manifest file
+    Pa_Pixi = PJ(Pa_WS, 'code/pixi.toml')  # <-- path to the manifest file
 
     try:
         if generate_dag:  # DAG parameter passed from RunMng
@@ -1143,7 +1145,7 @@ def freeze_pixi_env(MdlN: str):
 
         # Get the tag of the latest commit (if any)
         try:
-            tag_result = run_cmd(['git', 'describe', '--tags', '--exact-match', 'HEAD'], capture=True)
+            tag_result = run_cmd(['git', 'describe', '--tags', '--always', 'HEAD'], capture=True)
             tag = tag_result.stdout.strip()
             print(f'🟢 Tag: {tag}')
         except sp.CalledProcessError:
