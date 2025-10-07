@@ -130,13 +130,15 @@ def get_MdlN_paths(MdlN: str):
     return d_Pa
 
 
-def get_MdlN_Pa_iM5(MdlN: str, MdlN_B=None, verbose=False):
+def get_MdlN_Pa(MdlN: str, MdlN_B=None, iMOD5=False):
     """
-    #Improved get_MdlN_paths.# OLD VERSION (iMOD5)
+    *** Improved get_MdlN_paths. ***
     - Doesn't read RunLog, unless B is set to True. Thus it's much faster.
     - Returns a dictionary of useful objects (mainly paths, but also Mdl, MdlN) for a given MdlN. Those need to then be passed to arguments, e.g.
         d_Pa = get_MdlN_Pa(MdlN)
         Pa_INI = d_Pa['Pa_INI'].
+
+    This function has been modified since NBr32, to support imod python's folder/file structure. If you need to use the old folder structure, set iMOD5=True.
     """
 
     if MdlN_B:
@@ -174,63 +176,16 @@ def get_MdlN_Pa_iM5(MdlN: str, MdlN_B=None, verbose=False):
         d_Pa['LST_Sim'] = PJ(d_Pa['Pa_MdlN'], 'mfsim.lst')  # Sim LST file
         d_Pa['LST_Mdl'] = PJ(d_Pa['Pa_MdlN'], f'GWF_1/{MdlN}.lst')  # Mdl LST file
         d_Pa['NAM_Sim'] = PJ(d_Pa['Pa_MdlN'], 'MFSIM.NAM')  # Sim LST file
-        d_Pa['NAM_Mdl'] = PJ(d_Pa['Pa_MdlN'], f'GWF_1/{MdlN}.NAM')  # Mdl LST file
-        d_Pa['SFR'] = PJ(d_Pa['Pa_MdlN'], f'GWF_1/MODELINPUT/{MdlN}.SFR6')
-
-        # Post-run
-        d_Pa['Out_HD'] = PJ(d_Pa['Pa_MdlN'], 'GWF_1/MODELOUTPUT/HEAD/HEAD')
-        d_Pa['PoP_Out_MdlN'] = PJ(d_Pa['PoP'], 'Out', MdlN)
-        d_Pa['MM'] = PJ(d_Pa['PoP_Out_MdlN'], f'MM-{MdlN}.qgz')
-
-        if MdlN_B:  ## B Sim paths
-            for k in list(d_Pa.keys()):
-                if f'{k}_B' not in d_Pa:
-                    d_Pa[f'{k}_B'] = d_Pa[k].replace(MdlN, MdlN_B)
-    return d_Pa
-
-
-def get_MdlN_Pa(MdlN: str, MdlN_B=None, verbose=False):
-    """
-    get_MdlN_Pa copy, with paths changes for iMOD Python instead of iMOD5's default folder structure
-    """
-
-    if MdlN_B:
-        d_Pa = paths_from_MdlN_Se(MdlN_Se_from_RunLog((MdlN)), MdlN)
-    else:
-        ## Non paths + General paths
-        Mdl = get_Mdl(MdlN)  # Get model alias from MdlN
-
-        d_Pa = {}
-        d_Pa['Mdl'] = Mdl
-        d_Pa['MdlN'] = MdlN
-        d_Pa['Pa_Mdl'] = PJ(Pa_WS, f'models/{Mdl}')
-        d_Pa['Smk_temp'] = PJ(d_Pa['Pa_Mdl'], 'code/snakemake/temp')
-        d_Pa['PoP'] = PJ(d_Pa['Pa_Mdl'], 'PoP')
-
-        d_Pa['code'] = PJ(Pa_WS, 'code')
-        d_Pa['pixi'] = PJ(Pa_WS, 'pixi.toml')
-
-        d_Pa['coupler_Exe'] = PJ(Pa_WS, r'software/iMOD5/IMC_2024.4/imodc.exe')
-        d_Pa['MF6_DLL'] = PJ(PDN(d_Pa['coupler_Exe']), './modflow6/libmf6.dll')
-        d_Pa['MSW_DLL'] = PJ(PDN(d_Pa['coupler_Exe']), './metaswap/MetaSWAP.dll')
-
-        ## S Sim paths (grouped based on: pre-run, run, post-run)
-        # Pre-run
-        d_Pa['INI'] = PJ(d_Pa['Pa_Mdl'], f'code/Mdl_Prep/Mdl_Prep_{MdlN}.ini')
-        d_Pa['BAT'] = PJ(d_Pa['Pa_Mdl'], f'code/Mdl_Prep/Mdl_Prep_{MdlN}.bat')
-        d_Pa['PRJ'] = PJ(d_Pa['Pa_Mdl'], f'In/PRJ/{MdlN}.prj')
-        d_Pa['Smk'] = PJ(d_Pa['Pa_Mdl'], f'code/snakemake/{MdlN}.smk')
-
-        # Run
-        d_Pa['Sim'] = PJ(d_Pa['Pa_Mdl'], 'Sim')  # Sim folder
-        d_Pa['Pa_MdlN'] = PJ(d_Pa['Pa_Mdl'], f'Sim/{MdlN}')
-        d_Pa['TOML'] = PJ(d_Pa['Pa_MdlN'], 'imod_coupler.toml')
-        d_Pa['TOML_iMOD5'] = PJ(d_Pa['Pa_MdlN'], f'{MdlN}.toml')
-        d_Pa['LST_Sim'] = PJ(d_Pa['Pa_MdlN'], 'mfsim.lst')  # Sim LST file
-        d_Pa['LST_Mdl'] = PJ(d_Pa['Pa_MdlN'], f'GWF_1/{MdlN}.lst')  # Mdl LST file
-        d_Pa['NAM_Sim'] = PJ(d_Pa['Pa_MdlN'], 'MFSIM.NAM')  # Sim LST file
-        d_Pa['NAM_Mdl'] = PJ(d_Pa['Pa_MdlN'], 'modflow6/imported_model/imported_model.NAM')  # Mdl LST file
-        d_Pa['SFR'] = PJ(d_Pa['Pa_MdlN'], f'modflow6/imported_model/{MdlN}.SFR6')
+        d_Pa['NAM_Mdl'] = (
+            PJ(d_Pa['Pa_MdlN'], 'modflow6/imported_model/imported_model.NAM')
+            if not iMOD5
+            else PJ(d_Pa['Pa_MdlN'], f'GWF_1/{MdlN}.NAM')
+        )
+        d_Pa['SFR'] = (
+            PJ(d_Pa['Pa_MdlN'], f'modflow6/imported_model/{MdlN}.SFR6')
+            if not iMOD5
+            else PJ(d_Pa['Pa_MdlN'], f'GWF_1/MODELINPUT/{MdlN}.SFR6')
+        )
 
         # Post-run
         d_Pa['Out_HD'] = PJ(d_Pa['Pa_MdlN'], 'GWF_1/MODELOUTPUT/HEAD/HEAD')

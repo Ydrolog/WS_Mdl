@@ -1,4 +1,5 @@
 # ***** Similar to utils.py, but those utilize imod, which takes a long time to load. *****
+import math
 import os
 import re
 import subprocess as sp
@@ -41,15 +42,21 @@ CuCh = {
 
 
 # PRJ related --------------------------------------------------------------------
-def r_PRJ_with_OBS(Pa_PRJ):
-    """imod.formats.prj.read_projectfile struggles with .prj files that contain OBS blocks. This will read the PRJ file and return a tuple. The first item is a PRJ dictionary (as imod.formats.prj would return) and also a list of the OBS block lines."""
+def r_PRJ_with_OBS(Pa_PRJ, remove_SS=True, season_to_DT=False):
+    """
+    imod.formats.prj.read_projectfile struggles with .prj files that contain OBS blocks. This will read the PRJ file and return a tuple. The first item is a PRJ dictionary (as imod.formats.prj would return) and also a list of the OBS block lines.
+
+    Pa_PRJ: a the path of the PRJ file.
+    remove_SS: if True, removes any steady state periods from the PRJ file. This is useful when working with transient models only, as steady state periods can cause issues with some packages (e.g. RIV, DRN) when using imod python.
+    season_to_DT: CAUTION!!! this can be set to True so that imod.formats.prj.read_projectfile() doesn't fail when it encounters season names (winter, summer) in the PRJ blocks, but it won't apply them properly (as iMOD5 would do). This function would need to be upgraded for that to happen.
+    """
     with open(Pa_PRJ, 'r') as f:
         lines = f.readlines()
 
     l_filtered_Lns, l_OBS_Lns = [], []
     skip_block = False
 
-    for line in lines:
+    for line in lines:  # Separate OBS block from the rest of the PRJ file
         if '(obs)' in line.lower():  # Start of OBS block
             skip_block = True
             l_OBS_Lns.append(line)  # Keep the header
@@ -59,6 +66,37 @@ def r_PRJ_with_OBS(Pa_PRJ):
             l_OBS_Lns.append(line)  # Store OBS content
         else:
             l_filtered_Lns.append(line)  # Keep everything else
+
+    get_SS_N, N_SS = False, 0
+    if remove_SS:
+        for i, Ln in enumerate(l_filtered_Lns[:]):  # Iterate over a copy of the list to allow removal
+            if 'STEADY-STATE' in Ln.upper():  # Identify steady state period lines
+                l_filtered_Lns.pop(i)  # Remove the steady state period line
+                get_SS_N = True
+            elif get_SS_N:
+                l_filtered_Lns.pop(i)  # Remove the line with the number of time steps
+                l_SS_Ln = Ln.replace('\n', '').split(',')
+                N_SS = math.prod([int(x) for x in l_SS_Ln])
+                get_SS_N = False
+            elif N_SS > 0:
+                l_filtered_Lns.pop(i)  # Remove the steady state time step lines
+                N_SS -= 1
+
+    # Replace seasons
+    if season_to_DT:
+        season_map = {}
+        for i, Ln in enumerate(l_filtered_Lns[:]):  # Iterate over a copy of the list to allow modification
+            if 'periods' in Ln.lower():  # Identify season lines
+                record_periods = True
+                l_filtered_Lns.pop(i)
+            elif record_periods and Ln.strip() == '':  # End of season block
+                record_periods = False
+            else:
+                if 'winter' in Ln.lower():
+                    season_map['winter'] = l_filtered_Lns[i + 1].strip()  # Next line should contain the date
+                elif 'summer' in Ln.lower():
+                    season_map['summer'] = l_filtered_Lns[i + 1].strip()  # Next line should contain the date
+    l_filtered_Lns = [season_map.get(x, x) for x in l_filtered_Lns]
 
     # Write to a temporary file
     with tempfile.NamedTemporaryFile(delete=False, mode='w', suffix='.prj') as temp_file:
@@ -527,13 +565,16 @@ def Mdl_Prep(MdlN: str, Pa_MF6_DLL: str = None, Pa_MSW_DLL: str = None, verbose=
 
 
 # PrSimP related -----------------------------------------------------------------
-def add_OBS(MdlN: str, Opt: str = 'BEGIN OPTIONS\nEND OPTIONS'):
-    """Adds OBS file(s) from PRJ file OBS block to Mdl Sim (which iMOD can't do). Thus the OBS file needs to be written, and then a link to the OBS file needs to be created within the NAM file.
-    Assumes OBS IPF file contains the following parameters/columns: 'Id', 'L', 'X', 'Y'"""
+def add_OBS(MdlN: str, Opt: str = 'BEGIN OPTIONS\nEND OPTIONS', iMOD5=False):
+    """
+    Adds OBS file(s) from PRJ file OBS block to Mdl Sim (which iMOD can't do). Thus the OBS file needs to be written, and then a link to the OBS file needs to be created within the NAM file.
+    Assumes OBS IPF file contains the following parameters/columns: 'Id', 'L', 'X', 'Y'
+    for iMOD5 option check WS_Mdl.utils.get_MdlN_Pa() description.
+    """
 
     vprint(Pre_Sign)
     vprint('Running add_OBS ...')
-    d_Pa = get_MdlN_Pa(MdlN)  # Get default directories
+    d_Pa = get_MdlN_Pa(MdlN, iMOD5=iMOD5)  # Get default directories
     Pa_MdlN, Pa_INI, Pa_PRJ = (
         d_Pa[k] for k in ['Pa_MdlN', 'INI', 'PRJ']
     )  # and pass them to objects that will be used in the function
