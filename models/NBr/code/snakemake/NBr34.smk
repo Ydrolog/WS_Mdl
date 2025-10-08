@@ -26,26 +26,29 @@ Mdl         =   ''.join([i for i in MdlN if i.isalpha()])
 rule_       =   "(L == 1)"
 
 ## Paths
-Pa_Mdl          =   PJ(Pa_WS, f'models/{Mdl}') 
-workdir:            Pa_Mdl
-Pa_Smk          =   PJ(Pa_Mdl, 'code/snakemake')
-Pa_temp         =   PJ(Pa_Smk, 'temp')
-Pa_Sim          =   PJ(Pa_Mdl, 'Sim')
-Pa_MdlN         =   PJ(Pa_Sim, f'{MdlN}')
-Pa_BAT_RUN      =   PJ(Pa_MdlN, 'RUN.BAT')
-Pa_OBS, Pa_NAM  =   [PJ(Pa_MdlN, 'GWF_1', i) for i in [f'MODELINPUT/{MdlN}.OBS6', f'{MdlN}.NAM']]
-Pa_HED, Pa_CBC  =   [PJ(Pa_MdlN, 'GWF_1/MODELOUTPUT', i) for i in ['HEAD/HEAD.HED', 'BUDGET/BUDGET.CBC']]
+Pa_Mdl                          =   PJ(Pa_WS, f'models/{Mdl}') 
+workdir:                            Pa_Mdl
+Pa_Smk                          =   PJ(Pa_Mdl, 'code/snakemake')
+Pa_temp                         =   PJ(Pa_Smk, 'temp')
+Pa_Sim                          =   PJ(Pa_Mdl, 'Sim')
+Pa_MdlN                         =   PJ(Pa_Sim, f'{MdlN}')
+Pa_BAT_RUN                      =   PJ(Pa_MdlN, 'RUN.BAT')
+Pa_OBS, Pa_NAM                  =   [PJ(Pa_MdlN, 'GWF_1', i) for i in [f'MODELINPUT/{MdlN}.OBS6', f'{MdlN}.NAM']]
+Pa_RIV_OBS_Src, Pa_DRN_OBS_Src  =   [PJ(Pa_Mdl, f"In/OBS/{i}/{MdlN}/{MdlN}.{i}.OBS6") for i in ['RIV', 'DRN']]
+Pa_RIV_OBS_Dst, Pa_DRN_OBS_Dst  =   [PJ(Pa_MdlN, f"GWF_1/MODELINPUT/{MdlN}.{i}.OBS6") for i in ['RIV', 'DRN']]
+Pa_HED, Pa_CBC                  =   [PJ(Pa_MdlN, 'GWF_1/MODELOUTPUT', i) for i in ['HEAD/HEAD.HED', 'BUDGET/BUDGET.CBC']]
+l_Fi_to_git = [PJ(Pa_WS, i) for i in ['code/pixi.toml', 'code/pixi.lock', 'code/WS_Mdl']] # If any of these code files changes, the 
 
 git_hash = shell("git rev-parse HEAD", read=True).strip()
 git_tag  = shell("git describe --tags --always", read=True, allow_error=True).strip() or "no_tag"
 
 ## Temp files (for completion validation)
-log_Init           =   f"{Pa_Smk}/temp/Log_init_{MdlN}"
-log_Sim            =   f"{Pa_Smk}/temp/Log_Sim_{MdlN}"
-log_PRJ_to_TIF     =   f"{Pa_Smk}/temp/Log_PRJ_to_TIF_{MdlN}"
-log_GXG            =   f"{Pa_Smk}/temp/Log_GXG_{MdlN}"
-log_Up_MM          =   f"{Pa_Smk}/temp/Log_Up_MM_{MdlN}"
-log_freeze_env          =   f"{Pa_Smk}/temp/Log_freeze_env_{MdlN}"
+log_Init        =   f"{Pa_Smk}/temp/Log_init_{MdlN}"
+log_Sim         =   f"{Pa_Smk}/temp/Log_Sim_{MdlN}"
+log_PRJ_to_TIF  =   f"{Pa_Smk}/temp/Log_PRJ_to_TIF_{MdlN}"
+log_GXG         =   f"{Pa_Smk}/temp/Log_GXG_{MdlN}"
+log_Up_MM       =   f"{Pa_Smk}/temp/Log_Up_MM_{MdlN}"
+log_freeze_env  =   f"{Pa_temp}/Log_freeze_env_{MdlN}"
 
 # --- Rules ---
 
@@ -81,16 +84,16 @@ rule log_Init: # Sets status to running, and writes other info about therun. Has
         Up_log(MdlN, {  'Git hash': git_hash,
                         'Git tag': git_tag}) # Log git info
 
-rule freeze_env_to_yml:
-    output: 
-        log_freeze_env
+rule freeze_pixi_env:
+    input:
+        l_Fi_to_git
+    output:
+        temp(log_freeze_env)
     run:
-        try:
-            sp.run(["python", PJ(Pa_WS,"code/Env/freeze_env_WS.py"), "--MdlN", MdlN], check=True)
-            pathlib.Path(output[0]).touch()
-        except Exception:
-            print(f'Error will be written to {output[0]}')
-            open(output[0], "w").close()
+        git_hash, git_tag = U.freeze_pixi_env(MdlN)
+        Up_log(MdlN, {  'Git hash': git_hash,
+                        'Git tag': git_tag}) # Log git info
+        pathlib.Path(output[0]).touch() # Create the file to mark the rule as done.
 
 rule Mdl_Prep: # Prepares Sim Ins (from Ins) via BAT file.
     input:
@@ -113,10 +116,33 @@ rule add_OBS:
     run:
         UIM.add_OBS(MdlN, iMOD5=True)
 
+rule add_RIV_OBS_copy: # By copying file.
+    input:
+        Pa_BAT_RUN,
+        Pa_RIV_OBS_Src
+    output:
+        Pa_RIV_OBS_Dst
+    run:
+        sh.copy2(Pa_RIV_OBS_Src, Pa_RIV_OBS_Dst)
+        U.add_OBS_to_MF_In(MdlN=MdlN, PKG='RIV', str_OBS=f" OBS6 ./GWF_1/MODELINPUT/{MdlN}.{PKG}.OBS6 {PKG}\n")
+
+rule add_DRN_OBS_copy: # By copying file.
+    input:
+        Pa_BAT_RUN,
+        Pa_DRN_OBS_Src
+    output:
+        Pa_DRN_OBS_Dst
+    run:
+        sh.copy2(Pa_DRN_OBS_Src, Pa_DRN_OBS_Dst)
+        U.add_OBS_to_MF_In(MdlN=MdlN, PKG='DRN', str_OBS=f" OBS6 ./GWF_1/MODELINPUT/{MdlN}.{PKG}.OBS6 {PKG}\n")
+
+
 ## -- Sim ---
 rule Sim: # Runs the simulation via BAT file.
     input:
-        Pa_OBS
+        Pa_OBS,
+        Pa_RIV_OBS_Dst,
+        Pa_DRN_OBS_Dst,
     output:
         temp(log_Sim)
     run:
