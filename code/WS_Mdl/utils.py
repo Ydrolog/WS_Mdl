@@ -152,6 +152,7 @@ def get_MdlN_Pa(MdlN: str, MdlN_B=None, iMOD5=False):
         d_Pa['MdlN'] = MdlN
         d_Pa['Pa_Mdl'] = PJ(Pa_WS, f'models/{Mdl}')
         d_Pa['Smk_temp'] = PJ(d_Pa['Pa_Mdl'], 'code/snakemake/temp')
+        d_Pa['In'] = PJ(d_Pa['Pa_Mdl'], 'In')
         d_Pa['PoP'] = PJ(d_Pa['Pa_Mdl'], 'PoP')
 
         d_Pa['code'] = PJ(Pa_WS, 'code')
@@ -161,14 +162,14 @@ def get_MdlN_Pa(MdlN: str, MdlN_B=None, iMOD5=False):
         d_Pa['MF6_DLL'] = PJ(PDN(d_Pa['coupler_Exe']), './modflow6/libmf6.dll')
         d_Pa['MSW_DLL'] = PJ(PDN(d_Pa['coupler_Exe']), './metaswap/MetaSWAP.dll')
 
-        ## S Sim paths (grouped based on: pre-run, run, post-run)
-        # Pre-run
+        ## S Sim paths (grouped based on: pre-Sim, run, post-Sim)
+        # Pre-Sim
         d_Pa['INI'] = PJ(d_Pa['Pa_Mdl'], f'code/Mdl_Prep/Mdl_Prep_{MdlN}.ini')
         d_Pa['BAT'] = PJ(d_Pa['Pa_Mdl'], f'code/Mdl_Prep/Mdl_Prep_{MdlN}.bat')
         d_Pa['PRJ'] = PJ(d_Pa['Pa_Mdl'], f'In/PRJ/{MdlN}.prj')
         d_Pa['Smk'] = PJ(d_Pa['Pa_Mdl'], f'code/snakemake/{MdlN}.smk')
 
-        # Run
+        # Sim
         d_Pa['Sim'] = PJ(d_Pa['Pa_Mdl'], 'Sim')  # Sim folder
         d_Pa['Pa_MdlN'] = PJ(d_Pa['Pa_Mdl'], f'Sim/{MdlN}')
         d_Pa['TOML'] = PJ(d_Pa['Pa_MdlN'], 'imod_coupler.toml')
@@ -180,6 +181,9 @@ def get_MdlN_Pa(MdlN: str, MdlN_B=None, iMOD5=False):
             PJ(d_Pa['Pa_MdlN'], 'modflow6/imported_model/imported_model.NAM')
             if not iMOD5
             else PJ(d_Pa['Pa_MdlN'], f'GWF_1/{MdlN}.NAM')
+        )
+        d_Pa['Sim_In'] = (
+            PJ(d_Pa['Pa_MdlN'], 'modflow6\imported_model') if not iMOD5 else PJ(d_Pa['Pa_MdlN'], 'GWF_1/MODELINPUT')
         )
         d_Pa['SFR'] = (
             PJ(d_Pa['Pa_MdlN'], f'modflow6/imported_model/{MdlN}.SFR6')
@@ -489,6 +493,26 @@ def o_(key, *l_MdlN, Pa=r'C:\Program Files\Notepad++\notepad++.exe'):
 
     for f in l_Pa:
         sp.Popen([Pa] + [f])
+        vprint(f'🟢 - {f}')
+    vprint(Sign)
+
+
+def o_vscode(key, *l_MdlN, Pa='code'):
+    """Opens files at default locations with VS Code, as specified by get_MdlN_Pa()."""
+    if key not in get_MdlN_Pa('NBr1').keys():
+        raise ValueError(f'\nInvalid key: {key}.\nValid keys are: {", ".join(get_MdlN_Pa("NBr1").keys())}')
+        return
+
+    vprint(Pre_Sign)
+    vprint(f'\nOpening {key} file(s) for specified run(s) with VS Code.\n')
+    vprint(
+        "It's assumed that VS Code is accessible via the 'code' command.\nIf that's not True, provide the correct path to VS Code as the last argument (Pa) to this function.\n"
+    )
+
+    l_Pa = [get_MdlN_Pa(MdlN)[key] for MdlN in l_MdlN]
+
+    for f in l_Pa:
+        sp.Popen([Pa, f], shell=True)
         vprint(f'🟢 - {f}')
     vprint(Sign)
 
@@ -1142,6 +1166,49 @@ def add_MVR_to_OPTIONS(Pa):
             vprint(f'🟢 - Added MOVER option to {PBN(Pa)}')
         except Exception as e:
             print(f'🔴 - Error adding MOVER option to {PBN(Pa)}: {e}')
+
+
+def add_PKG_to_NAM(MdlN, str_PKG):
+    """
+    Adds a package (PKG) to the NAM file for the specified model (MdlN).
+    """
+    d_Pa = get_MdlN_Pa(MdlN)
+    Pa_NAM = d_Pa['NAM_Mdl']
+
+    lock = FL(Pa_NAM + '.lock')  # Create a file lock to prevent concurrent writes
+    with lock, open(Pa_NAM, 'r+') as f:
+        l_lines = f.readlines()
+        l_lines[-1] = str_PKG
+        f.seek(0)
+        f.truncate()
+        for i in l_lines:
+            f.write(i)
+        f.write('END PACKAGES')
+
+
+def add_OBS_to_MF_In(str_OBS, PKG=None, MdlN=None, Pa=None, iMOD5=False):
+    """
+    Adds an OBS block to a MODFLOW 6 input file (Pa). If Pa is not provided, it will be determined using MdlN and PKG.
+    """
+
+    if Pa is not None:
+        Pa = Pa
+    elif (MdlN is not None) and (PKG is not None):
+        d_Pa = get_MdlN_Pa(MdlN, iMOD5=iMOD5)
+        Pa = PJ(d_Pa['Pa_In'], f'{MdlN}.{PKG}6')
+    else:
+        raise ValueError('Either Pa or both MdlN and PKG must be provided.')
+
+    lock = FL(f'{Pa}.lock')
+    with lock.open(Pa, 'r+') as f:
+        l_Lns = f.readlines()
+        try:
+            i = next(i for i, ln in enumerate(l_Lns) if 'END OPTIONS' in ln)
+            l_1, l_2 = l_Lns[:i], l_Lns[i:]
+            l_Lns = l_1 + [f'{str_OBS}\n'] + l_2
+            vprint(f'🟢 - Added OBS to {PBN(Pa)}')
+        except ValueError as e:
+            print(f'🔴 - Failed:\n {e}')
 
 
 # --------------------------------------------------------------------------------
