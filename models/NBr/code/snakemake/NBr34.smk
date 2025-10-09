@@ -61,7 +61,7 @@ onerror: fail
 rule all: # Final rule
     input:
         log_Sim,
-        log_Up_MM,
+        # log_Up_MM,
         log_freeze_env
         
 ## -- PrP --
@@ -123,8 +123,9 @@ rule add_RIV_OBS_copy: # By copying file.
     output:
         Pa_RIV_OBS_Dst
     run:
+        PKG = 'RIV'
         sh.copy2(Pa_RIV_OBS_Src, Pa_RIV_OBS_Dst)
-        U.add_OBS_to_MF_In(MdlN=MdlN, PKG='RIV', str_OBS=f" OBS6 ./GWF_1/MODELINPUT/{MdlN}.{PKG}.OBS6 {PKG}\n")
+        U.add_OBS_to_MF_In(MdlN=MdlN, PKG=PKG, str_OBS=f" OBS6 FILEIN ./GWF_1/MODELINPUT/{MdlN}.{PKG}.OBS6", iMOD5=True)
 
 rule add_DRN_OBS_copy: # By copying file.
     input:
@@ -133,8 +134,9 @@ rule add_DRN_OBS_copy: # By copying file.
     output:
         Pa_DRN_OBS_Dst
     run:
+        PKG = 'DRN'
         sh.copy2(Pa_DRN_OBS_Src, Pa_DRN_OBS_Dst)
-        U.add_OBS_to_MF_In(MdlN=MdlN, PKG='DRN', str_OBS=f" OBS6 ./GWF_1/MODELINPUT/{MdlN}.{PKG}.OBS6 {PKG}\n")
+        U.add_OBS_to_MF_In(MdlN=MdlN, PKG=PKG, str_OBS=f" OBS6 FILEIN ./GWF_1/MODELINPUT/{MdlN}.{PKG}.OBS6", iMOD5=True)
 
 
 ## -- Sim ---
@@ -156,35 +158,35 @@ rule Sim: # Runs the simulation via BAT file.
                         'End Status'    :   'Completed'})
 
 ## -- PoP ---
-rule PRJ_to_TIF:
-    input:
-        log_Sim
-    output:
-        temp(log_PRJ_to_TIF)
-    run:
-        G.PRJ_to_TIF(MdlN)
-        Up_log(MdlN, {  'PRJ_to_TIF':   1})
-        pathlib.Path(output[0]).touch() # Create the file to mark the rule as done.
+# rule PRJ_to_TIF:
+#     input:
+#         log_Sim
+#     output:
+#         temp(log_PRJ_to_TIF)
+#     run:
+#         G.PRJ_to_TIF(MdlN, iMOD5=True, ) # Convert PRJ to TIFs
+#         Up_log(MdlN, {  'PRJ_to_TIF':   1})
+#         pathlib.Path(output[0]).touch() # Create the file to mark the rule as done.
 
-rule GXG:
-    input:
-        log_Sim
-    output:
-        temp(log_GXG)
-    run:
-        G.HD_IDF_GXG_to_TIF(MdlN, rules=rules)
-        Up_log(MdlN, {  'GXG':   rule_})
-        pathlib.Path(output[0]).touch() # Create the file to mark the rule as done.
+# # rule GXG:
+# #     input:
+# #         log_Sim
+# #     output:
+# #         temp(log_GXG)
+# #     run:
+# #         G.HD_IDF_GXG_to_TIF(MdlN, rules=rules, iMOD5=True) # Calculate GXG and save as TIFs
+# #         Up_log(MdlN, {  'GXG':   rule_})
+# #         pathlib.Path(output[0]).touch() # Create the file to mark the rule as done.
 
-rule Up_MM:
-    input:
-        log_PRJ_to_TIF,
-        log_GXG
-    output:
-        log_Up_MM
-    run:
-        G.Up_MM(MdlN, MdlN_MM_B=MdlN_MM_B)     # Update MM 
-        Up_log(MdlN, {  'PoP end DT':   DT.now().strftime("%Y-%m-%d %H:%M:%S"),
-                        'End Status':   'PoPed',
-                        'Up_MM'     :   1}) # Update log
-        pathlib.Path(output[0]).touch()     # Create the file to mark the rule as done.
+# rule Up_MM:
+#     input:
+#         log_PRJ_to_TIF,
+#         # log_GXG
+#     output:
+#         log_Up_MM
+#     run:
+#         G.Up_MM(MdlN, MdlN_MM_B=MdlN_MM_B)     # Update MM 
+#         Up_log(MdlN, {  'PoP end DT':   DT.now().strftime("%Y-%m-%d %H:%M:%S"),
+#                         'End Status':   'PoPed',
+#                         'Up_MM'     :   1}) # Update log
+#         pathlib.Path(output[0]).touch()     # Create the file to mark the rule as done.

@@ -1,0 +1,1171 @@
+Assuming unrestricted shared filesystem usage.
+host: UU120516
+Building DAG of jobs...
+Provided cores: 10
+Rules claiming more threads will be scaled down.
+Job stats:
+job                 count
+----------------  -------
+Mdl_Prep                1
+Sim                     1
+add_DRN_OBS_copy        1
+add_OBS                 1
+add_RIV_OBS_copy        1
+all                     1
+freeze_pixi_env         1
+log_Init                1
+total                   8
+
+Select jobs to execute...
+Execute 2 jobs...
+
+[Thu Oct  9 18:12:06 2025]
+localrule log_Init:
+    output: C:/OD/WS_Mdl/models/NBr/code/snakemake/temp/Log_init_NBr34
+    jobid: 4
+    reason: Missing output files: C:/OD/WS_Mdl/models/NBr/code/snakemake/temp/Log_init_NBr34
+    resources: tmpdir=C:\Users\Karam014\AppData\Local\Temp
+Shell command: None
+
+[Thu Oct  9 18:12:06 2025]
+localrule freeze_pixi_env:
+    input: C:/OD/WS_Mdl/code/pixi.toml, C:/OD/WS_Mdl/code/pixi.lock, C:/OD/WS_Mdl/code/WS_Mdl
+    output: C:/OD/WS_Mdl/models/NBr/code/snakemake/temp/Log_freeze_env_NBr34
+    jobid: 7
+    reason: Missing output files: C:/OD/WS_Mdl/models/NBr/code/snakemake/temp/Log_freeze_env_NBr34
+    resources: tmpdir=C:\Users\Karam014\AppData\Local\Temp
+Shell command: None
+[Thu Oct  9 18:12:06 2025]
+Finished jobid: 7 (Rule: freeze_pixi_env)
+1 of 8 steps (12%) done
+[Thu Oct  9 18:12:09 2025]
+Finished jobid: 4 (Rule: log_Init)
+2 of 8 steps (25%) done
+Select jobs to execute...
+Execute 1 jobs...
+
+[Thu Oct  9 18:12:09 2025]
+localrule Mdl_Prep:
+    input: C:/OD/WS_Mdl/models/NBr/code/snakemake/temp/Log_init_NBr34, code/Mdl_Prep/Mdl_Prep_NBr34.bat, code/Mdl_Prep/Mdl_Prep_NBr34.ini, In/PRJ/NBr34.prj
+    output: C:/OD/WS_Mdl/models/NBr/Sim/NBr34/RUN.BAT
+    jobid: 3
+    reason: Missing output files: C:/OD/WS_Mdl/models/NBr/Sim/NBr34/RUN.BAT; Input files updated by another job: C:/OD/WS_Mdl/models/NBr/code/snakemake/temp/Log_init_NBr34
+    resources: tmpdir=C:\Users\Karam014\AppData\Local\Temp
+Shell command: call code/Mdl_Prep/Mdl_Prep_NBr34.bat
+
+ ==================================================
+ Running iMOD: 
+  exe: C:\OD\WS_Mdl\software\iMOD5\imod_r.exe
+  dir: C:\OD\WS_Mdl\models\NBr\code\Mdl_Prep
+ ==================================================
+
+
+EXECUTING FUNCTION >>> RUNFILE <<<
+
+
+iMODBATCH using tmp-folder:
+  C:\OD\WS_Mdl\models\NBr\code\Mdl_Prep\IMOD_TMP\BATCH1
+
+PRJFILE_IN=..\..\In\PRJ\NBr34.prj
+
+Export to MODFLOW6 files
+
+NAMFILE_OUT=..\..\Sim\NBr34\NBr34.nam
+WINDOW=     113100.000     387600.000     125100.000     396200.000
+CELLSIZE=         25.000
+ISS=         1
+SDATE=19930101000000
+EDATE=19930201000000
+ITT=             3
+IDT=             1
+Time step:     1 days
+NSTEP=         1
+ISTEADY=         0
+SSYSTEM=         1
+SAVESHD=0
+SAVEDRN=0
+SAVERIV=0
+SAVEWEL=0
+SAVEFLX=0
+PCKACTIVE=0
+COUPLER=..\..\..\..\software\iMOD5\bin_MF6_6
+ISOLVE=         0
+
+iMOD found model with 37 layers
+
+Reading BND-files (2.70%)      Reading BND-files (5.41%)      Reading BND-files (8.11%)      Reading BND-files (10.81%)      Reading BND-files (13.51%)      Reading BND-files (16.22%)      Reading BND-files (18.92%)      Reading BND-files (21.62%)      Reading BND-files (24.32%)      Reading BND-files (27.03%)      Reading BND-files (29.73%)      Reading BND-files (32.43%)      Reading BND-files (35.14%)      Reading BND-files (37.84%)      Reading BND-files (40.54%)      Reading BND-files (43.24%)      Reading BND-files (45.95%)      Reading BND-files (48.65%)      Reading BND-files (51.35%)      Reading BND-files (54.05%)      Reading BND-files (56.76%)      Reading BND-files (59.46%)      Reading BND-files (62.16%)      Reading BND-files (64.86%)      Reading BND-files (67.57%)      Reading BND-files (70.27%)      Reading BND-files (72.97%)      Reading BND-files (75.68%)      Reading BND-files (78.38%)      Reading BND-files (81.08%)      Reading BND-files (83.78%)      Reading BND-files (86.49%)      Reading BND-files (89.19%)      Reading BND-files (91.89%)      Reading BND-files (94.59%)      Reading BND-files (97.30%)      Reading BND-files (100.00%)      
+ 
+Reading SHD-files (2.70%)      Reading SHD-files (5.41%)      Reading SHD-files (8.11%)      Reading SHD-files (10.81%)      Reading SHD-files (13.51%)      Reading SHD-files (16.22%)      Reading SHD-files (18.92%)      Reading SHD-files (21.62%)      Reading SHD-files (24.32%)      Reading SHD-files (27.03%)      Reading SHD-files (29.73%)      Reading SHD-files (32.43%)      Reading SHD-files (35.14%)      Reading SHD-files (37.84%)      Reading SHD-files (40.54%)      Reading SHD-files (43.24%)      Reading SHD-files (45.95%)      Reading SHD-files (48.65%)      Reading SHD-files (51.35%)      Reading SHD-files (54.05%)      Reading SHD-files (56.76%)      Reading SHD-files (59.46%)      Reading SHD-files (62.16%)      Reading SHD-files (64.86%)      Reading SHD-files (67.57%)      Reading SHD-files (70.27%)      Reading SHD-files (72.97%)      Reading SHD-files (75.68%)      Reading SHD-files (78.38%)      Reading SHD-files (81.08%)      Reading SHD-files (83.78%)      Reading SHD-files (86.49%)      Reading SHD-files (89.19%)      Reading SHD-files (91.89%)      Reading SHD-files (94.59%)      Reading SHD-files (97.30%)      Reading SHD-files (100.00%)      
+ 
+Reading TOP/BOT-files (2.70%)      Reading TOP/BOT-files (5.41%)      Reading TOP/BOT-files (8.11%)      Reading TOP/BOT-files (10.81%)      Reading TOP/BOT-files (13.51%)      Reading TOP/BOT-files (16.22%)      Reading TOP/BOT-files (18.92%)      Reading TOP/BOT-files (21.62%)      Reading TOP/BOT-files (24.32%)      Reading TOP/BOT-files (27.03%)      Reading TOP/BOT-files (29.73%)      Reading TOP/BOT-files (32.43%)      Reading TOP/BOT-files (35.14%)      Reading TOP/BOT-files (37.84%)      Reading TOP/BOT-files (40.54%)      Reading TOP/BOT-files (43.24%)      Reading TOP/BOT-files (45.95%)      Reading TOP/BOT-files (48.65%)      Reading TOP/BOT-files (51.35%)      Reading TOP/BOT-files (54.05%)      Reading TOP/BOT-files (56.76%)      Reading TOP/BOT-files (59.46%)      Reading TOP/BOT-files (62.16%)      Reading TOP/BOT-files (64.86%)      Reading TOP/BOT-files (67.57%)      Reading TOP/BOT-files (70.27%)      Reading TOP/BOT-files (72.97%)      Reading TOP/BOT-files (75.68%)      Reading TOP/BOT-files (78.38%)      Reading TOP/BOT-files (81.08%)      Reading TOP/BOT-files (83.78%)      Reading TOP/BOT-files (86.49%)      Reading TOP/BOT-files (89.19%)      Reading TOP/BOT-files (91.89%)      Reading TOP/BOT-files (94.59%)      Reading TOP/BOT-files (97.30%)      Reading TOP/BOT-files (100.00%)      
+ 
+Reading LPF-files Permeability components (2.70%)      Reading LPF-files Permeability components (5.41%)      Reading LPF-files Permeability components (8.11%)      Reading LPF-files Permeability components (10.81%)      Reading LPF-files Permeability components (13.51%)      Reading LPF-files Permeability components (16.22%)      Reading LPF-files Permeability components (18.92%)      Reading LPF-files Permeability components (21.62%)      Reading LPF-files Permeability components (24.32%)      Reading LPF-files Permeability components (27.03%)      Reading LPF-files Permeability components (29.73%)      Reading LPF-files Permeability components (32.43%)      Reading LPF-files Permeability components (35.14%)      Reading LPF-files Permeability components (37.84%)      Reading LPF-files Permeability components (40.54%)      Reading LPF-files Permeability components (43.24%)      Reading LPF-files Permeability components (45.95%)      Reading LPF-files Permeability components (48.65%)      Reading LPF-files Permeability components (51.35%)      Reading LPF-files Permeability components (54.05%)      Reading LPF-files Permeability components (56.76%)      Reading LPF-files Permeability components (59.46%)      Reading LPF-files Permeability components (62.16%)      Reading LPF-files Permeability components (64.86%)      Reading LPF-files Permeability components (67.57%)      Reading LPF-files Permeability components (70.27%)      Reading LPF-files Permeability components (72.97%)      Reading LPF-files Permeability components (75.68%)      Reading LPF-files Permeability components (78.38%)      Reading LPF-files Permeability components (81.08%)      Reading LPF-files Permeability components (83.78%)      Reading LPF-files Permeability components (86.49%)      Reading LPF-files Permeability components (89.19%)      Reading LPF-files Permeability components (91.89%)      Reading LPF-files Permeability components (94.59%)      Reading LPF-files Permeability components (97.30%)      Reading LPF-files Permeability components (100.00%)      
+ 
+Reading LPF-files Storage components (2.70%)      Reading LPF-files Storage components (5.41%)      Reading LPF-files Storage components (8.11%)      Reading LPF-files Storage components (10.81%)      Reading LPF-files Storage components (13.51%)      Reading LPF-files Storage components (16.22%)      Reading LPF-files Storage components (18.92%)      Reading LPF-files Storage components (21.62%)      Reading LPF-files Storage components (24.32%)      Reading LPF-files Storage components (27.03%)      Reading LPF-files Storage components (29.73%)      Reading LPF-files Storage components (32.43%)      Reading LPF-files Storage components (35.14%)      Reading LPF-files Storage components (37.84%)      Reading LPF-files Storage components (40.54%)      Reading LPF-files Storage components (43.24%)      Reading LPF-files Storage components (45.95%)      Reading LPF-files Storage components (48.65%)      Reading LPF-files Storage components (51.35%)      Reading LPF-files Storage components (54.05%)      Reading LPF-files Storage components (56.76%)      Reading LPF-files Storage components (59.46%)      Reading LPF-files Storage components (62.16%)      Reading LPF-files Storage components (64.86%)      Reading LPF-files Storage components (67.57%)      Reading LPF-files Storage components (70.27%)      Reading LPF-files Storage components (72.97%)      Reading LPF-files Storage components (75.68%)      Reading LPF-files Storage components (78.38%)      Reading LPF-files Storage components (81.08%)      Reading LPF-files Storage components (83.78%)      Reading LPF-files Storage components (86.49%)      Reading LPF-files Storage components (89.19%)      Reading LPF-files Storage components (91.89%)      Reading LPF-files Storage components (94.59%)      Reading LPF-files Storage components (97.30%)      Reading LPF-files Storage components (100.00%)      
+ 
+
+ Writing ..\..\SIM\NBR34\GWF_1\MODELINPUT\NBR34.IC6...
+
+ Writing ..\..\SIM\NBR34\GWF_1\MODELINPUT\NBR34.DIS6...
+
+ Writing ..\..\SIM\NBR34\GWF_1\MODELINPUT\NBR34.NPF6...
+
+ Writing ..\..\SIM\NBR34\GWF_1\MODELINPUT\NBR34.STO6...
+
+ Writing ..\..\SIM\NBR34\GWF_1\MODELINPUT\NBR34.HFB6...
+
+ Writing ..\..\SIM\NBR34\GWF_1\MODELINPUT\NBR34.WEL6...
+Exporting timestep      1    31     1 19930101000000 19930102000000Exporting timestep      2    31     1 19930102000000 19930103000000Exporting timestep      3    31     1 19930103000000 19930104000000Exporting timestep      4    31     1 19930104000000 19930105000000Exporting timestep      5    31     1 19930105000000 19930106000000Exporting timestep      6    31     1 19930106000000 19930107000000Exporting timestep      7    31     1 19930107000000 19930108000000Exporting timestep      8    31     1 19930108000000 19930109000000Exporting timestep      9    31     1 19930109000000 19930110000000Exporting timestep     10    31     1 19930110000000 19930111000000Exporting timestep     11    31     1 19930111000000 19930112000000Exporting timestep     12    31     1 19930112000000 19930113000000Exporting timestep     13    31     1 19930113000000 19930114000000Exporting timestep     14    31     1 19930114000000 19930115000000Exporting timestep     15    31     1 19930115000000 19930116000000Exporting timestep     16    31     1 19930116000000 19930117000000Exporting timestep     17    31     1 19930117000000 19930118000000Exporting timestep     18    31     1 19930118000000 19930119000000Exporting timestep     19    31     1 19930119000000 19930120000000Exporting timestep     20    31     1 19930120000000 19930121000000Exporting timestep     21    31     1 19930121000000 19930122000000Exporting timestep     22    31     1 19930122000000 19930123000000Exporting timestep     23    31     1 19930123000000 19930124000000Exporting timestep     24    31     1 19930124000000 19930125000000Exporting timestep     25    31     1 19930125000000 19930126000000Exporting timestep     26    31     1 19930126000000 19930127000000Exporting timestep     27    31     1 19930127000000 19930128000000Exporting timestep     28    31     1 19930128000000 19930129000000Exporting timestep     29    31     1 19930129000000 19930130000000Exporting timestep     30    31     1 19930130000000 19930131000000Exporting timestep     31    31     1 19930131000000 19930201000000
+
+ Writing ..\..\SIM\NBR34\GWF_1\MODELINPUT\NBR34.DRN6...
+Exporting timestep      1    31     1 19930101000000 19930102000000Exporting timestep      2    31    -1 19930102000000 19930103000000Exporting timestep      3    31    -1 19930103000000 19930104000000Exporting timestep      4    31    -1 19930104000000 19930105000000Exporting timestep      5    31    -1 19930105000000 19930106000000Exporting timestep      6    31    -1 19930106000000 19930107000000Exporting timestep      7    31    -1 19930107000000 19930108000000Exporting timestep      8    31    -1 19930108000000 19930109000000Exporting timestep      9    31    -1 19930109000000 19930110000000Exporting timestep     10    31    -1 19930110000000 19930111000000Exporting timestep     11    31    -1 19930111000000 19930112000000Exporting timestep     12    31    -1 19930112000000 19930113000000Exporting timestep     13    31    -1 19930113000000 19930114000000Exporting timestep     14    31    -1 19930114000000 19930115000000Exporting timestep     15    31    -1 19930115000000 19930116000000Exporting timestep     16    31    -1 19930116000000 19930117000000Exporting timestep     17    31    -1 19930117000000 19930118000000Exporting timestep     18    31    -1 19930118000000 19930119000000Exporting timestep     19    31    -1 19930119000000 19930120000000Exporting timestep     20    31    -1 19930120000000 19930121000000Exporting timestep     21    31    -1 19930121000000 19930122000000Exporting timestep     22    31    -1 19930122000000 19930123000000Exporting timestep     23    31    -1 19930123000000 19930124000000Exporting timestep     24    31    -1 19930124000000 19930125000000Exporting timestep     25    31    -1 19930125000000 19930126000000Exporting timestep     26    31    -1 19930126000000 19930127000000Exporting timestep     27    31    -1 19930127000000 19930128000000Exporting timestep     28    31    -1 19930128000000 19930129000000Exporting timestep     29    31    -1 19930129000000 19930130000000Exporting timestep     30    31    -1 19930130000000 19930131000000Exporting timestep     31    31    -1 19930131000000 19930201000000
+
+ Writing ..\..\SIM\NBR34\GWF_1\MODELINPUT\NBR34.RIV6...
+Exporting timestep      1    31     2 19930101000000 19930102000000Exporting timestep      2    31    -2 19930102000000 19930103000000Exporting timestep      3    31    -2 19930103000000 19930104000000Exporting timestep      4    31    -2 19930104000000 19930105000000Exporting timestep      5    31    -2 19930105000000 19930106000000Exporting timestep      6    31    -2 19930106000000 19930107000000Exporting timestep      7    31    -2 19930107000000 19930108000000Exporting timestep      8    31    -2 19930108000000 19930109000000Exporting timestep      9    31    -2 19930109000000 19930110000000Exporting timestep     10    31    -2 19930110000000 19930111000000Exporting timestep     11    31    -2 19930111000000 19930112000000Exporting timestep     12    31    -2 19930112000000 19930113000000Exporting timestep     13    31    -2 19930113000000 19930114000000Exporting timestep     14    31    -2 19930114000000 19930115000000Exporting timestep     15    31    -2 19930115000000 19930116000000Exporting timestep     16    31    -2 19930116000000 19930117000000Exporting timestep     17    31    -2 19930117000000 19930118000000Exporting timestep     18    31    -2 19930118000000 19930119000000Exporting timestep     19    31    -2 19930119000000 19930120000000Exporting timestep     20    31    -2 19930120000000 19930121000000Exporting timestep     21    31    -2 19930121000000 19930122000000Exporting timestep     22    31    -2 19930122000000 19930123000000Exporting timestep     23    31    -2 19930123000000 19930124000000Exporting timestep     24    31    -2 19930124000000 19930125000000Exporting timestep     25    31    -2 19930125000000 19930126000000Exporting timestep     26    31    -2 19930126000000 19930127000000Exporting timestep     27    31    -2 19930127000000 19930128000000Exporting timestep     28    31    -2 19930128000000 19930129000000Exporting timestep     29    31    -2 19930129000000 19930130000000Exporting timestep     30    31    -2 19930130000000 19930131000000Exporting timestep     31    31    -2 19930131000000 19930201000000
+
+ Writing ..\..\SIM\NBR34\GWF_1\MODELINPUT\NBR34.CHD6...
+Exporting timestep      1    31     1 19930101000000 19930102000000Exporting timestep      2    31    -1 19930102000000 19930103000000Exporting timestep      3    31    -1 19930103000000 19930104000000Exporting timestep      4    31    -1 19930104000000 19930105000000Exporting timestep      5    31    -1 19930105000000 19930106000000Exporting timestep      6    31    -1 19930106000000 19930107000000Exporting timestep      7    31    -1 19930107000000 19930108000000Exporting timestep      8    31    -1 19930108000000 19930109000000Exporting timestep      9    31    -1 19930109000000 19930110000000Exporting timestep     10    31    -1 19930110000000 19930111000000Exporting timestep     11    31    -1 19930111000000 19930112000000Exporting timestep     12    31    -1 19930112000000 19930113000000Exporting timestep     13    31    -1 19930113000000 19930114000000Exporting timestep     14    31     2 19930114000000 19930115000000Exporting timestep     15    31    -2 19930115000000 19930116000000Exporting timestep     16    31    -2 19930116000000 19930117000000Exporting timestep     17    31    -2 19930117000000 19930118000000Exporting timestep     18    31    -2 19930118000000 19930119000000Exporting timestep     19    31    -2 19930119000000 19930120000000Exporting timestep     20    31    -2 19930120000000 19930121000000Exporting timestep     21    31    -2 19930121000000 19930122000000Exporting timestep     22    31    -2 19930122000000 19930123000000Exporting timestep     23    31    -2 19930123000000 19930124000000Exporting timestep     24    31    -2 19930124000000 19930125000000Exporting timestep     25    31    -2 19930125000000 19930126000000Exporting timestep     26    31    -2 19930126000000 19930127000000Exporting timestep     27    31    -2 19930127000000 19930128000000Exporting timestep     28    31    -2 19930128000000 19930129000000Exporting timestep     29    31    -2 19930129000000 19930130000000Exporting timestep     30    31    -2 19930130000000 19930131000000Exporting timestep     31    31    -2 19930131000000 19930201000000
+
+ Writing MetaSwap files ...
+Progress 0.15%             Progress 0.29%             Progress 0.44%             Progress 0.58%             Progress 0.73%             Progress 0.87%             Progress 1.02%             Progress 1.16%             Progress 1.31%             Progress 1.45%             Progress 1.60%             Progress 1.74%             Progress 1.89%             Progress 2.03%             Progress 2.18%             Progress 2.33%             Progress 2.47%             Progress 2.62%             Progress 2.76%             Progress 2.91%             Progress 3.05%             Progress 3.20%             Progress 3.34%             Progress 3.49%             Progress 3.63%             Progress 3.78%             Progress 3.92%             Progress 4.07%             Progress 4.22%             Progress 4.36%             Progress 4.51%             Progress 4.65%             Progress 4.80%             Progress 4.94%             Progress 5.09%             Progress 5.23%             Progress 5.38%             Progress 5.52%             Progress 5.67%             Progress 5.81%             Progress 5.96%             Progress 6.10%             Progress 6.25%             Progress 6.40%             Progress 6.54%             Progress 6.69%             Progress 6.83%             Progress 6.98%             Progress 7.12%             Progress 7.27%             Progress 7.41%             Progress 7.56%             Progress 7.70%             Progress 7.85%             Progress 7.99%             Progress 8.14%             Progress 8.28%             Progress 8.43%             Progress 8.58%             Progress 8.72%             Progress 8.87%             Progress 9.01%             Progress 9.16%             Progress 9.30%             Progress 9.45%             Progress 9.59%             Progress 9.74%             Progress 9.88%             Progress 10.03%             Progress 10.17%             Progress 10.32%             Progress 10.47%             Progress 10.61%             Progress 10.76%             Progress 10.90%             Progress 11.05%             Progress 11.19%             Progress 11.34%             Progress 11.48%             Progress 11.63%             Progress 11.77%             Progress 11.92%             Progress 12.06%             Progress 12.21%             Progress 12.35%             Progress 12.50%             Progress 12.65%             Progress 12.79%             Progress 12.94%             Progress 13.08%             Progress 13.23%             Progress 13.37%             Progress 13.52%             Progress 13.66%             Progress 13.81%             Progress 13.95%             Progress 14.10%             Progress 14.24%             Progress 14.39%             Progress 14.53%             Progress 14.68%             Progress 14.83%             Progress 14.97%             Progress 15.12%             Progress 15.26%             Progress 15.41%             Progress 15.55%             Progress 15.70%             Progress 15.84%             Progress 15.99%             Progress 16.13%             Progress 16.28%             Progress 16.42%             Progress 16.57%             Progress 16.72%             Progress 16.86%             Progress 17.01%             Progress 17.15%             Progress 17.30%             Progress 17.44%             Progress 17.59%             Progress 17.73%             Progress 17.88%             Progress 18.02%             Progress 18.17%             Progress 18.31%             Progress 18.46%             Progress 18.60%             Progress 18.75%             Progress 18.90%             Progress 19.04%             Progress 19.19%             Progress 19.33%             Progress 19.48%             Progress 19.62%             Progress 19.77%             Progress 19.91%             Progress 20.06%             Progress 20.20%             Progress 20.35%             Progress 20.49%             Progress 20.64%             Progress 20.78%             Progress 20.93%             Progress 21.08%             Progress 21.22%             Progress 21.37%             Progress 21.51%             Progress 21.66%             Progress 21.80%             Progress 21.95%             Progress 22.09%             Progress 22.24%             Progress 22.38%             Progress 22.53%             Progress 22.67%             Progress 22.82%             Progress 22.97%             Progress 23.11%             Progress 23.26%             Progress 23.40%             Progress 23.55%             Progress 23.69%             Progress 23.84%             Progress 23.98%             Progress 24.13%             Progress 24.27%             Progress 24.42%             Progress 24.56%             Progress 24.71%             Progress 24.85%             Progress 25.00%             Progress 25.15%             Progress 25.29%             Progress 25.44%             Progress 25.58%             Progress 25.73%             Progress 25.87%             Progress 26.02%             Progress 26.16%             Progress 26.31%             Progress 26.45%             Progress 26.60%             Progress 26.74%             Progress 26.89%             Progress 27.03%             Progress 27.18%             Progress 27.33%             Progress 27.47%             Progress 27.62%             Progress 27.76%             Progress 27.91%             Progress 28.05%             Progress 28.20%             Progress 28.34%             Progress 28.49%             Progress 28.63%             Progress 28.78%             Progress 28.92%             Progress 29.07%             Progress 29.22%             Progress 29.36%             Progress 29.51%             Progress 29.65%             Progress 29.80%             Progress 29.94%             Progress 30.09%             Progress 30.23%             Progress 30.38%             Progress 30.52%             Progress 30.67%             Progress 30.81%             Progress 30.96%             Progress 31.10%             Progress 31.25%             Progress 31.40%             Progress 31.54%             Progress 31.69%             Progress 31.83%             Progress 31.98%             Progress 32.12%             Progress 32.27%             Progress 32.41%             Progress 32.56%             Progress 32.70%             Progress 32.85%             Progress 32.99%             Progress 33.14%             Progress 33.28%             Progress 33.43%             Progress 33.58%             Progress 33.72%             Progress 33.87%             Progress 34.01%             Progress 34.16%             Progress 34.30%             Progress 34.45%             Progress 34.59%             Progress 34.74%             Progress 34.88%             Progress 35.03%             Progress 35.17%             Progress 35.32%             Progress 35.47%             Progress 35.61%             Progress 35.76%             Progress 35.90%             Progress 36.05%             Progress 36.19%             Progress 36.34%             Progress 36.48%             Progress 36.63%             Progress 36.77%             Progress 36.92%             Progress 37.06%             Progress 37.21%             Progress 37.35%             Progress 37.50%             Progress 37.65%             Progress 37.79%             Progress 37.94%             Progress 38.08%             Progress 38.23%             Progress 38.37%             Progress 38.52%             Progress 38.66%             Progress 38.81%             Progress 38.95%             Progress 39.10%             Progress 39.24%             Progress 39.39%             Progress 39.53%             Progress 39.68%             Progress 39.83%             Progress 39.97%             Progress 40.12%             Progress 40.26%             Progress 40.41%             Progress 40.55%             Progress 40.70%             Progress 40.84%             Progress 40.99%             Progress 41.13%             Progress 41.28%             Progress 41.42%             Progress 41.57%             Progress 41.72%             Progress 41.86%             Progress 42.01%             Progress 42.15%             Progress 42.30%             Progress 42.44%             Progress 42.59%             Progress 42.73%             Progress 42.88%             Progress 43.02%             Progress 43.17%             Progress 43.31%             Progress 43.46%             Progress 43.60%             Progress 43.75%             Progress 43.90%             Progress 44.04%             Progress 44.19%             Progress 44.33%             Progress 44.48%             Progress 44.62%             Progress 44.77%             Progress 44.91%             Progress 45.06%             Progress 45.20%             Progress 45.35%             Progress 45.49%             Progress 45.64%             Progress 45.78%             Progress 45.93%             Progress 46.08%             Progress 46.22%             Progress 46.37%             Progress 46.51%             Progress 46.66%             Progress 46.80%             Progress 46.95%             Progress 47.09%             Progress 47.24%             Progress 47.38%             Progress 47.53%             Progress 47.67%             Progress 47.82%             Progress 47.97%             Progress 48.11%             Progress 48.26%             Progress 48.40%             Progress 48.55%             Progress 48.69%             Progress 48.84%             Progress 48.98%             Progress 49.13%             Progress 49.27%             Progress 49.42%             Progress 49.56%             Progress 49.71%             Progress 49.85%             Progress 50.00%             Progress 0.29%             Progress 0.58%             Progress 0.87%             Progress 1.16%             Progress 1.45%             Progress 1.74%             Progress 2.03%             Progress 2.33%             Progress 2.62%             Progress 2.91%             Progress 3.20%             Progress 3.49%             Progress 3.78%             Progress 4.07%             Progress 4.36%             Progress 4.65%             Progress 4.94%             Progress 5.23%             Progress 5.52%             Progress 5.81%             Progress 6.10%             Progress 6.40%             Progress 6.69%             Progress 6.98%             Progress 7.27%             Progress 7.56%             Progress 7.85%             Progress 8.14%             Progress 8.43%             Progress 8.72%             Progress 9.01%             Progress 9.30%             Progress 9.59%             Progress 9.88%             Progress 10.17%             Progress 10.47%             Progress 10.76%             Progress 11.05%             Progress 11.34%             Progress 11.63%             Progress 11.92%             Progress 12.21%             Progress 12.50%             Progress 12.79%             Progress 13.08%             Progress 13.37%             Progress 13.66%             Progress 13.95%             Progress 14.24%             Progress 14.53%             Progress 14.83%             Progress 15.12%             Progress 15.41%             Progress 15.70%             Progress 15.99%             Progress 16.28%             Progress 16.57%             Progress 16.86%             Progress 17.15%             Progress 17.44%             Progress 17.73%             Progress 18.02%             Progress 18.31%             Progress 18.60%             Progress 18.90%             Progress 19.19%             Progress 19.48%             Progress 19.77%             Progress 20.06%             Progress 20.35%             Progress 20.64%             Progress 20.93%             Progress 21.22%             Progress 21.51%             Progress 21.80%             Progress 22.09%             Progress 22.38%             Progress 22.67%             Progress 22.97%             Progress 23.26%             Progress 23.55%             Progress 23.84%             Progress 24.13%             Progress 24.42%             Progress 24.71%             Progress 25.00%             Progress 25.29%             Progress 25.58%             Progress 25.87%             Progress 26.16%             Progress 26.45%             Progress 26.74%             Progress 27.03%             Progress 27.33%             Progress 27.62%             Progress 27.91%             Progress 28.20%             Progress 28.49%             Progress 28.78%             Progress 29.07%             Progress 29.36%             Progress 29.65%             Progress 29.94%             Progress 30.23%             Progress 30.52%             Progress 30.81%             Progress 31.10%             Progress 31.40%             Progress 31.69%             Progress 31.98%             Progress 32.27%             Progress 32.56%             Progress 32.85%             Progress 33.14%             Progress 33.43%             Progress 33.72%             Progress 34.01%             Progress 34.30%             Progress 34.59%             Progress 34.88%             Progress 35.17%             Progress 35.47%             Progress 35.76%             Progress 36.05%             Progress 36.34%             Progress 36.63%             Progress 36.92%             Progress 37.21%             Progress 37.50%             Progress 37.79%             Progress 38.08%             Progress 38.37%             Progress 38.66%             Progress 38.95%             Progress 39.24%             Progress 39.53%             Progress 39.83%             Progress 40.12%             Progress 40.41%             Progress 40.70%             Progress 40.99%             Progress 41.28%             Progress 41.57%             Progress 41.86%             Progress 42.15%             Progress 42.44%             Progress 42.73%             Progress 43.02%             Progress 43.31%             Progress 43.60%             Progress 43.90%             Progress 44.19%             Progress 44.48%             Progress 44.77%             Progress 45.06%             Progress 45.35%             Progress 45.64%             Progress 45.93%             Progress 46.22%             Progress 46.51%             Progress 46.80%             Progress 47.09%             Progress 47.38%             Progress 47.67%             Progress 47.97%             Progress 48.26%             Progress 48.55%             Progress 48.84%             Progress 49.13%             Progress 49.42%             Progress 49.71%             Progress 50.00%             Progress 50.29%             Progress 50.58%             Progress 50.87%             Progress 51.16%             Progress 51.45%             Progress 51.74%             Progress 52.03%             Progress 52.33%             Progress 52.62%             Progress 52.91%             Progress 53.20%             Progress 53.49%             Progress 53.78%             Progress 54.07%             Progress 54.36%             Progress 54.65%             Progress 54.94%             Progress 55.23%             Progress 55.52%             Progress 55.81%             Progress 56.10%             Progress 56.40%             Progress 56.69%             Progress 56.98%             Progress 57.27%             Progress 57.56%             Progress 57.85%             Progress 58.14%             Progress 58.43%             Progress 58.72%             Progress 59.01%             Progress 59.30%             Progress 59.59%             Progress 59.88%             Progress 60.17%             Progress 60.47%             Progress 60.76%             Progress 61.05%             Progress 61.34%             Progress 61.63%             Progress 61.92%             Progress 62.21%             Progress 62.50%             Progress 62.79%             Progress 63.08%             Progress 63.37%             Progress 63.66%             Progress 63.95%             Progress 64.24%             Progress 64.53%             Progress 64.83%             Progress 65.12%             Progress 65.41%             Progress 65.70%             Progress 65.99%             Progress 66.28%             Progress 66.57%             Progress 66.86%             Progress 67.15%             Progress 67.44%             Progress 67.73%             Progress 68.02%             Progress 68.31%             Progress 68.60%             Progress 68.90%             Progress 69.19%             Progress 69.48%             Progress 69.77%             Progress 70.06%             Progress 70.35%             Progress 70.64%             Progress 70.93%             Progress 71.22%             Progress 71.51%             Progress 71.80%             Progress 72.09%             Progress 72.38%             Progress 72.67%             Progress 72.97%             Progress 73.26%             Progress 73.55%             Progress 73.84%             Progress 74.13%             Progress 74.42%             Progress 74.71%             Progress 75.00%             Progress 75.29%             Progress 75.58%             Progress 75.87%             Progress 76.16%             Progress 76.45%             Progress 76.74%             Progress 77.03%             Progress 77.33%             Progress 77.62%             Progress 77.91%             Progress 78.20%             Progress 78.49%             Progress 78.78%             Progress 79.07%             Progress 79.36%             Progress 79.65%             Progress 79.94%             Progress 80.23%             Progress 80.52%             Progress 80.81%             Progress 81.10%             Progress 81.40%             Progress 81.69%             Progress 81.98%             Progress 82.27%             Progress 82.56%             Progress 82.85%             Progress 83.14%             Progress 83.43%             Progress 83.72%             Progress 84.01%             Progress 84.30%             Progress 84.59%             Progress 84.88%             Progress 85.17%             Progress 85.47%             Progress 85.76%             Progress 86.05%             Progress 86.34%             Progress 86.63%             Progress 86.92%             Progress 87.21%             Progress 87.50%             Progress 87.79%             Progress 88.08%             Progress 88.37%             Progress 88.66%             Progress 88.95%             Progress 89.24%             Progress 89.53%             Progress 89.83%             Progress 90.12%             Progress 90.41%             Progress 90.70%             Progress 90.99%             Progress 91.28%             Progress 91.57%             Progress 91.86%             Progress 92.15%             Progress 92.44%             Progress 92.73%             Progress 93.02%             Progress 93.31%             Progress 93.60%             Progress 93.90%             Progress 94.19%             Progress 94.48%             Progress 94.77%             Progress 95.06%             Progress 95.35%             Progress 95.64%             Progress 95.93%             Progress 96.22%             Progress 96.51%             Progress 96.80%             Progress 97.09%             Progress 97.38%             Progress 97.67%             Progress 97.97%             Progress 98.26%             Progress 98.55%             Progress 98.84%             Progress 99.13%             Progress 99.42%             Progress 99.71%             Progress 100.00%                     1 file(s) copied.
+        1 file(s) copied.
+        1 file(s) copied.
+        1 file(s) copied.
+        1 file(s) copied.
+
+
+Successfully written MF6 files:..\..\Sim\NBr34\NBr34.nam
+
+
+iMOD removed tmp-folder:
+  C:\OD\WS_Mdl\models\NBr\code\Mdl_Prep\IMOD_TMP\BATCH1
+
+[Thu Oct  9 18:14:16 2025]
+Finished jobid: 3 (Rule: Mdl_Prep)
+3 of 8 steps (38%) done
+Select jobs to execute...
+Execute 3 jobs...
+
+[Thu Oct  9 18:14:16 2025]
+localrule add_DRN_OBS_copy:
+    input: C:/OD/WS_Mdl/models/NBr/Sim/NBr34/RUN.BAT, C:/OD/WS_Mdl/models/NBr/In/OBS/DRN/NBr34/NBr34.DRN.OBS6
+    output: C:/OD/WS_Mdl/models/NBr/Sim/NBr34/GWF_1/MODELINPUT/NBr34.DRN.OBS6
+    jobid: 6
+    reason: Missing output files: C:/OD/WS_Mdl/models/NBr/Sim/NBr34/GWF_1/MODELINPUT/NBr34.DRN.OBS6; Input files updated by another job: C:/OD/WS_Mdl/models/NBr/Sim/NBr34/RUN.BAT
+    resources: tmpdir=C:\Users\Karam014\AppData\Local\Temp
+Shell command: None
+
+[Thu Oct  9 18:14:16 2025]
+localrule add_RIV_OBS_copy:
+    input: C:/OD/WS_Mdl/models/NBr/Sim/NBr34/RUN.BAT, C:/OD/WS_Mdl/models/NBr/In/OBS/RIV/NBr34/NBr34.RIV.OBS6
+    output: C:/OD/WS_Mdl/models/NBr/Sim/NBr34/GWF_1/MODELINPUT/NBr34.RIV.OBS6
+    jobid: 5
+    reason: Missing output files: C:/OD/WS_Mdl/models/NBr/Sim/NBr34/GWF_1/MODELINPUT/NBr34.RIV.OBS6; Input files updated by another job: C:/OD/WS_Mdl/models/NBr/Sim/NBr34/RUN.BAT
+    resources: tmpdir=C:\Users\Karam014\AppData\Local\Temp
+Shell command: None
+
+[Thu Oct  9 18:14:16 2025]
+localrule add_OBS:
+    input: C:/OD/WS_Mdl/models/NBr/Sim/NBr34/RUN.BAT
+    output: C:/OD/WS_Mdl/models/NBr/Sim/NBr34/GWF_1/MODELINPUT/NBr34.OBS6
+    jobid: 2
+    reason: Missing output files: C:/OD/WS_Mdl/models/NBr/Sim/NBr34/GWF_1/MODELINPUT/NBr34.OBS6; Input files updated by another job: C:/OD/WS_Mdl/models/NBr/Sim/NBr34/RUN.BAT
+    resources: tmpdir=C:\Users\Karam014\AppData\Local\Temp
+Shell command: None
+[Thu Oct  9 18:14:16 2025]
+Finished jobid: 6 (Rule: add_DRN_OBS_copy)
+4 of 8 steps (50%) done
+[Thu Oct  9 18:14:16 2025]
+Finished jobid: 5 (Rule: add_RIV_OBS_copy)
+5 of 8 steps (62%) done
+[Thu Oct  9 18:14:17 2025]
+Finished jobid: 2 (Rule: add_OBS)
+6 of 8 steps (75%) done
+Select jobs to execute...
+Execute 1 jobs...
+
+[Thu Oct  9 18:14:17 2025]
+localrule Sim:
+    input: C:/OD/WS_Mdl/models/NBr/Sim/NBr34/GWF_1/MODELINPUT/NBr34.OBS6, C:/OD/WS_Mdl/models/NBr/Sim/NBr34/GWF_1/MODELINPUT/NBr34.RIV.OBS6, C:/OD/WS_Mdl/models/NBr/Sim/NBr34/GWF_1/MODELINPUT/NBr34.DRN.OBS6
+    output: C:/OD/WS_Mdl/models/NBr/code/snakemake/temp/Log_Sim_NBr34
+    jobid: 1
+    reason: Missing output files: C:/OD/WS_Mdl/models/NBr/code/snakemake/temp/Log_Sim_NBr34; Input files updated by another job: C:/OD/WS_Mdl/models/NBr/Sim/NBr34/GWF_1/MODELINPUT/NBr34.RIV.OBS6, C:/OD/WS_Mdl/models/NBr/Sim/NBr34/GWF_1/MODELINPUT/NBr34.OBS6, C:/OD/WS_Mdl/models/NBr/Sim/NBr34/GWF_1/MODELINPUT/NBr34.DRN.OBS6
+    resources: tmpdir=C:\Users\Karam014\AppData\Local\Temp
+Shell command: None
+
+C:\OD\WS_Mdl\models\NBr\Sim\NBr34>REM ========================== 
+
+C:\OD\WS_Mdl\models\NBr\Sim\NBr34>REM Run Script iMOD V5_6_2 
+
+C:\OD\WS_Mdl\models\NBr\Sim\NBr34>REM ========================== 
+
+C:\OD\WS_Mdl\models\NBr\Sim\NBr34>TITLE "TOMLFILE: NBr34.toml" 
+
+C:\OD\WS_Mdl\models\NBr\Sim\NBr34>REM run iMOD-coupler with MODFLOW6-METASWAP model 
+
+C:\OD\WS_Mdl\models\NBr\Sim\NBr34>"..\..\..\..\software\iMOD5\bin_MF6_6\imod_coupler\imodc.exe" NBr34.toml 
+iMOD Coupler: [1miMOD Coupler 2024.3.0[0m
+                                   MODFLOW 6
+                U.S. GEOLOGICAL SURVEY MODULAR HYDROLOGIC MODEL
+                            VERSION 6.5.0 05/23/2024
+
+   MODFLOW 6 compiled May 23 2024 18:06:57 with Intel(R) Fortran Intel(R) 64
+   Compiler Classic for applications running on Intel(R) 64, Version 2021.7.0
+                             Build 20220726_000000
+
+This software has been approved for release by the U.S. Geological 
+Survey (USGS). Although the software has been subjected to rigorous 
+review, the USGS reserves the right to update the software as needed 
+pursuant to further analysis and review. No warranty, expressed or 
+implied, is made by the USGS or the U.S. Government as to the 
+functionality of the software and related material nor shall the 
+fact of release constitute any such warranty. Furthermore, the 
+software is released on condition that neither the USGS nor the U.S. 
+Government shall be held liable for any damages resulting from its 
+authorized or unauthorized use. Also refer to the USGS Water 
+Resources Software User Rights Notice for complete use, copyright, 
+and distribution information.
+
+ 
+ MODFLOW runs in SEQUENTIAL mode
+ 
+ Run start date and time (yyyy/mm/dd hh:mm:ss): 2025/10/09 18:15:17
+ 
+ Writing simulation list file: mfsim.lst
+ Using Simulation name file: mfsim.nam
+ 
+ 
+ 
+MetaSWAP version V8.1.2.5
+ Reading file tiop_sim.inp
+  Writing file time_sim.inp
+ Reading file para_sim.inp
+ End reading file para_sim.inp
+ Not available file mete_svat.inp           
+ Reading file mete_grid.inp           
+ Reading file mod2svat.inp
+ >> Reading array dimensions
+ Reading file area_svat.inp           
+ >> Allocating array dimensions
+Reading file unsa_svat.bda key-info
+ Reading file mod2svat.inp
+ --> number of SVATs     coupled to MODFLOW =     183388
+ --> number of SVATs not coupled to MODFLOW =          0
+ Reading file fact_svat.inp
+  -->max. value of vegetation index in fact_svat.inp=  19
+ Reading file luse_svat.inp
+  -->max. value of vegetation index in luse_svat.inp=  19
+  -->max. value of land use   index in luse_svat.inp=  25
+ << Reading array dimensions END
+ Reading file fact_svat.inp
+ Reading file area_svat.inp
+ Reading file infi_svat.inp
+Reading file unsa_svat.bda bulk data BEGIN
+  spu=  36
+  spu=  47
+  spu=  49
+  spu=  50
+  spu=  58
+  spu=  59
+  spu=  67
+  spu=  68
+  spu=  74
+  spu=  77
+  spu=  78
+  spu=  79
+  spu=  81
+  spu=  82
+  spu=  84
+  spu=  88
+  spu=  89
+  spu=  90
+  spu=  93
+  spu=  96
+  spu=  97
+  spu= 100
+  spu= 101
+  spu= 102
+  spu= 105
+  spu= 106
+  spu= 118
+  spu= 120
+  spu= 126
+  spu= 127
+  spu= 129
+  spu= 130
+  spu= 131
+  spu= 135
+  spu= 140
+  spu= 141
+  spu= 146
+  spu= 147
+  spu= 148
+  spu= 151
+  spu= 159
+  spu= 161
+  spu= 164
+  spu= 167
+  spu= 172
+  spu= 176
+  spu= 183
+  spu= 253
+  spu= 360
+Reading file unsa_svat.bda bulk data   END
+ Converting tables of unsa
+ Building sigma tables from unsa_svat.bda
+ Reading file svat2swnr_roff.inp      
+ Reading file time_sim.inp            
+ Not available file mete_svat.inp           
+ Reading file svat2PrecGrid.inp       
+ Reading file svat2EtrefGrid.inp      
+  Openmete Marker -1
+ Reading file mete_grid.inp           
+  Openmete Marker 0
+  Openmete Marker 1
+  Openmete Marker 2
+  Openmete Marker 3
+ Reading file C:\OD\WS_Mdl\models\NBr\In\CAP\P\NBr1\P_19930101_NBr1.asc 
+ Reading file C:\OD\WS_Mdl\models\NBr\In\CAP\PET\NBr1\PET_19930101_NBr1.asc 
+ Reading file C:\OD\WS_Mdl\models\NBr\in\cap\P\NBr1\p_19930102_NBr1.asc 
+ Reading file C:\OD\WS_Mdl\models\NBr\in\cap\PET\NBr1\PET_19930102_NBr1.asc 
+  Openmete Marker 4
+ Reading file scap_svat.inp           
+ Reading file area_svat.inp           
+ nukey_1 readselsvat=         176
+ Reading file sel_key_svat_per.inp    
+ nukey_2 readselsvat=         176
+ Not available file sel_svat_csv.inp        
+MetaSWAP_end, tiac =     0.00
+ 
+MODFLOW_begin
+iMOD Coupler: [1mMODFLOW version: 6.5.0[0m
+iMOD Coupler: [1mMetaSWAP version: V8.1.2.5[0m
+    Solving:  Stress period:     1    Time step:     1
+MODFLOW_end
+ 
+MetaSWAP_begin, tiac =     0.00
+ Reading file init_svat.inp           
+ Processing of initial MODFLOW heads BEGIN
+ Processing of initial MODFLOW heads END
+ Reading file init_svat.inp           
+  -->initialization with qm = P from meteo
+>> DO idtsw=1,nudtsw
+     msw1top
+MetaSWAP_dtsw_begin, tiac =     0.00
+ msw1top_begin, k =       1
+ msw1top_end,   k =  183388
+MetaSWAP_dtsw_end,   tiac =     1.00
+<< ENDDO
+MetaSWAP_end, tiac =     1.00
+ 
+MODFLOW_begin
+ msw1unsa_begin, k        1
+ msw1unsa_end,   k   183388
+ msw1postfm_qmodf_begin, k =       1
+ msw1postfm_qmodf_end  , k =  183388
+ 
+ iter_outer =  1 : [Hgwmsw - Hgwmodf] (svat= 175205)= -0.61500 m
+ iter_outer =  1 : [Hgwmsw - Hgwmodf] (svat= 106647)=  0.36527 m
+ 
+
+ Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
+ 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
+ -0.614 -0.595 -0.483 -0.293 -0.002  0.000  0.022  0.151  0.261  0.352  0.365
+ 
+   msw1postfm_sc1_begin, k =       1
+   msw1postfm_sc1_end  , k =  183388
+
+ msw1postfm_qmodf_begin, k =       1
+ msw1postfm_qmodf_end  , k =  183388
+ 
+ iter_outer =  2 : [Hgwmsw - Hgwmodf] (svat= 133101)= -0.49576 m
+ iter_outer =  2 : [Hgwmsw - Hgwmodf] (svat= 128335)=  0.16037 m
+ 
+
+ Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
+ 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
+ -0.495 -0.476 -0.386 -0.196  0.000  0.000  0.000  0.016  0.075  0.114  0.160
+ 
+   msw1postfm_sc1_begin, k =       1
+   msw1postfm_sc1_end  , k =  183388
+
+ msw1postfm_qmodf_begin, k =       1
+ msw1postfm_qmodf_end  , k =  183388
+ 
+ iter_outer =  3 : [Hgwmsw - Hgwmodf] (svat=  41984)= -0.35874 m
+ iter_outer =  3 : [Hgwmsw - Hgwmodf] (svat=  13398)=  0.22878 m
+ 
+
+ Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
+ 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
+ -0.358 -0.348 -0.237 -0.084  0.000  0.000  0.000  0.007  0.057  0.207  0.229
+ 
+   msw1postfm_sc1_begin, k =       1
+   msw1postfm_sc1_end  , k =  183388
+
+ msw1postfm_qmodf_begin, k =       1
+ msw1postfm_qmodf_end  , k =  183388
+ 
+ iter_outer =  4 : [Hgwmsw - Hgwmodf] (svat=  96889)= -0.18365 m
+ iter_outer =  4 : [Hgwmsw - Hgwmodf] (svat=  13398)=  0.22558 m
+ 
+
+ Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
+ 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
+ -0.183 -0.180 -0.127 -0.016  0.000  0.000  0.000  0.011  0.108  0.203  0.226
+ 
+   msw1postfm_sc1_begin, k =       1
+   msw1postfm_sc1_end  , k =  183388
+
+ msw1postfm_qmodf_begin, k =       1
+ msw1postfm_qmodf_end  , k =  183388
+ 
+ iter_outer =  5 : [Hgwmsw - Hgwmodf] (svat= 131507)= -0.12479 m
+ iter_outer =  5 : [Hgwmsw - Hgwmodf] (svat=  13398)=  0.21135 m
+ 
+
+ Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
+ 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
+ -0.124 -0.112 -0.054  0.000  0.000  0.000  0.000  0.010  0.106  0.197  0.211
+ 
+   msw1postfm_sc1_begin, k =       1
+   msw1postfm_sc1_end  , k =  183388
+
+ msw1postfm_qmodf_begin, k =       1
+ msw1postfm_qmodf_end  , k =  183388
+ 
+ iter_outer =  6 : [Hgwmsw - Hgwmodf] (svat= 131506)= -0.07155 m
+ iter_outer =  6 : [Hgwmsw - Hgwmodf] (svat=  96889)=  0.19493 m
+ 
+
+ Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
+ 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
+ -0.071 -0.025 -0.020  0.000  0.000  0.000  0.000  0.006  0.087  0.185  0.195
+ 
+   msw1postfm_sc1_begin, k =       1
+   msw1postfm_sc1_end  , k =  183388
+
+ msw1postfm_qmodf_begin, k =       1
+ msw1postfm_qmodf_end  , k =  183388
+ 
+ iter_outer =  7 : [Hgwmsw - Hgwmodf] (svat= 131507)= -0.03628 m
+ iter_outer =  7 : [Hgwmsw - Hgwmodf] (svat=  96889)=  0.19138 m
+ 
+
+ Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
+ 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
+ -0.035 -0.007 -0.005  0.000  0.000  0.000  0.000  0.006  0.078  0.176  0.191
+ 
+   msw1postfm_sc1_begin, k =       1
+   msw1postfm_sc1_end  , k =  183388
+
+ msw1postfm_qmodf_begin, k =       1
+ msw1postfm_qmodf_end  , k =  183388
+ 
+ iter_outer =  8 : [Hgwmsw - Hgwmodf] (svat= 160965)= -0.00193 m
+ iter_outer =  8 : [Hgwmsw - Hgwmodf] (svat=  96889)=  0.18240 m
+ 
+
+ Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
+ 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
+ -0.001 -0.001  0.000  0.000  0.000  0.000  0.000  0.004  0.071  0.169  0.182
+ 
+   msw1postfm_sc1_begin, k =       1
+   msw1postfm_sc1_end  , k =  183388
+
+ msw1postfm_qmodf_begin, k =       1
+ msw1postfm_qmodf_end  , k =  183388
+ 
+ iter_outer =  9 : [Hgwmsw - Hgwmodf] (svat= 128884)= -0.00089 m
+ iter_outer =  9 : [Hgwmsw - Hgwmodf] (svat= 128335)=  0.16346 m
+ 
+
+ Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
+ 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
+  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.004  0.068  0.162  0.163
+ 
+   msw1postfm_sc1_begin, k =       1
+   msw1postfm_sc1_end  , k =  183388
+
+ msw1postfm_qmodf_begin, k =       1
+ msw1postfm_qmodf_end  , k =  183388
+ 
+ iter_outer = 10 : [Hgwmsw - Hgwmodf] (svat= 128884)= -0.00080 m
+ iter_outer = 10 : [Hgwmsw - Hgwmodf] (svat= 128335)=  0.15763 m
+ 
+
+ Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
+ 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
+  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.003  0.060  0.146  0.158
+ 
+   msw1postfm_sc1_begin, k =       1
+   msw1postfm_sc1_end  , k =  183388
+
+ msw1postfm_qmodf_begin, k =       1
+ msw1postfm_qmodf_end  , k =  183388
+ 
+ iter_outer = 11 : [Hgwmsw - Hgwmodf] (svat= 128884)= -0.00070 m
+ iter_outer = 11 : [Hgwmsw - Hgwmodf] (svat= 128335)=  0.15252 m
+ 
+
+ Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
+ 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
+  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.002  0.048  0.131  0.153
+ 
+   msw1postfm_sc1_begin, k =       1
+   msw1postfm_sc1_end  , k =  183388
+
+ msw1postfm_qmodf_begin, k =       1
+ msw1postfm_qmodf_end  , k =  183388
+ 
+ iter_outer = 12 : [Hgwmsw - Hgwmodf] (svat= 128884)= -0.00063 m
+ iter_outer = 12 : [Hgwmsw - Hgwmodf] (svat= 128335)=  0.14804 m
+ 
+
+ Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
+ 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
+  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.002  0.043  0.117  0.148
+ 
+   msw1postfm_sc1_begin, k =       1
+   msw1postfm_sc1_end  , k =  183388
+
+ msw1postfm_qmodf_begin, k =       1
+ msw1postfm_qmodf_end  , k =  183388
+ 
+ iter_outer = 13 : [Hgwmsw - Hgwmodf] (svat= 128884)= -0.00056 m
+ iter_outer = 13 : [Hgwmsw - Hgwmodf] (svat= 128335)=  0.14408 m
+ 
+
+ Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
+ 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
+  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.002  0.037  0.105  0.144
+ 
+   msw1postfm_sc1_begin, k =       1
+   msw1postfm_sc1_end  , k =  183388
+
+ msw1postfm_qmodf_begin, k =       1
+ msw1postfm_qmodf_end  , k =  183388
+ 
+ iter_outer = 14 : [Hgwmsw - Hgwmodf] (svat= 128884)= -0.00052 m
+ iter_outer = 14 : [Hgwmsw - Hgwmodf] (svat= 128335)=  0.14060 m
+ 
+
+ Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
+ 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
+  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.002  0.034  0.095  0.141
+ 
+   msw1postfm_sc1_begin, k =       1
+   msw1postfm_sc1_end  , k =  183388
+
+ msw1postfm_qmodf_begin, k =       1
+ msw1postfm_qmodf_end  , k =  183388
+ 
+ iter_outer = 15 : [Hgwmsw - Hgwmodf] (svat= 128884)= -0.00044 m
+ iter_outer = 15 : [Hgwmsw - Hgwmodf] (svat= 128335)=  0.13752 m
+ 
+
+ Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
+ 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
+  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.001  0.032  0.086  0.138
+ 
+   msw1postfm_sc1_begin, k =       1
+   msw1postfm_sc1_end  , k =  183388
+
+ msw1postfm_qmodf_begin, k =       1
+ msw1postfm_qmodf_end  , k =  183388
+ 
+ iter_outer = 16 : [Hgwmsw - Hgwmodf] (svat= 128884)= -0.00040 m
+ iter_outer = 16 : [Hgwmsw - Hgwmodf] (svat= 128335)=  0.13480 m
+ 
+
+ Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
+ 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
+  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.001  0.029  0.082  0.135
+ 
+   msw1postfm_sc1_begin, k =       1
+   msw1postfm_sc1_end  , k =  183388
+
+ msw1postfm_qmodf_begin, k =       1
+ msw1postfm_qmodf_end  , k =  183388
+ 
+ iter_outer = 17 : [Hgwmsw - Hgwmodf] (svat= 128884)= -0.00035 m
+ iter_outer = 17 : [Hgwmsw - Hgwmodf] (svat= 128335)=  0.13238 m
+ 
+
+ Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
+ 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
+  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.001  0.028  0.080  0.132
+ 
+   msw1postfm_sc1_begin, k =       1
+   msw1postfm_sc1_end  , k =  183388
+
+ msw1postfm_qmodf_begin, k =       1
+ msw1postfm_qmodf_end  , k =  183388
+ 
+ iter_outer = 18 : [Hgwmsw - Hgwmodf] (svat= 128884)= -0.00031 m
+ iter_outer = 18 : [Hgwmsw - Hgwmodf] (svat= 128335)=  0.13025 m
+ 
+
+ Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
+ 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
+  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.001  0.027  0.077  0.130
+ 
+   msw1postfm_sc1_begin, k =       1
+   msw1postfm_sc1_end  , k =  183388
+
+ msw1postfm_qmodf_begin, k =       1
+ msw1postfm_qmodf_end  , k =  183388
+ 
+ iter_outer = 19 : [Hgwmsw - Hgwmodf] (svat= 128884)= -0.00028 m
+ iter_outer = 19 : [Hgwmsw - Hgwmodf] (svat= 128335)=  0.12647 m
+ 
+
+ Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
+ 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
+  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.001  0.026  0.075  0.126
+ 
+   msw1postfm_sc1_begin, k =       1
+   msw1postfm_sc1_end  , k =  183388
+
+ msw1postfm_qmodf_begin, k =       1
+ msw1postfm_qmodf_end  , k =  183388
+ 
+ iter_outer = 20 : [Hgwmsw - Hgwmodf] (svat= 128884)= -0.00026 m
+ iter_outer = 20 : [Hgwmsw - Hgwmodf] (svat= 128335)=  0.11280 m
+ 
+
+ Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
+ 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
+  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.001  0.024  0.072  0.113
+ 
+   msw1postfm_sc1_begin, k =       1
+   msw1postfm_sc1_end  , k =  183388
+
+ msw1postfm_qmodf_begin, k =       1
+ msw1postfm_qmodf_end  , k =  183388
+ 
+ iter_outer = 21 : [Hgwmsw - Hgwmodf] (svat= 128884)= -0.00023 m
+ iter_outer = 21 : [Hgwmsw - Hgwmodf] (svat= 128335)=  0.10063 m
+ 
+
+ Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
+ 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
+  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.023  0.071  0.101
+ 
+   msw1postfm_sc1_begin, k =       1
+   msw1postfm_sc1_end  , k =  183388
+
+ msw1postfm_qmodf_begin, k =       1
+ msw1postfm_qmodf_end  , k =  183388
+ 
+ iter_outer = 22 : [Hgwmsw - Hgwmodf] (svat= 128884)= -0.00021 m
+ iter_outer = 22 : [Hgwmsw - Hgwmodf] (svat= 128335)=  0.08987 m
+ 
+
+ Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
+ 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
+  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.023  0.069  0.090
+ 
+   msw1postfm_sc1_begin, k =       1
+   msw1postfm_sc1_end  , k =  183388
+
+ msw1postfm_qmodf_begin, k =       1
+ msw1postfm_qmodf_end  , k =  183388
+ 
+ iter_outer = 23 : [Hgwmsw - Hgwmodf] (svat= 128884)= -0.00018 m
+ iter_outer = 23 : [Hgwmsw - Hgwmodf] (svat= 128335)=  0.08026 m
+ 
+
+ Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
+ 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
+  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.022  0.067  0.080
+ 
+   msw1postfm_sc1_begin, k =       1
+   msw1postfm_sc1_end  , k =  183388
+
+ msw1postfm_qmodf_begin, k =       1
+ msw1postfm_qmodf_end  , k =  183388
+ 
+ iter_outer = 24 : [Hgwmsw - Hgwmodf] (svat= 128884)= -0.00016 m
+ iter_outer = 24 : [Hgwmsw - Hgwmodf] (svat= 128335)=  0.07170 m
+ 
+
+ Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
+ 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
+  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.021  0.066  0.072
+ 
+   msw1postfm_sc1_begin, k =       1
+   msw1postfm_sc1_end  , k =  183388
+
+ msw1postfm_qmodf_begin, k =       1
+ msw1postfm_qmodf_end  , k =  183388
+ 
+ iter_outer = 25 : [Hgwmsw - Hgwmodf] (svat= 128884)= -0.00015 m
+ iter_outer = 25 : [Hgwmsw - Hgwmodf] (svat= 129411)=  0.06494 m
+ 
+
+ Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
+ 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
+  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.019  0.064  0.065
+ 
+   msw1postfm_sc1_begin, k =       1
+   msw1postfm_sc1_end  , k =  183388
+
+ msw1postfm_qmodf_begin, k =       1
+ msw1postfm_qmodf_end  , k =  183388
+ 
+ iter_outer = 26 : [Hgwmsw - Hgwmodf] (svat= 128884)= -0.00013 m
+ iter_outer = 26 : [Hgwmsw - Hgwmodf] (svat= 129411)=  0.06381 m
+ 
+
+ Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
+ 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
+  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.018  0.057  0.064
+ 
+   msw1postfm_sc1_begin, k =       1
+   msw1postfm_sc1_end  , k =  183388
+
+ msw1postfm_qmodf_begin, k =       1
+ msw1postfm_qmodf_end  , k =  183388
+ 
+ iter_outer = 27 : [Hgwmsw - Hgwmodf] (svat= 128884)= -0.00012 m
+ iter_outer = 27 : [Hgwmsw - Hgwmodf] (svat= 129411)=  0.06279 m
+ 
+
+ Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
+ 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
+  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.017  0.051  0.063
+ 
+
+ Smallest phreatic storage coefficient: sc1(  87668)= 0.01000 (m3/m2/m)
+ 
+MODFLOW_end
+ 
+MetaSWAP_finalize&write_begin,tiac =     1.00
+msw1bd_begin,   k =       1
+ max. water loss,     vcr(  42235)=  -0.00000 m3/m2
+ max. water creation, vcr(   3987)=   0.00000 m3/m2
+msw1bd_end,     k =  183388
+MetaSWAP_finalize&write_end, tiac =     1.00
+MetaSWAP_rootzone_update_begin
+MetaSWAP_rootzone_update_end  
+ 
+MODFLOW_begin
+    Solving:  Stress period:     2    Time step:     1
+MODFLOW_end
+ 
+MetaSWAP_begin, tiac =     1.00
+>> DO idtsw=1,nudtsw
+     msw1top
+MetaSWAP_dtsw_begin, tiac =     1.00
+ Reading file C:\OD\WS_Mdl\models\NBr\in\cap\P\NBr1\p_19930103_NBr1.asc 
+ Reading file C:\OD\WS_Mdl\models\NBr\in\cap\PET\NBr1\PET_19930103_NBr1.asc 
+ msw1top_begin, k =       1
+ msw1top_end,   k =  183388
+MetaSWAP_dtsw_end,   tiac =     2.00
+<< ENDDO
+MetaSWAP_end, tiac =     2.00
+ 
+MODFLOW_begin
+ msw1unsa_begin, k        1
+ msw1unsa_end,   k   183388
+ msw1postfm_qmodf_begin, k =       1
+ msw1postfm_qmodf_end  , k =  183388
+ 
+ iter_outer =  1 : [Hgwmsw - Hgwmodf] (svat=  10713)= -0.12146 m
+ iter_outer =  1 : [Hgwmsw - Hgwmodf] (svat=  57424)=  0.07220 m
+ 
+
+ Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
+ 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
+ -0.120 -0.110 -0.057 -0.028 -0.001  0.000  0.000  0.012  0.041  0.048  0.072
+ 
+   msw1postfm_sc1_begin, k =       1
+   msw1postfm_sc1_end  , k =  183388
+
+ msw1postfm_qmodf_begin, k =       1
+ msw1postfm_qmodf_end  , k =  183388
+ 
+ iter_outer =  2 : [Hgwmsw - Hgwmodf] (svat= 181138)= -0.16145 m
+ iter_outer =  2 : [Hgwmsw - Hgwmodf] (svat=  50603)=  0.03344 m
+ 
+
+ Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
+ 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
+ -0.160 -0.143 -0.103 -0.002  0.000  0.000  0.000  0.002  0.009  0.021  0.033
+ 
+   msw1postfm_sc1_begin, k =       1
+   msw1postfm_sc1_end  , k =  183388
+
+ msw1postfm_qmodf_begin, k =       1
+ msw1postfm_qmodf_end  , k =  183388
+ 
+ iter_outer =  3 : [Hgwmsw - Hgwmodf] (svat= 181138)= -0.11829 m
+ iter_outer =  3 : [Hgwmsw - Hgwmodf] (svat=  66216)=  0.02108 m
+ 
+
+ Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
+ 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
+ -0.117 -0.101 -0.078  0.000  0.000  0.000  0.000  0.001  0.003  0.006  0.021
+ 
+   msw1postfm_sc1_begin, k =       1
+   msw1postfm_sc1_end  , k =  183388
+
+ msw1postfm_qmodf_begin, k =       1
+ msw1postfm_qmodf_end  , k =  183388
+ 
+ iter_outer =  4 : [Hgwmsw - Hgwmodf] (svat= 181138)= -0.11319 m
+ iter_outer =  4 : [Hgwmsw - Hgwmodf] (svat=  66216)=  0.00762 m
+ 
+
+ Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
+ 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
+ -0.112 -0.083 -0.059  0.000  0.000  0.000  0.000  0.001  0.002  0.004  0.008
+ 
+   msw1postfm_sc1_begin, k =       1
+   msw1postfm_sc1_end  , k =  183388
+
+ msw1postfm_qmodf_begin, k =       1
+ msw1postfm_qmodf_end  , k =  183388
+ 
+ iter_outer =  5 : [Hgwmsw - Hgwmodf] (svat= 181138)= -0.10672 m
+ iter_outer =  5 : [Hgwmsw - Hgwmodf] (svat=  66216)=  0.00762 m
+ 
+
+ Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
+ 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
+ -0.106 -0.081 -0.056  0.000  0.000  0.000  0.000  0.001  0.002  0.004  0.008
+ 
+   msw1postfm_sc1_begin, k =       1
+   msw1postfm_sc1_end  , k =  183388
+
+ msw1postfm_qmodf_begin, k =       1
+ msw1postfm_qmodf_end  , k =  183388
+ 
+ iter_outer =  6 : [Hgwmsw - Hgwmodf] (svat= 181138)= -0.11173 m
+ iter_outer =  6 : [Hgwmsw - Hgwmodf] (svat=  66216)=  0.00753 m
+ 
+
+ Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
+ 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
+ -0.111 -0.086 -0.060  0.000  0.000  0.000  0.000  0.001  0.002  0.004  0.008
+ 
+   msw1postfm_sc1_begin, k =       1
+   msw1postfm_sc1_end  , k =  183388
+
+ msw1postfm_qmodf_begin, k =       1
+ msw1postfm_qmodf_end  , k =  183388
+ 
+ iter_outer =  7 : [Hgwmsw - Hgwmodf] (svat= 181138)= -0.11092 m
+ iter_outer =  7 : [Hgwmsw - Hgwmodf] (svat=  66216)=  0.00757 m
+ 
+
+ Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
+ 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
+ -0.110 -0.086 -0.060  0.000  0.000  0.000  0.000  0.001  0.002  0.004  0.008
+ 
+
+ Smallest phreatic storage coefficient: sc1( 111283)= 0.01000 (m3/m2/m)
+ 
+MODFLOW_end
+ 
+MetaSWAP_finalize&write_begin,tiac =     2.00
+msw1bd_begin,   k =       1
+ max. water loss,     vcr(  48065)=  -0.00000 m3/m2
+ max. water creation, vcr(   4873)=   0.00000 m3/m2
+msw1bd_end,     k =  183388
+ msw1sav_begin
+ msw1sav_end
+MetaSWAP_finalize&write_end, tiac =     2.00
+MetaSWAP_rootzone_update_begin
+MetaSWAP_rootzone_update_end  
+ 
+MODFLOW_begin
+    Solving:  Stress period:     3    Time step:     1
+MODFLOW_end
+ 
+MetaSWAP_begin, tiac =     2.00
+>> DO idtsw=1,nudtsw
+     msw1top
+MetaSWAP_dtsw_begin, tiac =     2.00
+ Reading file C:\OD\WS_Mdl\models\NBr\in\cap\P\NBr1\p_19930104_NBr1.asc 
+ Reading file C:\OD\WS_Mdl\models\NBr\in\cap\PET\NBr1\PET_19930104_NBr1.asc 
+ msw1top_begin, k =       1
+ msw1top_end,   k =  183388
+MetaSWAP_dtsw_end,   tiac =     3.00
+<< ENDDO
+MetaSWAP_end, tiac =     3.00
+ 
+MODFLOW_begin
+ msw1unsa_begin, k        1
+ msw1unsa_end,   k   183388
+ msw1postfm_qmodf_begin, k =       1
+ msw1postfm_qmodf_end  , k =  183388
+ 
+ iter_outer =  1 : [Hgwmsw - Hgwmodf] (svat=  99307)= -0.10862 m
+ iter_outer =  1 : [Hgwmsw - Hgwmodf] (svat=  80945)=  0.10984 m
+ 
+
+ Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
+ 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
+ -0.108 -0.082 -0.041 -0.015  0.000  0.000  0.000  0.008  0.033  0.087  0.110
+ 
+   msw1postfm_sc1_begin, k =       1
+   msw1postfm_sc1_end  , k =  183388
+
+ msw1postfm_qmodf_begin, k =       1
+ msw1postfm_qmodf_end  , k =  183388
+ 
+ iter_outer =  2 : [Hgwmsw - Hgwmodf] (svat=   5007)= -0.09767 m
+ iter_outer =  2 : [Hgwmsw - Hgwmodf] (svat=  96265)=  0.12369 m
+ 
+
+ Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
+ 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
+ -0.097 -0.090 -0.063 -0.001  0.000  0.000  0.000  0.001  0.018  0.092  0.124
+ 
+   msw1postfm_sc1_begin, k =       1
+   msw1postfm_sc1_end  , k =  183388
+
+ msw1postfm_qmodf_begin, k =       1
+ msw1postfm_qmodf_end  , k =  183388
+ 
+ iter_outer =  3 : [Hgwmsw - Hgwmodf] (svat= 170652)= -0.08133 m
+ iter_outer =  3 : [Hgwmsw - Hgwmodf] (svat=  96265)=  0.05523 m
+ 
+
+ Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
+ 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
+ -0.080 -0.076 -0.048  0.000  0.000  0.000  0.000  0.001  0.007  0.035  0.055
+ 
+   msw1postfm_sc1_begin, k =       1
+   msw1postfm_sc1_end  , k =  183388
+
+ msw1postfm_qmodf_begin, k =       1
+ msw1postfm_qmodf_end  , k =  183388
+ 
+ iter_outer =  4 : [Hgwmsw - Hgwmodf] (svat= 170652)= -0.06343 m
+ iter_outer =  4 : [Hgwmsw - Hgwmodf] (svat=  96265)=  0.01457 m
+ 
+
+ Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
+ 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
+ -0.062 -0.060 -0.039  0.000  0.000  0.000  0.000  0.000  0.002  0.009  0.015
+ 
+   msw1postfm_sc1_begin, k =       1
+   msw1postfm_sc1_end  , k =  183388
+
+ msw1postfm_qmodf_begin, k =       1
+ msw1postfm_qmodf_end  , k =  183388
+ 
+ iter_outer =  5 : [Hgwmsw - Hgwmodf] (svat= 170652)= -0.06009 m
+ iter_outer =  5 : [Hgwmsw - Hgwmodf] (svat=  96265)=  0.01528 m
+ 
+
+ Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
+ 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
+ -0.059 -0.059 -0.038  0.000  0.000  0.000  0.000  0.000  0.002  0.009  0.015
+ 
+   msw1postfm_sc1_begin, k =       1
+   msw1postfm_sc1_end  , k =  183388
+
+ msw1postfm_qmodf_begin, k =       1
+ msw1postfm_qmodf_end  , k =  183388
+ 
+ iter_outer =  6 : [Hgwmsw - Hgwmodf] (svat= 170652)= -0.06205 m
+ iter_outer =  6 : [Hgwmsw - Hgwmodf] (svat=  96265)=  0.01531 m
+ 
+
+ Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
+ 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
+ -0.061 -0.060 -0.039  0.000  0.000  0.000  0.000  0.000  0.002  0.011  0.015
+ 
+   msw1postfm_sc1_begin, k =       1
+   msw1postfm_sc1_end  , k =  183388
+
+ msw1postfm_qmodf_begin, k =       1
+ msw1postfm_qmodf_end  , k =  183388
+ 
+ iter_outer =  7 : [Hgwmsw - Hgwmodf] (svat= 170652)= -0.06166 m
+ iter_outer =  7 : [Hgwmsw - Hgwmodf] (svat=  96265)=  0.01542 m
+ 
+
+ Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
+ 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
+ -0.061 -0.060 -0.039  0.000  0.000  0.000  0.000  0.000  0.002  0.011  0.015
+ 
+
+ Smallest phreatic storage coefficient: sc1(  23697)= 0.01000 (m3/m2/m)
+ 
+MODFLOW_end
+ 
+MetaSWAP_finalize&write_begin,tiac =     3.00
+msw1bd_begin,   k =       1
+ max. water loss,     vcr( 100277)=  -0.00000 m3/m2
+ max. water creation, vcr(   4875)=   0.00000 m3/m2
+msw1bd_end,     k =  183388
+MetaSWAP_finalize&write_end, tiac =     3.00
+MetaSWAP_rootzone_update_begin
+MetaSWAP_rootzone_update_end  
+ 
+MODFLOW_begin
+    Solving:  Stress period:     4    Time step:     1
+MODFLOW_end
+ 
+MetaSWAP_begin, tiac =     3.00
+>> DO idtsw=1,nudtsw
+     msw1top
+MetaSWAP_dtsw_begin, tiac =     3.00
+ Reading file C:\OD\WS_Mdl\models\NBr\in\cap\P\NBr1\p_19930105_NBr1.asc 
+ Reading file C:\OD\WS_Mdl\models\NBr\in\cap\PET\NBr1\PET_19930105_NBr1.asc 
+ msw1top_begin, k =       1
+ msw1top_end,   k =  183388
+MetaSWAP_dtsw_end,   tiac =     4.00
+<< ENDDO
+MetaSWAP_end, tiac =     4.00
+ 
+MODFLOW_begin
+ msw1unsa_begin, k        1
+ msw1unsa_end,   k   183388
+ msw1postfm_qmodf_begin, k =       1
+ msw1postfm_qmodf_end  , k =  183388
+ 
+ iter_outer =  1 : [Hgwmsw - Hgwmodf] (svat=  52188)= -0.08165 m
+ iter_outer =  1 : [Hgwmsw - Hgwmodf] (svat=  41545)=  0.09279 m
+ 
+
+ Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
+ 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
+ -0.081 -0.069 -0.029 -0.007  0.000  0.000  0.000  0.005  0.019  0.052  0.093
+ 
+   msw1postfm_sc1_begin, k =       1
+   msw1postfm_sc1_end  , k =  183388
+
+ msw1postfm_qmodf_begin, k =       1
+ msw1postfm_qmodf_end  , k =  183388
+ 
+ iter_outer =  2 : [Hgwmsw - Hgwmodf] (svat= 134728)= -0.06557 m
+ iter_outer =  2 : [Hgwmsw - Hgwmodf] (svat= 103718)=  0.04322 m
+ 
+
+ Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
+ 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
+ -0.065 -0.059 -0.026  0.000  0.000  0.000  0.000  0.001  0.006  0.027  0.043
+ 
+   msw1postfm_sc1_begin, k =       1
+   msw1postfm_sc1_end  , k =  183388
+
+ msw1postfm_qmodf_begin, k =       1
+ msw1postfm_qmodf_end  , k =  183388
+ 
+ iter_outer =  3 : [Hgwmsw - Hgwmodf] (svat= 134728)= -0.04677 m
+ iter_outer =  3 : [Hgwmsw - Hgwmodf] (svat=  64723)=  0.02915 m
+ 
+
+ Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
+ 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
+ -0.046 -0.045 -0.020  0.000  0.000  0.000  0.000  0.000  0.002  0.015  0.029
+ 
+   msw1postfm_sc1_begin, k =       1
+   msw1postfm_sc1_end  , k =  183388
+
+ msw1postfm_qmodf_begin, k =       1
+ msw1postfm_qmodf_end  , k =  183388
+ 
+ iter_outer =  4 : [Hgwmsw - Hgwmodf] (svat= 164041)= -0.03564 m
+ iter_outer =  4 : [Hgwmsw - Hgwmodf] (svat= 103718)=  0.00745 m
+ 
+
+ Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
+ 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
+ -0.035 -0.031 -0.017  0.000  0.000  0.000  0.000  0.000  0.001  0.005  0.007
+ 
+   msw1postfm_sc1_begin, k =       1
+   msw1postfm_sc1_end  , k =  183388
+
+ msw1postfm_qmodf_begin, k =       1
+ msw1postfm_qmodf_end  , k =  183388
+ 
+ iter_outer =  5 : [Hgwmsw - Hgwmodf] (svat= 164041)= -0.03468 m
+ iter_outer =  5 : [Hgwmsw - Hgwmodf] (svat= 103718)=  0.00780 m
+ 
+
+ Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
+ 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
+ -0.034 -0.030 -0.017  0.000  0.000  0.000  0.000  0.000  0.001  0.005  0.008
+ 
+   msw1postfm_sc1_begin, k =       1
+   msw1postfm_sc1_end  , k =  183388
+
+ msw1postfm_qmodf_begin, k =       1
+ msw1postfm_qmodf_end  , k =  183388
+ 
+ iter_outer =  6 : [Hgwmsw - Hgwmodf] (svat= 164041)= -0.03660 m
+ iter_outer =  6 : [Hgwmsw - Hgwmodf] (svat= 103718)=  0.00820 m
+ 
+
+ Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
+ 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
+ -0.036 -0.032 -0.018  0.000  0.000  0.000  0.000  0.000  0.001  0.004  0.008
+ 
+   msw1postfm_sc1_begin, k =       1
+   msw1postfm_sc1_end  , k =  183388
+
+ msw1postfm_qmodf_begin, k =       1
+ msw1postfm_qmodf_end  , k =  183388
+ 
+ iter_outer =  7 : [Hgwmsw - Hgwmodf] (svat= 164041)= -0.03645 m
+ iter_outer =  7 : [Hgwmsw - Hgwmodf] (svat= 103718)=  0.00827 m
+ 
+
+ Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
+ 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
+ -0.035 -0.032 -0.018  0.000  0.000  0.000  0.000  0.000  0.001  0.004  0.008
+ 
+
+ Smallest phreatic storage coefficient: sc1(   1220)= 0.01000 (m3/m2/m)
+ 
+MODFLOW_end
+ 
+MetaSWAP_finalize&write_begin,tiac =     4.00
+msw1bd_begin,   k =       1
+ max. water loss,     vcr(  47441)=  -0.00000 m3/m2
+ max. water creation, vcr(   6474)=   0.00000 m3/m2
+msw1bd_end,     k =  183388
+MetaSWAP_finalize&write_end, tiac =     4.00
+MetaSWAP_rootzone_update_begin
+MetaSWAP_rootzone_update_end  
+ 
+MODFLOW_begin
+    Solving:  Stress period:     5    Time step:     1
+forrtl: error (200): program aborting due to control-C event
+Image              PC                Routine            Line        Source             
+KERNELBASE.dll     00007FFA5250A09D  Unknown               Unknown  Unknown
+KERNEL32.DLL       00007FFA53A0E8D7  Unknown               Unknown  Unknown
+ntdll.dll          00007FFA54F88D9C  Unknown               Unknown  Unknown
+Terminate batch job (Y/N)? 
+^C
+C:\OD\WS_Mdl\models\NBr\Sim\NBr34>IF 0 NEQ 0 (ECHO AN ERROR WAS FOUND ERRORLEVEL ) 
+Terminating processes on user request, this might take some time.
+Complete log(s): C:\OD\WS_Mdl\models\NBr\.snakemake\log\2025-10-09T181206.341881.snakemake.log
+WorkflowError:
+At least one job did not complete successfully.
+Repo root: C:/Users/Karam014/OneDrive - Universiteit Utrecht/WS_Mdl
+⚪️⚪️⚪️ No changes to tracked env/code files. Nothing to commit.
+🟢 - NBr34 paths extracted from RunLog and returned as dictionary with keys:
+Mdl, MdlN, Pa_Mdl, Smk_temp, PoP, INI, BAT, PRJ, Smk, Sim, Pa_MdlN, LST_Sim, LST_Mdl, NAM_Sim, NAM_Mdl, Out_HD, PoP_Out_MdlN, MM, Mdl_B, MdlN_B, Pa_Mdl_B, Smk_temp_B, PoP_B, INI_B, BAT_B, PRJ_B, Smk_B, Sim_B, Pa_MdlN_B, LST_Sim_B, LST_Mdl_B, NAM_Sim_B, NAM_Mdl_B, Out_HD_B, PoP_Out_MdlN_B, MM_B
+🟢 - INI file C:/OD/WS_Mdl\models/NBr\code/Mdl_Prep/Mdl_Prep_NBr34.ini read successfully. Dictionary created with 21 keys.
+🟢 - Added OBS to C:/OD/WS_Mdl\models/NBr\Sim/NBr34\GWF_1/MODELINPUT\NBr34.DRN6
+🟢 - Added OBS to C:/OD/WS_Mdl\models/NBr\Sim/NBr34\GWF_1/MODELINPUT\NBr34.RIV6
+********************************************************************************
+
+Running add_OBS ...
+🟢 - INI file C:/OD/WS_Mdl\models/NBr\code/Mdl_Prep/Mdl_Prep_NBr34.ini read successfully. Dictionary created with 21 keys.
+Error reading PRJ file: Expected NSUB entry of 4 for ('conductance', 'stage', 'bottom_elevation', 'infiltration_factor'), read: 1
+Error occurred for keyword: (riv)
+🟢 - IPF file C:\OD\WS_Mdl\models\NBr\In\OBS\NBr8\GWL_NBr8.ipf read successfully. DataFrame created with 9678 rows and 11 columns.
+🟢 - C:/OD/WS_Mdl\models/NBr\Sim/NBr34\GWF_1/MODELINPUT/NBr34.OBS6 has been added successfully!
+
+end_of_transmission
+********************************************************************************
+

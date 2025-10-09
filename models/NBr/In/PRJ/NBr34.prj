@@ -33,7 +33,7 @@
 
 1,(OBS),0,  OBSERVATION PACKAGE
 001,001
-1,2, 000,   1.000000    ,   0.000000    ,  -999.9900    ,'..\..\In\OBS\NBr8\ijkset_selectie_NBr8.ipf'
+1,2, 000,   1.000000    ,   0.000000    ,  -999.9900    ,'..\..\In\OBS\NBr8\GWL_NBr8.ipf'
 
 0001,(BND),1, Boundary Condition
 001,037
