@@ -185,13 +185,13 @@ def DA_to_MBTIF(DA, Pa_Out, d_MtDt, crs=crs, _print=False):
         vprint(f'DA_to_MBTIF finished successfully for: {Pa_Out}')
 
 
-def PRJ_to_TIF(MdlN):
+def PRJ_to_TIF(MdlN, iMOD5=False):
     """Converts PRJ file to TIF (multiband if necessary) files by package (only time independent packages).
     The function uses a DF produced by PRJ_to_DF. It needs to follow a specific format.
     Also creates a .csv file with the TIF file paths to be replaced in the QGIS project."""
 
     # -------------------- Initiate ----------------------------------------------
-    d_Pa = U.get_MdlN_Pa(MdlN)  # Get paths
+    d_Pa = U.get_MdlN_Pa(MdlN, iMOD5=iMOD5)  # Get paths
     Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = U.Mdl_Dmns_from_INI(d_Pa['INI'])  # Get dimensions
 
     DF = UIM.PRJ_to_DF(MdlN)  # Read PRJ file to DF
@@ -617,14 +617,14 @@ def HD_Agg_name(group_keys, grouping):  # 666 could be moved to util
     return '_'.join(str(k) for k in group_keys)  # fallback: join all keys with underscore
 
 
-def HD_IDF_GXG_to_TIF(MdlN: str, N_cores: int = None, crs: str = crs, rules: str = None):
+def HD_IDF_GXG_to_TIF(MdlN: str, N_cores: int = None, crs: str = crs, rules: str = None, iMOD5=False):
     """Reads Sim Out IDF files from the model directory and calculates GXG for each L. Saves them as MultiBand TIF files - each band representing one of the GXG params for a L."""
 
     vprint(Pre_Sign)
     vprint(f'*** {MdlN} *** - HD_IDF_GXG_to_TIF\n')
 
     # Get paths
-    d_Pa = U.get_MdlN_Pa(MdlN)
+    d_Pa = U.get_MdlN_Pa(MdlN, iMOD5=iMOD5)
     Pa_PoP, Pa_HD = [d_Pa[v] for v in ['PoP', 'Out_HD']]
 
     # Read DF and apply rules to DF if rules is not None.

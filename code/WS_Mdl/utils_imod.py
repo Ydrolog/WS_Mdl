@@ -42,7 +42,7 @@ CuCh = {
 
 
 # PRJ related --------------------------------------------------------------------
-def r_PRJ_with_OBS(Pa_PRJ, remove_SS=True, season_to_DT=False):
+def r_PRJ_with_OBS(Pa_PRJ, remove_SS=True, season_to_DT=True):
     """
     imod.formats.prj.read_projectfile struggles with .prj files that contain OBS blocks. This will read the PRJ file and return a tuple. The first item is a PRJ dictionary (as imod.formats.prj would return) and also a list of the OBS block lines.
 
@@ -67,43 +67,51 @@ def r_PRJ_with_OBS(Pa_PRJ, remove_SS=True, season_to_DT=False):
         else:
             l_filtered_Lns.append(line)  # Keep everything else
 
-    get_SS_N, N_SS = False, 0
+    get_SS_N, N_SS, l_filtered_Lns1 = False, 0, []
     if remove_SS:
         for i, Ln in enumerate(l_filtered_Lns[:]):  # Iterate over a copy of the list to allow removal
             if 'STEADY-STATE' in Ln.upper():  # Identify steady state period lines
-                l_filtered_Lns.pop(i)  # Remove the steady state period line
                 get_SS_N = True
+                LL = l_filtered_Lns1[-1].split(',')  # LL: Last Line
+                l_filtered_Lns1[-1] = ','.join([f'{int(LL[0]) - 1:03}'] + LL[1:])
             elif get_SS_N:
-                l_filtered_Lns.pop(i)  # Remove the line with the number of time steps
                 l_SS_Ln = Ln.replace('\n', '').split(',')
                 N_SS = math.prod([int(x) for x in l_SS_Ln])
                 get_SS_N = False
             elif N_SS > 0:
-                l_filtered_Lns.pop(i)  # Remove the steady state time step lines
                 N_SS -= 1
+            else:
+                l_filtered_Lns1.append(Ln)  # Keep non-steady state lines
 
     # Replace seasons
+    l_filtered_Lns2 = []
     if season_to_DT:
         season_map = {}
-        for i, Ln in enumerate(l_filtered_Lns[:]):  # Iterate over a copy of the list to allow modification
+        record_periods = False
+        for i, Ln in enumerate(l_filtered_Lns1[:]):  # Iterate over a copy of the list to allow modification
             if 'periods' in Ln.lower():  # Identify season lines
                 record_periods = True
                 l_filtered_Lns.pop(i)
             elif record_periods and Ln.strip() == '':  # End of season block
                 record_periods = False
             else:
-                if 'winter' in Ln.lower():
-                    season_map['winter'] = l_filtered_Lns[i + 1].strip()  # Next line should contain the date
-                elif 'summer' in Ln.lower():
-                    season_map['summer'] = l_filtered_Lns[i + 1].strip()  # Next line should contain the date
-    l_filtered_Lns = [season_map.get(x, x) for x in l_filtered_Lns]
+                if 'winter\n' == Ln.lower():
+                    season_map[Ln] = l_filtered_Lns1[i + 1].strip()  # Next line should contain the date
+                elif 'summer\n' == Ln.lower():
+                    season_map[Ln] = l_filtered_Lns1[i + 1].strip()  # Next line should contain the date
+        l_filtered_Lns2 = [season_map.get(x, x) for x in l_filtered_Lns1]
 
     # Write to a temporary file
+    l_filtered_Lns = l_filtered_Lns2
     with tempfile.NamedTemporaryFile(delete=False, mode='w', suffix='.prj') as temp_file:
         temp_file.writelines(l_filtered_Lns)
         Pa_PRJ_temp = temp_file.name
 
-    PRJ = imod.formats.prj.read_projectfile(Pa_PRJ_temp)  # Load the PRJ file without OBS
+    try:
+        PRJ = imod.formats.prj.read_projectfile(Pa_PRJ_temp)  # Load the PRJ file without OBS
+    except Exception as e:
+        print(f'Error reading PRJ file: {e}')
+        PRJ = None
     os.remove(Pa_PRJ_temp)  # Delete temp PRJ file as it's not needed anymore.
 
     return PRJ, l_OBS_Lns

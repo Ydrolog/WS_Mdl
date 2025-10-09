@@ -183,7 +183,7 @@ def get_MdlN_Pa(MdlN: str, MdlN_B=None, iMOD5=False):
             else PJ(d_Pa['Pa_MdlN'], f'GWF_1/{MdlN}.NAM')
         )
         d_Pa['Sim_In'] = (
-            PJ(d_Pa['Pa_MdlN'], 'modflow6\imported_model') if not iMOD5 else PJ(d_Pa['Pa_MdlN'], 'GWF_1/MODELINPUT')
+            PJ(d_Pa['Pa_MdlN'], 'modflow6/imported_model') if not iMOD5 else PJ(d_Pa['Pa_MdlN'], 'GWF_1/MODELINPUT')
         )
         d_Pa['SFR'] = (
             PJ(d_Pa['Pa_MdlN'], f'modflow6/imported_model/{MdlN}.SFR6')
@@ -1195,12 +1195,11 @@ def add_OBS_to_MF_In(str_OBS, PKG=None, MdlN=None, Pa=None, iMOD5=False):
         Pa = Pa
     elif (MdlN is not None) and (PKG is not None):
         d_Pa = get_MdlN_Pa(MdlN, iMOD5=iMOD5)
-        Pa = PJ(d_Pa['Pa_In'], f'{MdlN}.{PKG}6')
+        Pa = PJ(d_Pa['Sim_In'], f'{MdlN}.{PKG}6')
     else:
         raise ValueError('Either Pa or both MdlN and PKG must be provided.')
 
-    lock = FL(f'{Pa}.lock')
-    with lock.open(Pa, 'r+') as f:
+    with open(Pa, 'r+') as f:
         l_Lns = f.readlines()
         try:
             i = next(i for i, ln in enumerate(l_Lns) if 'END OPTIONS' in ln)
