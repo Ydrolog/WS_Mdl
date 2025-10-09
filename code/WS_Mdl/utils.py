@@ -1205,7 +1205,10 @@ def add_OBS_to_MF_In(str_OBS, PKG=None, MdlN=None, Pa=None, iMOD5=False):
             i = next(i for i, ln in enumerate(l_Lns) if 'END OPTIONS' in ln)
             l_1, l_2 = l_Lns[:i], l_Lns[i:]
             l_Lns = l_1 + [f'{str_OBS}\n'] + l_2
-            vprint(f'🟢 - Added OBS to {PBN(Pa)}')
+            f.seek(0)
+            f.writelines(l_Lns)
+            f.truncate()
+            vprint(f'🟢 - Added OBS to {Pa}')
         except ValueError as e:
             print(f'🔴 - Failed:\n {e}')
 
