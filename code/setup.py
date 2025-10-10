@@ -31,6 +31,7 @@ setup(
             'rerun_Sim=WS_Mdl.scripts.rerun_Sim:main',  # Reruns the Sim for the provided MdlN.
             'o_=WS_Mdl.scripts.o_:main',  # Opens LST files for the provided MdlN.
             'SFR_to_GPkg=WS_Mdl.scripts.SFR_to_GPkg:main',  # Converts SFR data to GeoPackage format.
+            'p_TS_range=WS_Mdl.scripts.p_TS_range:main',  # Plots time series range from files with date patterns in their names.
         ]
     },
 )

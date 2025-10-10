@@ -5438,7 +5438,7 @@ packages:
 - pypi: C:/Users/Karam014/OneDrive - Universiteit Utrecht/WS_Mdl/code
   name: ws-mdl
   version: '0.1'
-  sha256: d24db4ced79f715baff73e1c337a4ae958f0298d6880d76bb0cafc7862d2316c
+  sha256: c406eec70c3f56b2bc512c1ae3999ef037a1f8dedef0f47b65b2c26844e2de12
   requires_dist:
   - pandas
   - colored

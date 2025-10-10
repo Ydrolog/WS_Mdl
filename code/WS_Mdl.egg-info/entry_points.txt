@@ -15,5 +15,6 @@ o_ = WS_Mdl.scripts.o_:main
 o_LST = WS_Mdl.scripts.o_LST:main
 o_LSTs = WS_Mdl.scripts.o_LSTs:main
 o_NAMs = WS_Mdl.scripts.o_NAMs:main
+p_TS_range = WS_Mdl.scripts.p_TS_range:main
 rerun_Sim = WS_Mdl.scripts.rerun_Sim:main
 reset_Sim = WS_Mdl.scripts.reset_Sim:main

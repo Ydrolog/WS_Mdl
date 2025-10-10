@@ -40,6 +40,7 @@ WS_Mdl/scripts/o_.py
 WS_Mdl/scripts/o_LST.py
 WS_Mdl/scripts/o_LSTs.py
 WS_Mdl/scripts/o_NAMs.py
+WS_Mdl/scripts/p_TS_range.py
 WS_Mdl/scripts/rerun_Sim.py
 WS_Mdl/scripts/reset_Sim.py
 WS_Mdl/scripts/__pycache__/DVC_add_pattern.cpython-312.pyc

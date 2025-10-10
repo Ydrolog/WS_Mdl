@@ -65,7 +65,7 @@ def bprint(*args, **kwargs):
 # --------------------------------------------------------------------------------
 
 
-# Get MdlN info ------------------------------------------------------------------
+# Get (MdlN) info ------------------------------------------------------------------
 def MdlN_Se_from_RunLog(
     MdlN,
 ):  # Can be made faster. May need to make excel export the RunLog as a csv, so that I can use pd.read_csv instead of pd.read_excel.
@@ -213,6 +213,237 @@ def get_last_MdlN():
     DF.loc[:-2, 'Sim end DT'] = DF.loc[:-2, 'Sim end DT'].apply(pd.to_datetime, dayfirst=True)
     DF['Sim end DT'] = pd.to_datetime(DF['Sim end DT'], format='mixed', dayfirst=True)
     return DF.sort_values('Sim end DT', ascending=False).iloc[0]['MdlN']
+
+
+def p_TS_range(l_Pa, ending='IDF', date_format='%Y%m%d', Out_Fi='TS_range.png'):
+    """
+    Reads file names using a naming convention containing dates from multiple directories.
+    Then plots the time series range as an image with one line per directory.
+    Uses regular expressions to extract dates from filenames, making it more versatile than assuming
+    the date is always the second element when splitting by underscore.
+
+    Parameters:
+    -----------
+    l_Pa : str or list
+        Single path (str) or list of paths to directories containing files with dates
+    ending : str
+        File extension to filter by (default: 'IDF')
+    date_format : str
+        Date format pattern for parsing dates from filenames (default: '%Y%m%d')
+    Out_Fi : str
+        Output filename for the plot (default: 'TS_range.png')
+    """
+    import matplotlib.pyplot as plt
+
+    # Handle single path input by converting to list
+    if isinstance(l_Pa, str):
+        l_Pa = [l_Pa]
+
+    # Create regex pattern based on date_format
+    date_pattern = date_format.replace('%Y', r'\d{4}').replace('%m', r'\d{2}').replace('%d', r'\d{2}')
+
+    # Collect data for each path
+    data_by_path = {}
+    all_dates = []
+
+    for Pa in l_Pa:
+        if not os.path.exists(Pa):
+            vprint(f'Warning: Path does not exist: {Pa}')
+            continue
+
+        l_Fi = [f for f in LD(Pa) if f.endswith(ending)]
+        l_Dt = []
+
+        for f in l_Fi:
+            # Search for date pattern in filename
+            match = re.search(date_pattern, f)
+            if match:
+                try:
+                    date_str = match.group(0)
+                    dt = DT.strptime(date_str, date_format)
+                    l_Dt.append(dt)
+                    all_dates.append(dt)
+                except ValueError:
+                    vprint(f'Warning: Could not parse date from filename: {f}')
+            else:
+                vprint(f'Warning: No date pattern found in filename: {f}')
+
+        if l_Dt:
+            l_Dt.sort()
+            data_by_path[Pa] = l_Dt
+            vprint(f'Found {len(l_Dt)} files with dates in {PBN(Pa)}')
+        else:
+            vprint(f'No valid dates found in {Pa}')
+
+    if not data_by_path:
+        print('No valid dates found in any of the provided paths')
+        return
+
+    # Create the plot with space for external legend
+    n_paths = len(data_by_path)
+    fig_height = max(2, n_paths * 0.8)  # Adjust height based on number of paths
+    fig, ax = plt.subplots(figsize=(14, fig_height))  # Wider for external legend
+
+    # Use simple, distinct colors
+    simple_colors = [
+        '#1f77b4',
+        '#ff7f0e',
+        '#2ca02c',
+        '#d62728',
+        '#9467bd',
+        '#8c564b',
+        '#e377c2',
+        '#7f7f7f',
+        '#bcbd22',
+        '#17becf',
+    ]
+    legend_elements = []
+
+    for i, (Pa, l_Dt) in enumerate(data_by_path.items()):
+        y_pos = n_paths - i  # Plot from top to bottom
+        color = simple_colors[i % len(simple_colors)]
+
+        # For large datasets, use simpler approach for better performance
+        if len(l_Dt) > 1000:
+            # Just draw the full range line and data points for large datasets
+            ax.hlines(y_pos, l_Dt[0], l_Dt[-1], colors=color, lw=6, alpha=0.7, zorder=2)
+            # Sample data points for better performance (every 10th point for very large datasets)
+            sample_step = max(1, len(l_Dt) // 500)  # Show max 500 points
+            l_Dt_sampled = l_Dt[::sample_step]
+            ax.plot(
+                l_Dt_sampled,
+                [y_pos] * len(l_Dt_sampled),
+                'o',
+                color=color,
+                markersize=3,
+                markeredgecolor='white',
+                markeredgewidth=0.5,
+                zorder=3,
+            )
+        else:
+            # Original detailed approach for smaller datasets
+            # Draw faint line for entire time range (gaps)
+            ax.hlines(y_pos, l_Dt[0], l_Dt[-1], colors=color, lw=2, alpha=0.15, zorder=1)
+
+            # Draw solid line segments between consecutive data points (no gaps)
+            for j in range(len(l_Dt) - 1):
+                current_date = l_Dt[j]
+                next_date = l_Dt[j + 1]
+                days_diff = (next_date - current_date).days
+                if days_diff <= 7:  # If gap is 7 days or less, show as continuous
+                    ax.hlines(y_pos, current_date, next_date, colors=color, lw=6, alpha=0.8, zorder=2)
+
+            # Plot all individual data points for smaller datasets
+            ax.plot(
+                l_Dt,
+                [y_pos] * len(l_Dt),
+                'o',
+                color=color,
+                markersize=4,
+                markeredgecolor='white',
+                markeredgewidth=0.5,
+                zorder=3,
+            )
+
+        # Create legend element with simple styling
+        from matplotlib.lines import Line2D
+
+        legend_elements.append(Line2D([0], [0], color=color, lw=4, label=f'{PBN(Pa)} ({len(l_Dt)} files)'))
+
+    # Formatting
+    ax.set_ylim(0.5, n_paths + 0.5)
+    ax.set_yticks([])
+    ax.set_title('Time Series Range Comparison', fontsize=14, fontweight='bold')
+    ax.set_xlabel('Date', fontsize=12)
+    ax.grid(axis='x', alpha=0.2)
+
+    # Add legend outside the plot area (right side)
+    ax.legend(
+        handles=legend_elements,
+        bbox_to_anchor=(1.02, 1),
+        loc='upper left',
+        fontsize=10,
+        frameon=True,
+        fancybox=False,
+        shadow=False,
+    )
+
+    # Save to first path if multiple paths provided (optional backup)
+    save_path = PJ(l_Pa[0], Out_Fi)
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=300, bbox_inches='tight')
+
+    # Show interactive plot
+    import matplotlib
+
+    # Turn on interactive mode first
+    plt.ion()
+
+    # Ensure we're using an interactive backend
+    current_backend = matplotlib.get_backend()
+    vprint(f'Current matplotlib backend: {current_backend}')
+
+    if current_backend in ['Agg', 'svg', 'pdf', 'ps']:
+        vprint('Non-interactive backend detected, switching to interactive backend...')
+        try:
+            plt.switch_backend('TkAgg')
+            vprint('Switched to TkAgg backend')
+        except ImportError:
+            try:
+                plt.switch_backend('Qt5Agg')
+                vprint('Switched to Qt5Agg backend')
+            except ImportError:
+                try:
+                    plt.switch_backend('Qt4Agg')
+                    vprint('Switched to Qt4Agg backend')
+                except ImportError:
+                    vprint('Warning: No interactive backend available. Plot may not stay open.')
+
+    # Set window title
+    try:
+        fig.canvas.manager.set_window_title('Time Series Range Comparison')
+    except AttributeError:
+        pass  # Some backends don't support this
+
+    # Show the plot and keep it alive using a separate process
+    import pickle
+    import subprocess
+    import sys
+
+    # Create a temporary script that will show the plot in a separate Python process
+    temp_script = f"""
+import matplotlib
+matplotlib.use('TkAgg')  # Force interactive backend
+import matplotlib.pyplot as plt
+import pickle
+import sys
+
+# Load the figure data
+with open(r'{save_path.replace('.png', '_figdata.pkl')}', 'rb') as f:
+    fig = pickle.load(f)
+
+# Show the plot and block (keeping it alive)
+plt.show(block=True)
+"""
+
+    # Save figure data to temporary pickle file
+    pickle_path = save_path.replace('.png', '_figdata.pkl')
+    with open(pickle_path, 'wb') as f:
+        pickle.dump(fig, f)
+
+    # Create temporary script file
+    temp_script_path = save_path.replace('.png', '_show_plot.py')
+    with open(temp_script_path, 'w') as f:
+        f.write(temp_script)
+
+    # Launch the plot in a separate Python process
+    subprocess.Popen(
+        [sys.executable, temp_script_path],
+        creationflags=subprocess.CREATE_NEW_CONSOLE if hasattr(subprocess, 'CREATE_NEW_CONSOLE') else 0,
+    )
+
+    print(f'Plot saved to: {save_path}')
+    print('Interactive plot launched in separate window. Script completed.')
 
 
 # --------------------------------------------------------------------------------
