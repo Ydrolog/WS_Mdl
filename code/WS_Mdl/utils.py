@@ -728,7 +728,7 @@ def o_(key, *l_MdlN, Pa=r'C:\Program Files\Notepad++\notepad++.exe'):
     vprint(Sign)
 
 
-def o_vscode(key, *l_MdlN, Pa='code'):
+def o_VS(key, *l_MdlN, Pa='code'):
     """Opens files at default locations with VS Code, as specified by get_MdlN_Pa()."""
     if key not in get_MdlN_Pa('NBr1').keys():
         raise ValueError(f'\nInvalid key: {key}.\nValid keys are: {", ".join(get_MdlN_Pa("NBr1").keys())}')
@@ -1399,11 +1399,11 @@ def add_MVR_to_OPTIONS(Pa):
             print(f'🔴 - Error adding MOVER option to {PBN(Pa)}: {e}')
 
 
-def add_PKG_to_NAM(MdlN, str_PKG):
+def add_PKG_to_NAM(MdlN, str_PKG, iMOD5=False):
     """
     Adds a package (PKG) to the NAM file for the specified model (MdlN).
     """
-    d_Pa = get_MdlN_Pa(MdlN)
+    d_Pa = get_MdlN_Pa(MdlN, iMOD5=iMOD5)
     Pa_NAM = d_Pa['NAM_Mdl']
 
     lock = FL(Pa_NAM + '.lock')  # Create a file lock to prevent concurrent writes
