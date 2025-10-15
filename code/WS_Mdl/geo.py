@@ -148,12 +148,13 @@ def DA_to_TIF(DA, Pa_Out, d_MtDt, crs=crs, _print=False):
         vprint(f'🟢 - DA_to_TIF finished successfully for: {Pa_Out}')
 
 
-def DA_to_MBTIF(DA, Pa_Out, d_MtDt, crs=crs, _print=False):
+def DA_to_MBTIF(DA, Pa_Out, d_MtDt, crs=crs, _print=False, decimals=3):
     """Write a 3D xarray.DataArray (shape = [n_bands, y, x]) to a GeoTIFF. This bypasses rioxarray.to_raster() entirely, letting us set per-band descriptions and metadata in a single pass.
     - DA: 3D xarray.DataArray with shape [n_bands, y, x]
     - Pa_Out: Path to the output GeoTIFF file.
     - d_MtDt: Dictionary with metadata to be written to the GeoTIFF file. Each key is a band index (1-based) and each value is a dictionary of metadata tags.
-    - crs: Coordinate Reference System (optional)."""
+    - crs: Coordinate Reference System (optional).
+    - decimals: Number of decimal places to round array values to (default: 3)."""
 
     band_keys, band_MtDt = zip(*d_MtDt.items())
 
@@ -172,7 +173,9 @@ def DA_to_MBTIF(DA, Pa_Out, d_MtDt, crs=crs, _print=False):
         photometric='MINISBLACK',
     ) as Dst:
         for i in range(DA.shape[0]):  # Write each band.
-            Dst.write(DA[i].values, i + 1)  # Write the actual pixels for this band (i+1 is the band index in Rasterio)
+            # Round the values before writing
+            band_values = np.round(DA[i].values, decimals=decimals)
+            Dst.write(band_values, i + 1)  # Write the actual pixels for this band (i+1 is the band index in Rasterio)
             Dst.set_band_description(
                 i + 1, band_keys[i]
             )  # Set a band description that QGIS will show as "Band 01: <description>"

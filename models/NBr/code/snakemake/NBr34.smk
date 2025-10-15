@@ -1,6 +1,6 @@
 ## --- Imports ---
 
-from WS_Mdl.utils import Up_log, Pa_WS, INI_to_d, get_elapsed_time_str, get_MdlN_paths
+from WS_Mdl.utils import Up_log, Pa_WS, INI_to_d, get_elapsed_time_str, get_MdlN_Pa
 import WS_Mdl.utils as U
 import WS_Mdl.utils_imod as UIM
 import WS_Mdl.geo as G
@@ -12,6 +12,7 @@ import os
 from os.path import join as PJ, basename as PBN, dirname as PDN, exists as PE
 import shutil as sh
 import re
+import sys
 sys.stdout.reconfigure(encoding='utf-8')
 sys.stderr.reconfigure(encoding='utf-8')
 os.environ["PYTHONUNBUFFERED"] = "1"
@@ -24,20 +25,23 @@ MdlN        =   "NBr34"
 MdlN_MM_B   =   'NBr17'
 Mdl         =   ''.join([i for i in MdlN if i.isalpha()])
 rule_       =   "(L == 1)"
+iMOD5       =   True 
 
 ## Paths
-Pa_Mdl                          =   PJ(Pa_WS, f'models/{Mdl}') 
-workdir:                            Pa_Mdl
-Pa_Smk                          =   PJ(Pa_Mdl, 'code/snakemake')
-Pa_temp                         =   PJ(Pa_Smk, 'temp')
-Pa_Sim                          =   PJ(Pa_Mdl, 'Sim')
-Pa_MdlN                         =   PJ(Pa_Sim, f'{MdlN}')
-Pa_BAT_RUN                      =   PJ(Pa_MdlN, 'RUN.BAT')
-Pa_OBS, Pa_NAM                  =   [PJ(Pa_MdlN, 'GWF_1', i) for i in [f'MODELINPUT/{MdlN}.OBS6', f'{MdlN}.NAM']]
-Pa_RIV_OBS_Src, Pa_DRN_OBS_Src  =   [PJ(Pa_Mdl, f"In/OBS/{i}/{MdlN}/{MdlN}.{i}.OBS6") for i in ['RIV', 'DRN']]
-Pa_RIV_OBS_Dst, Pa_DRN_OBS_Dst  =   [PJ(Pa_MdlN, f"GWF_1/MODELINPUT/{MdlN}.{i}.OBS6") for i in ['RIV', 'DRN']]
-Pa_HED, Pa_CBC                  =   [PJ(Pa_MdlN, 'GWF_1/MODELOUTPUT', i) for i in ['HEAD/HEAD.HED', 'BUDGET/BUDGET.CBC']]
-l_Fi_to_git = [PJ(Pa_WS, i) for i in ['code/pixi.toml', 'code/pixi.lock', 'code/WS_Mdl']] # If any of these code files changes, the 
+d_Pa                                =   get_MdlN_Pa(MdlN, iMOD5=iMOD5)
+Pa_Mdl                              =   PJ(Pa_WS, f'models/{Mdl}')
+workdir:                                Pa_Mdl
+Pa_Smk                              =   PJ(Pa_Mdl, 'code/snakemake')
+Pa_temp                             =   PJ(Pa_Smk, 'temp')
+Pa_Sim                              =   PJ(Pa_Mdl, 'Sim')
+Pa_MdlN                             =   PJ(Pa_Sim, f'{MdlN}')
+Pa_BAT_RUN                          =   PJ(Pa_MdlN, 'RUN.BAT')
+Pa_HD_OBS_Ogn                       =   PJ(d_Pa['In'], 'OBS/HD', f'{MdlN}/{MdlN}.HD.OBS6')
+Pa_HD_OBS_WEL, Pa_HD_OBS, Pa_NAM    =   [PJ(Pa_MdlN, 'GWF_1', i) for i in [f'MODELINPUT/{MdlN}.OBS6', f'MODELINPUT/{MdlN}.HD.OBS6', f'{MdlN}.NAM']]
+Pa_RIV_OBS_Src, Pa_DRN_OBS_Src      =   [PJ(Pa_Mdl, f"In/OBS/{i}/{MdlN}/{MdlN}.{i}.OBS6") for i in ['RIV', 'DRN']]
+Pa_RIV_OBS_Dst, Pa_DRN_OBS_Dst      =   [PJ(Pa_MdlN, f"GWF_1/MODELINPUT/{MdlN}.{i}.OBS6") for i in ['RIV', 'DRN']]
+Pa_HED, Pa_CBC                      =   [PJ(Pa_MdlN, 'GWF_1/MODELOUTPUT', i) for i in ['HEAD/HEAD.HED', 'BUDGET/BUDGET.CBC']]
+l_Fi_to_git                         =   [PJ(Pa_WS, i) for i in ['code/pixi.toml', 'code/pixi.lock', 'code/WS_Mdl']] # If any of these code files changes, the 
 
 git_hash = shell("git rev-parse HEAD", read=True).strip()
 git_tag  = shell("git describe --tags --always", read=True, allow_error=True).strip() or "no_tag"
@@ -71,7 +75,7 @@ rule log_Init: # Sets status to running, and writes other info about therun. Has
     run:
         import socket
         device = socket.gethostname()
-        d_INI = INI_to_d(get_MdlN_paths(MdlN)['INI'])
+        d_INI = INI_to_d(get_MdlN_Pa(MdlN)['INI'])
 
         Up_log(MdlN, {  'End Status':       'Running',
                         'PrP start DT':     DT.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -108,13 +112,22 @@ rule Mdl_Prep: # Prepares Sim Ins (from Ins) via BAT file.
     ## Mdl_Prep Ins (mainly the PRJ) point to a lot of other files. Technically, all of them should be in the Ins of this rule. Practically, they don't need to be. That is because Ins from previous Sims aren't meant to be edited, as they're stamped with a MdlN. If one of the Ins that is new for this run is changed, then the script that edits that In Fi should be part of this snakemake file too.
 
 ## -- PrSimP --
-rule add_OBS:
+rule add_HD_OBS_WEL:
     input:
         Pa_BAT_RUN
     output:
-        Pa_OBS
+        Pa_HD_OBS_WEL
     run:
-        UIM.add_OBS(MdlN, iMOD5=True)
+        UIM.add_OBS(MdlN, iMOD5=iMOD5)
+
+# rule add_HD_OBS:
+#     input:
+#         Pa_BAT_RUN
+#     output:
+#         Pa_HD_OBS
+#     run:
+#         sh.copy2(Pa_HD_OBS_Ogn, Pa_HD_OBS)
+#         U.add_PKG_to_NAM(MdlN=MdlN, str_PKG=f' OBS6 ./GWF_1/MODELINPUT/{MdlN}.HD.OBS6 OBS_HD',  iMOD5=iMOD5)
 
 rule add_RIV_OBS_copy: # By copying file.
     input:
@@ -125,7 +138,7 @@ rule add_RIV_OBS_copy: # By copying file.
     run:
         PKG = 'RIV'
         sh.copy2(Pa_RIV_OBS_Src, Pa_RIV_OBS_Dst)
-        U.add_OBS_to_MF_In(MdlN=MdlN, PKG=PKG, str_OBS=f" OBS6 FILEIN ./GWF_1/MODELINPUT/{MdlN}.{PKG}.OBS6", iMOD5=True)
+        U.add_OBS_to_MF_In(MdlN=MdlN, PKG=PKG, str_OBS=f" OBS6 FILEIN ./GWF_1/MODELINPUT/{MdlN}.{PKG}.OBS6", iMOD5=iMOD5)
 
 rule add_DRN_OBS_copy: # By copying file.
     input:
@@ -136,15 +149,16 @@ rule add_DRN_OBS_copy: # By copying file.
     run:
         PKG = 'DRN'
         sh.copy2(Pa_DRN_OBS_Src, Pa_DRN_OBS_Dst)
-        U.add_OBS_to_MF_In(MdlN=MdlN, PKG=PKG, str_OBS=f" OBS6 FILEIN ./GWF_1/MODELINPUT/{MdlN}.{PKG}.OBS6", iMOD5=True)
+        U.add_OBS_to_MF_In(MdlN=MdlN, PKG=PKG, str_OBS=f" OBS6 FILEIN ./GWF_1/MODELINPUT/{MdlN}.{PKG}.OBS6", iMOD5=iMOD5)
 
 
 ## -- Sim ---
 rule Sim: # Runs the simulation via BAT file.
     input:
-        Pa_OBS,
+        Pa_HD_OBS_WEL,
         Pa_RIV_OBS_Dst,
         Pa_DRN_OBS_Dst,
+        # Pa_HD_OBS
     output:
         temp(log_Sim)
     run:
@@ -164,7 +178,7 @@ rule Sim: # Runs the simulation via BAT file.
 #     output:
 #         temp(log_PRJ_to_TIF)
 #     run:
-#         G.PRJ_to_TIF(MdlN, iMOD5=True, ) # Convert PRJ to TIFs
+#         G.PRJ_to_TIF(MdlN, iMOD5=iMOD5, ) # Convert PRJ to TIFs
 #         Up_log(MdlN, {  'PRJ_to_TIF':   1})
 #         pathlib.Path(output[0]).touch() # Create the file to mark the rule as done.
 
@@ -174,7 +188,7 @@ rule Sim: # Runs the simulation via BAT file.
 # #     output:
 # #         temp(log_GXG)
 # #     run:
-# #         G.HD_IDF_GXG_to_TIF(MdlN, rules=rules, iMOD5=True) # Calculate GXG and save as TIFs
+# #         G.HD_IDF_GXG_to_TIF(MdlN, rules=rules, iMOD5=iMOD5) # Calculate GXG and save as TIFs
 # #         Up_log(MdlN, {  'GXG':   rule_})
 # #         pathlib.Path(output[0]).touch() # Create the file to mark the rule as done.
 

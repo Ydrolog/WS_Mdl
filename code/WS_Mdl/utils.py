@@ -172,6 +172,8 @@ def get_MdlN_Pa(MdlN: str, MdlN_B=None, iMOD5=False):
         # Sim
         d_Pa['Sim'] = PJ(d_Pa['Pa_Mdl'], 'Sim')  # Sim folder
         d_Pa['Pa_MdlN'] = PJ(d_Pa['Pa_Mdl'], f'Sim/{MdlN}')
+        d_Pa['MF6'] = PJ(d_Pa['Pa_MdlN'], 'modflow6')  # modflow6 Sim folder
+        d_Pa['MSW'] = PJ(d_Pa['Pa_MdlN'], 'metaswap')  # metaswap Sim folder
         d_Pa['TOML'] = PJ(d_Pa['Pa_MdlN'], 'imod_coupler.toml')
         d_Pa['TOML_iMOD5'] = PJ(d_Pa['Pa_MdlN'], f'{MdlN}.toml')
         d_Pa['LST_Sim'] = PJ(d_Pa['Pa_MdlN'], 'mfsim.lst')  # Sim LST file
@@ -216,8 +218,7 @@ def get_last_MdlN():
 
 
 def p_TS_range(l_Pa, ending='IDF', date_format='%Y%m%d', Out_Fi='TS_range.png'):
-    """
-    Reads file names using a naming convention containing dates from multiple directories.
+    """Reads file names using a naming convention containing dates from multiple directories.
     Then plots the time series range as an image with one line per directory.
     Uses regular expressions to extract dates from filenames, making it more versatile than assuming
     the date is always the second element when splitting by underscore.
@@ -412,19 +413,17 @@ def p_TS_range(l_Pa, ending='IDF', date_format='%Y%m%d', Out_Fi='TS_range.png'):
 
     # Create a temporary script that will show the plot in a separate Python process
     temp_script = f"""
-import matplotlib
-matplotlib.use('TkAgg')  # Force interactive backend
-import matplotlib.pyplot as plt
-import pickle
-import sys
-
-# Load the figure data
-with open(r'{save_path.replace('.png', '_figdata.pkl')}', 'rb') as f:
-    fig = pickle.load(f)
-
-# Show the plot and block (keeping it alive)
-plt.show(block=True)
-"""
+    import matplotlib
+    matplotlib.use('TkAgg')  # Force interactive backend
+    import matplotlib.pyplot as plt
+    import pickle
+    import sys
+    # Load the figure data
+    with open(r'{save_path.replace('.png', '_figdata.pkl')}', 'rb') as f:
+        fig = pickle.load(f)
+    # Show the plot and block (keeping it alive)
+    plt.show(block=True)
+    """
 
     # Save figure data to temporary pickle file
     pickle_path = save_path.replace('.png', '_figdata.pkl')
@@ -446,11 +445,19 @@ plt.show(block=True)
     print('Interactive plot launched in separate window. Script completed.')
 
 
+def DF_info(DF: pd.DataFrame):
+    """Prints basic info about a DataFrame."""
+    print('Lines dataframe info:')
+    print(f'Shape: {DF.shape}')
+    print(f'Data types:\n{DF.dtypes}')
+    print('\nBasic statistics for numeric columns:')
+    DF.describe()
+
+
 # --------------------------------------------------------------------------------
 
 
-# READ FILES ---------------------------------------------------------------------
-# 666 to be iproved later by replacing paths with MdlN. I'll have to make get_MdlN_paths_noB, where RunLog won't be read. Path of one MdlN will be calculated off of standard folder structure.
+# Read files/Py objects ---------------------------------------------------------------------
 def r_RunLog():
     return pd.read_excel(Pa_RunLog, sheet_name='RunLog').dropna(subset='runN')  # Read RunLog
 
@@ -661,6 +668,9 @@ def MF6_block_to_DF(
 def MSW_In_to_DF(
     Pa,
 ):
+    """
+    Converts the contents of a MSW input file into a pandas DataFrame.
+    """
     Fi = PBN(Pa)
 
     d_headers = json.load(open(PJ(Pa_WS, 'code/WS_Mdl/Auxi/MSW_headers.json')))
@@ -693,7 +703,7 @@ def MSW_In_to_DF(
         return
 
 
-def SFR_to_GDF(Pa_SFR):
+def SFR_to_GDF(Pa_SFR):  # 666 TBC
     return
 
 
