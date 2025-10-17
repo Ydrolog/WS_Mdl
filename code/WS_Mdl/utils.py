@@ -915,10 +915,11 @@ def mete_grid_add_missing_Cols(Pa, Pa_Out=None):
 
 
 # Sim Prep + Run -----------------------------------------------------------------
-def S_from_B(MdlN: str):
+def S_from_B(MdlN: str, iMOD5=False):
     """Copies files that contain Sim options from the B Sim, renames them for the S Sim, and opens them in the default file editor. Assumes default WS_Mdl folder structure (as described in READ_ME.MD)."""
+
     vprint(Pre_Sign)
-    d_Pa = get_MdlN_paths(MdlN)  # Get default directories
+    d_Pa = get_MdlN_Pa(MdlN, MdlN_B=True, iMOD5=iMOD5)  # Get default directories
     MdlN_B, Pa_INI_B, Pa_INI, Pa_BAT_B, Pa_BAT, Pa_Smk, Pa_Smk_B, Pa_PRJ_B, Pa_PRJ = (
         d_Pa[k] for k in ['MdlN_B', 'INI_B', 'INI', 'BAT_B', 'BAT', 'Smk', 'Smk_B', 'PRJ_B', 'PRJ']
     )  # and pass them to objects that will be used in the function

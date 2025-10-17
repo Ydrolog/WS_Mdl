@@ -2,7 +2,7 @@
 pushd %~dp0
 
 :: Set the variable
-set "SimN=NBr33"
+set "SimN=NBr35"
 
 :: Check if the folder exists, if not, create it
 if not exist "..\..\Sim\%SimN%" (
