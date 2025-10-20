@@ -36,7 +36,7 @@ CuCh = {
     'x': '⚫️',  # already done
 }
 
-VERBOSE = True  # Use set_verbose to change this to true and get more information printed to the console.
+VERBOSE = True  # Use set_verbose to change this to False and get no information printed to the console.
 
 Pa_WS = 'C:/OD/WS_Mdl'  # 666 this can be read as the repo root. But this might be complicated to implement, as it would require reading the git config file. For now, it's hardcoded.
 Pa_RunLog = PJ(Pa_WS, 'Mng/RunLog.xlsx')
@@ -503,7 +503,7 @@ def Mdl_Dmns_from_INI(
     """
     Returns model dimension parameters. Common use:
     import WS_Mdl.utils as U
-    Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = U.Mdl_Dmns_from_INI(path)
+    Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = U.Mdl_Dmns_from_INI(d_Pa['INI'])
     """
     d_INI = INI_to_d(Pa_INI)
     Xmin, Ymin, Xmax, Ymax = [float(i) for i in d_INI['WINDOW'].split(',')]
@@ -909,6 +909,22 @@ def mete_grid_add_missing_Cols(Pa, Pa_Out=None):
         for col in range(DF_mete_grid.shape[1], 11):
             DF_mete_grid[col] = 'NoValue'  # Add missing columns with default value 'NoValue'
         DF_mete_grid.to_csv(PJ(Pa_Out), header=False, index=False, quoting=2)  # quoting=2 so that strings are quoted
+
+
+def Calc_DF_XY(DF: pd.DataFrame, Xmin: float, Ymax: float, cellsize: float) -> pd.DataFrame:
+    if ('i' in DF.columns) and ('j' in DF.columns):
+        DF['X'] = Xmin + (DF['j'] - 0.5) * cellsize
+        DF['Y'] = Ymax - (DF['i'] - 0.5) * cellsize
+    elif ('R' in DF.columns) and ('C' in DF.columns):
+        DF['X'] = Xmin + (DF['C'] - 0.5) * cellsize
+        DF['Y'] = Ymax - (DF['R'] - 0.5) * cellsize
+    elif ('row' in DF.columns) and ('column' in DF.columns):
+        DF['X'] = Xmin + (DF['column'] - 0.5) * cellsize
+        DF['Y'] = Ymax - (DF['row'] - 0.5) * cellsize
+    else:
+        vprint('🔴 - Cannot calculate coordinates: no suitable row/column indices found in PACKAGEDATA.')
+        return
+    return DF
 
 
 # --------------------------------------------------------------------------------

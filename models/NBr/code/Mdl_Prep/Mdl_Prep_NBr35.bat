@@ -10,6 +10,6 @@ if not exist "..\..\Sim\%SimN%" (
 )
 
 :: Run the executable with the ini file
-"..\..\..\..\software\iMOD5\iMOD_V5_6_1.exe" ".\Mdl_Prep_%SimN%.ini"
+"..\..\..\..\software\iMOD5\imod_r.exe" ".\Mdl_Prep_%SimN%.ini"
 
 REM EXIT

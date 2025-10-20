@@ -696,48 +696,34 @@ def _HD_IDF_GXG_to_TIF_per_L(DF, L, MdlN, Pa_PoP, Pa_HD, crs):
 
 
 # SFR ----------------------------------------------------------------------------
-def SFR_to_GPkg(MdlN: str, crs: str = 28992, Pa_SFR=None, radius: float = None):
-    """Reads SFR package file and converts it to a GeoDataFrame, then saves it as a GPKG file."""
+def SFR_to_GPkg(MdlN: str, crs: str = 28992, Pa_SFR=None, radius: float = None, iMOD5=False, verbose: bool = True):
+    """
+    Reads SFR package file and converts it to a GeoDataFrame, then saves it as a GPkg file.
+    ATM assumes that line right after 'BEGIN PACKAGEDATA' is the header line. This could be improved in the future.
+    """
 
-    # Prep
-    d_Pa = U.get_MdlN_Pa(MdlN)
+    # --- Prep ---
+    U.set_verbose(verbose)
+    d_Pa = U.get_MdlN_Pa(MdlN, iMOD5=iMOD5)
 
     if Pa_SFR is None:
         Pa_SFR = d_Pa['SFR']
 
     if not os.path.exists(Pa_SFR):
         vprint(f'🔴 ERROR: SFR file not found at {Pa_SFR}. Cannot proceed.')
-        return
 
     if radius is None:
+        U.set_verbose(False)
         d_INI = U.INI_to_d(d_Pa['INI'])
         radius = float(d_INI['CELLSIZE'])
+        U.set_verbose(verbose)
 
-    # Load PkgDt DF
+    # --- Load PkgDt DF ---
     l_Lns = U.r_Txt_Lns(Pa_SFR)
 
     PkgDt_start = next(i for i, l in enumerate(l_Lns) if 'BEGIN PACKAGEDATA' in l.upper()) + 2
     PkgDt_end = next(i for i, l in enumerate(l_Lns) if 'END PACKAGEDATA' in l.upper())
-    PkgDt_Cols = [
-        'ifno',
-        'L',
-        'R',
-        'C',
-        'rlen',
-        'rwid',
-        'rgrd',
-        'rtp',
-        'rbth',
-        'rhk',
-        'man',
-        'ncon',
-        'ustrf',
-        'ndv',
-        'aux',
-        'X',
-        'Y',
-    ]
-
+    PkgDt_Cols = l_Lns[PkgDt_start - 1].replace('#', '').strip().split()
     PkgDt_data = [l.split() for l in l_Lns[PkgDt_start:PkgDt_end] if l.strip() and not l.strip().startswith('#')]
 
     for row in PkgDt_data:  # Robust fix: if only one 'NONE' and it's at index 1, replace with three 'NONE's
@@ -746,7 +732,7 @@ def SFR_to_GPkg(MdlN: str, crs: str = 28992, Pa_SFR=None, radius: float = None):
 
     DF_PkgDt = pd.DataFrame(PkgDt_data, columns=PkgDt_Cols)
 
-    # Clean DF
+    # --- Clean DF ---
     DF_PkgDt = DF_PkgDt.replace(['NONE', '', 'NaN', 'nan'], pd.NA)  # 1) normalize NA-like tokens and strip spaces
     DF_PkgDt = DF_PkgDt.apply(lambda s: s.str.strip() if s.dtype == 'object' else s)
 
@@ -755,23 +741,34 @@ def SFR_to_GPkg(MdlN: str, crs: str = 28992, Pa_SFR=None, radius: float = None):
 
     DF_PkgDt = DF_PkgDt.convert_dtypes()  # 3) optional: get nullable ints/floats
 
-    # CONNECTIONDATA
+    if ('X' not in PkgDt_Cols) or ('Y' not in PkgDt_Cols):
+        vprint('🟡 - Coordinates (X, Y columns) not found in PACKAGEDATA. Calculating coordinates from INI file info.')
+        Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = U.Mdl_Dmns_from_INI(d_Pa['INI'])
+        DF_PkgDt = U.Calc_DF_XY(DF_PkgDt, Xmin, Ymax, cellsize)
+
+    # --- CONNECTIONDATA ---
     Conn_start = next(i for i, l in enumerate(l_Lns) if 'BEGIN CONNECTIONDATA' in l.upper()) + 1
     Conn_end = next(i for i, l in enumerate(l_Lns) if 'END CONNECTIONDATA' in l.upper())
     Conn_data = [
-        (int(parts[0]), [int(x) for x in parts[1:]])
-        for l in l_Lns[Conn_start + 1 : Conn_end]
-        if (parts := l.strip().split())
+        (int(parts[0]), [int(x) for x in parts[1:]]) for l in l_Lns[Conn_start:Conn_end] if (parts := l.strip().split())
     ]
 
     DF_Conn = pd.DataFrame(Conn_data, columns=['reach_N', 'connections'])
     DF_Conn['downstream'] = DF_Conn['connections'].apply(lambda l_Conns: next((-x for x in l_Conns if x < 0), None))
     DF_Conn['downstream'] = DF_Conn['downstream'].astype('Int64')
 
-    ## Merge
-    DF = pd.merge(DF_PkgDt, DF_Conn[['reach_N', 'downstream']], left_on='ifno', right_on='reach_N', how='left')
+    ## --- Merge ---
+    if 'rno' in DF_PkgDt.columns:
+        left_merge = 'rno'
+    elif 'ifno' in DF_PkgDt.columns:
+        left_merge = 'ifno'
+    else:
+        vprint('🔴 ERROR: Neither "rno" nor "ifno" columns found in PACKAGEDATA. Cannot merge with CONNECTIONDATA.')
+
+    DF = pd.merge(DF_PkgDt, DF_Conn[['reach_N', 'downstream']], left_on=left_merge, right_on='reach_N', how='left')
+
     DF.insert(0, 'reach_N', DF.pop('reach_N'))
-    DF.drop('ifno', axis=1, inplace=True)
+    DF.drop(left_merge, axis=1, inplace=True)
     DF = pd.merge(
         DF,
         DF[['reach_N', 'X', 'Y']].rename(columns={'reach_N': 'downstream', 'X': 'DStr_X', 'Y': 'DStr_Y'}),
@@ -779,23 +776,55 @@ def SFR_to_GPkg(MdlN: str, crs: str = 28992, Pa_SFR=None, radius: float = None):
         how='left',
     )
 
-    GDF = DF.copy()
-    GDF['geometry'] = GDF.apply(
+    # --- Create geometry for all reaches ---
+    # Add reach type column to identify routing vs outlets
+    DF['reach_type'] = DF.apply(
+        lambda row: 'routing' if pd.notnull(row['DStr_X']) and pd.notnull(row['DStr_Y']) else 'outlet', axis=1
+    )
+
+    # Create LineString geometries for all reaches
+    DF['geometry'] = DF.apply(
         lambda row: LineString([(row['X'], row['Y']), (row['DStr_X'], row['DStr_Y'])])
         if pd.notnull(row['DStr_X']) and pd.notnull(row['DStr_Y'])
         else Point(row['X'], row['Y']).buffer(radius),
         axis=1,
     )
 
-    # Save to GPKG
-    GDF = gpd.GeoDataFrame(GDF, geometry='geometry', crs=28992)  # Set CRS as needed
+    # Create duplicates of outlet reaches for the routing layer (as LineStrings)
+    DF_outlet_duplicates = DF[DF['reach_type'] == 'outlet'].copy()
+    DF_outlet_duplicates['geometry'] = DF_outlet_duplicates.apply(
+        lambda row: LineString([(row['X'], row['Y']), (row['X'], row['Y'])]),
+        axis=1,
+    )
 
+    # --- Save to GPKG as separate layers ---
     Pa_SHP = PJ(d_Pa['PoP'], f'In/SFR/SFR_{MdlN}.gpkg')
-
     os.makedirs(PDN(Pa_SHP), exist_ok=True)
-    GDF.to_file(Pa_SHP, driver='GPKG')
 
-    vprint(f'🟢 - SFR for {MdlN} has been converted to GPKG and saved at {Pa_SHP}.')
+    # Prepare routing layer: regular routing reaches + outlet duplicates (as LineStrings)
+    DF_routing = DF[DF['reach_type'] == 'routing'].copy()
+    DF_routing_combined = pd.concat([DF_routing, DF_outlet_duplicates], ignore_index=True)
+
+    # Prepare outlets layer: outlet reaches with buffered polygon geometry
+    DF_outlets = DF[DF['reach_type'] == 'outlet'].copy()
+
+    # Save routing layer (including outlet duplicates as LineStrings)
+    if not DF_routing_combined.empty:
+        GDF_routing = gpd.GeoDataFrame(DF_routing_combined, geometry='geometry', crs=crs)
+        GDF_routing.to_file(Pa_SHP, driver='GPKG', layer=f'SFR_{MdlN}_routing')
+        routing_count = len(DF_routing)
+        outlet_dup_count = len(DF_outlet_duplicates)
+        vprint(
+            f'🟢 - SFR routing layer saved with {routing_count} routing + {outlet_dup_count} outlet LineStrings = {len(GDF_routing)} total features'
+        )
+
+    # Save outlets layer if it has data
+    if not DF_outlets.empty:
+        GDF_outlets = gpd.GeoDataFrame(DF_outlets, geometry='geometry', crs=crs)
+        GDF_outlets.to_file(Pa_SHP, driver='GPKG', layer=f'SFR_{MdlN}_Outlets')
+        vprint(f'🟢 - SFR outlets layer saved with {len(GDF_outlets)} LineString features (outlets)')
+
+    vprint(f'🟢🟢 - SFR for {MdlN} has been converted to GPKG and saved at:\n\t{Pa_SHP}\n\tDir Pa:\n\t{PDN(Pa_SHP)}')
 
 
 # --------------------------------------------------------------------------------
