@@ -1,3 +1,4 @@
+import glob
 import os
 import re
 import shutil as sh
@@ -108,11 +109,96 @@ def IDF_to_TIF(Pa_IDF: str, Pa_TIF: Optional[str] = None, MtDt: Optional[Dict] =
         vprint(f'🔴 \n{e}')
     vprint(Sign)
 
-    # def l_IDF_to_TIF(l_IDF, Dir_Out):
-    #     """#666 under construction. The aim of this is to make a multi-band tif file instead of multiple single-band tif files, for each parameter."""
-    #     DA = imod.formats.idf.open(l_IDF)#.sel(x=slice(Xmin, Xmax), y=slice(Ymax, Ymin)) # Read IDF files to am xarray.DataArray and slice it to model area (read from INI file)
-    #     DA = DA.rio.write_crs(crs)  # Set Dutch RD New projection
-    #     DA.rio.to_raster(Dir_Out)
+
+def IDFs_to_MBTIF(l_IDF, Pa_TIF: Optional[str] = None, MtDt: Optional[Dict] = None, crs=crs):
+    """
+    Converts multiple IDF files to a single multi-band TIF file with proper layer ordering.
+
+    Parameters:
+    - l_IDF: List of IDF file paths OR glob pattern string (e.g., "HEAD_19930101_L*_NBr1.IDF")
+    - Pa_TIF: Output TIF file path (optional, defaults to first IDF name with .tif extension)
+    - MtDt: Additional metadata dictionary (optional)
+    - crs: Coordinate reference system (default: 'EPSG:28992')
+    """
+
+    vprint(Pre_Sign)
+    try:
+        # Handle glob pattern or list of files
+        if isinstance(l_IDF, str):
+            idf_files = sorted(glob.glob(l_IDF))
+            if not idf_files:
+                raise ValueError(f'No files found matching pattern: {l_IDF}')
+            vprint(f'Found {len(idf_files)} files matching pattern: {l_IDF}')
+        else:
+            idf_files = l_IDF
+
+        # Sort files by layer number if they contain layer info (L#)
+        def extract_layer_num(filepath):
+            filename = os.path.basename(filepath)
+            match = re.search(r'_L(\d+)_', filename)
+            return int(match.group(1)) if match else 0
+
+        idf_files = sorted(idf_files, key=extract_layer_num)  # sort by L number
+
+        # Generate output path if not provided
+        if Pa_TIF is None:
+            Pa_TIF = os.path.splitext(idf_files[0])[0] + '_multiband.tif'
+
+        # Load each IDF individually and stack with proper layer coordinates
+        da_list = []
+        d_MtDt = {}
+
+        for idf_file in idf_files:
+            # Load single IDF
+            da_single = imod.formats.idf.open([idf_file])
+            if hasattr(da_single, 'data_vars') and len(da_single.data_vars) > 0:
+                da_single = da_single[list(da_single.data_vars)[0]]
+
+            # Remove singleton non-spatial dimensions
+            for dim in list(da_single.dims):
+                if dim not in ['x', 'y'] and da_single.sizes[dim] == 1:
+                    da_single = da_single.squeeze(dim)
+
+            # Create layer name and add metadata
+            filename = os.path.splitext(os.path.basename(idf_file))[0]
+            da_single = da_single.expand_dims('layer').assign_coords(layer=[filename])
+
+            # Build metadata for this band
+            try:
+                _, idf_metadata = imod.idf.read(idf_file)
+                band_metadata = {
+                    'origin_path': idf_file,
+                    'creation_time': DT.fromtimestamp(os.path.getctime(idf_file)).strftime('%Y-%m-%d %H:%M:%S'),
+                    'conversion_time': DT.now().strftime('%Y-%m-%d %H:%M:%S'),
+                }
+                if idf_metadata:
+                    for k, v in idf_metadata.items():
+                        band_metadata[f'idf_{k}'] = str(v)
+                d_MtDt[filename] = band_metadata
+            except Exception as e:
+                d_MtDt[filename] = {
+                    'origin_path': idf_file,
+                    'conversion_time': DT.now().strftime('%Y-%m-%d %H:%M:%S'),
+                    'error': f'Could not read IDF metadata: {str(e)}',
+                }
+
+            da_list.append(da_single)
+
+        # Concatenate all layers and set CRS
+        DA = xr.concat(da_list, dim='layer').rio.write_crs(crs)
+
+        # Add global metadata if provided
+        if MtDt:
+            d_MtDt['all'] = MtDt
+
+        # Write multi-band TIF
+        DA_to_MBTIF(DA, Pa_TIF, d_MtDt, crs=crs, _print=True)
+        vprint(f'🟢 {Pa_TIF} has been saved as multi-band GeoTIFF with {len(idf_files)} bands.')
+
+    except Exception as e:
+        vprint(f'🔴 Error in IDFs_to_MBTIF: {e}')
+
+    vprint(Sign)
 
 
 def DA_to_TIF(DA, Pa_Out, d_MtDt, crs=crs, _print=False):
@@ -156,9 +242,14 @@ def DA_to_MBTIF(DA, Pa_Out, d_MtDt, crs=crs, _print=False, decimals=3):
     - crs: Coordinate Reference System (optional).
     - decimals: Number of decimal places to round array values to (default: 3)."""
 
-    band_keys, band_MtDt = zip(*d_MtDt.items())
+    # Separate band metadata from global metadata
+    band_items = [(k, v) for k, v in d_MtDt.items() if k != 'all']
+    band_keys, band_MtDt = zip(*band_items) if band_items else ([], [])
 
     transform = DA.rio.transform()
+
+    # Ensure we have the right number of bands
+    n_bands = len(band_keys) if band_keys else DA.shape[0]
 
     with rasterio.open(
         Pa_Out,  # 666 add ask-to-overwrite function (preferably to any function/command in this Lib that writes a file.)
@@ -166,20 +257,21 @@ def DA_to_MBTIF(DA, Pa_Out, d_MtDt, crs=crs, _print=False, decimals=3):
         driver='GTiff',
         height=DA.shape[1],
         width=DA.shape[2],
-        count=DA.shape[0],
+        count=n_bands,
         dtype=str(DA.dtype),
         crs=crs,
         transform=transform,
         photometric='MINISBLACK',
     ) as Dst:
-        for i in range(DA.shape[0]):  # Write each band.
+        for i in range(n_bands):  # Write each band.
             # Round the values before writing
             band_values = np.round(DA[i].values, decimals=decimals)
             Dst.write(band_values, i + 1)  # Write the actual pixels for this band (i+1 is the band index in Rasterio)
-            Dst.set_band_description(
-                i + 1, band_keys[i]
-            )  # Set a band description that QGIS will show as "Band 01: <description>"
-            Dst.update_tags(i + 1, **band_MtDt[i])  # Write each row field as a separate metadata tag on this band
+            if band_keys and i < len(band_keys):
+                Dst.set_band_description(
+                    i + 1, band_keys[i]
+                )  # Set a band description that QGIS will show as "Band 01: <description>"
+                Dst.update_tags(i + 1, **band_MtDt[i])  # Write each row field as a separate metadata tag on this band
 
         if 'all' in d_MtDt:  # If "all" exists, write dataset-wide metadata (NOT tied to a band)
             Dst.update_tags(**d_MtDt['all'])  # Set global metadata for the whole dataset

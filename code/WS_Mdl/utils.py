@@ -67,7 +67,7 @@ def bprint(*args, **kwargs):
 # --------------------------------------------------------------------------------
 
 
-# Get (MdlN) info ------------------------------------------------------------------
+# Get (MdlN) info ----------------------------------------------------------------
 def MdlN_Se_from_RunLog(
     MdlN,
 ):  # Can be made faster. May need to make excel export the RunLog as a csv, so that I can use pd.read_csv instead of pd.read_excel.
@@ -459,7 +459,7 @@ def DF_info(DF: pd.DataFrame):
 # --------------------------------------------------------------------------------
 
 
-# Read files/Py objects ---------------------------------------------------------------------
+# Read files/Py objects ----------------------------------------------------------
 def r_RunLog():
     return pd.read_excel(Pa_RunLog, sheet_name='RunLog').dropna(subset='runN')  # Read RunLog
 
@@ -823,7 +823,7 @@ def o_LST(
 # --------------------------------------------------------------------------------
 
 
-# Formatting ---------------------------------------------------------------------
+# Formatting + common DF functions -----------------------------------------------
 def DF_to_MF_block(DF, Min_width=4, indent='    ', Max_decimals=4):
     """
     Convert DataFrame to formatted MODFLOW input block.
@@ -914,6 +914,13 @@ def mete_grid_add_missing_Cols(Pa, Pa_Out=None):
 
 
 def Calc_DF_XY(DF: pd.DataFrame, Xmin: float, Ymax: float, cellsize: float) -> pd.DataFrame:
+    """
+    Calculates X,Y coordinates for a DataFrame with row/column indices.
+    Supports 3 naming convetions for now:
+    - i, j
+    - R, C
+    - row, column
+    """
     if ('i' in DF.columns) and ('j' in DF.columns):
         DF['X'] = Xmin + (DF['j'] - 0.5) * cellsize
         DF['Y'] = Ymax - (DF['i'] - 0.5) * cellsize
@@ -926,6 +933,22 @@ def Calc_DF_XY(DF: pd.DataFrame, Xmin: float, Ymax: float, cellsize: float) -> p
     else:
         vprint('🔴 - Cannot calculate coordinates: no suitable row/column indices found in PACKAGEDATA.')
         return
+    return DF
+
+
+def Calc_GDF_XY_start_end_from_Geom(DF: pd.DataFrame) -> pd.DataFrame:
+    """
+    Calculates start and end X,Y coordinates from geometry column in a GeoDataFrame.
+    Assumes there s a geometry column, of type shapely.geometry.
+    """
+
+    DF['Xstart'] = DF['geometry'].apply(
+        lambda x: x.geoms[0].coords[0][0]
+    )  # Access X coorddinate of first point in first linestring
+    DF['Ystart'] = DF['geometry'].apply(lambda x: x.geoms[0].coords[0][1])
+    DF['Xend'] = DF['geometry'].apply(lambda x: x.geoms[0].coords[-1][0])
+    DF['Yend'] = DF['geometry'].apply(lambda x: x.geoms[0].coords[-1][1])
+
     return DF
 
 
