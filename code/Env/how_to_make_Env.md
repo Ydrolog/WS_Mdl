@@ -7,7 +7,9 @@ For more details check: https://pixi.sh/latest/
 This guide explains how to use **pixi** to create, reproduce, and share the software environment for the *WS_Mdl* project.
 
 ## 1. Download and install pixi.
-- either follow their instructions on the website (https://pixi.sh/latest/installation/).
+- either follow their instructions on the website (https://pixi.sh/latest/installation/)
+	for Win, you can run the following command in PowerShell.
+	powershell -ExecutionPolicy ByPass -c "irm -useb https://pixi.sh/install.ps1 | iex"
 - or if you have/prefer conda (I haven't tried this, but it should work):
 	install -c conda-forge pixi
 
@@ -61,7 +63,8 @@ pixi add --pypi "rasterio>=1.3"
 
 4. **Freeze**. Don't forget to add the changes to your next commit, e.g.:
    git add pixi.toml pixi.lock
-   git commit -m "Add rasterio 1.3+"
+   example commit:
+   git commit -m "Added rasterio 1.3+"
 -----------------------------------------
 
 

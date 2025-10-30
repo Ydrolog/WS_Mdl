@@ -1,10 +1,10 @@
 [project]
-authors = ["JoerivanEngelen <joeri.vanengelen@deltares.nl>"]
+authors = ["Marios Karampasis <marios.karampasis@uu.nl>"]
 channels = ["conda-forge"]
-description = "Add a short description here"
-name = "pixi"
+description = "Initially created by JoerivanEngelen <joeri.vanengelen@deltares.nl, so that I can run imod_coupler. I then added more libs to be able to run WS_Mdl functions."
+name = "WS_Mdl"
 platforms = ["win-64"]
-version = "0.1.0"
+version = "0.2.0"
 
 [tasks]
 install = "pip install git+https://github.com/Deltares/imod_coupler.git#subdirectory=pre-processing"
