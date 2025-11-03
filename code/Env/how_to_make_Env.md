@@ -40,7 +40,10 @@ cd C:\WS_Mdl\code
 
 6. **Re-build** env:
 pixi install --frozen # This uses both the pixi.lock and pixi.toml files to ensure reinstallation of locked package versions.
-pixi install # This only requires the pixi.toml file. It should work, but it's less secure.
+pixi run install # This executes our .toml file task (install coupler/primod). I believe primod is not available via conda or pypi, that's why we do it that way.
+
+alternatively, 
+pixi install # Will install dependencies, but won't ensure identical package versions. This is probably faster and gives a more "modern build", but it's not as secure as pixi install --frozen
 
 7. Optional: **WS_Mdl refresh**:
 pixi run --manifest-path C:/OD/WS_Mdl/code/pixi.toml --no-lockfile-update pip install -e code # (pip install -e C:\OD\WS_Mdl\code (--use-pep517 --no-build-isolation) could also work) # This might be redundant, i.e. updates are reflected imedeately.

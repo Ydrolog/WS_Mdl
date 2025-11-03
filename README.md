@@ -77,6 +77,8 @@ Install the pixi env, necessary for this project, following this guide:
 3. (Opt: **PS7** - #666 I should make a guide later)
 
 4. (Opt: **QGIS** - #666 I should make a guide later. This is only needed on the PC used for reviewing outputs) 
+
+5. Opt: **Notepad++** - https://notepad-plus-plus.org/downloads
 ---
 
 
