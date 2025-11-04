@@ -53,3 +53,15 @@ models/*/code/snakemake/temp/
 
 # Excel lock files.
 ~$*.xls*
+
+# Recycle bin folder (Windows)
+$RECYCLE.BIN/
+
+# env folders (can be recreated) 
+*.pixi/
+*.pixi/**
+*.egg-info/
+*.egg-info/**
+
+# 7z files
+**/*.7z

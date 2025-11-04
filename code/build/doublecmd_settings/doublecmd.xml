@@ -158,11 +158,11 @@
   </Toolbars>
   <MainWindow>
     <Position Save="True">
-      <Left>894</Left>
-      <Top>1200</Top>
-      <Width>1005</Width>
-      <Height>516</Height>
-      <PixelsPerInch>144</PixelsPerInch>
+      <Left>952</Left>
+      <Top>0</Top>
+      <Width>766</Width>
+      <Height>405</Height>
+      <PixelsPerInch>96</PixelsPerInch>
       <Maximized>True</Maximized>
       <Splitter>49.9627143922446</Splitter>
     </Position>
@@ -215,7 +215,7 @@
     <ColumnsTitleLikeValues>False</ColumnsTitleLikeValues>
     <CutTextToColumnWidth>True</CutTextToColumnWidth>
     <ExtendCellWidth>False</ExtendCellWidth>
-    <ShowSystemFiles>True</ShowSystemFiles>
+    <ShowSystemFiles>False</ShowSystemFiles>
     <ListFilesInThread>True</ListFilesInThread>
     <LoadIconsSeparately>True</LoadIconsSeparately>
     <DelayLoadingTabs>True</DelayLoadingTabs>
@@ -334,8 +334,8 @@
     <MainMenu>True</MainMenu>
     <ButtonBar Enabled="True">
       <FlatIcons>True</FlatIcons>
-      <ButtonHeight>36</ButtonHeight>
-      <IconSize>24</IconSize>
+      <ButtonHeight>24</ButtonHeight>
+      <IconSize>16</IconSize>
       <ShowCaptions>False</ShowCaptions>
       <ReportErrorWithCommands>False</ReportErrorWithCommands>
       <FilenameStyle>0</FilenameStyle>
@@ -546,14 +546,14 @@
     <ShowHiddenDimmed>False</ShowHiddenDimmed>
     <ShowMode>3</ShowMode>
     <ShowOverlays>False</ShowOverlays>
-    <Size>48</Size>
-    <DiskSize>24</DiskSize>
+    <Size>32</Size>
+    <DiskSize>16</DiskSize>
     <DiskAlpha>50</DiskAlpha>
     <ToolSize>24</ToolSize>
     <Exclude>False</Exclude>
     <ExcludeDirs/>
     <CustomIcons>0</CustomIcons>
-    <PixelsPerInch>144</PixelsPerInch>
+    <PixelsPerInch>96</PixelsPerInch>
     <ShowInMenus Enabled="False">
       <Size>16</Size>
     </ShowInMenus>
@@ -562,7 +562,13 @@
   <IgnoreList Enabled="False">
     <IgnoreListFile>%DC_CONFIG_PATH%\ignorelist.txt</IgnoreListFile>
   </IgnoreList>
-  <DirectoryHotList/>
+  <DirectoryHotList>
+    <HotDir Name="WS_Mdl" Path="C:\OD\WS_Mdl"/>
+    <HotDir Name="QWM" Path="C:\Users\Karam014\OneDrive - Universiteit Utrecht\Documents\TeachingAssistance\QWM"/>
+    <HotDir Name="Downloads" Path="C:\Users\Karam014\Downloads"/>
+    <HotDir Name="Principles of GW Flow" Path="C:\Users\Karam014\OneDrive - Universiteit Utrecht\Documents\TeachingAssistance\Principles of GW Flow"/>
+    <HotDir Name="group_week" Path="C:\Users\Karam014\OneDrive - Universiteit Utrecht\Documents\other\group_week"/>
+  </DirectoryHotList>
   <Viewer>
     <PreviewVisible>False</PreviewVisible>
     <ImageStretch>False</ImageStretch>
@@ -718,14 +724,14 @@
       <Unique>577A80FB-96A1-4C53-BA97-60A6212A46C5</Unique>
       <CustomView>False</CustomView>
       <FileSystem>&lt;General&gt;</FileSystem>
-      <PixelsPerInch>144</PixelsPerInch>
+      <PixelsPerInch>96</PixelsPerInch>
       <CursorBorder Enabled="False"/>
       <Columns>
         <Column>
           <Title>Name</Title>
           <Unique>B3E684FB-4533-4A96-8615-F044516AC7D3</Unique>
           <FuncString>[DC().GETFILENAMENOEXT{}]</FuncString>
-          <Width>462</Width>
+          <Width>480</Width>
           <Align>0</Align>
           <Font>
             <Name>Consolas</Name>
@@ -741,7 +747,7 @@
           <Title>Ext</Title>
           <Unique>7C9DFC6A-1443-44F6-A12E-019927383C03</Unique>
           <FuncString>[DC().GETFILEEXT{}]</FuncString>
-          <Width>86</Width>
+          <Width>57</Width>
           <Align>0</Align>
           <Font>
             <Name>Consolas</Name>
@@ -757,7 +763,7 @@
           <Title>Size</Title>
           <Unique>827BD39D-A43A-4C5F-AB01-C243EBB35532</Unique>
           <FuncString>[DC().GETFILESIZE{}]</FuncString>
-          <Width>140</Width>
+          <Width>93</Width>
           <Align>1</Align>
           <Font>
             <Name>Consolas</Name>
@@ -773,7 +779,7 @@
           <Title>Date</Title>
           <Unique>9057FB18-48D9-40AB-B2E0-D3F3BFE18BA2</Unique>
           <FuncString>[DC().GETFILETIME{}]</FuncString>
-          <Width>279</Width>
+          <Width>186</Width>
           <Align>1</Align>
           <Font>
             <Name>Consolas</Name>
@@ -789,7 +795,7 @@
           <Title>Attr</Title>
           <Unique>62AE9AC5-C8C4-4700-8448-BC31B4B732F8</Unique>
           <FuncString>[DC().GETFILEATTR{}]</FuncString>
-          <Width>150</Width>
+          <Width>100</Width>
           <Align>0</Align>
           <Font>
             <Name>Consolas</Name>

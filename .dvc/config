@@ -1,4 +1,0 @@
-[cache]
-    type = hardlink
-[core]
-    autostage = true
