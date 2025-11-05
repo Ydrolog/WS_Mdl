@@ -23,6 +23,6 @@ pytest = "*"
 itables = ">=2.5.2,<3"
 
 [pypi-dependencies]
-imod = { git = "https://github.com/Deltares/imod-python.git", rev = "28de6f78680c730a23a67474396f9466b18dcd12"}
+imod = { git = "https://github.com/Deltares/imod-python.git", rev = "1.0.0rc7"}
 WS_Mdl = { path = 'G:/', editable = true }
 sfrmaker = "==0.12.1"

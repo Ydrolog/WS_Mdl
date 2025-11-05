@@ -342,7 +342,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/60/14/5ef47002ef19bd5cfbc7a74b21c30ef83f22beb80609314ce0328989ceda/fiona-1.10.1-cp313-cp313-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/2e/1a/1d0dc91dd9af745aebf58fe3690b38047cca8616df22397a91561cfdaba1/flopy-3.9.5-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/91/08/273413e867e88e288fbf88776477db4ce9ffeae6f743a0b89937fc8412ec/gis_utils-0.3.6-py3-none-any.whl
-      - pypi: git+https://github.com/Deltares/imod-python.git?rev=28de6f78680c730a23a67474396f9466b18dcd12#28de6f78680c730a23a67474396f9466b18dcd12
+      - pypi: git+https://github.com/Deltares/imod-python.git?rev=1.0.0rc7#87bbed86a6e36b1b65644625aabc6c3d5b6fda63
       - pypi: https://files.pythonhosted.org/packages/0c/29/0348de65b8cc732daa3e33e67806420b2ae89bdce2b04af740289c5c6c8c/loguru-0.7.3-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/42/d7/1ec15b46af6af88f19b8e5ffea08fa375d433c998b8a7639e76935c14f1f/markdown_it_py-3.0.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/b3/38/89ba8ad64ae25be8de66a6d463314cf1eb366222074cfda9ee839c56a4b4/mdurl-0.1.2-py3-none-any.whl
@@ -1951,9 +1951,9 @@ packages:
   purls: []
   size: 160408
   timestamp: 1725972042635
-- pypi: git+https://github.com/Deltares/imod-python.git?rev=28de6f78680c730a23a67474396f9466b18dcd12#28de6f78680c730a23a67474396f9466b18dcd12
+- pypi: git+https://github.com/Deltares/imod-python.git?rev=1.0.0rc7#87bbed86a6e36b1b65644625aabc6c3d5b6fda63
   name: imod
-  version: 1.0.0rc4
+  version: 1.0.0rc7
   requires_dist:
   - affine
   - cftime>=1
