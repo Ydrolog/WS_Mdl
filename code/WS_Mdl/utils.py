@@ -40,7 +40,36 @@ CuCh = {
 
 VERBOSE = True  # Use set_verbose to change this to False and get no information printed to the console.
 
-Pa_WS = 'C:/OD/WS_Mdl'  # 666 this can be read as the repo root. But this might be complicated to implement, as it would require reading the git config file. For now, it's hardcoded.
+
+# Determine repository root dynamically at import time.
+def _get_repo_root():
+    """Return the git repository root path if available, else try to find a .git folder up the tree,
+    else fall back to current working directory. Returns a string path."""
+    # 1) Prefer `git rev-parse --show-toplevel` if git is available in PATH
+    try:
+        out = sp.check_output(['git', 'rev-parse', '--show-toplevel'], stderr=sp.DEVNULL)
+        root = out.decode().strip()
+        if root:
+            return root
+    except Exception:
+        pass
+
+    # 2) Walk up from this file to find a .git directory
+    try:
+        p = Path(__file__).resolve()
+        for parent in [p] + list(p.parents):
+            if (parent / '.git').exists():
+                return str(parent)
+    except Exception:
+        pass
+
+    # 3) Fallback to current working directory
+    return str(Path.cwd())
+
+
+Pa_WS = _get_repo_root()
+# if VERBOSE:
+#     print(f'Using repository root for Pa_WS: {Pa_WS}')
 Pa_RunLog = PJ(Pa_WS, 'Mng/RunLog.xlsx')
 Pa_log = PJ(Pa_WS, 'Mng/log.csv')
 ## Can make get paths function that will provide the general directories, like Pa_WS, Pa_Mdl. Those can be derived from a folder structure.

@@ -1,9 +1,0 @@
-Metadata-Version: 2.4
-Name: WS_Mdl
-Version: 0.1
-Requires-Dist: pandas
-Requires-Dist: colored
-Requires-Dist: rasterio
-Requires-Dist: xarray
-Requires-Dist: openpyxl
-Dynamic: requires-dist

@@ -1,5 +1,0 @@
-pandas
-colored
-rasterio
-xarray
-openpyxl
