@@ -1000,6 +1000,51 @@ def GDF_clip_Mdl_Aa(GDF, Pa_INI):
     return GDF
 
 
+def DF_Col_value_counts_grouped(df, percentile_step=10):
+    """Analyze DataFrame columns by non-null value counts, grouped into percentiles."""
+    counts = {col: df[col].count() for col in df.columns}
+    sorted_counts = sorted(counts.items(), key=lambda x: x[1])
+
+    results = []
+    n_cols = len(sorted_counts)
+
+    for i in range(0, 100, percentile_step):
+        start_idx = int(i / 100 * n_cols)
+        end_idx = int((i + percentile_step) / 100 * n_cols)
+        if end_idx > n_cols:
+            end_idx = n_cols
+        if start_idx == end_idx and end_idx < n_cols:
+            end_idx += 1
+
+        if start_idx < n_cols:
+            cols_in_range = sorted_counts[start_idx:end_idx]
+            if cols_in_range:
+                col_names = [c[0] for c in cols_in_range]
+                col_counts = [c[1] for c in cols_in_range]
+                results.append(
+                    {
+                        'Percentile_Range': f'{i}-{i + percentile_step}%',
+                        'Min_Values': min(col_counts),
+                        'Max_Values': max(col_counts),
+                        'Num_Columns': len(col_names),
+                        'Columns': col_names,
+                    }
+                )
+
+    return pd.DataFrame(results)
+
+
+def DF_memory(DF):
+    """Returns human-readable memory usage of a DataFrame."""
+
+    n = DF.memory_usage(deep=True).sum()
+    for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
+        if n < 1024:
+            return f'{n:.2f} {unit}'
+        n /= 1024
+    return f'{n:.2f} PB'
+
+
 # --------------------------------------------------------------------------------
 
 
