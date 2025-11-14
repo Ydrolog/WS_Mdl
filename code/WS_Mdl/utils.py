@@ -971,12 +971,12 @@ def Calc_GDF_XY_start_end_from_Geom(DF: pd.DataFrame) -> pd.DataFrame:
     Assumes there s a geometry column, of type shapely.geometry.
     """
 
-    DF['Xstart'] = DF['geometry'].apply(
+    DF['Xa'] = DF['geometry'].apply(
         lambda x: x.geoms[0].coords[0][0]
     )  # Access X coorddinate of first point in first linestring
-    DF['Ystart'] = DF['geometry'].apply(lambda x: x.geoms[0].coords[0][1])
-    DF['Xend'] = DF['geometry'].apply(lambda x: x.geoms[0].coords[-1][0])
-    DF['Yend'] = DF['geometry'].apply(lambda x: x.geoms[0].coords[-1][1])
+    DF['Ya'] = DF['geometry'].apply(lambda x: x.geoms[0].coords[0][1])
+    DF['Xz'] = DF['geometry'].apply(lambda x: x.geoms[0].coords[-1][0])
+    DF['Yz'] = DF['geometry'].apply(lambda x: x.geoms[0].coords[-1][1])
 
     return DF
 
