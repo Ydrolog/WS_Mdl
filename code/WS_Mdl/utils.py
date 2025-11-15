@@ -987,12 +987,27 @@ def GDF_clip_Mdl_Aa(GDF, Pa_INI):
     Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = Mdl_Dmns_from_INI(Pa_INI)
     set_verbose(True)  # Re-enable vprint
 
-    GDF = GDF[
-        (
-            (GDF['Xstart'].between(Xmin, Xmax, inclusive='both') | GDF['Xend'].between(Xmin, Xmax, inclusive='both'))
-            & (GDF['Ystart'].between(Ymin, Ymax, inclusive='both') | GDF['Yend'].between(Ymin, Ymax, inclusive='both'))
-        )
-    ]
+    if all(col in GDF.columns for col in ['Xa', 'Ya', 'Xz', 'Yz']):
+        GDF = GDF[
+            (
+                (GDF['Xa'].between(Xmin, Xmax, inclusive='both') | GDF['Xz'].between(Xmin, Xmax, inclusive='both'))
+                & (GDF['Ya'].between(Ymin, Ymax, inclusive='both') | GDF['Yz'].between(Ymin, Ymax, inclusive='both'))
+            )
+        ]
+
+    else:
+        GDF = GDF[
+            (
+                (
+                    GDF['Xstart'].between(Xmin, Xmax, inclusive='both')
+                    | GDF['Xend'].between(Xmin, Xmax, inclusive='both')
+                )
+                & (
+                    GDF['Ystart'].between(Ymin, Ymax, inclusive='both')
+                    | GDF['Yend'].between(Ymin, Ymax, inclusive='both')
+                )
+            )
+        ]
 
     vprint(
         f'🟢 - GeoDataFrame limited to model area from {Pa_INI}. Original rows: {len(GDF)}, Limited rows: {len(GDF)}.'
