@@ -42,7 +42,7 @@ VERBOSE = True  # Use set_verbose to change this to False and get no information
 
 
 # Determine repository root dynamically at import time.
-def _get_repo_root():
+def _get_repo_root(): #666 needs to be fixed
     """Return the git repository root path if available, else try to find a .git folder up the tree,
     else fall back to current working directory. Returns a string path."""
     # 1) Prefer `git rev-parse --show-toplevel` if git is available in PATH
@@ -67,7 +67,7 @@ def _get_repo_root():
     return str(Path.cwd())
 
 
-Pa_WS = _get_repo_root()
+Pa_WS = 'G:/' #_get_repo_root()
 # if VERBOSE:
 #     print(f'Using repository root for Pa_WS: {Pa_WS}')
 Pa_RunLog = PJ(Pa_WS, 'Mng/RunLog.xlsx')

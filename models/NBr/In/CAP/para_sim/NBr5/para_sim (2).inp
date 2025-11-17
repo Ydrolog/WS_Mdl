@@ -5,7 +5,7 @@
     surfacewater_mdl       =          0    ! Surface water model     (0/1/2/5) 0= none    1 = Surfw   2= + Sobek   5 = +SWQN
     postmsw_opt            =          0    ! Online postmsw              (0/1) 0= not     1 = online
     save&restore_opt       =          0    ! Enablement online restore (0/1/2) 0= not     1 = normal accuracy  2 = testing accuracy
-    unsa_svat_path         ="G:\data\MetaSWAP_DB\LHM2018_v02v\"    ! Location of unsa-database
+    unsa_svat_path         ="C:\OD\WS_Mdl\data\MetaSWAP_DB\LHM2018_v02v\"    ! Location of unsa-database
     dtgw                   =   1.000000    ! Groundwater/soil water time step
     dtsw                   =   1.000000    ! Time step fast processes
 *

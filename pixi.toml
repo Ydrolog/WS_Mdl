@@ -25,4 +25,4 @@ itables = ">=2.5.2,<3"
 [pypi-dependencies]
 imod = { git = "https://github.com/Deltares/imod-python.git", rev = "1.0.0rc7"}
 WS_Mdl = { path = 'G:/', editable = true }
-sfrmaker = "==0.12.1"
+sfrmaker = "==0.11.3"

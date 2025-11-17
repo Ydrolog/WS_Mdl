@@ -355,7 +355,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/5e/0b/bd73621d2a5f87da97158c5c77a4bf31e27d60cf6bcc6ddea532043cc21d/rasterstats-0.20.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/e3/30/3c4d035596d3cf444529e0b2953ad0466f6049528a879d27534700580395/rich-14.1.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/74/25/5282c8270bfcd620d3e73beb35b40ac4ab00f0a898d98ebeb41ef0989ec8/rtree-1.4.1-py3-none-win_amd64.whl
-      - pypi: https://files.pythonhosted.org/packages/a9/aa/df39c82cbb54ac88fd12607ec9b643715175f75bf938a2ceee45b178712a/sfrmaker-0.12.1-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/30/be/2f5fbe6d5e058a561331ee8eb2f38d2d43bf81218951e2449e6e08d80fb2/sfrmaker-0.11.3-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/87/10/d42ad61230436735c68af1120622b28a782877146a83d714da7b6a2a1c4e/simplejson-3.20.2-cp313-cp313-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/c7/18/c86eb8e0202e32dd3df50d43d7ff9854f8e0603945ff398974c1d91ac1ef/tomli_w-1.2.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/d0/30/dc54f88dd4a2b5dc8a0279bdd7270e735851848b762aeb1c1184ed1f6b14/tqdm-4.67.1-py3-none-any.whl
@@ -4904,10 +4904,10 @@ packages:
   - pkg:pypi/setuptools?source=hash-mapping
   size: 748788
   timestamp: 1748804951958
-- pypi: https://files.pythonhosted.org/packages/a9/aa/df39c82cbb54ac88fd12607ec9b643715175f75bf938a2ceee45b178712a/sfrmaker-0.12.1-py3-none-any.whl
+- pypi: https://files.pythonhosted.org/packages/30/be/2f5fbe6d5e058a561331ee8eb2f38d2d43bf81218951e2449e6e08d80fb2/sfrmaker-0.11.3-py3-none-any.whl
   name: sfrmaker
-  version: 0.12.1
-  sha256: e4d740472a2c161a1796ed7780ce9982924aa33ec42177bb6bfbd3d079cc8d6e
+  version: 0.11.3
+  sha256: 75c3e4ea368844bcdfbbae0ced3a6a6a30f2cf563028adb002d762d407555779
   requires_dist:
   - geopandas
   - gis-utils
@@ -4925,11 +4925,6 @@ packages:
   - scipy
   - shapely
   - xarray
-  - matplotlib ; extra == 'optional'
-  - codecov ; extra == 'test'
-  - coverage ; extra == 'test'
-  - pytest ; extra == 'test'
-  - pytest-timeout ; extra == 'test'
   - matplotlib ; extra == 'docs'
   - modflow-export[optional] ; extra == 'docs'
   - ipython[kernel] ; extra == 'docs'
@@ -4938,6 +4933,11 @@ packages:
   - nbsphinx ; extra == 'docs'
   - sphinx-copybutton ; extra == 'docs'
   - sphinx-rtd-theme ; extra == 'docs'
+  - matplotlib ; extra == 'optional'
+  - codecov ; extra == 'test'
+  - coverage ; extra == 'test'
+  - pytest ; extra == 'test'
+  - pytest-timeout ; extra == 'test'
   requires_python: '>=3.10'
 - conda: https://conda.anaconda.org/conda-forge/win-64/shapely-2.1.1-py313h410098b_0.conda
   sha256: e3f3915c4c323ca34f827332b0d844aa367250b51bf8d508dc50fea6e9edc8b0
