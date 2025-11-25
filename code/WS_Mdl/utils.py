@@ -42,32 +42,24 @@ VERBOSE = True  # Use set_verbose to change this to False and get no information
 
 
 # Determine repository root dynamically at import time.
-def _get_repo_root(): #666 needs to be fixed
-    """Return the git repository root path if available, else try to find a .git folder up the tree,
-    else fall back to current working directory. Returns a string path."""
-    # 1) Prefer `git rev-parse --show-toplevel` if git is available in PATH
+def get_repo_root():
+    """Return the repository root path.
+    Tries to determine it from the file location, preserving subst drives (G:/).
+    """
     try:
-        out = sp.check_output(['git', 'rev-parse', '--show-toplevel'], stderr=sp.DEVNULL)
-        root = out.decode().strip()
-        if root:
-            return root
-    except Exception:
-        pass
-
-    # 2) Walk up from this file to find a .git directory
-    try:
-        p = Path(__file__).resolve()
-        for parent in [p] + list(p.parents):
-            if (parent / '.git').exists():
-                return str(parent)
-    except Exception:
-        pass
-
-    # 3) Fallback to current working directory
-    return str(Path.cwd())
+        # Use absolute() instead of resolve() to preserve subst drive letters (like G:)
+        path = Path(__file__).absolute()
+        # Assumes structure: <RepoRoot>/code/WS_Mdl/utils.py
+        # So we go up 3 levels: utils.py -> WS_Mdl -> code -> RepoRoot
+        root = path.parents[2]
+        root_str = str(root).replace('\\', '/')
+        return root_str
+    except Exception as e:
+        print(f'Error determining repository root: {e}')
+        return None
 
 
-Pa_WS = 'G:/' #_get_repo_root()
+Pa_WS = get_repo_root()
 # if VERBOSE:
 #     print(f'Using repository root for Pa_WS: {Pa_WS}')
 Pa_RunLog = PJ(Pa_WS, 'Mng/RunLog.xlsx')
@@ -165,7 +157,7 @@ def get_MdlN_Pa(MdlN: str, MdlN_B=None, iMOD5=False):
     """
     *** Improved get_MdlN_paths. ***
     - Doesn't read RunLog, unless B is set to True. Thus it's much faster.
-    - Returns a dictionary of useful objects (mainly paths, but also Mdl, MdlN) for a given MdlN. Those need to then be passed to arguments, e.g.
+    - Returns a dictionary of useful objects (mainly paths, but also Mdl, MdlN) for a given MdlN. Those need to then be passed to arguments, e.g.:
         d_Pa = get_MdlN_Pa(MdlN)
         Pa_INI = d_Pa['Pa_INI'].
 
@@ -810,7 +802,7 @@ def o_LSTs(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
 
     l_keys = ['LST_Sim', 'LST_Mdl']
     l_paths = [get_MdlN_Pa(MdlN) for MdlN in l_MdlN]
-    l_files = [paths[k] for k in l_keys for paths in l_paths]
+    l_files = [paths[k] for paths in l_paths for k in l_keys]
 
     for f in l_files:
         sp.Popen([Pa_NP] + [f])
@@ -825,7 +817,7 @@ def o_NAMs(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
 
     l_keys = ['NAM_Sim', 'NAM_Mdl']
     l_paths = [get_MdlN_Pa(MdlN) for MdlN in l_MdlN]
-    l_files = [paths[k] for k in l_keys for paths in l_paths]
+    l_files = [paths[k] for paths in l_paths for k in l_keys]
 
     for f in l_files:
         sp.Popen([Pa_NP] + [f])
@@ -842,7 +834,7 @@ def o_LST(
 
     l_keys = ['LST_Mdl']
     l_paths = [get_MdlN_Pa(MdlN) for MdlN in l_MdlN]
-    l_files = [paths[k] for k in l_keys for paths in l_paths]
+    l_files = [paths[k] for paths in l_paths for k in l_keys]
 
     for f in l_files:
         sp.Popen([Pa_NP] + [f])
@@ -1169,22 +1161,22 @@ def _RunMng(args):
     vprint(f'{fg("cyan")}{PBN(Pa_Smk)}{attr("reset")}\n')
 
     # add once near your other paths
-    Pa_Pixi = PJ(Pa_WS, 'code/pixi.toml')  # <-- path to the manifest file
+    Pa_pixi = PJ(Pa_WS, 'pixi.toml')  # <-- path to the manifest file
 
     try:
         if generate_dag:  # DAG parameter passed from RunMng
             cmd = (
-                f'pixi run --manifest-path "{Pa_Pixi}" snakemake --dag -s "{Pa_Smk}" --cores {cores_per_Sim} '
-                f'| pixi run --manifest-path "{Pa_Pixi}" dot -Tpng -o "{Pa_DAG}"'
+                f'pixi run --manifest-path "{Pa_pixi}" snakemake --dag -s "{Pa_Smk}" --cores {cores_per_Sim} '
+                f'| pixi run --manifest-path "{Pa_pixi}" dot -Tpng -o "{Pa_DAG}"'
             )
-        sp.run(cmd, shell=True, check=True)
+            sp.run(cmd, shell=True, check=True)
 
         with open(Pa_Smk_log, 'w', encoding='utf-8-sig') as f:
             cmd = [
                 'pixi',
                 'run',
                 '--manifest-path',
-                Pa_Pixi,
+                Pa_pixi,
                 'snakemake',
                 '-p',
                 '-s',
@@ -1211,7 +1203,7 @@ def RunMng(cores=None, DAG: bool = True, Cct_Sims=None, no_temp: bool = True):
         Cct_Sims: Number of models to run simultaneously (defaults to number of available cores)
     """
 
-    os.chdir(PJ(Pa_WS, 'code'))
+    os.chdir(Pa_WS)
 
     if cores is None:
         cores = max(
@@ -1486,6 +1478,7 @@ def rerun_Sim(MdlN: str, cores=None, DAG: bool = True):
         Se_Ln = DF.loc[DF['MdlN'] == MdlN].squeeze()  # Get the row for the MdlN
 
         # Prepare arguments for multiprocessing
+
         args = [('_', Se_Ln, cores, DAG)]
 
         # Run models in parallel
@@ -1530,7 +1523,7 @@ def freeze_pixi_env(MdlN: str):
     """
 
     l_Fi_to_track = [
-        PJ(Pa_WS, i) for i in ['code/pixi.toml', 'code/pixi.lock', 'code/WS_Mdl']
+        PJ(Pa_WS, i) for i in ['pixi.toml', 'pixi.lock', 'code/WS_Mdl']
     ]  # If any of these code files changes, the env needs to be frozen.
 
     try:
@@ -1650,6 +1643,3 @@ def add_OBS_to_MF_In(str_OBS, PKG=None, MdlN=None, Pa=None, iMOD5=False):
             vprint(f'🟢 - Added OBS to {Pa}')
         except ValueError as e:
             print(f'🔴 - Failed:\n {e}')
-
-
-# --------------------------------------------------------------------------------

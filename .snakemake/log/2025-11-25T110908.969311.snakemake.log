@@ -1,0 +1,52 @@
+Assuming unrestricted shared filesystem usage.
+host: UU120516
+Building DAG of jobs...
+Provided cores: 10
+Rules claiming more threads will be scaled down.
+Job stats:
+job                 count
+----------------  -------
+Sim                     1
+add_DRN_OBS_copy        1
+all                     1
+total                   3
+
+Select jobs to execute...
+Execute 1 jobs...
+[Tue Nov 25 11:09:11 2025]
+localrule add_DRN_OBS_copy:
+    input: G:/models/NBr/Sim/NBr39/RUN.BAT, G:/models/NBr/In/OBS/DRN/NBr39/NBr39.DRN.OBS6
+    output: G:/models/NBr/Sim/NBr39/GWF_1/MODELINPUT/NBr39.DRN.OBS6
+    jobid: 6
+    reason: Updated input files: G:/models/NBr/In/OBS/DRN/NBr39/NBr39.DRN.OBS6
+    resources: tmpdir=C:\Users\Karam014\AppData\Local\Temp
+Shell command: None
+[Tue Nov 25 11:09:11 2025]
+Finished jobid: 6 (Rule: add_DRN_OBS_copy)
+1 of 3 steps (33%) done
+Select jobs to execute...
+Execute 1 jobs...
+[Tue Nov 25 11:09:11 2025]
+localrule Sim:
+    input: G:/models/NBr/Sim/NBr39/GWF_1/MODELINPUT/NBr39.OBS6, G:/models/NBr/Sim/NBr39/GWF_1/MODELINPUT/NBr39.RIV.OBS6, G:/models/NBr/Sim/NBr39/GWF_1/MODELINPUT/NBr39.DRN.OBS6
+    output: G:/models/NBr/code/snakemake/temp/Log_Sim_NBr39
+    jobid: 1
+    reason: Missing output files: G:/models/NBr/code/snakemake/temp/Log_Sim_NBr39; Input files updated by another job: G:/models/NBr/Sim/NBr39/GWF_1/MODELINPUT/NBr39.DRN.OBS6
+    resources: tmpdir=C:\Users\Karam014\AppData\Local\Temp
+Shell command: None
+[Tue Nov 25 11:10:15 2025]
+Finished jobid: 1 (Rule: Sim)
+2 of 3 steps (67%) done
+Select jobs to execute...
+Execute 1 jobs...
+[Tue Nov 25 11:10:15 2025]
+localrule all:
+    input: G:/models/NBr/code/snakemake/temp/Log_Sim_NBr39, G:/models/NBr/code/snakemake/temp/Log_freeze_env_NBr39
+    jobid: 0
+    reason: Input files updated by another job: G:/models/NBr/code/snakemake/temp/Log_Sim_NBr39
+    resources: tmpdir=C:\Users\Karam014\AppData\Local\Temp
+Shell command: None
+[Tue Nov 25 11:10:15 2025]
+Finished jobid: 0 (Rule: all)
+3 of 3 steps (100%) done
+Complete log(s): G:\.snakemake\log\2025-11-25T110908.969311.snakemake.log

@@ -41,10 +41,10 @@ Pa_HD_OBS_WEL, Pa_HD_OBS, Pa_NAM    =   [PJ(Pa_MdlN, 'GWF_1', i) for i in [f'MOD
 Pa_RIV_OBS_Src, Pa_DRN_OBS_Src      =   [PJ(Pa_Mdl, f"In/OBS/{i}/{MdlN}/{MdlN}.{i}.OBS6") for i in ['RIV', 'DRN']]
 Pa_RIV_OBS_Dst, Pa_DRN_OBS_Dst      =   [PJ(Pa_MdlN, f"GWF_1/MODELINPUT/{MdlN}.{i}.OBS6") for i in ['RIV', 'DRN']]
 Pa_HED, Pa_CBC                      =   [PJ(Pa_MdlN, 'GWF_1/MODELOUTPUT', i) for i in ['HEAD/HEAD.HED', 'BUDGET/BUDGET.CBC']]
-l_Fi_to_git                         =   [PJ(Pa_WS, i) for i in ['code/pixi.toml', 'code/pixi.lock', 'code/WS_Mdl']] # If any of these code files changes, the 
+l_Fi_to_git                         =   [PJ(Pa_WS, i) for i in ['pixi.toml', 'pixi.lock', 'code/WS_Mdl']] # If any of these code files changes, the 
 
-git_hash = shell("git rev-parse HEAD", read=True).strip()
-git_tag  = shell("git describe --tags --always", read=True, allow_error=True).strip() or "no_tag"
+git_hash = shell(f"git -C {Pa_WS} rev-parse HEAD", read=True).strip()
+git_tag  = shell(f"git -C {Pa_WS} describe --tags --always", read=True, allow_error=True).strip() or "no_tag"
 
 ## Temp files (for completion validation)
 log_Init        =   f"{Pa_Smk}/temp/Log_init_{MdlN}"

@@ -23,6 +23,7 @@ pytest = "*"
 itables = ">=2.5.2,<3"
 
 [pypi-dependencies]
+snakemake = "*"
 imod = { git = "https://github.com/Deltares/imod-python.git", rev = "1.0.0rc7"}
 WS_Mdl = { path = 'G:/', editable = true }
 sfrmaker = "==0.11.3"

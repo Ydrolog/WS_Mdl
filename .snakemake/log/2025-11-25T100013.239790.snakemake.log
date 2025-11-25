@@ -1,0 +1,7 @@
+Building DAG of jobs...
+MissingInputException in rule freeze_pixi_env in file "G:\models\NBr\code\snakemake\NBr39.smk", line 91:
+Missing input files for rule freeze_pixi_env:
+    output: G:/models/NBr/code/snakemake/temp/Log_freeze_env_NBr39
+    affected files:
+        G:/code/pixi.toml
+        G:/code/pixi.lock

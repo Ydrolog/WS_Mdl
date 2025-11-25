@@ -1,0 +1,177 @@
+Assuming unrestricted shared filesystem usage.
+host: UU120516
+Building DAG of jobs...
+Provided cores: 10
+Rules claiming more threads will be scaled down.
+Job stats:
+job                 count
+----------------  -------
+Sim                     1
+add_DRN_OBS_copy        1
+all                     1
+total                   3
+
+Select jobs to execute...
+Execute 1 jobs...
+
+[Tue Nov 25 11:09:11 2025]
+localrule add_DRN_OBS_copy:
+    input: G:/models/NBr/Sim/NBr39/RUN.BAT, G:/models/NBr/In/OBS/DRN/NBr39/NBr39.DRN.OBS6
+    output: G:/models/NBr/Sim/NBr39/GWF_1/MODELINPUT/NBr39.DRN.OBS6
+    jobid: 6
+    reason: Updated input files: G:/models/NBr/In/OBS/DRN/NBr39/NBr39.DRN.OBS6
+    resources: tmpdir=C:\Users\Karam014\AppData\Local\Temp
+Shell command: None
+[Tue Nov 25 11:09:11 2025]
+Finished jobid: 6 (Rule: add_DRN_OBS_copy)
+1 of 3 steps (33%) done
+Select jobs to execute...
+Execute 1 jobs...
+
+[Tue Nov 25 11:09:11 2025]
+localrule Sim:
+    input: G:/models/NBr/Sim/NBr39/GWF_1/MODELINPUT/NBr39.OBS6, G:/models/NBr/Sim/NBr39/GWF_1/MODELINPUT/NBr39.RIV.OBS6, G:/models/NBr/Sim/NBr39/GWF_1/MODELINPUT/NBr39.DRN.OBS6
+    output: G:/models/NBr/code/snakemake/temp/Log_Sim_NBr39
+    jobid: 1
+    reason: Missing output files: G:/models/NBr/code/snakemake/temp/Log_Sim_NBr39; Input files updated by another job: G:/models/NBr/Sim/NBr39/GWF_1/MODELINPUT/NBr39.DRN.OBS6
+    resources: tmpdir=C:\Users\Karam014\AppData\Local\Temp
+Shell command: None
+--- Logging error ---
+Traceback (most recent call last):
+  File "G:\.pixi\envs\default\Lib\site-packages\snakemake\logging.py", line 515, in emit
+    self.stream.write(self.decorate(record, formatted_message))
+                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "G:\.pixi\envs\default\Lib\site-packages\snakemake\logging.py", line 542, in decorate
+    return "".join(message)
+           ~~~~~~~^^^^^^^^^
+TypeError: sequence item 0: expected str instance, NoneType found
+Call stack:
+  File "G:\.pixi\envs\default\Lib\threading.py", line 1014, in _bootstrap
+    self._bootstrap_inner()
+  File "G:\.pixi\envs\default\Lib\threading.py", line 1043, in _bootstrap_inner
+    self.run()
+  File "G:\.pixi\envs\default\Lib\threading.py", line 994, in run
+    self._target(*self._args, **self._kwargs)
+  File "G:\.pixi\envs\default\Lib\concurrent\futures\thread.py", line 93, in _worker
+    work_item.run()
+  File "G:\.pixi\envs\default\Lib\concurrent\futures\thread.py", line 59, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "G:\.pixi\envs\default\Lib\site-packages\snakemake\executors\local.py", line 247, in cached_or_run
+    run_func(*args)
+  File "G:\.pixi\envs\default\Lib\site-packages\snakemake\executors\local.py", line 425, in run_wrapper
+    run(
+  File "G:\models\NBr\code\snakemake\NBr39.smk", line 241, in __rule_Sim
+  File "G:\.pixi\envs\default\Lib\site-packages\snakemake\shell.py", line 199, in __new__
+    logger.info(None, extra=dict(event=LogEvent.SHELLCMD, cmd=cmd))
+  File "G:\.pixi\envs\default\Lib\logging\__init__.py", line 1522, in info
+    self._log(INFO, msg, args, **kwargs)
+  File "G:\.pixi\envs\default\Lib\logging\__init__.py", line 1667, in _log
+    self.handle(record)
+  File "G:\.pixi\envs\default\Lib\logging\__init__.py", line 1686, in handle
+    self.callHandlers(record)
+  File "G:\.pixi\envs\default\Lib\logging\__init__.py", line 1744, in callHandlers
+    hdlr.handle(record)
+  File "G:\.pixi\envs\default\Lib\logging\__init__.py", line 1027, in handle
+    self.emit(record)
+  File "G:\.pixi\envs\default\Lib\site-packages\snakemake\logging.py", line 523, in emit
+    self.handleError(record)
+Message: None
+Arguments: ()
+--- Logging error ---
+Traceback (most recent call last):
+  File "G:\.pixi\envs\default\Lib\logging\__init__.py", line 1154, in emit
+    stream.write(msg + self.terminator)
+                 ~~~~^~~~~~~~~~~~~~~~~
+TypeError: unsupported operand type(s) for +: 'NoneType' and 'str'
+Call stack:
+  File "G:\.pixi\envs\default\Lib\threading.py", line 1014, in _bootstrap
+    self._bootstrap_inner()
+  File "G:\.pixi\envs\default\Lib\threading.py", line 1043, in _bootstrap_inner
+    self.run()
+  File "G:\.pixi\envs\default\Lib\threading.py", line 994, in run
+    self._target(*self._args, **self._kwargs)
+  File "G:\.pixi\envs\default\Lib\concurrent\futures\thread.py", line 93, in _worker
+    work_item.run()
+  File "G:\.pixi\envs\default\Lib\concurrent\futures\thread.py", line 59, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "G:\.pixi\envs\default\Lib\site-packages\snakemake\executors\local.py", line 247, in cached_or_run
+    run_func(*args)
+  File "G:\.pixi\envs\default\Lib\site-packages\snakemake\executors\local.py", line 425, in run_wrapper
+    run(
+  File "G:\models\NBr\code\snakemake\NBr39.smk", line 241, in __rule_Sim
+  File "G:\.pixi\envs\default\Lib\site-packages\snakemake\shell.py", line 199, in __new__
+    logger.info(None, extra=dict(event=LogEvent.SHELLCMD, cmd=cmd))
+Message: None
+Arguments: ()
+
+G:\models\NBr\Sim\NBr39>REM ========================== 
+
+G:\models\NBr\Sim\NBr39>REM Run Script iMOD V5_6_2 
+
+G:\models\NBr\Sim\NBr39>REM ========================== 
+
+G:\models\NBr\Sim\NBr39>TITLE "TOMLFILE: NBr39.toml" 
+
+G:\models\NBr\Sim\NBr39>REM run iMOD-coupler with MODFLOW6-METASWAP model 
+
+G:\models\NBr\Sim\NBr39>"..\..\..\..\software\iMOD5\bin_MF6_6\imod_coupler\imodc.exe" NBr39.toml 
+iMOD Coupler: [1miMOD Coupler 2024.3.0[0m
+                                   MODFLOW 6
+                U.S. GEOLOGICAL SURVEY MODULAR HYDROLOGIC MODEL
+                            VERSION 6.5.0 05/23/2024
+
+   MODFLOW 6 compiled May 23 2024 18:06:57 with Intel(R) Fortran Intel(R) 64
+   Compiler Classic for applications running on Intel(R) 64, Version 2021.7.0
+                             Build 20220726_000000
+
+This software has been approved for release by the U.S. Geological 
+Survey (USGS). Although the software has been subjected to rigorous 
+review, the USGS reserves the right to update the software as needed 
+pursuant to further analysis and review. No warranty, expressed or 
+implied, is made by the USGS or the U.S. Government as to the 
+functionality of the software and related material nor shall the 
+fact of release constitute any such warranty. Furthermore, the 
+software is released on condition that neither the USGS nor the U.S. 
+Government shall be held liable for any damages resulting from its 
+authorized or unauthorized use. Also refer to the USGS Water 
+Resources Software User Rights Notice for complete use, copyright, 
+and distribution information.
+
+ 
+ MODFLOW runs in SEQUENTIAL mode
+ 
+ Run start date and time (yyyy/mm/dd hh:mm:ss): 2025/11/25 11:10:04
+ 
+ Writing simulation list file: mfsim.lst
+ Using Simulation name file: mfsim.nam
+ 
+
+ERROR REPORT:
+
+  1. Multiple FILEIN keywords detected for tag "OBS6_FILENAME" in OPTIONS
+     block. Only one entry allowed.
+
+UNIT ERROR REPORT:
+
+  1. ERROR OCCURRED WHILE READING FILE '.\GWF_1\MODELINPUT\NBR39.DRN6'
+
+G:\models\NBr\Sim\NBr39>IF 2 NEQ 0 (ECHO AN ERROR WAS FOUND ERRORLEVEL ) 
+AN ERROR WAS FOUND ERRORLEVEL
+[Tue Nov 25 11:10:15 2025]
+Finished jobid: 1 (Rule: Sim)
+2 of 3 steps (67%) done
+Select jobs to execute...
+Execute 1 jobs...
+
+[Tue Nov 25 11:10:15 2025]
+localrule all:
+    input: G:/models/NBr/code/snakemake/temp/Log_Sim_NBr39, G:/models/NBr/code/snakemake/temp/Log_freeze_env_NBr39
+    jobid: 0
+    reason: Input files updated by another job: G:/models/NBr/code/snakemake/temp/Log_Sim_NBr39
+    resources: tmpdir=C:\Users\Karam014\AppData\Local\Temp
+Shell command: None
+[Tue Nov 25 11:10:15 2025]
+Finished jobid: 0 (Rule: all)
+3 of 3 steps (100%) done
+Complete log(s): G:\.snakemake\log\2025-11-25T110908.969311.snakemake.log
+🟢 - Added OBS to G:/models/NBr\Sim/NBr39\GWF_1/MODELINPUT\NBr39.DRN6

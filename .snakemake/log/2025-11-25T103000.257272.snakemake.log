@@ -1,0 +1,115 @@
+Assuming unrestricted shared filesystem usage.
+host: UU120516
+Building DAG of jobs...
+Provided cores: 10
+Rules claiming more threads will be scaled down.
+Job stats:
+job                 count
+----------------  -------
+Mdl_Prep                1
+Sim                     1
+add_DRN_OBS_copy        1
+add_HD_OBS_WEL          1
+add_RIV_OBS_copy        1
+all                     1
+freeze_pixi_env         1
+log_Init                1
+total                   8
+
+Select jobs to execute...
+Execute 2 jobs...
+[Tue Nov 25 10:30:05 2025]
+localrule log_Init:
+    output: G:/models/NBr/code/snakemake/temp/Log_init_NBr39
+    jobid: 4
+    reason: Missing output files: G:/models/NBr/code/snakemake/temp/Log_init_NBr39
+    resources: tmpdir=C:\Users\Karam014\AppData\Local\Temp
+Shell command: None
+[Tue Nov 25 10:30:05 2025]
+localrule freeze_pixi_env:
+    input: G:/pixi.toml, G:/pixi.lock, G:/code/WS_Mdl
+    output: G:/models/NBr/code/snakemake/temp/Log_freeze_env_NBr39
+    jobid: 7
+    reason: Missing output files: G:/models/NBr/code/snakemake/temp/Log_freeze_env_NBr39
+    resources: tmpdir=C:\Users\Karam014\AppData\Local\Temp
+Shell command: None
+[Tue Nov 25 10:30:05 2025]
+Finished jobid: 4 (Rule: log_Init)
+1 of 8 steps (12%) done
+Select jobs to execute...
+Execute 1 jobs...
+[Tue Nov 25 10:30:05 2025]
+localrule Mdl_Prep:
+    input: G:/models/NBr/code/snakemake/temp/Log_init_NBr39, code/Mdl_Prep/Mdl_Prep_NBr39.bat, code/Mdl_Prep/Mdl_Prep_NBr39.ini, In/PRJ/NBr39.prj
+    output: G:/models/NBr/Sim/NBr39/RUN.BAT
+    jobid: 3
+    reason: Updated input files: In/PRJ/NBr39.prj; Input files updated by another job: G:/models/NBr/code/snakemake/temp/Log_init_NBr39
+    resources: tmpdir=C:\Users\Karam014\AppData\Local\Temp
+Shell command: call code/Mdl_Prep/Mdl_Prep_NBr39.bat
+[Tue Nov 25 10:30:09 2025]
+Finished jobid: 7 (Rule: freeze_pixi_env)
+2 of 8 steps (25%) done
+[Tue Nov 25 10:40:31 2025]
+Finished jobid: 3 (Rule: Mdl_Prep)
+3 of 8 steps (38%) done
+Select jobs to execute...
+Execute 3 jobs...
+[Tue Nov 25 10:40:31 2025]
+localrule add_DRN_OBS_copy:
+    input: G:/models/NBr/Sim/NBr39/RUN.BAT, G:/models/NBr/In/OBS/DRN/NBr39/NBr39.DRN.OBS6
+    output: G:/models/NBr/Sim/NBr39/GWF_1/MODELINPUT/NBr39.DRN.OBS6
+    jobid: 6
+    reason: Missing output files: G:/models/NBr/Sim/NBr39/GWF_1/MODELINPUT/NBr39.DRN.OBS6; Input files updated by another job: G:/models/NBr/Sim/NBr39/RUN.BAT
+    resources: tmpdir=C:\Users\Karam014\AppData\Local\Temp
+Shell command: None
+[Tue Nov 25 10:40:31 2025]
+localrule add_RIV_OBS_copy:
+    input: G:/models/NBr/Sim/NBr39/RUN.BAT, G:/models/NBr/In/OBS/RIV/NBr39/NBr39.RIV.OBS6
+    output: G:/models/NBr/Sim/NBr39/GWF_1/MODELINPUT/NBr39.RIV.OBS6
+    jobid: 5
+    reason: Missing output files: G:/models/NBr/Sim/NBr39/GWF_1/MODELINPUT/NBr39.RIV.OBS6; Input files updated by another job: G:/models/NBr/Sim/NBr39/RUN.BAT
+    resources: tmpdir=C:\Users\Karam014\AppData\Local\Temp
+Shell command: None
+[Tue Nov 25 10:40:31 2025]
+localrule add_HD_OBS_WEL:
+    input: G:/models/NBr/Sim/NBr39/RUN.BAT
+    output: G:/models/NBr/Sim/NBr39/GWF_1/MODELINPUT/NBr39.OBS6
+    jobid: 2
+    reason: Missing output files: G:/models/NBr/Sim/NBr39/GWF_1/MODELINPUT/NBr39.OBS6; Input files updated by another job: G:/models/NBr/Sim/NBr39/RUN.BAT
+    resources: tmpdir=C:\Users\Karam014\AppData\Local\Temp
+Shell command: None
+[Tue Nov 25 10:40:31 2025]
+Finished jobid: 6 (Rule: add_DRN_OBS_copy)
+4 of 8 steps (50%) done
+[Tue Nov 25 10:40:31 2025]
+Finished jobid: 5 (Rule: add_RIV_OBS_copy)
+5 of 8 steps (62%) done
+[Tue Nov 25 10:40:31 2025]
+Finished jobid: 2 (Rule: add_HD_OBS_WEL)
+6 of 8 steps (75%) done
+Select jobs to execute...
+Execute 1 jobs...
+[Tue Nov 25 10:40:31 2025]
+localrule Sim:
+    input: G:/models/NBr/Sim/NBr39/GWF_1/MODELINPUT/NBr39.OBS6, G:/models/NBr/Sim/NBr39/GWF_1/MODELINPUT/NBr39.RIV.OBS6, G:/models/NBr/Sim/NBr39/GWF_1/MODELINPUT/NBr39.DRN.OBS6
+    output: G:/models/NBr/code/snakemake/temp/Log_Sim_NBr39
+    jobid: 1
+    reason: Missing output files: G:/models/NBr/code/snakemake/temp/Log_Sim_NBr39; Input files updated by another job: G:/models/NBr/Sim/NBr39/GWF_1/MODELINPUT/NBr39.DRN.OBS6, G:/models/NBr/Sim/NBr39/GWF_1/MODELINPUT/NBr39.OBS6, G:/models/NBr/Sim/NBr39/GWF_1/MODELINPUT/NBr39.RIV.OBS6
+    resources: tmpdir=C:\Users\Karam014\AppData\Local\Temp
+Shell command: None
+[Tue Nov 25 10:42:05 2025]
+Finished jobid: 1 (Rule: Sim)
+7 of 8 steps (88%) done
+Select jobs to execute...
+Execute 1 jobs...
+[Tue Nov 25 10:42:05 2025]
+localrule all:
+    input: G:/models/NBr/code/snakemake/temp/Log_Sim_NBr39, G:/models/NBr/code/snakemake/temp/Log_freeze_env_NBr39
+    jobid: 0
+    reason: Input files updated by another job: G:/models/NBr/code/snakemake/temp/Log_Sim_NBr39, G:/models/NBr/code/snakemake/temp/Log_freeze_env_NBr39
+    resources: tmpdir=C:\Users\Karam014\AppData\Local\Temp
+Shell command: None
+[Tue Nov 25 10:42:05 2025]
+Finished jobid: 0 (Rule: all)
+8 of 8 steps (100%) done
+Complete log(s): G:\.snakemake\log\2025-11-25T103000.257272.snakemake.log
