@@ -429,11 +429,7 @@ def mete_grid_Cvt_to_AbsPa(Pa_PRJ: str, PRJ: dict = None):
     return Pa_mete_grid_AbsPa
 
 
-# --------------------------------------------------------------------------------
-
 # Mdl related --------------------------------------------------------------------
-
-
 def Mdl_Prep(MdlN: str, Pa_MF6_DLL: str = None, Pa_MSW_DLL: str = None, verbose=False):
     """
     Prepares Sim Fis from In Fis.
@@ -569,9 +565,6 @@ def Mdl_Prep(MdlN: str, Pa_MF6_DLL: str = None, Pa_MSW_DLL: str = None, verbose=
         print(f'❌ Error executing model: {e}')
 
 
-# --------------------------------------------------------------------------------
-
-
 # PrSimP related -----------------------------------------------------------------
 def add_OBS(MdlN: str, Opt: str = 'BEGIN OPTIONS\nEND OPTIONS', iMOD5=False):
     """
@@ -658,9 +651,6 @@ def add_OBS(MdlN: str, Opt: str = 'BEGIN OPTIONS\nEND OPTIONS', iMOD5=False):
     vprint(Sign)
 
 
-# --------------------------------------------------------------------------------
-
-
 # IDF processing -----------------------------------------------------------------
 def IDFs_to_DF(S_Pa_IDF):
     """Reads all .IDF Fis listed in a S_Fi_IDF into DF['IDF']. Returns the DF containing Fi_names and the IDF contents.
@@ -675,9 +665,6 @@ def IDFs_to_DF(S_Pa_IDF):
             except Exception as e:
                 print(f'Error reading {p}: {e}')
     return DF
-
-
-# --------------------------------------------------------------------------------
 
 
 # xarray processing --------------------------------------------------------------
@@ -998,9 +985,6 @@ def xr_compare_As(
     return results
 
 
-# --------------------------------------------------------------------------------
-
-
 # Standard options ---------------------------------------------------------------
 def mf6_solution_moderate_settings(
     modelnames: list[str] = ['imported_model'],
@@ -1061,9 +1045,6 @@ def mf6_solution_moderate_settings(
     )
 
 
-# --------------------------------------------------------------------------------
-
-
 # numpy --------------------------------------------------------------------------
 def get_CeCes_from_INI(MdlN: str):
     """Get centroids of the model grid from the INI file of the model.
@@ -1074,6 +1055,3 @@ def get_CeCes_from_INI(MdlN: str):
     dy = -float(cellsize)
 
     return np.arange(Xmin + dx / 2, Xmax, dx), np.arange(Ymax + dy / 2, Ymin, dy)
-
-
-# --------------------------------------------------------------------------------
