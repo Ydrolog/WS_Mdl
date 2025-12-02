@@ -798,7 +798,7 @@ def SFR_to_GPkg(MdlN: str, crs: str = 28992, Pa_SFR=None, radius: float = None, 
     if not os.path.exists(Pa_SFR):
         vprint(f'🔴 ERROR: SFR file not found at {Pa_SFR}. Cannot proceed.')
 
-    if radius is None:
+    if radius is None: # If radius s not provided, use CELLSIZE from INI file
         U.set_verbose(False)
         d_INI = U.INI_to_d(d_Pa['INI'])
         radius = float(d_INI['CELLSIZE'])
@@ -861,6 +861,32 @@ def SFR_to_GPkg(MdlN: str, crs: str = 28992, Pa_SFR=None, radius: float = None, 
         on='downstream',
         how='left',
     )
+
+    # --- Identify Outlets ---
+    # Build upstream map: downstream_id -> list of upstream_ids
+    upstream_map = DF[DF['downstream'].notna()].groupby('downstream')['reach_N'].apply(list).to_dict()
+
+    # Identify outlets (reaches with no downstream reach)
+    outlets = DF[DF['downstream'].isna()]['reach_N'].tolist()
+
+    # Dictionary to store reach -> outlet mapping
+    reach_to_outlet = {outlet: outlet for outlet in outlets}
+
+    # Propagate outlet IDs upstream
+    current_layer = outlets
+    while current_layer:
+        next_layer = []
+        for current_r in current_layer:
+            current_outlet = reach_to_outlet[current_r]
+            upstream_reaches = upstream_map.get(current_r, [])
+            for up_r in upstream_reaches:
+                if up_r not in reach_to_outlet:
+                    reach_to_outlet[up_r] = current_outlet
+                    next_layer.append(up_r)
+        current_layer = next_layer
+
+    # Map back to DF
+    DF['outlet_id'] = DF['reach_N'].map(reach_to_outlet)
 
     # --- Create geometry for all reaches ---
     # Add reach type column to identify routing vs outlets
