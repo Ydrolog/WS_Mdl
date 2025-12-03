@@ -163,16 +163,16 @@ def get_MdlN_Pa(MdlN: str, MdlN_B=None, iMOD5=None):
 
     This function has been modified since NBr32, to support imod python's folder/file structure. If you need to use the old folder structure, set iMOD5=True.
     """
-    if get_imod_V(MdlN) == 'imod5':
-        iMOD5 = True
-    elif get_imod_V(MdlN) == 'imod_python':
-        iMOD5 = False
-    else:
-        iMOD5 = False
-        print(
-            f"🔴 - Couldn't determine imod version from Sim/{MdlN} folder. Proceeding assuming it's imod_python. Provide iMOD5=True if you want to proceed with iMOD5's structure instead."
-        )
-        return
+    if iMOD5 is None:
+        if get_imod_V(MdlN) == 'imod5':
+            iMOD5 = True
+        elif get_imod_V(MdlN) == 'imod_python':
+            iMOD5 = False
+        else:
+            iMOD5 = False
+            print(
+                f"🔴 - Couldn't determine imod version from Sim/{MdlN} folder. Proceeding assuming it's imod_python. Provide iMOD5=True if you want to proceed with iMOD5's structure instead."
+            )
 
     if MdlN_B:
         d_Pa = paths_from_MdlN_Se(MdlN_Se_from_RunLog((MdlN)), MdlN)
@@ -399,12 +399,14 @@ def get_imod_V(MdlN: str):
             return 'imod5'
         else:
             print(
-                f'Could not determine imod version for MdlN {MdlN}. Check the Sim folder structure.\nI was expecting to find either "modflow6" (imod_python) or "GWF_1" (imod5) subfolder in {Pa_Sim}.'
+                f"Could not determine imod version Sim/{MdlN} folder doesn't exist, or it's structure has been modified.\n Proceeding with the assumption that it's imod_python."
             )
-            return
+            return 'imod_python'
     except FileNotFoundError:
-        print(f'Sim/{MdlN} folder not found. Could not determine imod version.')
-        return
+        print(
+            f"Could not determine imod version Sim/{MdlN} folder doesn't exist, or it's structure has been modified.\n Proceeding with the assumption that it's imod_python."
+        )
+        return 'imod_python'
 
 
 # --------------------------------------------------------------------------------
