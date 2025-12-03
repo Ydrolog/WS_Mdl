@@ -5954,7 +5954,7 @@ packages:
 - pypi: G:/
   name: ws-mdl
   version: '0.1'
-  sha256: fff0e793d3dd9924d509d6b8844fe27c21e6cfc01844f10524b3c1331481652c
+  sha256: 847f9c447a1e19e0c2537a4a8377e984659beca3817dfe03805971734ff190fc
   requires_dist:
   - pandas
   - colored

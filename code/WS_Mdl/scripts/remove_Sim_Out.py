@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import sys
-from WS_Mdl.utils import reset_Sim  # Adjust import as needed
+
+from WS_Mdl.utils import remove_Sim_Out  # Adjust import as needed
 
 
 def main():
@@ -9,7 +10,7 @@ def main():
         sys.exit(1)
 
     for MdlN in sys.argv[1:]:  # Loop through all arguments after the script name
-        reset_Sim(MdlN)
+        remove_Sim_Out(MdlN)
 
 
 if __name__ == '__main__':

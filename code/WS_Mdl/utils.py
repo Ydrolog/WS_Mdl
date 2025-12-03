@@ -1342,7 +1342,7 @@ def remove_Sim_Out(
     if ask_permission:
         permission = (
             input(
-                f'{warn}This will {action} files in {Pa_WS}/models/{get_Mdl()}Sim/{MdlN} folder, and change the status of the corresponding line of log.csv.\n{Del_text}\nAre you sure you want to proceed? (y/n):\n{style_reset}'
+                f'{warn}This will {action} files in {Pa_WS}/models/{get_Mdl(MdlN)}Sim/{MdlN} folder, and change the status of the corresponding line of log.csv.\n{Del_text}\nAre you sure you want to proceed? (y/n):\n{style_reset}'
             )
             .strip()
             .lower()
