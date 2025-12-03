@@ -210,6 +210,7 @@ def get_MdlN_Pa(MdlN: str, MdlN_B=None, iMOD5=False):
         d_Pa['Sim_In'] = (
             PJ(d_Pa['Pa_MdlN'], 'modflow6/imported_model') if not iMOD5 else PJ(d_Pa['Pa_MdlN'], 'GWF_1/MODELINPUT')
         )
+        d_Pa['Sim_Out'] = None if not iMOD5 else PJ(d_Pa['Pa_MdlN'], 'GWF_1/MODELOUTPUT')
         d_Pa['SFR'] = (
             PJ(d_Pa['Pa_MdlN'], f'modflow6/imported_model/{MdlN}.SFR6')
             if not iMOD5
@@ -373,6 +374,21 @@ def DF_info(DF: pd.DataFrame):
     print(f'Data types:\n{DF.dtypes}')
     print('\nBasic statistics for numeric columns:')
     DF.describe()
+
+
+def get_imod_V(MdlN: str):
+    """Returns the imod version used for a given MdlN."""
+
+    d_Pa = get_MdlN_Pa(MdlN)
+    Pa_Sim = d_Pa['Sim']
+    if 'modflow6' in os.listdir(Pa_Sim):
+        return 'imod_python'
+    elif 'GWF_1' in os.listdir(Pa_Sim):
+        return 'imod5'
+    else:
+        raise ValueError(
+            f'Could not determine imod version for MdlN {MdlN}. Check the Sim folder structure.\nI was expecting to find either "modflow6" (imod_python) or "GWF_1" (imod5) subfolder in {Pa_Sim}.'
+        )
 
 
 # --------------------------------------------------------------------------------
@@ -1273,10 +1289,12 @@ def reset_Sim(MdlN: str, ask_permission: bool = True, Pa_log=Pa_log, permanent_d
     vprint(Sign)
 
 
-def remove_Sim_Out(MdlN: str, ask_permission: bool = True, Pa_log=Pa_log, permanent_delete: bool = False):
+def remove_Sim_Out(
+    MdlN: str, Del_all: bool = False, ask_permission: bool = True, Pa_log=Pa_log, permanent_delete: bool = False
+):
     """
     Removes Sim Out, but not the PoP. Specifically:
-        1. Moves all files in the MldN folder in the Sim folder to recycling bin (or permanently deletes if permanent_delete=True).
+        1. Moves all files in the MldN folder (inside the Sim folder) to recycling bin (or permanently deletes if permanent_delete=True).
         2. Changes log.csv status to "removed_Out".
 
     Parameters
@@ -1290,13 +1308,19 @@ def remove_Sim_Out(MdlN: str, ask_permission: bool = True, Pa_log=Pa_log, perman
     permanent_delete : bool, default=False
         If True, files are permanently deleted. If False, files are moved to recycling bin.
     """
-
     vprint(Pre_Sign)
+
+    if Del_all:
+        Del_text = 'All files will be removed (Del_all=True).'
+    else:
+        Del_text = 'Only large output files (.hds, .cbc, .grb in the MF folder; and MSW out folders) will be removed (Del_all=False).'
+
+    # ---------- Permission ----------
+    action = 'permanently delete' if permanent_delete else 'recycle'
     if ask_permission:
-        action = 'permanently delete' if permanent_delete else 'move to the recycling bin'
         permission = (
             input(
-                f'This will {action} the Sim/{MdlN} folder and change the status of the corresponding line of log.csv to "removed_Out". Are you sure you want to proceed? (y/n):\n'
+                f'This will {action} files in {Pa_WS}/models/{get_Mdl()}Sim/{MdlN} folder, and change the status of the corresponding line of log.csv.\n{Del_text}\nAre you sure you want to proceed? (y/n):\n'
             )
             .strip()
             .lower()
@@ -1304,29 +1328,34 @@ def remove_Sim_Out(MdlN: str, ask_permission: bool = True, Pa_log=Pa_log, perman
     else:
         permission = 'y'
 
+    # ---------- Remove + Update log ----------
     if permission == 'y':
         d_Pa = get_MdlN_Pa(MdlN)  # Get default directories
         Pa_MdlN = d_Pa['Pa_MdlN']
         DF = pd.read_csv(Pa_log)  # Read the log file
 
-        if os.path.exists(Pa_MdlN) or (
-            MdlN.lower() in DF['MdlN'].str.lower().values
-        ):  # Check if the Sim folder exists or if the MdlN is in the log file
+        if os.path.exists(Pa_MdlN) and (MdlN.lower() in DF['MdlN'].str.lower().values):
             i = 0
-
-            try:  # --- Remove Sim folder ---
-                if not os.path.exists(Pa_MdlN):
-                    raise FileNotFoundError(f'{Pa_MdlN} does not exist.')
-                if permanent_delete:
-                    sp.run(f'rmdir /S /Q "{Pa_MdlN}"', shell=True)  # Permanently delete the entire Sim folder
-                    vprint('🟢 - Sim folder permanently deleted successfully.')
-                else:
-                    send2trash(Pa_MdlN)  # Move the entire Sim folder to recycling bin
-                    vprint('🟢 - Sim folder moved to recycling bin successfully.')
-                i += 1
-            except Exception as e:
-                action = 'permanently delete' if permanent_delete else 'move to recycling bin'
-                vprint(f'🔴 - failed to {action} Sim folder: {e}')
+            if Del_all:
+                try:  # --- Remove whole Sim folder ---
+                    if not os.path.exists(Pa_MdlN):
+                        raise FileNotFoundError(f'{Pa_MdlN} does not exist.')
+                    if permanent_delete:
+                        sp.run(f'rmdir /S /Q "{Pa_MdlN}"', shell=True)  # Permanently delete the entire Sim folder
+                        vprint('🟢 - Sim folder permanently deleted successfully.')
+                    else:
+                        send2trash(Pa_MdlN)  # Move the entire Sim folder to recycling bin
+                        vprint('🟢 - Sim folder moved to recycling bin successfully.')
+                    i += 1
+                except Exception as e:
+                    vprint(f'🔴 - failed to {action} Sim folder: {e}')
+            else:
+                try:  # --- Remove large output files only ---
+                    if get_imod_V(MdlN) == 'imod5':
+                        Path(PJ(d_Pa['Sim_In'], f'{MdlN}.DIS6.grb')).unlink(missing_ok=True)
+                        sh.rmtree()
+                except Exception as e:
+                    vprint(f'🔴 - failed to {action} large output files: {e}')
 
             try:  # --- Change log.csv entry ---
                 DF.loc[DF['MdlN'].str.lower() == MdlN.lower(), 'End Status'] = 'Removed Output'
@@ -1338,7 +1367,7 @@ def remove_Sim_Out(MdlN: str, ask_permission: bool = True, Pa_log=Pa_log, perman
 
             if i == 2:
                 action = 'permanently deleted' if permanent_delete else 'moved to recycling bin'
-                vprint(f'\n🟢🟢🟢 - ALL files were successfully {action}.')
+                vprint(f'\n🟢🟢🟢 - ALL files were successfully {action}d.')
             else:
                 vprint(f'🟡🟡🟡 - {i}/2 sub-processes finished successfully.')
         else:

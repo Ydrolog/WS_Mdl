@@ -22,6 +22,7 @@ pip = "*"
 pytest = "*"
 itables = ">=2.5.2,<3"
 plotly = "*"
+graphviz = ">=14.0.5,<15"
 
 [pypi-dependencies]
 snakemake = "*"
