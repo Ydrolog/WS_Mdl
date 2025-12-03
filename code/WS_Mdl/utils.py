@@ -257,7 +257,6 @@ def p_TS_range(l_Pa, ending='IDF', date_format='%Y%m%d', Out_Fi='TS_range.png'):
     Out_Fi : str
         Output filename for the plot (default: 'TS_range.png')
     """
-    import matplotlib.pyplot as plt
 
     # Handle single path input by converting to list
     if isinstance(l_Pa, str):
@@ -303,169 +302,68 @@ def p_TS_range(l_Pa, ending='IDF', date_format='%Y%m%d', Out_Fi='TS_range.png'):
         print('No valid dates found in any of the provided paths')
         return
 
-    # Create the plot with space for external legend
-    n_paths = len(data_by_path)
-    fig_height = max(2, n_paths * 0.8)  # Adjust height based on number of paths
-    fig, ax = plt.subplots(figsize=(14, fig_height))  # Wider for external legend
+    # Create the plot
+    try:
+        import plotly.graph_objects as go
+    except ImportError:
+        print("Error: Plotly is not installed. Please install it using 'pip install plotly' to use this feature.")
+        return
 
-    # Use simple, distinct colors
-    simple_colors = [
-        '#1f77b4',
-        '#ff7f0e',
-        '#2ca02c',
-        '#d62728',
-        '#9467bd',
-        '#8c564b',
-        '#e377c2',
-        '#7f7f7f',
-        '#bcbd22',
-        '#17becf',
-    ]
-    legend_elements = []
+    fig = go.Figure()
 
-    for i, (Pa, l_Dt) in enumerate(data_by_path.items()):
-        y_pos = n_paths - i  # Plot from top to bottom
-        color = simple_colors[i % len(simple_colors)]
+    for Pa, l_Dt in data_by_path.items():
+        # Prepare data with gaps
+        x_vals = []
+        y_vals = []
 
-        # For large datasets, use simpler approach for better performance
-        if len(l_Dt) > 1000:
-            # Just draw the full range line and data points for large datasets
-            ax.hlines(y_pos, l_Dt[0], l_Dt[-1], colors=color, lw=6, alpha=0.7, zorder=2)
-            # Sample data points for better performance (every 10th point for very large datasets)
-            sample_step = max(1, len(l_Dt) // 500)  # Show max 500 points
-            l_Dt_sampled = l_Dt[::sample_step]
-            ax.plot(
-                l_Dt_sampled,
-                [y_pos] * len(l_Dt_sampled),
-                'o',
-                color=color,
-                markersize=3,
-                markeredgecolor='white',
-                markeredgewidth=0.5,
-                zorder=3,
-            )
-        else:
-            # Original detailed approach for smaller datasets
-            # Draw faint line for entire time range (gaps)
-            ax.hlines(y_pos, l_Dt[0], l_Dt[-1], colors=color, lw=2, alpha=0.15, zorder=1)
+        if l_Dt:
+            x_vals.append(l_Dt[0])
+            y_vals.append(PBN(Pa))
 
-            # Draw solid line segments between consecutive data points (no gaps)
             for j in range(len(l_Dt) - 1):
                 current_date = l_Dt[j]
                 next_date = l_Dt[j + 1]
                 days_diff = (next_date - current_date).days
-                if days_diff <= 7:  # If gap is 7 days or less, show as continuous
-                    ax.hlines(y_pos, current_date, next_date, colors=color, lw=6, alpha=0.8, zorder=2)
 
-            # Plot all individual data points for smaller datasets
-            ax.plot(
-                l_Dt,
-                [y_pos] * len(l_Dt),
-                'o',
-                color=color,
-                markersize=4,
-                markeredgecolor='white',
-                markeredgewidth=0.5,
-                zorder=3,
+                if days_diff > 7:
+                    # Insert None to break line
+                    x_vals.append(None)
+                    y_vals.append(None)
+
+                x_vals.append(next_date)
+                y_vals.append(PBN(Pa))
+
+        fig.add_trace(
+            go.Scatter(
+                x=x_vals,
+                y=y_vals,
+                mode='lines+markers',
+                name=f'{PBN(Pa)} ({len(l_Dt)} files)',
+                marker=dict(size=5),
+                line=dict(width=2),
+                hovertemplate='%{x|%Y-%m-%d}<br>%{y}',
             )
+        )
 
-        # Create legend element with simple styling
-        from matplotlib.lines import Line2D
-
-        legend_elements.append(Line2D([0], [0], color=color, lw=4, label=f'{PBN(Pa)} ({len(l_Dt)} files)'))
-
-    # Formatting
-    ax.set_ylim(0.5, n_paths + 0.5)
-    ax.set_yticks([])
-    ax.set_title('Time Series Range Comparison', fontsize=14, fontweight='bold')
-    ax.set_xlabel('Date', fontsize=12)
-    ax.grid(axis='x', alpha=0.2)
-
-    # Add legend outside the plot area (right side)
-    ax.legend(
-        handles=legend_elements,
-        bbox_to_anchor=(1.02, 1),
-        loc='upper left',
-        fontsize=10,
-        frameon=True,
-        fancybox=False,
-        shadow=False,
+    fig.update_layout(
+        title='Time Series Range Comparison',
+        xaxis_title='Date',
+        yaxis_title='Directory',
+        hovermode='closest',
+        template='plotly_white',
     )
 
-    # Save to first path if multiple paths provided (optional backup)
+    # Save
+    if not Out_Fi.endswith('.html'):
+        Out_Fi = os.path.splitext(Out_Fi)[0] + '.html'
+
+    # Save to first path if multiple paths provided
     save_path = PJ(l_Pa[0], Out_Fi)
-    plt.tight_layout()
-    plt.savefig(save_path, dpi=300, bbox_inches='tight')
-
-    # Show interactive plot
-    import matplotlib
-
-    # Turn on interactive mode first
-    plt.ion()
-
-    # Ensure we're using an interactive backend
-    current_backend = matplotlib.get_backend()
-    vprint(f'Current matplotlib backend: {current_backend}')
-
-    if current_backend in ['Agg', 'svg', 'pdf', 'ps']:
-        vprint('Non-interactive backend detected, switching to interactive backend...')
-        try:
-            plt.switch_backend('TkAgg')
-            vprint('Switched to TkAgg backend')
-        except ImportError:
-            try:
-                plt.switch_backend('Qt5Agg')
-                vprint('Switched to Qt5Agg backend')
-            except ImportError:
-                try:
-                    plt.switch_backend('Qt4Agg')
-                    vprint('Switched to Qt4Agg backend')
-                except ImportError:
-                    vprint('Warning: No interactive backend available. Plot may not stay open.')
-
-    # Set window title
-    try:
-        fig.canvas.manager.set_window_title('Time Series Range Comparison')
-    except AttributeError:
-        pass  # Some backends don't support this
-
-    # Show the plot and keep it alive using a separate process
-    import pickle
-    import subprocess
-    import sys
-
-    # Create a temporary script that will show the plot in a separate Python process
-    temp_script = f"""
-    import matplotlib
-    matplotlib.use('TkAgg')  # Force interactive backend
-    import matplotlib.pyplot as plt
-    import pickle
-    import sys
-    # Load the figure data
-    with open(r'{save_path.replace('.png', '_figdata.pkl')}', 'rb') as f:
-        fig = pickle.load(f)
-    # Show the plot and block (keeping it alive)
-    plt.show(block=True)
-    """
-
-    # Save figure data to temporary pickle file
-    pickle_path = save_path.replace('.png', '_figdata.pkl')
-    with open(pickle_path, 'wb') as f:
-        pickle.dump(fig, f)
-
-    # Create temporary script file
-    temp_script_path = save_path.replace('.png', '_show_plot.py')
-    with open(temp_script_path, 'w') as f:
-        f.write(temp_script)
-
-    # Launch the plot in a separate Python process
-    subprocess.Popen(
-        [sys.executable, temp_script_path],
-        creationflags=subprocess.CREATE_NEW_CONSOLE if hasattr(subprocess, 'CREATE_NEW_CONSOLE') else 0,
-    )
-
+    fig.write_html(save_path)
     print(f'Plot saved to: {save_path}')
-    print('Interactive plot launched in separate window. Script completed.')
+
+    # Show
+    fig.show()
 
 
 def DF_info(DF: pd.DataFrame):
