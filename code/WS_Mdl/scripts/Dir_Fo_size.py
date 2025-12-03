@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import os
-from os import listdir as LD, makedirs as MDs
-from os.path import join as PJ, basename as PBN, dirname as PDN, exists as PE
+from os.path import join as PJ
 
 
 def get_folder_size(path):
@@ -15,16 +14,30 @@ def get_folder_size(path):
     return total
 
 
-def main():
+def main(Dir=None, sort_by='size'):
     print('-' * 100)
-    Dir = input(
-        'Provide the directory for which to print all folder sizes. If you want the current directory, simply press Enter.\n'
-    )
+    if Dir is None:
+        Dir = input(
+            'Provide the directory for which to print all folder sizes. If you want the current directory, simply press Enter.\n'
+        )
     if Dir == '':
         Dir = os.getcwd()
 
-    sizes = {entry.name: get_folder_size(entry.path) for entry in os.scandir(Dir) if entry.is_dir()}
+    sizes = {}
+    for entry in os.scandir(Dir):
+        if entry.is_dir():
+            sizes[entry.name] = get_folder_size(entry.path)
+        elif entry.is_file():
+            try:
+                sizes[entry.name] = entry.stat().st_size
+            except (OSError, FileNotFoundError):
+                pass
 
-    for name, size in sorted(sizes.items()):
+    if sort_by == 'size':
+        items = sorted(sizes.items(), key=lambda x: x[1], reverse=True)
+    else:
+        items = sorted(sizes.items())
+
+    for name, size in items:
         print(f'{name}: {size / (1024 * 1024):.2f} MB')
     print('-' * 100, '\n')

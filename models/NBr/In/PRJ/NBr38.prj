@@ -26,7 +26,7 @@
 ..\..\In\CAP\fact_svat\NBr1\fact_svat.inp
 ..\..\In\CAP\luse_svat\NBr1\luse_svat.inp
 ..\..\In\CAP\mete_grid\NBr1\mete_grid.inp
-..\..\In\CAP\para_sim\NBr1\para_sim.inp
+..\..\In\CAP\para_sim\NBr39\para_sim.inp # Ran with NBr1/para_sim.inp. I was manually changing the copied para_sim.inp in the Sim folders for Sims NBr36-NBr39 to start them. I should have made NBr36/para_sim.inp to reference G:/dbase, but I was in a hurry.
 ..\..\In\CAP\init_svat\NBr1\init_svat.inp
 ..\..\In\CAP\tiop_sim\NBr1\tiop_sim.inp
 ..\..\In\CAP\sel_key_svat_per\NBr1\sel_key_svat_per.inp
