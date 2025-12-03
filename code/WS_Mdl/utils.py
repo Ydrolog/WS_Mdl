@@ -153,7 +153,7 @@ def get_MdlN_paths(MdlN: str):
     return d_Pa
 
 
-def get_MdlN_Pa(MdlN: str, MdlN_B=None, iMOD5=False):
+def get_MdlN_Pa(MdlN: str, MdlN_B=None, iMOD5=None):
     """
     *** Improved get_MdlN_paths. ***
     - Doesn't read RunLog, unless B is set to True. Thus it's much faster.
@@ -163,6 +163,16 @@ def get_MdlN_Pa(MdlN: str, MdlN_B=None, iMOD5=False):
 
     This function has been modified since NBr32, to support imod python's folder/file structure. If you need to use the old folder structure, set iMOD5=True.
     """
+    if get_imod_V(MdlN) == 'imod5':
+        iMOD5 = True
+    elif get_imod_V(MdlN) == 'imod_python':
+        iMOD5 = False
+    else:
+        iMOD5 = False
+        print(
+            f"🔴 - Couldn't determine imod version from Sim/{MdlN} folder. Proceeding assuming it's imod_python. Provide iMOD5=True if you want to proceed with iMOD5's structure instead."
+        )
+        return
 
     if MdlN_B:
         d_Pa = paths_from_MdlN_Se(MdlN_Se_from_RunLog((MdlN)), MdlN)
@@ -195,8 +205,8 @@ def get_MdlN_Pa(MdlN: str, MdlN_B=None, iMOD5=False):
         # Sim
         d_Pa['Sim'] = PJ(d_Pa['Pa_Mdl'], 'Sim')  # Sim folder
         d_Pa['Pa_MdlN'] = PJ(d_Pa['Pa_Mdl'], f'Sim/{MdlN}')
-        d_Pa['MF6'] = PJ(d_Pa['Pa_MdlN'], 'modflow6')  # modflow6 Sim folder
-        d_Pa['MSW'] = PJ(d_Pa['Pa_MdlN'], 'metaswap')  # metaswap Sim folder
+        d_Pa['MF6'] = PJ(d_Pa['Pa_MdlN'], 'modflow6') if not iMOD5 else PJ(d_Pa['Pa_MdlN'], 'GWF_1')
+        d_Pa['MSW'] = PJ(d_Pa['Pa_MdlN'], 'metaswap') if not iMOD5 else PJ(d_Pa['Pa_MdlN'], 'GWF_1/MSWAPINPUT')
         d_Pa['TOML'] = PJ(d_Pa['Pa_MdlN'], 'imod_coupler.toml')
         d_Pa['TOML_iMOD5'] = PJ(d_Pa['Pa_MdlN'], f'{MdlN}.toml')
         d_Pa['LST_Sim'] = PJ(d_Pa['Pa_MdlN'], 'mfsim.lst')  # Sim LST file
@@ -379,16 +389,22 @@ def DF_info(DF: pd.DataFrame):
 def get_imod_V(MdlN: str):
     """Returns the imod version used for a given MdlN."""
 
-    d_Pa = get_MdlN_Pa(MdlN)
-    Pa_Sim = d_Pa['Sim']
-    if 'modflow6' in os.listdir(Pa_Sim):
-        return 'imod_python'
-    elif 'GWF_1' in os.listdir(Pa_Sim):
-        return 'imod5'
-    else:
-        raise ValueError(
-            f'Could not determine imod version for MdlN {MdlN}. Check the Sim folder structure.\nI was expecting to find either "modflow6" (imod_python) or "GWF_1" (imod5) subfolder in {Pa_Sim}.'
-        )
+    Mdl = get_Mdl(MdlN)
+    Pa_Sim = PJ(Pa_WS, f'models/{Mdl}/Sim/{MdlN}')
+
+    try:
+        if 'modflow6' in os.listdir(Pa_Sim):
+            return 'imod_python'
+        elif 'GWF_1' in os.listdir(Pa_Sim):
+            return 'imod5'
+        else:
+            print(
+                f'Could not determine imod version for MdlN {MdlN}. Check the Sim folder structure.\nI was expecting to find either "modflow6" (imod_python) or "GWF_1" (imod5) subfolder in {Pa_Sim}.'
+            )
+            return
+    except FileNotFoundError:
+        print(f'Sim/{MdlN} folder not found. Could not determine imod version.')
+        return
 
 
 # --------------------------------------------------------------------------------
@@ -1072,6 +1088,7 @@ def _RunMng(args):
         f'models/{Se_Ln["model alias"]}/code/snakemake/log/{Se_Ln["MdlN"]}_{DT.now().strftime("%Y%m%d_%H%M%S")}.log',
     )
     Pa_DAG = PJ(Pa_WS, f'models/{Se_Ln["model alias"]}/code/snakemake/DAG/DAG_{Se_Ln["MdlN"]}.png')
+    Pa_Mdl_Dir = PJ(Pa_WS, 'models', Se_Ln['model alias'])
     vprint(f'{fg("cyan")}{PBN(Pa_Smk)}{attr("reset")}\n')
 
     # add once near your other paths
@@ -1080,7 +1097,7 @@ def _RunMng(args):
     try:
         if generate_dag:  # DAG parameter passed from RunMng
             cmd = (
-                f'pixi run --manifest-path "{Pa_pixi}" snakemake --dag -s "{Pa_Smk}" --cores {cores_per_Sim} '
+                f'pixi run --manifest-path "{Pa_pixi}" snakemake --shadow-prefix "{Pa_Mdl_Dir}" --dag -s "{Pa_Smk}" --cores {cores_per_Sim} '
                 f'| pixi run --manifest-path "{Pa_pixi}" dot -Tpng -o "{Pa_DAG}"'
             )
             sp.run(cmd, shell=True, check=True)
@@ -1092,6 +1109,8 @@ def _RunMng(args):
                 '--manifest-path',
                 Pa_pixi,
                 'snakemake',
+                '--shadow-prefix',
+                Pa_Mdl_Dir,
                 '-p',
                 '-s',
                 Pa_Smk,
@@ -1194,10 +1213,10 @@ def reset_Sim(MdlN: str, ask_permission: bool = True, Pa_log=Pa_log, permanent_d
 
     vprint(Pre_Sign)
     if ask_permission:
-        action = 'permanently delete' if permanent_delete else 'move to the recycling bin'
+        action = 'permanently delete' if permanent_delete else 'recycle'
         permission = (
             input(
-                f'{warn}This will {action} the corresponding Sim/{MdlN} & PoP/Out/{MdlN} folders, and change the status of the corresponding line of log.csv to "removed_Out". Are you sure you want to proceed? (y/n):\n'
+                f'{warn}This will {action} the corresponding Sim/{MdlN} & PoP/Out/{MdlN} folders, and change the status of the corresponding line of log.csv to "removed_Out". Are you sure you want to proceed? (y/n):\n{style_reset}'
             )
             .strip()
             .lower()
@@ -1207,9 +1226,10 @@ def reset_Sim(MdlN: str, ask_permission: bool = True, Pa_log=Pa_log, permanent_d
 
     if permission == 'y':
         d_Pa = get_MdlN_Pa(MdlN)  # Get default directories
-        Pa_MdlN = d_Pa['Pa_MdlN']
+        Pa_MdlN = os.path.normpath(d_Pa['Pa_MdlN'])
+        d_Pa['PoP_Out_MdlN'] = os.path.normpath(d_Pa['PoP_Out_MdlN'])
         DF = pd.read_csv(Pa_log)  # Read the log file
-        Pa_Smk_temp = d_Pa['Smk_temp']
+        Pa_Smk_temp = os.path.normpath(d_Pa['Smk_temp'])
         l_temp = [i for i in LD(Pa_Smk_temp) if MdlN.lower() in i.lower()]
 
         if (
@@ -1320,7 +1340,7 @@ def remove_Sim_Out(
     if ask_permission:
         permission = (
             input(
-                f'This will {action} files in {Pa_WS}/models/{get_Mdl()}Sim/{MdlN} folder, and change the status of the corresponding line of log.csv.\n{Del_text}\nAre you sure you want to proceed? (y/n):\n'
+                f'{warn}This will {action} files in {Pa_WS}/models/{get_Mdl()}Sim/{MdlN} folder, and change the status of the corresponding line of log.csv.\n{Del_text}\nAre you sure you want to proceed? (y/n):\n{style_reset}'
             )
             .strip()
             .lower()
@@ -1352,8 +1372,22 @@ def remove_Sim_Out(
             else:
                 try:  # --- Remove large output files only ---
                     if get_imod_V(MdlN) == 'imod5':
-                        Path(PJ(d_Pa['Sim_In'], f'{MdlN}.DIS6.grb')).unlink(missing_ok=True)
-                        sh.rmtree()
+                        Path(PJ(d_Pa['Sim_In'], f'{MdlN}.DIS6.grb')).unlink(
+                            missing_ok=True
+                        )  # .grb is usually big and we don't need it.
+                        sh.rmtree(PJ(d_Pa['Sim_Out']))  # Remove folder containing HD and CBC
+                        for item in Path(d_Pa['MSW']).iterdir():  # Remove MSW out folders
+                            if item.is_dir():
+                                sh.rmtree(item)
+                    elif get_imod_V(MdlN) == 'imod_python':
+                        sim_in_path = Path(d_Pa['Sim_In'])
+                        if sim_in_path.exists():  # large modflow files
+                            for item in sim_in_path.iterdir():
+                                if item.suffix in ['.hds', '.cbc', '.grb']:
+                                    item.unlink(missing_ok=True)
+                        for item in Path(d_Pa['MSW']).iterdir():  # Remove MSW out folders
+                            if item.is_dir():
+                                sh.rmtree(item)
                 except Exception as e:
                     vprint(f'🔴 - failed to {action} large output files: {e}')
 
@@ -1371,9 +1405,7 @@ def remove_Sim_Out(
             else:
                 vprint(f'🟡🟡🟡 - {i}/2 sub-processes finished successfully.')
         else:
-            print(
-                '🔴🔴🔴 - Items do not exist (Sim folder, log entry, Smk log files, PoP Out folder). No need to reset.'
-            )
+            print(f'🔴🔴🔴 - {Pa_MdlN} does not exist or {MdlN.lower()} not found in log.')
     else:
         print('🔴🔴🔴 - Reset cancelled by user (you).')
     vprint(Sign)
