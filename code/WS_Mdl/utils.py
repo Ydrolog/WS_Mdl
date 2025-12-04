@@ -3,6 +3,7 @@ import json
 import os
 import re
 import shutil as sh
+import stat
 import subprocess as sp
 import sys
 import warnings
@@ -1108,7 +1109,7 @@ def _RunMng(args):
     try:
         if generate_dag:  # DAG parameter passed from RunMng
             cmd = (
-                f'pixi run --manifest-path "{Pa_pixi}" snakemake --shadow-prefix "{Pa_Mdl_Dir}" --dag -s "{Pa_Smk}" --cores {cores_per_Sim} '
+                f'pixi run --manifest-path "{Pa_pixi}" snakemake --directory "{Pa_Mdl_Dir}" --dag -s "{Pa_Smk}" --cores {cores_per_Sim} '
                 f'| pixi run --manifest-path "{Pa_pixi}" dot -Tpng -o "{Pa_DAG}"'
             )
             sp.run(cmd, shell=True, check=True)
@@ -1120,7 +1121,7 @@ def _RunMng(args):
                 '--manifest-path',
                 Pa_pixi,
                 'snakemake',
-                '--shadow-prefix',
+                '--directory',
                 Pa_Mdl_Dir,
                 '-p',
                 '-s',
@@ -1320,6 +1321,34 @@ def reset_Sim(MdlN: str, ask_permission: bool = True, Pa_log=Pa_log, permanent_d
     vprint(Sign)
 
 
+def on_rm_error(func, path, exc_info):
+    """
+    Error handler for ``shutil.rmtree``.
+
+    If the error is due to an access error (read only file)
+    it attempts to add write permission and then retries.
+
+    If the error is for another reason it re-raises the error.
+
+    Usage : ``shutil.rmtree(path, onerror=on_rm_error)``
+    """
+    # Is the error an access error?
+    if issubclass(exc_info[0], PermissionError):
+        os.chmod(path, stat.S_IWRITE)
+        try:
+            func(path)
+        except Exception:
+            try:
+                import time
+
+                time.sleep(0.1)
+                func(path)
+            except Exception:
+                raise
+    else:
+        raise
+
+
 def remove_Sim_Out(
     MdlN: str, Del_all: bool = False, ask_permission: bool = True, Pa_log=Pa_log, permanent_delete: bool = False
 ):
@@ -1365,7 +1394,7 @@ def remove_Sim_Out(
         Pa_MdlN = d_Pa['Pa_MdlN']
         DF = pd.read_csv(Pa_log)  # Read the log file
 
-        if os.path.exists(Pa_MdlN) and (MdlN.lower() in DF['MdlN'].str.lower().values):
+        if os.path.exists(Pa_MdlN):
             i = 0
             if Del_all:
                 try:  # --- Remove whole Sim folder ---
@@ -1373,10 +1402,9 @@ def remove_Sim_Out(
                         raise FileNotFoundError(f'{Pa_MdlN} does not exist.')
                     if permanent_delete:
                         sp.run(f'rmdir /S /Q "{Pa_MdlN}"', shell=True)  # Permanently delete the entire Sim folder
-                        vprint('🟢 - Sim folder permanently deleted successfully.')
                     else:
                         send2trash(Pa_MdlN)  # Move the entire Sim folder to recycling bin
-                        vprint('🟢 - Sim folder moved to recycling bin successfully.')
+                    vprint(f'🟢 - Sim folder {action} successfully.')
                     i += 1
                 except Exception as e:
                     vprint(f'🔴 - failed to {action} Sim folder: {e}')
@@ -1386,10 +1414,10 @@ def remove_Sim_Out(
                         Path(PJ(d_Pa['Sim_In'], f'{MdlN}.DIS6.grb')).unlink(
                             missing_ok=True
                         )  # .grb is usually big and we don't need it.
-                        sh.rmtree(PJ(d_Pa['Sim_Out']))  # Remove folder containing HD and CBC
+                        sh.rmtree(PJ(d_Pa['Sim_Out']), onerror=on_rm_error)  # Remove folder containing HD and CBC
                         for item in Path(d_Pa['MSW']).iterdir():  # Remove MSW out folders
                             if item.is_dir():
-                                sh.rmtree(item)
+                                sh.rmtree(item, onerror=on_rm_error)
                     elif d_Pa['imod_V'] == 'imod_python':
                         sim_in_path = Path(d_Pa['Sim_In'])
                         if sim_in_path.exists():  # large modflow files
@@ -1398,11 +1426,15 @@ def remove_Sim_Out(
                                     item.unlink(missing_ok=True)
                         for item in Path(d_Pa['MSW']).iterdir():  # Remove MSW out folders
                             if item.is_dir():
-                                sh.rmtree(item)
+                                sh.rmtree(item, onerror=on_rm_error)
+                    vprint(f'🟢 - Sim folder {action} successfully.')
                     i += 1
                 except Exception as e:
                     vprint(f'🔴 - failed to {action} large output files: {e}')
+        else:
+            print(f'🔴 - {Pa_MdlN} does not exist.')
 
+        if MdlN.lower() in DF['MdlN'].str.lower().values:
             if i == 1:
                 try:  # --- Change log.csv entry ---
                     DF.loc[DF_match_MdlN(DF, MdlN), 'End Status'] = 'Removed Output'
@@ -1414,10 +1446,9 @@ def remove_Sim_Out(
                     vprint(f'🔴 - failed to update log.csv file: {e}')
 
             if i == 2:
-                action = 'permanently deleted' if permanent_delete else 'moved to recycling bin'
                 vprint(f'\n🟢🟢🟢 - ALL files were successfully {action}d.')
         else:
-            print(f'🔴🔴🔴 - {Pa_MdlN} does not exist or {MdlN.lower()} not found in log.')
+            print(f'🔴 - {MdlN} not found in log.')
     else:
         print('🔴🔴🔴 - Reset cancelled by user (you).')
     vprint(Sign)

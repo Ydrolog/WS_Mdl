@@ -165,7 +165,7 @@ rule Sim: # Runs the simulation via BAT file.
         os.chdir(Pa_MdlN) # Change directory to the model folder.
         DT_Sim_Start = DT.now()
         Up_log(MdlN, {  'Sim start DT'  :   DT_Sim_Start.strftime("%Y-%m-%d %H:%M:%S")})
-        shell(Pa_BAT_RUN)
+        sp.run(Pa_BAT_RUN, shell=True, check=True)
         pathlib.Path(output[0]).touch() 
         Up_log(MdlN, {  'Sim end DT'    :   DT.now().strftime("%Y-%m-%d %H:%M:%S"),
                         'Sim Dur'       :   get_elapsed_time_str(DT_Sim_Start),

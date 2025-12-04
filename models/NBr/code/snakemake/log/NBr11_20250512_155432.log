@@ -1,950 +1,0 @@
-Assuming unrestricted shared filesystem usage.
-host: UU120516
-Building DAG of jobs...
-Provided cores: 10
-Rules claiming more threads will be scaled down.
-Job stats:
-job         count
---------  -------
-Mdl_Prep        1
-Sim             1
-add_OBS         1
-all             1
-log_Init        1
-total           5
-
-Select jobs to execute...
-Execute 1 jobs...
-
-[Mon May 12 15:54:50 2025]
-localrule log_Init:
-    output: C:/OD/WS_Mdl/models/NBr/code/snakemake/temp/Log_init_done_NBr11
-    jobid: 4
-    reason: Missing output files: C:/OD/WS_Mdl/models/NBr/code/snakemake/temp/Log_init_done_NBr11
-    resources: tmpdir=C:\Users\Karam014\AppData\Local\Temp
-Shell command: None
-[Mon May 12 15:54:51 2025]
-Finished jobid: 4 (Rule: log_Init)
-1 of 5 steps (20%) done
-Select jobs to execute...
-Execute 1 jobs...
-
-[Mon May 12 15:54:51 2025]
-localrule Mdl_Prep:
-    input: C:/OD/WS_Mdl/models/NBr/code/snakemake/temp/Log_init_done_NBr11, code/Mdl_Prep/Mdl_Prep_NBr11.bat, code/Mdl_Prep/Mdl_Prep_NBr11.ini, In/PRJ/NBr11.prj
-    output: C:/OD/WS_Mdl/models/NBr/Sim/NBr11/RUN.BAT
-    jobid: 3
-    reason: Missing output files: C:/OD/WS_Mdl/models/NBr/Sim/NBr11/RUN.BAT; Input files updated by another job: C:/OD/WS_Mdl/models/NBr/code/snakemake/temp/Log_init_done_NBr11
-    resources: tmpdir=C:\Users\Karam014\AppData\Local\Temp
-Shell command: call code/Mdl_Prep/Mdl_Prep_NBr11.bat
-
- ==================================================
- Running iMOD: 
-  exe: C:\OD\WS_Mdl\software\iMOD5\iMOD_V5_6_1.exe
-  dir: C:\OD\WS_Mdl\models\NBr\code\Mdl_Prep
- ==================================================
-
-
-EXECUTING FUNCTION >>> RUNFILE <<<
-
-
-iMODBATCH using tmp-folder:
-  C:\OD\WS_Mdl\models\NBr\code\Mdl_Prep\IMOD_TMP\BATCH1
-
-PRJFILE_IN=..\..\In\PRJ\NBr11.prj
-
-Export to MODFLOW6 files
-
-NAMFILE_OUT=..\..\Sim\NBr11\NBr11.nam
-WINDOW=     113125.000     395925.000     123225.000     396025.000
-CELLSIZE=         25.000
-ISS=         1
-SDATE=20100101000000
-EDATE=20100103000000
-ITT=             3
-IDT=             1
-Time step:     1 days
-NSTEP=         1
-ISTEADY=         0
-SSYSTEM=         0
-SAVESHD=-1
-SAVEDRN=-1
-SAVERIV=-1
-SAVEWEL=-1
-SAVEFLX=-1
-PCKACTIVE=0
-COUPLER=..\..\..\..\software\iMOD5\bin\iMOD_coupler
-ISOLVE=         0
-
-iMOD found model with 37 layers
-
-Reading BND-files (2.70%)      Reading BND-files (5.41%)      Reading BND-files (8.11%)      Reading BND-files (10.81%)      Reading BND-files (13.51%)      Reading BND-files (16.22%)      Reading BND-files (18.92%)      Reading BND-files (21.62%)      Reading BND-files (24.32%)      Reading BND-files (27.03%)      Reading BND-files (29.73%)      Reading BND-files (32.43%)      Reading BND-files (35.14%)      Reading BND-files (37.84%)      Reading BND-files (40.54%)      Reading BND-files (43.24%)      Reading BND-files (45.95%)      Reading BND-files (48.65%)      Reading BND-files (51.35%)      Reading BND-files (54.05%)      Reading BND-files (56.76%)      Reading BND-files (59.46%)      Reading BND-files (62.16%)      Reading BND-files (64.86%)      Reading BND-files (67.57%)      Reading BND-files (70.27%)      Reading BND-files (72.97%)      Reading BND-files (75.68%)      Reading BND-files (78.38%)      Reading BND-files (81.08%)      Reading BND-files (83.78%)      Reading BND-files (86.49%)      Reading BND-files (89.19%)      Reading BND-files (91.89%)      Reading BND-files (94.59%)      Reading BND-files (97.30%)      Reading BND-files (100.00%)      
-Modified boundary layer 1 due to submodelling N/S/W/E: 402/402/4/4
-Modified boundary layer 2 due to submodelling N/S/W/E: 402/402/4/4
-Modified boundary layer 3 due to submodelling N/S/W/E: 402/402/4/4
-Modified boundary layer 4 due to submodelling N/S/W/E: 402/402/4/4
-Modified boundary layer 5 due to submodelling N/S/W/E: 402/402/4/4
-Modified boundary layer 6 due to submodelling N/S/W/E: 402/402/4/4
-Modified boundary layer 7 due to submodelling N/S/W/E: 402/402/4/4
-Modified boundary layer 8 due to submodelling N/S/W/E: 402/402/4/4
-Modified boundary layer 9 due to submodelling N/S/W/E: 402/402/4/4
-Modified boundary layer 10 due to submodelling N/S/W/E: 402/402/4/4
-Modified boundary layer 11 due to submodelling N/S/W/E: 402/402/4/4
-Modified boundary layer 12 due to submodelling N/S/W/E: 402/402/4/4
-Modified boundary layer 13 due to submodelling N/S/W/E: 402/402/4/4
-Modified boundary layer 14 due to submodelling N/S/W/E: 402/402/4/4
-Modified boundary layer 15 due to submodelling N/S/W/E: 402/402/4/4
-Modified boundary layer 16 due to submodelling N/S/W/E: 402/402/4/4
-Modified boundary layer 17 due to submodelling N/S/W/E: 402/402/4/4
-Modified boundary layer 18 due to submodelling N/S/W/E: 402/402/4/4
-Modified boundary layer 19 due to submodelling N/S/W/E: 402/402/4/4
-Modified boundary layer 20 due to submodelling N/S/W/E: 402/402/4/4
-Modified boundary layer 21 due to submodelling N/S/W/E: 402/402/4/4
-Modified boundary layer 22 due to submodelling N/S/W/E: 402/402/4/4
-Modified boundary layer 23 due to submodelling N/S/W/E: 402/402/4/4
-Modified boundary layer 24 due to submodelling N/S/W/E: 402/402/4/4
-Modified boundary layer 25 due to submodelling N/S/W/E: 402/402/4/4
-Modified boundary layer 26 due to submodelling N/S/W/E: 402/402/4/4
-Modified boundary layer 27 due to submodelling N/S/W/E: 402/402/4/4
-Modified boundary layer 28 due to submodelling N/S/W/E: 402/402/4/4
-Modified boundary layer 29 due to submodelling N/S/W/E: 402/402/4/4
-Modified boundary layer 30 due to submodelling N/S/W/E: 402/402/4/4
-Modified boundary layer 31 due to submodelling N/S/W/E: 402/402/4/4
-Modified boundary layer 32 due to submodelling N/S/W/E: 402/402/4/4
-Modified boundary layer 33 due to submodelling N/S/W/E: 402/402/4/4
-Modified boundary layer 34 due to submodelling N/S/W/E: 402/402/4/4
-Modified boundary layer 35 due to submodelling N/S/W/E: 402/402/4/4
-Modified boundary layer 36 due to submodelling N/S/W/E: 402/402/4/4
-Modified boundary layer 37 due to submodelling N/S/W/E: 402/402/4/4
-Reading SHD-files (2.70%)      Reading SHD-files (5.41%)      Reading SHD-files (8.11%)      Reading SHD-files (10.81%)      Reading SHD-files (13.51%)      Reading SHD-files (16.22%)      Reading SHD-files (18.92%)      Reading SHD-files (21.62%)      Reading SHD-files (24.32%)      Reading SHD-files (27.03%)      Reading SHD-files (29.73%)      Reading SHD-files (32.43%)      Reading SHD-files (35.14%)      Reading SHD-files (37.84%)      Reading SHD-files (40.54%)      Reading SHD-files (43.24%)      Reading SHD-files (45.95%)      Reading SHD-files (48.65%)      Reading SHD-files (51.35%)      Reading SHD-files (54.05%)      Reading SHD-files (56.76%)      Reading SHD-files (59.46%)      Reading SHD-files (62.16%)      Reading SHD-files (64.86%)      Reading SHD-files (67.57%)      Reading SHD-files (70.27%)      Reading SHD-files (72.97%)      Reading SHD-files (75.68%)      Reading SHD-files (78.38%)      Reading SHD-files (81.08%)      Reading SHD-files (83.78%)      Reading SHD-files (86.49%)      Reading SHD-files (89.19%)      Reading SHD-files (91.89%)      Reading SHD-files (94.59%)      Reading SHD-files (97.30%)      Reading SHD-files (100.00%)      Reading TOP/BOT-files (2.70%)      Reading TOP/BOT-files (5.41%)      Reading TOP/BOT-files (8.11%)      Reading TOP/BOT-files (10.81%)      Reading TOP/BOT-files (13.51%)      Reading TOP/BOT-files (16.22%)      Reading TOP/BOT-files (18.92%)      Reading TOP/BOT-files (21.62%)      Reading TOP/BOT-files (24.32%)      Reading TOP/BOT-files (27.03%)      Reading TOP/BOT-files (29.73%)      Reading TOP/BOT-files (32.43%)      Reading TOP/BOT-files (35.14%)      Reading TOP/BOT-files (37.84%)      Reading TOP/BOT-files (40.54%)      Reading TOP/BOT-files (43.24%)      Reading TOP/BOT-files (45.95%)      Reading TOP/BOT-files (48.65%)      Reading TOP/BOT-files (51.35%)      Reading TOP/BOT-files (54.05%)      Reading TOP/BOT-files (56.76%)      Reading TOP/BOT-files (59.46%)      Reading TOP/BOT-files (62.16%)      Reading TOP/BOT-files (64.86%)      Reading TOP/BOT-files (67.57%)      Reading TOP/BOT-files (70.27%)      Reading TOP/BOT-files (72.97%)      Reading TOP/BOT-files (75.68%)      Reading TOP/BOT-files (78.38%)      Reading TOP/BOT-files (81.08%)      Reading TOP/BOT-files (83.78%)      Reading TOP/BOT-files (86.49%)      Reading TOP/BOT-files (89.19%)      Reading TOP/BOT-files (91.89%)      Reading TOP/BOT-files (94.59%)      Reading TOP/BOT-files (97.30%)      Reading TOP/BOT-files (100.00%)      Reading LPF-files Permeability components (2.70%)      Reading LPF-files Permeability components (5.41%)      Reading LPF-files Permeability components (8.11%)      Reading LPF-files Permeability components (10.81%)      Reading LPF-files Permeability components (13.51%)      Reading LPF-files Permeability components (16.22%)      Reading LPF-files Permeability components (18.92%)      Reading LPF-files Permeability components (21.62%)      Reading LPF-files Permeability components (24.32%)      Reading LPF-files Permeability components (27.03%)      Reading LPF-files Permeability components (29.73%)      Reading LPF-files Permeability components (32.43%)      Reading LPF-files Permeability components (35.14%)      Reading LPF-files Permeability components (37.84%)      Reading LPF-files Permeability components (40.54%)      Reading LPF-files Permeability components (43.24%)      Reading LPF-files Permeability components (45.95%)      Reading LPF-files Permeability components (48.65%)      Reading LPF-files Permeability components (51.35%)      Reading LPF-files Permeability components (54.05%)      Reading LPF-files Permeability components (56.76%)      Reading LPF-files Permeability components (59.46%)      Reading LPF-files Permeability components (62.16%)      Reading LPF-files Permeability components (64.86%)      Reading LPF-files Permeability components (67.57%)      Reading LPF-files Permeability components (70.27%)      Reading LPF-files Permeability components (72.97%)      Reading LPF-files Permeability components (75.68%)      Reading LPF-files Permeability components (78.38%)      Reading LPF-files Permeability components (81.08%)      Reading LPF-files Permeability components (83.78%)      Reading LPF-files Permeability components (86.49%)      Reading LPF-files Permeability components (89.19%)      Reading LPF-files Permeability components (91.89%)      Reading LPF-files Permeability components (94.59%)      Reading LPF-files Permeability components (97.30%)      Reading LPF-files Permeability components (100.00%)      Reading LPF-files Storage components (2.70%)      Reading LPF-files Storage components (5.41%)      Reading LPF-files Storage components (8.11%)      Reading LPF-files Storage components (10.81%)      Reading LPF-files Storage components (13.51%)      Reading LPF-files Storage components (16.22%)      Reading LPF-files Storage components (18.92%)      Reading LPF-files Storage components (21.62%)      Reading LPF-files Storage components (24.32%)      Reading LPF-files Storage components (27.03%)      Reading LPF-files Storage components (29.73%)      Reading LPF-files Storage components (32.43%)      Reading LPF-files Storage components (35.14%)      Reading LPF-files Storage components (37.84%)      Reading LPF-files Storage components (40.54%)      Reading LPF-files Storage components (43.24%)      Reading LPF-files Storage components (45.95%)      Reading LPF-files Storage components (48.65%)      Reading LPF-files Storage components (51.35%)      Reading LPF-files Storage components (54.05%)      Reading LPF-files Storage components (56.76%)      Reading LPF-files Storage components (59.46%)      Reading LPF-files Storage components (62.16%)      Reading LPF-files Storage components (64.86%)      Reading LPF-files Storage components (67.57%)      Reading LPF-files Storage components (70.27%)      Reading LPF-files Storage components (72.97%)      Reading LPF-files Storage components (75.68%)      Reading LPF-files Storage components (78.38%)      Reading LPF-files Storage components (81.08%)      Reading LPF-files Storage components (83.78%)      Reading LPF-files Storage components (86.49%)      Reading LPF-files Storage components (89.19%)      Reading LPF-files Storage components (91.89%)      Reading LPF-files Storage components (94.59%)      Reading LPF-files Storage components (97.30%)      Reading LPF-files Storage components (100.00%)      
-
- Writing ..\..\SIM\NBR11\GWF_1\MODELINPUT\NBR11.IC6...
-
- Writing ..\..\SIM\NBR11\GWF_1\MODELINPUT\NBR11.DIS6...
-
- Writing ..\..\SIM\NBR11\GWF_1\MODELINPUT\NBR11.NPF6...
-
- Writing ..\..\SIM\NBR11\GWF_1\MODELINPUT\NBR11.STO6...
-
- Writing ..\..\SIM\NBR11\GWF_1\MODELINPUT\NBR11.HFB6...
-
- Writing ..\..\SIM\NBR11\GWF_1\MODELINPUT\NBR11.WEL6...
-     STARTTIME        PCKTIME        ENDTIME          ENTRY
-20100101000000 20100101000000 20100102000000              2
-Exporting timestep      1     2     2 20100101000000 20100102000000Exporting timestep      2     2     2 20100102000000 20100103000000
-
- Writing ..\..\SIM\NBR11\GWF_1\MODELINPUT\NBR11.WEL6...
-     STARTTIME        PCKTIME        ENDTIME          ENTRY
-20100101000000 20100101000000 20100102000000              2
-Exporting timestep      1     2     2 20100101000000 20100102000000Exporting timestep      2     2     2 20100102000000 20100103000000
-
- Writing ..\..\SIM\NBR11\GWF_1\MODELINPUT\NBR11.WEL6...
-     STARTTIME        PCKTIME        ENDTIME          ENTRY
-20100101000000 20100101000000 20100102000000              2
-Exporting timestep      1     2     2 20100101000000 20100102000000Exporting timestep      2     2     2 20100102000000 20100103000000
-
- Writing ..\..\SIM\NBR11\GWF_1\MODELINPUT\NBR11.DRN6...
-     STARTTIME        PCKTIME        ENDTIME          ENTRY
-20100101000000 20100101000000 20100102000000              2
-Exporting timestep      1     2     2 20100101000000 20100102000000Exporting timestep      2     2    -2 20100102000000 20100103000000
-
- Writing ..\..\SIM\NBR11\GWF_1\MODELINPUT\NBR11.DRN6...
-     STARTTIME        PCKTIME        ENDTIME          ENTRY
-20100101000000 20100101000000 20100102000000              2
-Exporting timestep      1     2     2 20100101000000 20100102000000Exporting timestep      2     2    -2 20100102000000 20100103000000
-
- Writing ..\..\SIM\NBR11\GWF_1\MODELINPUT\NBR11.DRN6...
-     STARTTIME        PCKTIME        ENDTIME          ENTRY
-20100101000000 20100101000000 20100102000000              2
-Exporting timestep      1     2     2 20100101000000 20100102000000Exporting timestep      2     2    -2 20100102000000 20100103000000
-
- Writing ..\..\SIM\NBR11\GWF_1\MODELINPUT\NBR11.RIV6...
-     STARTTIME        PCKTIME        ENDTIME          ENTRY
-20100101000000 19901001000000 20100102000000              2
-Exporting timestep      1     2     2 20100101000000 20100102000000Exporting timestep      2     2    -2 20100102000000 20100103000000
-
- Writing ..\..\SIM\NBR11\GWF_1\MODELINPUT\NBR11.RIV6...
-     STARTTIME        PCKTIME        ENDTIME          ENTRY
-20100101000000 19901001000000 20100102000000              2
-Exporting timestep      1     2     2 20100101000000 20100102000000Exporting timestep      2     2    -2 20100102000000 20100103000000
-
- Writing ..\..\SIM\NBR11\GWF_1\MODELINPUT\NBR11.RIV6...
-     STARTTIME        PCKTIME        ENDTIME          ENTRY
-20100101000000 19901001000000 20100102000000              2
-Exporting timestep      1     2     2 20100101000000 20100102000000Exporting timestep      2     2    -2 20100102000000 20100103000000
-
- Writing ..\..\SIM\NBR11\GWF_1\MODELINPUT\NBR11.RIV6...
-     STARTTIME        PCKTIME        ENDTIME          ENTRY
-20100101000000 19901001000000 20100102000000              2
-Exporting timestep      1     2     2 20100101000000 20100102000000Exporting timestep      2     2    -2 20100102000000 20100103000000
-
- Writing ..\..\SIM\NBR11\GWF_1\MODELINPUT\NBR11.RIV6...
-     STARTTIME        PCKTIME        ENDTIME          ENTRY
-20100101000000 19901001000000 20100102000000              2
-Exporting timestep      1     2     2 20100101000000 20100102000000Exporting timestep      2     2    -2 20100102000000 20100103000000
-
- Writing ..\..\SIM\NBR11\GWF_1\MODELINPUT\NBR11.CHD6...
-Exporting timestep      1     2     0 20100101000000 20100102000000
-     STARTTIME        PCKTIME        ENDTIME          ENTRY
-20100102000000 20100102000000 20100103000000              1
-Exporting timestep      2     2     1 20100102000000 20100103000000
-
- Writing ..\..\SIM\NBR11\GWF_1\MODELINPUT\NBR11.CHD6...
-Exporting timestep      1     2     0 20100101000000 20100102000000
-     STARTTIME        PCKTIME        ENDTIME          ENTRY
-20100102000000 20100102000000 20100103000000              1
-Exporting timestep      2     2     1 20100102000000 20100103000000
-
- Writing ..\..\SIM\NBR11\GWF_1\MODELINPUT\NBR11.CHD6...
-Exporting timestep      1     2     0 20100101000000 20100102000000
-     STARTTIME        PCKTIME        ENDTIME          ENTRY
-20100102000000 20100102000000 20100103000000              1
-Exporting timestep      2     2     1 20100102000000 20100103000000
-
- Writing ..\..\SIM\NBR11\GWF_1\MODELINPUT\NBR11.CHD6...
-Exporting timestep      1     2     0 20100101000000 20100102000000
-     STARTTIME        PCKTIME        ENDTIME          ENTRY
-20100102000000 20100102000000 20100103000000              1
-Exporting timestep      2     2     1 20100102000000 20100103000000
-
- Writing ..\..\SIM\NBR11\GWF_1\MODELINPUT\NBR11.CHD6...
-Exporting timestep      1     2     0 20100101000000 20100102000000
-     STARTTIME        PCKTIME        ENDTIME          ENTRY
-20100102000000 20100102000000 20100103000000              1
-Exporting timestep      2     2     1 20100102000000 20100103000000
-
- Writing ..\..\SIM\NBR11\GWF_1\MODELINPUT\NBR11.CHD6...
-Exporting timestep      1     2     0 20100101000000 20100102000000
-     STARTTIME        PCKTIME        ENDTIME          ENTRY
-20100102000000 20100102000000 20100103000000              1
-Exporting timestep      2     2     1 20100102000000 20100103000000
-
- Writing ..\..\SIM\NBR11\GWF_1\MODELINPUT\NBR11.CHD6...
-Exporting timestep      1     2     0 20100101000000 20100102000000
-     STARTTIME        PCKTIME        ENDTIME          ENTRY
-20100102000000 20100102000000 20100103000000              1
-Exporting timestep      2     2     1 20100102000000 20100103000000
-
- Writing ..\..\SIM\NBR11\GWF_1\MODELINPUT\NBR11.CHD6...
-Exporting timestep      1     2     0 20100101000000 20100102000000
-     STARTTIME        PCKTIME        ENDTIME          ENTRY
-20100102000000 20100102000000 20100103000000              1
-Exporting timestep      2     2     1 20100102000000 20100103000000
-
- Writing ..\..\SIM\NBR11\GWF_1\MODELINPUT\NBR11.CHD6...
-Exporting timestep      1     2     0 20100101000000 20100102000000
-     STARTTIME        PCKTIME        ENDTIME          ENTRY
-20100102000000 20100102000000 20100103000000              1
-Exporting timestep      2     2     1 20100102000000 20100103000000
-
- Writing ..\..\SIM\NBR11\GWF_1\MODELINPUT\NBR11.CHD6...
-Exporting timestep      1     2     0 20100101000000 20100102000000
-     STARTTIME        PCKTIME        ENDTIME          ENTRY
-20100102000000 20100102000000 20100103000000              1
-Exporting timestep      2     2     1 20100102000000 20100103000000
-
- Writing ..\..\SIM\NBR11\GWF_1\MODELINPUT\NBR11.CHD6...
-Exporting timestep      1     2     0 20100101000000 20100102000000
-     STARTTIME        PCKTIME        ENDTIME          ENTRY
-20100102000000 20100102000000 20100103000000              1
-Exporting timestep      2     2     1 20100102000000 20100103000000
-
- Writing ..\..\SIM\NBR11\GWF_1\MODELINPUT\NBR11.CHD6...
-Exporting timestep      1     2     0 20100101000000 20100102000000
-     STARTTIME        PCKTIME        ENDTIME          ENTRY
-20100102000000 20100102000000 20100103000000              1
-Exporting timestep      2     2     1 20100102000000 20100103000000
-
- Writing ..\..\SIM\NBR11\GWF_1\MODELINPUT\NBR11.CHD6...
-Exporting timestep      1     2     0 20100101000000 20100102000000
-     STARTTIME        PCKTIME        ENDTIME          ENTRY
-20100102000000 20100102000000 20100103000000              1
-Exporting timestep      2     2     1 20100102000000 20100103000000
-
- Writing ..\..\SIM\NBR11\GWF_1\MODELINPUT\NBR11.CHD6...
-Exporting timestep      1     2     0 20100101000000 20100102000000
-     STARTTIME        PCKTIME        ENDTIME          ENTRY
-20100102000000 20100102000000 20100103000000              1
-Exporting timestep      2     2     1 20100102000000 20100103000000
-
- Writing ..\..\SIM\NBR11\GWF_1\MODELINPUT\NBR11.CHD6...
-Exporting timestep      1     2     0 20100101000000 20100102000000
-     STARTTIME        PCKTIME        ENDTIME          ENTRY
-20100102000000 20100102000000 20100103000000              1
-Exporting timestep      2     2     1 20100102000000 20100103000000
-
- Writing ..\..\SIM\NBR11\GWF_1\MODELINPUT\NBR11.CHD6...
-Exporting timestep      1     2     0 20100101000000 20100102000000
-     STARTTIME        PCKTIME        ENDTIME          ENTRY
-20100102000000 20100102000000 20100103000000              1
-Exporting timestep      2     2     1 20100102000000 20100103000000
-
- Writing ..\..\SIM\NBR11\GWF_1\MODELINPUT\NBR11.CHD6...
-Exporting timestep      1     2     0 20100101000000 20100102000000
-     STARTTIME        PCKTIME        ENDTIME          ENTRY
-20100102000000 20100102000000 20100103000000              1
-Exporting timestep      2     2     1 20100102000000 20100103000000
-
- Writing ..\..\SIM\NBR11\GWF_1\MODELINPUT\NBR11.CHD6...
-Exporting timestep      1     2     0 20100101000000 20100102000000
-     STARTTIME        PCKTIME        ENDTIME          ENTRY
-20100102000000 20100102000000 20100103000000              1
-Exporting timestep      2     2     1 20100102000000 20100103000000
-
- Writing ..\..\SIM\NBR11\GWF_1\MODELINPUT\NBR11.CHD6...
-Exporting timestep      1     2     0 20100101000000 20100102000000
-     STARTTIME        PCKTIME        ENDTIME          ENTRY
-20100102000000 20100102000000 20100103000000              1
-Exporting timestep      2     2     1 20100102000000 20100103000000
-
- Writing MetaSwap files ...
-Progress 12.50%             Progress 25.00%             Progress 37.50%             Progress 50.00%             Progress 25.00%             Progress 50.00%             Progress 75.00%             Progress 100.00%                     1 file(s) copied.
-        1 file(s) copied.
-        1 file(s) copied.
-        1 file(s) copied.
-        1 file(s) copied.
-
-
-Successfully written MF6 files:..\..\Sim\NBr11\NBr11.nam
-
-
-iMOD removed tmp-folder:
-  C:\OD\WS_Mdl\models\NBr\code\Mdl_Prep\IMOD_TMP\BATCH1
-
-[Mon May 12 15:55:01 2025]
-Finished jobid: 3 (Rule: Mdl_Prep)
-2 of 5 steps (40%) done
-Removing temporary output C:/OD/WS_Mdl/models/NBr/code/snakemake/temp/Log_init_done_NBr11.
-Select jobs to execute...
-Execute 1 jobs...
-
-[Mon May 12 15:55:01 2025]
-localrule add_OBS:
-    input: C:/OD/WS_Mdl/code/WS_Mdl/WS_Mdl.py, C:/OD/WS_Mdl/models/NBr/Sim/NBr11/RUN.BAT
-    output: C:/OD/WS_Mdl/models/NBr/Sim/NBr11/GWF_1/MODELINPUT/NBr11.OBS
-    jobid: 2
-    reason: Missing output files: C:/OD/WS_Mdl/models/NBr/Sim/NBr11/GWF_1/MODELINPUT/NBr11.OBS; Input files updated by another job: C:/OD/WS_Mdl/models/NBr/Sim/NBr11/RUN.BAT
-    resources: tmpdir=C:\Users\Karam014\AppData\Local\Temp
-Shell command: None
-[Mon May 12 15:55:03 2025]
-Finished jobid: 2 (Rule: add_OBS)
-3 of 5 steps (60%) done
-Select jobs to execute...
-Execute 1 jobs...
-
-[Mon May 12 15:55:03 2025]
-localrule Sim:
-    input: C:/OD/WS_Mdl/models/NBr/Sim/NBr11/GWF_1/MODELINPUT/NBr11.OBS
-    output: C:/OD/WS_Mdl/models/NBr/Sim/NBr11/mfsim.lst
-    jobid: 1
-    reason: Missing output files: C:/OD/WS_Mdl/models/NBr/Sim/NBr11/mfsim.lst; Input files updated by another job: C:/OD/WS_Mdl/models/NBr/Sim/NBr11/GWF_1/MODELINPUT/NBr11.OBS
-    resources: tmpdir=C:\Users\Karam014\AppData\Local\Temp
-Shell command: None
-
-C:\OD\WS_Mdl\models\NBr\Sim\NBr11>REM ========================== 
-
-C:\OD\WS_Mdl\models\NBr\Sim\NBr11>REM Run Script iMOD V5_6_1 
-
-C:\OD\WS_Mdl\models\NBr\Sim\NBr11>REM ========================== 
-
-C:\OD\WS_Mdl\models\NBr\Sim\NBr11>TITLE "TOMLFILE: NBr11.toml" 
-
-C:\OD\WS_Mdl\models\NBr\Sim\NBr11>REM run iMOD-coupler with MODFLOW6-METASWAP model 
-
-C:\OD\WS_Mdl\models\NBr\Sim\NBr11>..\..\..\..\software\iMOD5\bin\iMOD_coupler\imodc.exe NBr11.toml 
-iMOD Coupler: [1miMOD Coupler 0.11.0-dev[0m
-                                   MODFLOW 6
-                U.S. GEOLOGICAL SURVEY MODULAR HYDROLOGIC MODEL
-                            VERSION 6.4.2 06/28/2023
-
-   MODFLOW 6 compiled Jun 28 2023 18:41:13 with Intel(R) Fortran Intel(R) 64
-   Compiler Classic for applications running on Intel(R) 64, Version 2021.7.0
-                             Build 20220726_000000
-
-This software has been approved for release by the U.S. Geological 
-Survey (USGS). Although the software has been subjected to rigorous 
-review, the USGS reserves the right to update the software as needed 
-pursuant to further analysis and review. No warranty, expressed or 
-implied, is made by the USGS or the U.S. Government as to the 
-functionality of the software and related material nor shall the 
-fact of release constitute any such warranty. Furthermore, the 
-software is released on condition that neither the USGS nor the U.S. 
-Government shall be held liable for any damages resulting from its 
-authorized or unauthorized use. Also refer to the USGS Water 
-Resources Software User Rights Notice for complete use, copyright, 
-and distribution information.
-
- 
- Run start date and time (yyyy/mm/dd hh:mm:ss): 2025/05/12 15:55:20
- 
- Writing simulation list file: mfsim.lst
- Using Simulation name file: mfsim.nam
- 
- 
- 
-MetaSWAP version V8.1.2.4
- Reading file tiop_sim.inp
-  Writing file time_sim.inp
- Reading file para_sim.inp
- End reading file para_sim.inp
- Not available file mete_svat.inp           
- Reading file mete_grid.inp           
- Reading file mod2svat.inp
- >> Reading array dimensions
- Reading file area_svat.inp           
- >> Allocating array dimensions
-Reading file unsa_svat.bda key-info
- Reading file mod2svat.inp
- --> number of SVATs     coupled to MODFLOW =        954
- --> number of SVATs not coupled to MODFLOW =          0
- Reading file fact_svat.inp
-  -->max. value of vegetation index in fact_svat.inp=  19
- Reading file luse_svat.inp
-  -->max. value of vegetation index in luse_svat.inp=  19
-  -->max. value of land use   index in luse_svat.inp=  25
- << Reading array dimensions END
- Reading file fact_svat.inp
- Reading file area_svat.inp
- Reading file infi_svat.inp
-Reading file unsa_svat.bda bulk data BEGIN
-  spu=  67
-  spu=  77
-  spu=  78
-  spu=  79
-  spu=  93
-  spu=  96
-  spu=  97
-  spu= 102
-  spu= 118
-  spu= 126
-  spu= 127
-  spu= 130
-  spu= 131
-  spu= 147
-  spu= 151
-  spu= 164
-Reading file unsa_svat.bda bulk data   END
- Converting tables of unsa
- Building sigma tables from unsa_svat.bda
- Reading file svat2swnr_roff.inp      
- Reading file time_sim.inp            
- Not available file mete_svat.inp           
- Reading file svat2PrecGrid.inp       
- Reading file svat2EtrefGrid.inp      
-  Openmete Marker -1
- Reading file mete_grid.inp           
-  Openmete Marker 0
-  Openmete Marker 1
-  Openmete Marker 2
-  Openmete Marker 3
- Reading file C:\OD\WS_Mdl\models\NBr\In\CAP\P\NBr1\P_20100101_NBr1.asc 
- Reading file C:\OD\WS_Mdl\models\NBr\In\CAP\PET\NBr1\PET_20100101_NBr1.asc 
- Reading file C:\OD\WS_Mdl\models\NBr\In\CAP\P\NBr1\P_20100102_NBr1.asc 
- Reading file C:\OD\WS_Mdl\models\NBr\In\CAP\PET\NBr1\PET_20100102_NBr1.asc 
-  Openmete Marker 4
- Reading file scap_svat.inp           
- Reading file area_svat.inp           
- nukey_1 readselsvat=         176
- Reading file sel_key_svat_per.inp    
- nukey_2 readselsvat=         176
- Not available file sel_svat_csv.inp        
-MetaSWAP_end, tiac =     0.00
- 
-MODFLOW_begin
-iMOD Coupler: [1mMODFLOW version: 6.4.2[0m
-iMOD Coupler: [1mMetaSWAP version: V8.1.2.4[0m
-    Solving:  Stress period:     1    Time step:     1
-MODFLOW_end
- 
-MetaSWAP_begin, tiac =     0.00
- Reading file init_svat.inp           
- Processing of initial MODFLOW heads BEGIN
- Processing of initial MODFLOW heads END
- Reading file init_svat.inp           
-  -->initialization with qm = P from meteo
->> DO idtsw=1,nudtsw
-     msw1top
-MetaSWAP_dtsw_begin, tiac =     0.00
- msw1top_begin, k =       1
- msw1top_end,   k =     954
-MetaSWAP_dtsw_end,   tiac =     1.00
-<< ENDDO
-MetaSWAP_end, tiac =     1.00
- 
-MODFLOW_begin
- msw1unsa_begin, k        1
- msw1unsa_end,   k      954
- msw1postfm_qmodf_begin, k =       1
- msw1postfm_qmodf_end  , k =     954
- 
- iter_outer =  1 : [Hgwmsw - Hgwmodf] (svat=    109)= -0.09342 m
- iter_outer =  1 : [Hgwmsw - Hgwmodf] (svat=    107)=  0.12442 m
- 
-
- Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
- 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
- -0.092 -0.092 -0.092 -0.092 -0.042  0.000  0.065  0.121  0.124  0.124  0.124
- 
-   msw1postfm_sc1_begin, k =       1
-   msw1postfm_sc1_end  , k =     954
-
- msw1postfm_qmodf_begin, k =       1
- msw1postfm_qmodf_end  , k =     954
- 
- iter_outer =  2 : [Hgwmsw - Hgwmodf] (svat=    601)= -0.06037 m
- iter_outer =  2 : [Hgwmsw - Hgwmodf] (svat=    189)=  0.09229 m
- 
-
- Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
- 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
- -0.059 -0.059 -0.059 -0.059 -0.005  0.000  0.029  0.089  0.092  0.092  0.092
- 
-   msw1postfm_sc1_begin, k =       1
-   msw1postfm_sc1_end  , k =     954
-
- msw1postfm_qmodf_begin, k =       1
- msw1postfm_qmodf_end  , k =     954
- 
- iter_outer =  3 : [Hgwmsw - Hgwmodf] (svat=     94)= -0.00893 m
- iter_outer =  3 : [Hgwmsw - Hgwmodf] (svat=    595)=  0.07262 m
- 
-
- Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
- 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
- -0.008 -0.008 -0.008 -0.008 -0.003  0.000  0.010  0.048  0.073  0.073  0.073
- 
-   msw1postfm_sc1_begin, k =       1
-   msw1postfm_sc1_end  , k =     954
-
- msw1postfm_qmodf_begin, k =       1
- msw1postfm_qmodf_end  , k =     954
- 
- iter_outer =  4 : [Hgwmsw - Hgwmodf] (svat=    595)= -0.03085 m
- iter_outer =  4 : [Hgwmsw - Hgwmodf] (svat=    601)=  0.01189 m
- 
-
- Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
- 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
- -0.030 -0.030 -0.030 -0.030 -0.001  0.000  0.002  0.008  0.012  0.012  0.012
- 
-   msw1postfm_sc1_begin, k =       1
-   msw1postfm_sc1_end  , k =     954
-
- msw1postfm_qmodf_begin, k =       1
- msw1postfm_qmodf_end  , k =     954
- 
- iter_outer =  5 : [Hgwmsw - Hgwmodf] (svat=    601)= -0.01811 m
- iter_outer =  5 : [Hgwmsw - Hgwmodf] (svat=    595)=  0.02378 m
- 
-
- Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
- 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
- -0.017 -0.017 -0.017 -0.017  0.000  0.000  0.001  0.003  0.024  0.024  0.024
- 
-   msw1postfm_sc1_begin, k =       1
-   msw1postfm_sc1_end  , k =     954
-
- msw1postfm_qmodf_begin, k =       1
- msw1postfm_qmodf_end  , k =     954
- 
- iter_outer =  6 : [Hgwmsw - Hgwmodf] (svat=    109)= -0.00167 m
- iter_outer =  6 : [Hgwmsw - Hgwmodf] (svat=    595)=  0.01253 m
- 
-
- Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
- 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
- -0.001 -0.001 -0.001 -0.001  0.000  0.000  0.001  0.003  0.013  0.013  0.013
- 
-   msw1postfm_sc1_begin, k =       1
-   msw1postfm_sc1_end  , k =     954
-
- msw1postfm_qmodf_begin, k =       1
- msw1postfm_qmodf_end  , k =     954
- 
- iter_outer =  7 : [Hgwmsw - Hgwmodf] (svat=    595)= -0.01477 m
- iter_outer =  7 : [Hgwmsw - Hgwmodf] (svat=    109)=  0.00159 m
- 
-
- Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
- 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
- -0.014 -0.014 -0.014 -0.014  0.000  0.000  0.000  0.001  0.002  0.002  0.002
- 
-   msw1postfm_sc1_begin, k =       1
-   msw1postfm_sc1_end  , k =     954
-
- msw1postfm_qmodf_begin, k =       1
- msw1postfm_qmodf_end  , k =     954
- 
- iter_outer =  8 : [Hgwmsw - Hgwmodf] (svat=    596)= -0.00251 m
- iter_outer =  8 : [Hgwmsw - Hgwmodf] (svat=    595)=  0.00190 m
- 
-
- Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
- 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
- -0.002 -0.002 -0.002 -0.002  0.000  0.000  0.000  0.001  0.002  0.002  0.002
- 
-   msw1postfm_sc1_begin, k =       1
-   msw1postfm_sc1_end  , k =     954
-
- msw1postfm_qmodf_begin, k =       1
- msw1postfm_qmodf_end  , k =     954
- 
- iter_outer =  9 : [Hgwmsw - Hgwmodf] (svat=    601)= -0.00210 m
- iter_outer =  9 : [Hgwmsw - Hgwmodf] (svat=    595)=  0.00860 m
- 
-
- Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
- 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
- -0.001 -0.001 -0.001 -0.001  0.000  0.000  0.000  0.007  0.009  0.009  0.009
- 
-   msw1postfm_sc1_begin, k =       1
-   msw1postfm_sc1_end  , k =     954
-
- msw1postfm_qmodf_begin, k =       1
- msw1postfm_qmodf_end  , k =     954
- 
- iter_outer = 10 : [Hgwmsw - Hgwmodf] (svat=    595)= -0.00996 m
- iter_outer = 10 : [Hgwmsw - Hgwmodf] (svat=    596)=  0.00493 m
- 
-
- Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
- 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
- -0.009 -0.009 -0.009 -0.009  0.000  0.000  0.000  0.003  0.005  0.005  0.005
- 
-   msw1postfm_sc1_begin, k =       1
-   msw1postfm_sc1_end  , k =     954
-
- msw1postfm_qmodf_begin, k =       1
- msw1postfm_qmodf_end  , k =     954
- 
- iter_outer = 11 : [Hgwmsw - Hgwmodf] (svat=    596)= -0.00830 m
- iter_outer = 11 : [Hgwmsw - Hgwmodf] (svat=    591)=  0.00227 m
- 
-
- Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
- 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
- -0.007 -0.007 -0.007 -0.007  0.000  0.000  0.000  0.002  0.002  0.002  0.002
- 
-   msw1postfm_sc1_begin, k =       1
-   msw1postfm_sc1_end  , k =     954
-
- msw1postfm_qmodf_begin, k =       1
- msw1postfm_qmodf_end  , k =     954
- 
- iter_outer = 12 : [Hgwmsw - Hgwmodf] (svat=    601)= -0.00367 m
- iter_outer = 12 : [Hgwmsw - Hgwmodf] (svat=    595)=  0.00484 m
- 
-
- Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
- 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
- -0.003 -0.003 -0.003 -0.003  0.000  0.000  0.000  0.001  0.005  0.005  0.005
- 
-   msw1postfm_sc1_begin, k =       1
-   msw1postfm_sc1_end  , k =     954
-
- msw1postfm_qmodf_begin, k =       1
- msw1postfm_qmodf_end  , k =     954
- 
- iter_outer = 13 : [Hgwmsw - Hgwmodf] (svat=    124)= -0.00078 m
- iter_outer = 13 : [Hgwmsw - Hgwmodf] (svat=    595)=  0.00074 m
- 
-
- Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
- 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
-  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.001  0.001  0.001
- 
-
- Smallest phreatic storage coefficient: sc1(    587)= 0.01000 (m3/m2/m)
- 
-MODFLOW_end
- 
-MetaSWAP_finalize&write_begin,tiac =     1.00
-msw1bd_begin,   k =       1
- max. water loss,     vcr(    182)=  -0.00000 m3/m2
- max. water creation, vcr(    652)=   0.00000 m3/m2
-msw1bd_end,     k =     954
-MetaSWAP_finalize&write_end, tiac =     1.00
-MetaSWAP_rootzone_update_begin
-MetaSWAP_rootzone_update_end  
- 
-MODFLOW_begin
-    Solving:  Stress period:     2    Time step:     1
-MODFLOW_end
- 
-MetaSWAP_begin, tiac =     1.00
->> DO idtsw=1,nudtsw
-     msw1top
-MetaSWAP_dtsw_begin, tiac =     1.00
- Reading file C:\OD\WS_Mdl\models\NBr\In\CAP\P\NBr1\P_20100103_NBr1.asc 
- Reading file C:\OD\WS_Mdl\models\NBr\In\CAP\PET\NBr1\PET_20100103_NBr1.asc 
- msw1top_begin, k =       1
- msw1top_end,   k =     954
-MetaSWAP_dtsw_end,   tiac =     2.00
-<< ENDDO
-MetaSWAP_end, tiac =     2.00
- 
-MODFLOW_begin
- msw1unsa_begin, k        1
- msw1unsa_end,   k      954
- msw1postfm_qmodf_begin, k =       1
- msw1postfm_qmodf_end  , k =     954
- 
- iter_outer =  1 : [Hgwmsw - Hgwmodf] (svat=    189)= -0.01822 m
- iter_outer =  1 : [Hgwmsw - Hgwmodf] (svat=    788)=  0.05787 m
- 
-
- Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
- 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
- -0.017 -0.017 -0.017 -0.017 -0.006  0.000  0.002  0.052  0.058  0.058  0.058
- 
-   msw1postfm_sc1_begin, k =       1
-   msw1postfm_sc1_end  , k =     954
-
- msw1postfm_qmodf_begin, k =       1
- msw1postfm_qmodf_end  , k =     954
- 
- iter_outer =  2 : [Hgwmsw - Hgwmodf] (svat=    596)= -0.00218 m
- iter_outer =  2 : [Hgwmsw - Hgwmodf] (svat=     90)=  0.00752 m
- 
-
- Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
- 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
- -0.001 -0.001 -0.001 -0.001  0.000  0.000  0.000  0.006  0.008  0.008  0.008
- 
-   msw1postfm_sc1_begin, k =       1
-   msw1postfm_sc1_end  , k =     954
-
- msw1postfm_qmodf_begin, k =       1
- msw1postfm_qmodf_end  , k =     954
- 
- iter_outer =  3 : [Hgwmsw - Hgwmodf] (svat=     15)= -0.00086 m
- iter_outer =  3 : [Hgwmsw - Hgwmodf] (svat=    190)=  0.00211 m
- 
-
- Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
- 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
-  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.001  0.002  0.002  0.002
- 
-   msw1postfm_sc1_begin, k =       1
-   msw1postfm_sc1_end  , k =     954
-
- msw1postfm_qmodf_begin, k =       1
- msw1postfm_qmodf_end  , k =     954
- 
- iter_outer =  4 : [Hgwmsw - Hgwmodf] (svat=     15)= -0.00043 m
- iter_outer =  4 : [Hgwmsw - Hgwmodf] (svat=    589)=  0.00361 m
- 
-
- Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
- 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
-  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.001  0.004  0.004  0.004
- 
-   msw1postfm_sc1_begin, k =       1
-   msw1postfm_sc1_end  , k =     954
-
- msw1postfm_qmodf_begin, k =       1
- msw1postfm_qmodf_end  , k =     954
- 
- iter_outer =  5 : [Hgwmsw - Hgwmodf] (svat=     15)= -0.00043 m
- iter_outer =  5 : [Hgwmsw - Hgwmodf] (svat=    589)=  0.00361 m
- 
-
- Cumulative relative frequency distribution of [Hgwmsw-Hgwmodf](m)
- 0.00000  1e-5   1e-4   1e-3   1e-2   0.5  1-1e-2 1-1e-3 1-1e-4 1-1e-5 1.00000
-  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.001  0.004  0.004  0.004
- 
-
- Smallest phreatic storage coefficient: sc1(    103)= 0.01000 (m3/m2/m)
- 
-MODFLOW_end
- 
-MetaSWAP_finalize&write_begin,tiac =     2.00
-msw1bd_begin,   k =       1
- max. water loss,     vcr(    653)=  -0.00000 m3/m2
- max. water creation, vcr(    178)=   0.00000 m3/m2
-msw1bd_end,     k =     954
- msw1sav_begin
- msw1sav_end
-MetaSWAP_finalize&write_end, tiac =     2.00
-MetaSWAP_rootzone_update_begin
-MetaSWAP_rootzone_update_end  
- 
-MODFLOW_begin
-iMOD Coupler: [1mNew simulation terminated normally[0m
- 
- Run end date and time (yyyy/mm/dd hh:mm:ss): 2025/05/12 15:55:24
- Elapsed run time:  3.538 Seconds
- 
- Normal termination of simulation.
-MODFLOW_END
-MetaSWAP_begin, tiac =     2.00
- msw1sav_begin
- msw1sav_end
-
-** I28  simgro   **  E N D   O F   M E T A S W A P
-                     -----------------------------
- 
-
-C:\OD\WS_Mdl\models\NBr\Sim\NBr11>IF 0 NEQ 0 (ECHO AN ERROR WAS FOUND ERRORLEVEL ) 
-
-C:\OD\WS_Mdl\models\NBr\Sim\NBr11>ECHO OFF 
-MODFLOW finished, postprocessing started 
-=============================================
-iMOD Batch Script iMOD V5_6_1
-=============================================
-FUNCTION=MF6TOIDF
-
- ==================================================
- Running iMOD: 
-  exe: C:\OD\WS_Mdl\software\iMOD5\iMOD_V5_6_1.exe
-  dir: C:\OD\WS_Mdl\models\NBr\Sim\NBr11
- ==================================================
-
-
-EXECUTING FUNCTION >>> MF6TOIDF <<<
-
-
-iMODBATCH using tmp-folder:
-  C:\OD\WS_Mdl\models\NBr\Sim\NBr11\IMOD_TMP\BATCH1
-
-SDATE=20100101000000
-ISAVEENDDATE=0
-DATEFORMAT=1
-IFILLHEAD=0
-SAVESHD=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37
-SAVEWEL=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37
-SAVEDRN=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37
-SAVERIV=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37
-SAVEFLX=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37
-GRB=.\GWF_1\MODELINPUT\NBr11.DIS6.GRB
-HED=.\GWF_1\MODELOUTPUT\HEAD\HEAD.HED
- Processing HEAD_20100101000000_L1 ...
- Processing HEAD_20100101000000_L2 ...
- Processing HEAD_20100101000000_L3 ...
- Processing HEAD_20100101000000_L4 ...
- Processing HEAD_20100101000000_L5 ...
- Processing HEAD_20100101000000_L6 ...
- Processing HEAD_20100101000000_L7 ...
- Processing HEAD_20100101000000_L8 ...
- Processing HEAD_20100101000000_L9 ...
- Processing HEAD_20100101000000_L10 ...
- Processing HEAD_20100101000000_L11 ...
- Processing HEAD_20100101000000_L12 ...
- Processing HEAD_20100101000000_L13 ...
- Processing HEAD_20100101000000_L14 ...
- Processing HEAD_20100101000000_L15 ...
- Processing HEAD_20100101000000_L16 ...
- Processing HEAD_20100101000000_L17 ...
- Processing HEAD_20100101000000_L18 ...
- Processing HEAD_20100101000000_L19 ...
- Processing HEAD_20100101000000_L20 ...
- Processing HEAD_20100101000000_L21 ...
- Processing HEAD_20100101000000_L22 ...
- Processing HEAD_20100101000000_L23 ...
- Processing HEAD_20100101000000_L24 ...
- Processing HEAD_20100101000000_L25 ...
- Processing HEAD_20100101000000_L26 ...
- Processing HEAD_20100101000000_L27 ...
- Processing HEAD_20100101000000_L28 ...
- Processing HEAD_20100101000000_L29 ...
- Processing HEAD_20100101000000_L30 ...
- Processing HEAD_20100101000000_L31 ...
- Processing HEAD_20100101000000_L32 ...
- Processing HEAD_20100101000000_L33 ...
- Processing HEAD_20100101000000_L34 ...
- Processing HEAD_20100101000000_L35 ...
- Processing HEAD_20100101000000_L36 ...
- Processing HEAD_20100101000000_L37 ...
- Processing HEAD_20100102000000_L1 ...
- Processing HEAD_20100102000000_L2 ...
- Processing HEAD_20100102000000_L3 ...
- Processing HEAD_20100102000000_L4 ...
- Processing HEAD_20100102000000_L5 ...
- Processing HEAD_20100102000000_L6 ...
- Processing HEAD_20100102000000_L7 ...
- Processing HEAD_20100102000000_L8 ...
- Processing HEAD_20100102000000_L9 ...
- Processing HEAD_20100102000000_L10 ...
- Processing HEAD_20100102000000_L11 ...
- Processing HEAD_20100102000000_L12 ...
- Processing HEAD_20100102000000_L13 ...
- Processing HEAD_20100102000000_L14 ...
- Processing HEAD_20100102000000_L15 ...
- Processing HEAD_20100102000000_L16 ...
- Processing HEAD_20100102000000_L17 ...
- Processing HEAD_20100102000000_L18 ...
- Processing HEAD_20100102000000_L19 ...
- Processing HEAD_20100102000000_L20 ...
- Processing HEAD_20100102000000_L21 ...
- Processing HEAD_20100102000000_L22 ...
- Processing HEAD_20100102000000_L23 ...
- Processing HEAD_20100102000000_L24 ...
- Processing HEAD_20100102000000_L25 ...
- Processing HEAD_20100102000000_L26 ...
- Processing HEAD_20100102000000_L27 ...
- Processing HEAD_20100102000000_L28 ...
- Processing HEAD_20100102000000_L29 ...
- Processing HEAD_20100102000000_L30 ...
- Processing HEAD_20100102000000_L31 ...
- Processing HEAD_20100102000000_L32 ...
- Processing HEAD_20100102000000_L33 ...
- Processing HEAD_20100102000000_L34 ...
- Processing HEAD_20100102000000_L35 ...
- Processing HEAD_20100102000000_L36 ...
- Processing HEAD_20100102000000_L37 ...
-BDG=.\GWF_1\MODELOUTPUT\BUDGET\BUDGET.CBC
- Processing FLOW-JA-FACE_20100101000000_L* ...
- Processing WEL_20100101000000_L* ...
- Processing WEL_20100101000000_L* ...
- Processing WEL_20100101000000_L* ...
- Processing DRN_20100101000000_L* ...
- Processing DRN_20100101000000_L* ...
- Processing DRN_20100101000000_L* ...
- Processing RIV_20100101000000_L* ...
- Processing RIV_20100101000000_L* ...
- Processing RIV_20100101000000_L* ...
- Processing RIV_20100101000000_L* ...
- Processing RIV_20100101000000_L* ...
- Processing FLOW-JA-FACE_20100102000000_L* ...
- Processing WEL_20100102000000_L* ...
- Processing WEL_20100102000000_L* ...
- Processing WEL_20100102000000_L* ...
- Processing DRN_20100102000000_L* ...
- Processing DRN_20100102000000_L* ...
- Processing DRN_20100102000000_L* ...
- Processing RIV_20100102000000_L* ...
- Processing RIV_20100102000000_L* ...
- Processing RIV_20100102000000_L* ...
- Processing RIV_20100102000000_L* ...
- Processing RIV_20100102000000_L* ...
-
-iMOD removed tmp-folder:
-  C:\OD\WS_Mdl\models\NBr\Sim\NBr11\IMOD_TMP\BATCH1
-
-[Mon May 12 15:55:28 2025]
-Finished jobid: 1 (Rule: Sim)
-4 of 5 steps (80%) done
-Select jobs to execute...
-Execute 1 jobs...
-
-[Mon May 12 15:55:28 2025]
-localrule all:
-    input: C:/OD/WS_Mdl/models/NBr/Sim/NBr11/mfsim.lst
-    jobid: 0
-    reason: Input files updated by another job: C:/OD/WS_Mdl/models/NBr/Sim/NBr11/mfsim.lst
-    resources: tmpdir=C:\Users\Karam014\AppData\Local\Temp
-Shell command: None
-[Mon May 12 15:55:28 2025]
-Finished jobid: 0 (Rule: all)
-5 of 5 steps (100%) done
-Complete log(s): C:\OD\WS_Mdl\models\NBr\.snakemake\log\2025-05-12T155450.313454.snakemake.log
---------------------------------------------------------------------------------
-Running add_OBS ...
-C:/OD/WS_Mdl\models/NBr\Sim/NBr11
-..\..\In\OBS\NBr7\ijkset_selectie_NBr7.ipf
-C:\OD\WS_Mdl\models\NBr\In\OBS\NBr7\ijkset_selectie_NBr7.ipf
-C:/OD/WS_Mdl\models/NBr\Sim/NBr11\GWF_1/MODELINPUT/NBr11.OBS has been added successfully!
-
-end_of_transmission
-********************************************************************************
-

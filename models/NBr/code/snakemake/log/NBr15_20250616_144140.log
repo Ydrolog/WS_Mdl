@@ -1,3 +1,0 @@
-ImportError in file "C:\OD\WS_Mdl\models\NBr\code\snakemake\NBr15.smk", line 2:
-cannot import name 'path_WS' from 'WS_Mdl.utils' (c:\users\karam014\onedrive - universiteit utrecht\ws_mdl\code\WS_Mdl\utils.py)
-  File "C:\OD\WS_Mdl\models\NBr\code\snakemake\NBr15.smk", line 2, in <module>
