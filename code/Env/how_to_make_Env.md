@@ -15,8 +15,8 @@ This guide explains how to use **pixi** to create, reproduce, and share the soft
 
 ## 2. Clone env.
 If you don't have the files for this project, you'll need to **clone** the repo.
-git clone https://github.com/Ydrolog/WS_Mdl C:\OD\WS_Mdl
-C:\OD\WS_Mdl is the default location. If you want it somewhere else, feel free to change the path, but that may make things more complicated later.
+git clone https://github.com/Ydrolog/WS_Mdl G:
+G: is the default location. If you want it somewhere else, feel free to change the path, but that may make things more complicated later.
 Not all files are public, you'll need to request the rest from the project owner(s).
 
 ## 3. (re)create previous pixi env.
@@ -46,7 +46,7 @@ alternatively,
 pixi install # Will install dependencies, but won't ensure identical package versions. This is probably faster and gives a more "modern build", but it's not as secure as pixi install --frozen
 
 7. Optional: **WS_Mdl refresh**:
-pixi run --manifest-path C:/OD/WS_Mdl/code/pixi.toml --no-lockfile-update pip install -e code # (pip install -e C:\OD\WS_Mdl\code (--use-pep517 --no-build-isolation) could also work) # This might be redundant, i.e. updates are reflected imedeately.
+pixi run --manifest-path G:/pixi.toml --frozen --no-install pip install -e G:/ # (pip install -e G:\code (--use-pep517 --no-build-isolation) could also work) # This might be redundant, i.e. updates are reflected imedeately.
 Run this whenever you want to update WS_Mdl. It's in edit mode, so any small changes (e.g. code in exiting files) are updated automatically. I use this when I make a new terminal tool and I want to add it to path.
 
 This will give you an environment identical to the Sim's.
@@ -103,5 +103,5 @@ conda list
 pip list
 
 5. Install WS_Mdl. You'll need to be on the WS_Mdl repo version that corresonds to your MdlN (repo_V Col in RunLog). Then run:
-pip install -e C:\OD\WS_Mdl\code --use-pep517 --no-deps --no-build-isolation
+pip install -e G:\code --use-pep517 --no-deps --no-build-isolation
 -----------------------------------------

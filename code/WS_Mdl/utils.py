@@ -95,7 +95,7 @@ def MdlN_Se_from_RunLog(
     """Returns RunLog line that corresponds to MdlN as a S."""
 
     DF = pd.read_excel(PJ(Pa_WS, 'Mng/RunLog.xlsx'), sheet_name='RunLog')
-    Se_match = DF.loc[DF['MdlN'].str.lower() == MdlN.lower()]  # Match MdlN, case insensitive.
+    Se_match = DF.loc[DF_match_MdlN(DF, MdlN)]  # Match MdlN, case insensitive.
     if Se_match.empty:
         raise ValueError(
             f'MdlN {MdlN} not found in RunLog. {fg("indian_red_1c")}Check the spelling and try again.{attr("reset")}'
@@ -181,6 +181,7 @@ def get_MdlN_Pa(MdlN: str, MdlN_B=None, iMOD5=None):
         Mdl = get_Mdl(MdlN)  # Get model alias from MdlN
 
         d_Pa = {}
+        d_Pa['imod_V'] = 'imod5' if iMOD5 else 'imod_python'
         d_Pa['Mdl'] = Mdl
         d_Pa['MdlN'] = MdlN
         d_Pa['Pa_Mdl'] = PJ(Pa_WS, f'models/{Mdl}')
@@ -407,6 +408,14 @@ def get_imod_V(MdlN: str):
             f"Could not determine imod version Sim/{MdlN} folder doesn't exist, or it's structure has been modified.\n Proceeding with the assumption that it's imod_python."
         )
         return 'imod_python'
+
+
+def DF_match_MdlN(DF: pd.DataFrame, MdlN: str, Col_name='MdlN', case_insensitive=True):
+    """Returns a boolean Series indicating which rows in the DataFrame match the given MdlN in the specified column."""
+    if case_insensitive:
+        return DF[Col_name].str.lower() == MdlN.lower()
+    else:
+        return DF[Col_name] == MdlN
 
 
 # --------------------------------------------------------------------------------
@@ -1373,7 +1382,7 @@ def remove_Sim_Out(
                     vprint(f'🔴 - failed to {action} Sim folder: {e}')
             else:
                 try:  # --- Remove large output files only ---
-                    if get_imod_V(MdlN) == 'imod5':
+                    if d_Pa['imod_V'] == 'imod5':
                         Path(PJ(d_Pa['Sim_In'], f'{MdlN}.DIS6.grb')).unlink(
                             missing_ok=True
                         )  # .grb is usually big and we don't need it.
@@ -1381,7 +1390,7 @@ def remove_Sim_Out(
                         for item in Path(d_Pa['MSW']).iterdir():  # Remove MSW out folders
                             if item.is_dir():
                                 sh.rmtree(item)
-                    elif get_imod_V(MdlN) == 'imod_python':
+                    elif d_Pa['imod_V'] == 'imod_python':
                         sim_in_path = Path(d_Pa['Sim_In'])
                         if sim_in_path.exists():  # large modflow files
                             for item in sim_in_path.iterdir():
@@ -1390,22 +1399,23 @@ def remove_Sim_Out(
                         for item in Path(d_Pa['MSW']).iterdir():  # Remove MSW out folders
                             if item.is_dir():
                                 sh.rmtree(item)
+                    i += 1
                 except Exception as e:
                     vprint(f'🔴 - failed to {action} large output files: {e}')
 
-            try:  # --- Change log.csv entry ---
-                DF.loc[DF['MdlN'].str.lower() == MdlN.lower(), 'End Status'] = 'Removed Output'
-                DF.to_csv(Pa_log, index=False)  # Save back to CSV
-                vprint('🟢 - log.csv file updated successfully.')
-                i += 1
-            except Exception as e:
-                vprint(f'🔴 - failed to update log.csv file: {e}')
+            if i == 1:
+                try:  # --- Change log.csv entry ---
+                    DF.loc[DF_match_MdlN(DF, MdlN), 'End Status'] = 'Removed Output'
+                    DF.loc[DF_match_MdlN(DF, MdlN), 'Date Removed Output'] = DT.now().strftime('%Y-%m-%d %H:%M')
+                    DF.to_csv(Pa_log, index=False)  # Save back to CSV
+                    vprint('🟢 - log.csv file updated successfully.')
+                    i += 1
+                except Exception as e:
+                    vprint(f'🔴 - failed to update log.csv file: {e}')
 
             if i == 2:
                 action = 'permanently deleted' if permanent_delete else 'moved to recycling bin'
                 vprint(f'\n🟢🟢🟢 - ALL files were successfully {action}d.')
-            else:
-                vprint(f'🟡🟡🟡 - {i}/2 sub-processes finished successfully.')
         else:
             print(f'🔴🔴🔴 - {Pa_MdlN} does not exist or {MdlN.lower()} not found in log.')
     else:
@@ -1436,7 +1446,7 @@ def rerun_Sim(MdlN: str, cores=None, DAG: bool = True):
         print(f'🔴🔴🔴 - {MdlN} not found in the RunLog. Cannot rerun.')
         return
     else:
-        Se_Ln = DF.loc[DF['MdlN'] == MdlN].squeeze()  # Get the row for the MdlN
+        Se_Ln = DF.loc[DF_match_MdlN(DF, MdlN)].squeeze()  # Get the row for the MdlN
 
         # Prepare arguments for multiprocessing
 
