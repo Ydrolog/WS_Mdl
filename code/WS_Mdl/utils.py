@@ -230,7 +230,9 @@ def get_MdlN_Pa(MdlN: str, MdlN_B=None, iMOD5=None):
         )
 
         # Post-run
-        d_Pa['Out_HD'] = PJ(d_Pa['Pa_MdlN'], 'GWF_1/MODELOUTPUT/HEAD/HEAD')
+        d_Pa['Out_HD'] = PJ(d_Pa['Pa_MdlN'], 'GWF_1/MODELOUTPUT/HEAD')
+        d_Pa['Out_HD_Bin'] = PJ(d_Pa['Sim_In'], 'imported_model.hds') if not iMOD5 else PJ(d_Pa['Out_HD'], 'HEAD.HED')
+        d_Pa['DIS_GRB'] = PJ(d_Pa['Sim_In'], f'{MdlN.upper()}.DIS6.grb') if iMOD5 else PJ(d_Pa['Sim_In'], 'dis.dis.grb')
         d_Pa['PoP_Out_MdlN'] = PJ(d_Pa['PoP'], 'Out', MdlN)
         d_Pa['MM'] = PJ(d_Pa['PoP_Out_MdlN'], f'MM-{MdlN}.qgz')
 
@@ -668,8 +670,68 @@ def MSW_In_to_DF(
         return
 
 
-def SFR_to_GDF(Pa_SFR):  # 666 TBC
-    return
+def SFR_PkgD_to_DF(MdlN: str, Pa_SFR: str = None, iMOD5: bool = None) -> pd.DataFrame:
+    """
+    Reads SFR6 package data from a .SFR6 file and returns it as a pandas DataFrame.
+    MdlN: Model name
+    Pa_SFR: Path to the SFR6 file. If None, it will be determined using get_MdlN_Pa().
+    iMOD5: Boolean indicating whether to use the imod5 folder structure. If None, it will be determined automatically.
+    """
+    d_Pa = get_MdlN_Pa(MdlN, iMOD5=iMOD5)
+
+    if Pa_SFR is None:
+        Pa_SFR = d_Pa['SFR']
+
+    l_Lns = r_Txt_Lns(Pa_SFR)
+
+    PkgDt_start = next(i for i, l in enumerate(l_Lns) if 'BEGIN PACKAGEDATA' in l.upper()) + 2
+    PkgDt_end = next(i for i, l in enumerate(l_Lns) if 'END PACKAGEDATA' in l.upper())
+    PkgDt_Cols = l_Lns[PkgDt_start - 1].replace('#', '').strip().split()
+    PkgDt_data = [l.split() for l in l_Lns[PkgDt_start:PkgDt_end] if l.strip() and not l.strip().startswith('#')]
+
+    for row in PkgDt_data:  # Robust fix: if only one 'NONE' and it's at index 1, replace with three 'NONE's
+        if row.count('NONE') == 1 and row[1] == 'NONE':
+            row[1:2] = ['NONE', 'NONE', 'NONE']
+
+    DF_PkgD = pd.DataFrame(PkgDt_data, columns=PkgDt_Cols)
+
+    DF_PkgD = DF_PkgD.replace(['NONE', '', 'NaN', 'nan'], pd.NA)  # 1) normalize NA-like tokens and strip spaces
+    DF_PkgD = DF_PkgD.apply(lambda s: s.str.strip() if s.dtype == 'object' else s)
+
+    l_Num_Cols = [c for c in DF_PkgD.columns if c != 'aux']  # 2) choose numeric columns and coerce
+    DF_PkgD[l_Num_Cols] = DF_PkgD[l_Num_Cols].apply(pd.to_numeric)
+
+    DF_PkgD = DF_PkgD.convert_dtypes()  # 3) optional: get nullable ints/floats
+
+    if ('X' not in PkgDt_Cols) or ('Y' not in PkgDt_Cols):
+        vprint('🟡 - Coordinates (X, Y columns) not found in PACKAGEDATA. Calculating coordinates from INI file info.')
+        Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = Mdl_Dmns_from_INI(d_Pa['INI'])
+        DF_PkgD = Calc_DF_XY(DF_PkgD, Xmin, Ymax, cellsize)
+    return DF_PkgD
+
+
+def SFR_ConnD_to_DF(MdlN: str, Pa_SFR: str = None, iMOD5: bool = None) -> pd.DataFrame:
+    """
+    Reads SFR6 connection data from a .SFR6 file and returns it as a pandas DataFrame.
+    """
+    d_Pa = get_MdlN_Pa(MdlN, iMOD5=iMOD5)
+
+    if Pa_SFR is None:
+        Pa_SFR = d_Pa['SFR']
+
+    l_Lns = r_Txt_Lns(Pa_SFR)
+
+    Conn_start = next(i for i, l in enumerate(l_Lns) if 'BEGIN CONNECTIONDATA' in l.upper()) + 1
+    Conn_end = next(i for i, l in enumerate(l_Lns) if 'END CONNECTIONDATA' in l.upper())
+    Conn_data = [
+        (int(parts[0]), [int(x) for x in parts[1:]]) for l in l_Lns[Conn_start:Conn_end] if (parts := l.strip().split())
+    ]
+
+    DF_Conn = pd.DataFrame(Conn_data, columns=['reach_N', 'connections'])
+    DF_Conn['downstream'] = DF_Conn['connections'].apply(lambda l_Conns: next((-x for x in l_Conns if x < 0), None))
+    DF_Conn['downstream'] = DF_Conn['downstream'].astype('Int64')
+
+    return DF_Conn
 
 
 def r_Txt_Lns(Pa):

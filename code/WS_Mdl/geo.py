@@ -249,7 +249,7 @@ def DA_to_MBTIF(DA, Pa_Out, d_MtDt, crs=crs, _print=False, decimals=3):
     transform = DA.rio.transform()
 
     # Ensure we have the right number of bands
-    n_bands = len(band_keys) if band_keys else DA.shape[0]
+    n_bands = DA.shape[0]
 
     with rasterio.open(
         Pa_Out,  # 666 add ask-to-overwrite function (preferably to any function/command in this Lib that writes a file.)
@@ -278,6 +278,117 @@ def DA_to_MBTIF(DA, Pa_Out, d_MtDt, crs=crs, _print=False, decimals=3):
 
     if _print:
         vprint(f'DA_to_MBTIF finished successfully for: {Pa_Out}')
+
+
+def Diff_MBTIF(Pa_TIF1, Pa_TIF2, Pa_TIF_Out=None, verbose=True):
+    """
+    Calculates the difference between two Multi-band TIF files (TIF1 - TIF2).
+    Assumes both files have the same number of bands and dimensions.
+    """
+    if Pa_TIF_Out is None:
+        Pa_TIF_Out = Pa_TIF1.replace('.tif', '_diff.tif')
+
+    if verbose:
+        vprint(f'Calculating difference: {PBN(Pa_TIF1)} - {PBN(Pa_TIF2)}')
+
+    # Open the TIFs
+    da1 = xr.open_dataset(Pa_TIF1, engine='rasterio')['band_data']
+    da2 = xr.open_dataset(Pa_TIF2, engine='rasterio')['band_data']
+
+    # Check shapes
+    if da1.shape != da2.shape:
+        raise ValueError(f'Shapes do not match: {da1.shape} vs {da2.shape}')
+
+    # Calculate difference
+    da_diff = da1 - da2
+
+    # Prepare metadata for DA_to_MBTIF
+    d_MtDt = {}
+    for i in range(da_diff.shape[0]):
+        desc = f'Diff_Band_{i + 1}'
+        d_MtDt[desc] = {'description': f'Difference Band {i + 1}'}
+
+    DA_to_MBTIF(da_diff, Pa_TIF_Out, d_MtDt, _print=verbose)
+
+    if verbose:
+        vprint(f'🟢 Difference saved to {Pa_TIF_Out}')
+
+
+def HD_Bin_GXG_to_MBTIF(MdlN, start_year='from_INI', end_year='from_INI', IDT='from_INI'):
+    vprint(Pre_Sign)
+    U.set_verbose(False)
+
+    # Load standard imod paths and variables
+    d_Pa = U.get_MdlN_Pa(MdlN)
+    d_INI = U.INI_to_d(d_Pa['INI'])
+    if start_year == 'from_INI':
+        start_year = int(d_INI['SDATE'][:4])
+    if end_year == 'from_INI':
+        end_year = int(d_INI['EDATE'][:4])
+    if IDT == 'from_INI':
+        IDT = int(d_INI['IDT'])
+    Pa_PoP = d_Pa['PoP']
+    l_years = [i for i in range(start_year, end_year + 1)]
+    l_Ls = [i for i in range(1, 11 + 1, 2)]
+    U.set_verbose(True)
+
+    # 1. Load & trim Bin HD file
+    DA_HD = imod.mf6.open_hds(hds_path=d_Pa['Out_HD_Bin'], grb_path=d_Pa['DIS_GRB'])
+    dates = pd.date_range(start=str(start_year), periods=DA_HD.time.size, freq=f'{IDT}D')
+    DA_HD = DA_HD.assign_coords(time=dates)  # Assign to DA_HD
+    DA_HD = DA_HD.where(DA_HD.time.dt.year.isin(l_years), drop=True).sel(layer=l_Ls)  # Select specific years and layers
+    vprint(f'🟢 - Loaded HD file from {d_Pa["Out_HD_Bin"]}')
+
+    # 2. GXG
+    ##  Calculate GXG
+    d_GXG = {}
+    for L in l_Ls:
+        DA_HD_L = DA_HD.sel(layer=L)
+        GXG = imod.evaluate.calculate_gxg(DA_HD_L).load()
+        GXG = GXG.rename_vars({var: var.upper() for var in GXG.data_vars})
+
+        # Get N_years
+        N_years_GXG = np.unique(GXG.N_YEARS_GXG.values).max()
+        N_years_GVG = np.unique(GXG.N_YEARS_GVG.values).max()
+
+        # Calculate GHG - GLG
+        GXG['GHG_m_GLG'] = GXG['GHG'] - GXG['GLG']
+        GXG = GXG[['GHG', 'GLG', 'GHG_m_GLG', 'GVG']]
+
+        # Collect results
+        for var in GXG.data_vars:
+            if var not in d_GXG:
+                d_GXG[var] = []
+            d_GXG[var].append(GXG[var])
+    ## Concatenate
+    for var in d_GXG:
+        if isinstance(d_GXG[var], list):
+            d_GXG[var] = xr.concat(d_GXG[var], dim=pd.Index(l_Ls, name='layer'))
+    vprint(f'🟢 - Calculated GXG for {MdlN}')
+    d_Pa.keys()
+
+    # 3. Save to MBTIF
+    MDs(PJ(Pa_PoP, 'Out', MdlN, 'GXG'), exist_ok=True)
+    d_GXG.keys()
+    for K, GXG in d_GXG.items():
+        L_min, L_max = GXG.layer.values.min(), GXG.layer.values.max()
+
+        Pa_Out = PJ(Pa_PoP, 'Out', MdlN, 'GXG', f'{K}_L{L_min}-{L_max}_{MdlN}.tif')
+
+        d_MtDt = {
+            f'{K}_L{L_min}-{L_max}_{MdlN}': {
+                'AVG': float(GXG.mean().values),
+                'coordinates': GXG.coords,
+                'N_years': N_years_GVG if K == 'GVG' else N_years_GXG,
+                'variable': os.path.splitext(PBN(Pa_Out))[0],
+                'details': f'{MdlN} {K} calculated from (path: {d_Pa["Out_HD_Bin"]}), via function described in: https://deltares.github.io/imod-python/api/generated/evaluate/imod.evaluate.calculate_gxg.html',
+            }
+        }
+
+        DA_to_MBTIF(GXG, Pa_Out, d_MtDt, _print=False)
+        vprint(f'🟢 - Saved {K} to {Pa_Out}')
+    vprint(f'🟢🟢🟢 - HD_Bin_GXG_to_MBTIF finished successfully for {MdlN}.')
+    vprint(Sign)
 
 
 def PRJ_to_TIF(MdlN, iMOD5=False):
@@ -798,50 +909,17 @@ def SFR_to_GPkg(MdlN: str, crs: str = 28992, Pa_SFR=None, radius: float = None, 
     if not os.path.exists(Pa_SFR):
         vprint(f'🔴 ERROR: SFR file not found at {Pa_SFR}. Cannot proceed.')
 
-    if radius is None: # If radius s not provided, use CELLSIZE from INI file
+    if radius is None:  # If radius s not provided, use CELLSIZE from INI file
         U.set_verbose(False)
         d_INI = U.INI_to_d(d_Pa['INI'])
         radius = float(d_INI['CELLSIZE'])
         U.set_verbose(verbose)
 
-    # --- Load PkgDt DF ---
-    l_Lns = U.r_Txt_Lns(Pa_SFR)
+    # --- Load PACKAGEDATA DF ---
+    DF_PkgDt = U.SFR_PkgD_to_DF(MdlN, Pa_SFR=Pa_SFR, iMOD5=iMOD5)
 
-    PkgDt_start = next(i for i, l in enumerate(l_Lns) if 'BEGIN PACKAGEDATA' in l.upper()) + 2
-    PkgDt_end = next(i for i, l in enumerate(l_Lns) if 'END PACKAGEDATA' in l.upper())
-    PkgDt_Cols = l_Lns[PkgDt_start - 1].replace('#', '').strip().split()
-    PkgDt_data = [l.split() for l in l_Lns[PkgDt_start:PkgDt_end] if l.strip() and not l.strip().startswith('#')]
-
-    for row in PkgDt_data:  # Robust fix: if only one 'NONE' and it's at index 1, replace with three 'NONE's
-        if row.count('NONE') == 1 and row[1] == 'NONE':
-            row[1:2] = ['NONE', 'NONE', 'NONE']
-
-    DF_PkgDt = pd.DataFrame(PkgDt_data, columns=PkgDt_Cols)
-
-    # --- Clean DF ---
-    DF_PkgDt = DF_PkgDt.replace(['NONE', '', 'NaN', 'nan'], pd.NA)  # 1) normalize NA-like tokens and strip spaces
-    DF_PkgDt = DF_PkgDt.apply(lambda s: s.str.strip() if s.dtype == 'object' else s)
-
-    l_Num_Cols = [c for c in DF_PkgDt.columns if c != 'aux']  # 2) choose numeric columns and coerce
-    DF_PkgDt[l_Num_Cols] = DF_PkgDt[l_Num_Cols].apply(pd.to_numeric)
-
-    DF_PkgDt = DF_PkgDt.convert_dtypes()  # 3) optional: get nullable ints/floats
-
-    if ('X' not in PkgDt_Cols) or ('Y' not in PkgDt_Cols):
-        vprint('🟡 - Coordinates (X, Y columns) not found in PACKAGEDATA. Calculating coordinates from INI file info.')
-        Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = U.Mdl_Dmns_from_INI(d_Pa['INI'])
-        DF_PkgDt = U.Calc_DF_XY(DF_PkgDt, Xmin, Ymax, cellsize)
-
-    # --- CONNECTIONDATA ---
-    Conn_start = next(i for i, l in enumerate(l_Lns) if 'BEGIN CONNECTIONDATA' in l.upper()) + 1
-    Conn_end = next(i for i, l in enumerate(l_Lns) if 'END CONNECTIONDATA' in l.upper())
-    Conn_data = [
-        (int(parts[0]), [int(x) for x in parts[1:]]) for l in l_Lns[Conn_start:Conn_end] if (parts := l.strip().split())
-    ]
-
-    DF_Conn = pd.DataFrame(Conn_data, columns=['reach_N', 'connections'])
-    DF_Conn['downstream'] = DF_Conn['connections'].apply(lambda l_Conns: next((-x for x in l_Conns if x < 0), None))
-    DF_Conn['downstream'] = DF_Conn['downstream'].astype('Int64')
+    # --- Load CONNECTIONDATA ---
+    DF_Conn = U.SFR_ConnD_to_DF(MdlN, Pa_SFR=Pa_SFR, iMOD5=iMOD5)
 
     ## --- Merge ---
     if 'rno' in DF_PkgDt.columns:

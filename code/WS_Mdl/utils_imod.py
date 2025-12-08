@@ -91,14 +91,24 @@ def r_PRJ_with_OBS(Pa_PRJ, remove_SS=True, season_to_DT=True):
         for i, Ln in enumerate(l_filtered_Lns1[:]):  # Iterate over a copy of the list to allow modification
             if 'periods' in Ln.lower():  # Identify season lines
                 record_periods = True
-                l_filtered_Lns.pop(i)
+                # l_filtered_Lns.pop(i)
             elif record_periods and Ln.strip() == '':  # End of season block
                 record_periods = False
-            else:
+            elif record_periods:
                 if 'winter\n' == Ln.lower():
-                    season_map[Ln] = l_filtered_Lns1[i + 1].strip()  # Next line should contain the date
+                    date_str = l_filtered_Lns1[i + 1].strip()
+                    try:
+                        dt = pd.to_datetime(date_str, dayfirst=True)
+                        season_map[Ln] = dt.strftime('%Y-%m-%d %H:%M:%S') + '\n'
+                    except Exception:
+                        season_map[Ln] = date_str + '\n'
                 elif 'summer\n' == Ln.lower():
-                    season_map[Ln] = l_filtered_Lns1[i + 1].strip()  # Next line should contain the date
+                    date_str = l_filtered_Lns1[i + 1].strip()
+                    try:
+                        dt = pd.to_datetime(date_str, dayfirst=True)
+                        season_map[Ln] = dt.strftime('%Y-%m-%d %H:%M:%S') + '\n'
+                    except Exception:
+                        season_map[Ln] = date_str + '\n'
         l_filtered_Lns2 = [season_map.get(x, x) for x in l_filtered_Lns1]
 
     # Write to a temporary file
