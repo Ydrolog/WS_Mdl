@@ -344,7 +344,7 @@ def regrid_DA(DA, x_CeCes, y_CeCes, dx, dy, item_name, method='linear'):
         DA_dy = abs(DA_y[1] - DA_y[0])
 
         # Compare with tolerance
-        same_resolution = np.isclose(DA_dx, dx, atol=1e-6) and np.isclose(DA_dy, dy, atol=1e-6)
+        same_resolution = np.isclose(DA_dx, dx, atol=1e-6) and np.isclose(DA_dy, abs(dy), atol=1e-6)
         same_size = len(DA_x) == len(x_CeCes) and len(DA_y) == len(y_CeCes)
 
         # Check if coordinates match (within tolerance)
