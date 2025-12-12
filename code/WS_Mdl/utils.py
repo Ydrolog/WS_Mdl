@@ -16,6 +16,7 @@ from os.path import dirname as PDN
 from os.path import join as PJ
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 from colored import attr, fg
 from filelock import FileLock as FL
@@ -84,9 +85,6 @@ def set_verbose(v: bool):
 def bprint(*args, **kwargs):
     """Prints Bold."""
     print(f'{bold}', *args, f'{style_reset}', **kwargs)
-
-
-# --------------------------------------------------------------------------------
 
 
 # Get (MdlN) info ----------------------------------------------------------------
@@ -421,9 +419,6 @@ def DF_match_MdlN(DF: pd.DataFrame, MdlN: str, Col_name='MdlN', case_insensitive
         return DF[Col_name] == MdlN
 
 
-# --------------------------------------------------------------------------------
-
-
 # Read files/Py objects ----------------------------------------------------------
 def r_RunLog():
     return pd.read_excel(Pa_RunLog, sheet_name='RunLog').dropna(subset='runN')  # Read RunLog
@@ -670,10 +665,9 @@ def MSW_In_to_DF(
         return
 
 
-def SFR_PkgD_to_DF(MdlN: str, Pa_SFR: str = None, iMOD5: bool = None) -> pd.DataFrame:
+def SFR_PkgD_to_DF(MdlN: str, Pa_SFR: str = None, Calc_Cond=True, iMOD5: bool = None) -> pd.DataFrame:
     """
-    Reads SFR6 package data from a .SFR6 file and returns it as a pandas DataFrame.
-    MdlN: Model name
+    Reads SFR6 PACKAGE DATA block from a .SFR6 file, from MdlN folder, and returns it as a pandas DataFrame.
     Pa_SFR: Path to the SFR6 file. If None, it will be determined using get_MdlN_Pa().
     iMOD5: Boolean indicating whether to use the imod5 folder structure. If None, it will be determined automatically.
     """
@@ -689,25 +683,35 @@ def SFR_PkgD_to_DF(MdlN: str, Pa_SFR: str = None, iMOD5: bool = None) -> pd.Data
     PkgDt_Cols = l_Lns[PkgDt_start - 1].replace('#', '').strip().split()
     PkgDt_data = [l.split() for l in l_Lns[PkgDt_start:PkgDt_end] if l.strip() and not l.strip().startswith('#')]
 
-    for row in PkgDt_data:  # Robust fix: if only one 'NONE' and it's at index 1, replace with three 'NONE's
+    for row in (
+        PkgDt_data
+    ):  # Reaches with cellid NONE (unconnected) are problematic cause other cellids have 3 values (L, R, C)
         if row.count('NONE') == 1 and row[1] == 'NONE':
             row[1:2] = ['NONE', 'NONE', 'NONE']
 
-    DF_PkgD = pd.DataFrame(PkgDt_data, columns=PkgDt_Cols)
+    DF = pd.DataFrame(PkgDt_data, columns=PkgDt_Cols)
 
-    DF_PkgD = DF_PkgD.replace(['NONE', '', 'NaN', 'nan'], pd.NA)  # 1) normalize NA-like tokens and strip spaces
-    DF_PkgD = DF_PkgD.apply(lambda s: s.str.strip() if s.dtype == 'object' else s)
+    DF = DF.replace(['NONE', '', 'NaN', 'nan'], pd.NA)  # 1. normalize NA-like tokens and strip spaces
+    DF = DF.apply(lambda s: s.str.strip() if s.dtype == 'object' else s)
 
-    l_Num_Cols = [c for c in DF_PkgD.columns if c != 'aux']  # 2) choose numeric columns and coerce
-    DF_PkgD[l_Num_Cols] = DF_PkgD[l_Num_Cols].apply(pd.to_numeric)
+    l_Num_Cols = [c for c in DF.columns if c != 'aux']  # 2. choose numeric columns and coerce
+    DF[l_Num_Cols] = DF[l_Num_Cols].apply(pd.to_numeric)
 
-    DF_PkgD = DF_PkgD.convert_dtypes()  # 3) optional: get nullable ints/floats
+    DF = DF.convert_dtypes()  # 3. optional: get nullable ints/floats
 
     if ('X' not in PkgDt_Cols) or ('Y' not in PkgDt_Cols):
         vprint('🟡 - Coordinates (X, Y columns) not found in PACKAGEDATA. Calculating coordinates from INI file info.')
         Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = Mdl_Dmns_from_INI(d_Pa['INI'])
-        DF_PkgD = Calc_DF_XY(DF_PkgD, Xmin, Ymax, cellsize)
-    return DF_PkgD
+        DF = Calc_DF_XY(DF, Xmin, Ymax, cellsize)
+
+    if Calc_Cond:
+        if ('rlen' in DF.columns) and ('rwid' in DF.columns) and ('rthick' in DF.columns) and ('rcond' in DF.columns):
+            DF['Cond'] = DF['rlen'] * DF['rwid'] * DF['rthick'] / DF['rcond']
+        else:
+            DF['Cond'] = DF.iloc[:, 4] * DF.iloc[:, 5] * DF.iloc[:, 9] / DF.iloc[:, 8]
+        DF.insert(4, 'Cond', DF.pop('Cond'))  # Move Cond to column 4
+
+    return DF
 
 
 def SFR_ConnD_to_DF(MdlN: str, Pa_SFR: str = None, iMOD5: bool = None) -> pd.DataFrame:
@@ -739,9 +743,6 @@ def r_Txt_Lns(Pa):
     with open(Pa, 'r', encoding='utf-8') as f:
         l_Ln = f.readlines()
     return l_Ln
-
-
-# --------------------------------------------------------------------------------
 
 
 # Open files ---------------------------------------------------------------------
@@ -843,9 +844,6 @@ def o_LST(
     for f in l_files:
         sp.Popen([Pa_NP] + [f])
         vprint(f'🟢 - {f}')
-
-
-# --------------------------------------------------------------------------------
 
 
 # Formatting + common DF functions -----------------------------------------------
@@ -1056,7 +1054,30 @@ def DF_memory(DF):
     return f'{n:.2f} PB'
 
 
-# --------------------------------------------------------------------------------
+def DF_Rd_Cols(DF, sig_figs=4):
+    """
+    Round all float columns in a pandas DataFrame to a specified number of significant figures.
+    DF : pd.DataFrame : The DataFrame to round.
+    sig_figs : int, optional : The number of significant figures to round to (default is 4).
+
+    Returns: pd.DataFrame : A new DataFrame with rounded float columns.
+    """
+    DF_r = DF.copy()
+
+    for col in DF_r.select_dtypes(include=['float', 'float64', 'float32']).columns:
+        # Create a mask for non-zero and non-NaN values
+        mask = (DF_r[col] != 0) & (DF_r[col].notna())
+        if mask.any():
+            vals = DF_r.loc[mask, col]
+            # Calculate the number of decimal places needed for each value
+            decimals = sig_figs - np.floor(np.log10(np.abs(vals))) - 1
+            decimals = decimals.astype(int)
+
+            # Apply rounding using multiplication method
+            power_of_10 = 10.0**decimals
+            DF_r.loc[mask, col] = np.around(vals * power_of_10) / power_of_10
+
+    return DF_r
 
 
 # Sim Prep + Run -----------------------------------------------------------------
@@ -1634,9 +1655,6 @@ def freeze_pixi_env(MdlN: str):
     except sp.CalledProcessError as e:
         print(f'🔴🔴🔴 Error running command: {e}', file=sys.stderr)
         sys.exit(1)
-
-
-# --------------------------------------------------------------------------------
 
 
 # Edit common text files ---------------------------------------------------------

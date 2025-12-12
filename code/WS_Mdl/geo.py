@@ -11,6 +11,7 @@ from os import makedirs as MDs
 from os.path import basename as PBN
 from os.path import dirname as PDN
 from os.path import join as PJ
+from pathlib import Path
 from typing import Dict, Optional
 
 import geopandas as gpd
@@ -660,6 +661,77 @@ def PRJ_to_TIF(MdlN, iMOD5=False):
     vprint(Sign)
 
 
+def Vtr_to_TIF(Pa_Vtr, Fld, Pa_TIF, MdlN=None, crs=crs, SigDig=4):
+    """
+    Converts a vector file to a single-band TIF file.
+    - MdlN: Model name (e.g. 'NBr13').
+    - Pa_Vtr: Path to the vector file.
+    - Pa_TIF: Path to the output TIF file.
+    - crs: Coordinate Reference System for the output TIF.
+    - SigDig: Number of significant digits to round to (default 4).
+    """
+    vprint(Pre_Sign)
+    if not MdlN:
+        try:
+            MdlN = Path(Pa_Vtr).stem.split('_')[-1]
+        except Exception as e:
+            raise ValueError(f'🔴 - Could not determine MdlN from Pa_Vtr ({e}). Provide MdlN explicitly.')
+    vprint(f'*** {MdlN} *** - Vtr_to_TIF\n')
+
+    # Load V file
+    GDF = gpd.read_file(Pa_Vtr, columns=[Fld])
+    vprint(f'🟢 - Loaded vector file from {PBN(Pa_Vtr)}')
+
+    # Prepare metadata
+    d_MtDt = {
+        f'V_{MdlN}': {
+            'AVG': float(GDF[Fld].mean()),
+            'variable': f'{Fld}',
+            'details': f'{MdlN} vector file converted to TIF via Vtr_to_TIF function.',
+        }
+    }
+
+    # Rasterize
+    try:
+        # Get dimensions from INI
+        d_Pa = U.get_MdlN_Pa(MdlN)
+        Pa_INI = d_Pa['INI']
+        Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = U.Mdl_Dmns_from_INI(Pa_INI)
+
+        x = np.arange(Xmin + cellsize / 2, Xmax, cellsize)
+        y = np.arange(Ymax - cellsize / 2, Ymin, -cellsize)
+
+        like = xr.DataArray(data=np.nan, coords={'y': y, 'x': x}, dims=('y', 'x'))
+        vprint(f'🟢 - Created template grid from {PBN(Pa_INI)}')
+    except Exception as e:
+        raise ValueError(f'🔴 - Could not create grid from INI ({e}). Ensure MdlN is correct and INI file exists.')
+
+    GDF = U.DF_Rd_Cols(GDF)
+    DA = imod.prepare.rasterize(GDF, like=like, column=Fld)
+
+    if SigDig:
+        vprint(f'🟢 - Rounding to {SigDig} significant digits.')
+        if not np.issubdtype(DA.dtype, np.floating):
+            DA = DA.astype(float)
+
+        vals = DA.values
+        valid = (vals != 0) & np.isfinite(vals)
+        if valid.any():
+            v = vals[valid]
+            magnitude = np.floor(np.log10(np.abs(v)))
+            factor = 10.0 ** (SigDig - magnitude - 1)
+            vals[valid] = np.rint(v * factor) / factor
+            DA.values = vals
+
+    # Cast to float32 to reduce file size and precision artifacts
+    DA = DA.astype('float32')
+
+    # Write to TIF
+    DA_to_TIF(DA, Pa_TIF, d_MtDt, crs=crs)
+    vprint(f'🟢🟢🟢 - Saved vector to TIF at {PBN(Pa_TIF)}')
+    vprint(Sign)
+
+
 # HD_IDF speciic PoP (could be extended/generalized at a later stage) ------------
 def HD_IDF_Agg_to_TIF(
     MdlN: str,
@@ -980,6 +1052,8 @@ def SFR_to_GPkg(MdlN: str, crs: str = 28992, Pa_SFR=None, radius: float = None, 
         axis=1,
     )
 
+    DF = U.DF_Rd_Cols(DF)
+
     # Create duplicates of outlet reaches for the routing layer (as LineStrings)
     DF_outlet_duplicates = DF[DF['reach_type'] == 'outlet'].copy()
     DF_outlet_duplicates['geometry'] = DF_outlet_duplicates.apply(
@@ -988,7 +1062,7 @@ def SFR_to_GPkg(MdlN: str, crs: str = 28992, Pa_SFR=None, radius: float = None, 
     )
 
     # --- Save to GPKG as separate layers ---
-    Pa_SHP = PJ(d_Pa['PoP'], f'In/SFR/SFR_{MdlN}.gpkg')
+    Pa_SHP = PJ(d_Pa['PoP'], f'In/SFR/{MdlN}/SFR_{MdlN}.gpkg')
     os.makedirs(PDN(Pa_SHP), exist_ok=True)
 
     # Prepare routing layer: regular routing reaches + outlet duplicates (as LineStrings)
@@ -1014,7 +1088,7 @@ def SFR_to_GPkg(MdlN: str, crs: str = 28992, Pa_SFR=None, radius: float = None, 
         GDF_outlets.to_file(Pa_SHP, driver='GPKG', layer=f'SFR_{MdlN}_Outlets')
         vprint(f'🟢 - SFR outlets layer saved with {len(GDF_outlets)} LineString features (outlets)')
 
-    vprint(f'🟢🟢 - SFR for {MdlN} has been converted to GPKG and saved at:\n\t{Pa_SHP}\n\tDir Pa:\n\t{PDN(Pa_SHP)}')
+    vprint(f'🟢🟢 - SFR for {MdlN} has been converted to Gpkg and saved at:\n\t{Pa_SHP}\n\t')
 
 
 # MM Update ----------------------------------------------------------------------
