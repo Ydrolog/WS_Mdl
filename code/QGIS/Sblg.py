@@ -1,14 +1,14 @@
-from qgis.utils import iface
-from qgis.PyQt.QtGui import QColor
+import math
+
 from qgis.core import (
-    QgsRasterBandStats,
     QgsColorRampShader,
+    QgsProject,
+    QgsRasterBandStats,
     QgsRasterShader,
     QgsSingleBandPseudoColorRenderer,
     QgsStyle,
-    QgsProject,
 )
-import math
+from qgis.utils import iface
 
 # ─────────────────────────────────────────────────────────────────────────────
 # (A) Defaults: if the user doesn’t supply anything, these values are used.
@@ -23,28 +23,78 @@ DEFAULT_STEPS = [1000.0, 100.0, 50.0, 20.0, 10.0, 5.0, 2.0, 1.0, 0.5, 0.25, 0.1]
 
 def choose_classification(raw_min, raw_max, steps, N_class):
     raw_range = raw_max - raw_min
-    best = None  # will hold (padding, –step, N, new_min, new_max)
+    raw_center = (raw_min + raw_max) / 2
+    best = None  # will hold (padding, symmetry_error, -step, N, new_min, new_max)
+
     for step in steps:
         for N in N_class:
             total_span = N * step
             if total_span < raw_range:
                 continue
 
-            # outward rounding:
-            new_min = math.floor(raw_min / step) * step
-            new_max = math.ceil(raw_max / step) * step
+            # We try two alignments: 0-aligned and half-step aligned
+            alignments = []
 
-            # force exact N * step span
-            actual = new_max - new_min
-            if actual > total_span:
-                new_max = new_min + total_span
-            elif actual < total_span:
-                new_max = new_min + total_span
+            # 1. 0-aligned
+            min_0 = math.floor(raw_min / step) * step
+            max_0 = math.ceil(raw_max / step) * step
+            alignments.append((min_0, max_0))
 
-            padding = (new_max - new_min) - raw_range
-            candidate = (padding, -step, N, new_min, new_max)
-            if best is None or candidate < best:
-                best = candidate
+            # 2. Half-step aligned
+            # k * step + step/2
+            k_min = math.floor((raw_min - step / 2) / step)
+            min_half = k_min * step + step / 2
+            k_max = math.ceil((raw_max - step / 2) / step)
+            max_half = k_max * step + step / 2
+            alignments.append((min_half, max_half))
+
+            for base_min, base_max in alignments:
+                actual = base_max - base_min
+                if actual > total_span:
+                    continue  # Cannot fit
+
+                # Distribute slack
+                slack = total_span - actual
+                # slack should be a multiple of step (approx)
+                slack_steps = round(slack / step)
+
+                left_steps = slack_steps // 2
+                right_steps = slack_steps - left_steps
+
+                # Try to balance symmetry
+                # Option A: left <= right
+                final_min_A = base_min - left_steps * step
+                final_max_A = base_max + right_steps * step
+                center_A = (final_min_A + final_max_A) / 2
+                sym_A = abs(center_A - raw_center)
+
+                # Option B: right <= left (if slack_steps is odd)
+                if left_steps != right_steps:
+                    final_min_B = base_min - right_steps * step
+                    final_max_B = base_max + left_steps * step
+                    center_B = (final_min_B + final_max_B) / 2
+                    sym_B = abs(center_B - raw_center)
+
+                    if sym_B < sym_A:
+                        final_min = final_min_B
+                        final_max = final_max_B
+                        sym = sym_B
+                    else:
+                        final_min = final_min_A
+                        final_max = final_max_A
+                        sym = sym_A
+                else:
+                    final_min = final_min_A
+                    final_max = final_max_A
+                    sym = sym_A
+
+                padding = (final_max - final_min) - raw_range
+
+                # We want to minimize padding first, then symmetry error
+                candidate = (padding, sym, -step, N, final_min, final_max)
+
+                if best is None or candidate < best:
+                    best = candidate
 
     if best is None:
         # fallback (very large raw_range)
@@ -54,7 +104,7 @@ def choose_classification(raw_min, raw_max, steps, N_class):
         new_max = new_min + N * step
         return step, N, new_min, new_max
 
-    _, neg_step, N, new_min, new_max = best
+    _, _, neg_step, N, new_min, new_max = best
     return -neg_step, N, new_min, new_max
 
 
@@ -141,9 +191,7 @@ def nice_steps(Ptt=None, N_class=None, step_sizes=None, min=None, max=None):
             continue
 
         # 1) Choose the best (step, N, new_min, new_max) from our lists:
-        step, num_classes, new_min, new_max = choose_classification(
-            raw_min, raw_max, step_sizes, N_class
-        )
+        step, num_classes, new_min, new_max = choose_classification(raw_min, raw_max, step_sizes, N_class)
 
         # 2) Build a discrete pseudocolor shader with exactly N intervals:
         shader = QgsColorRampShader()
