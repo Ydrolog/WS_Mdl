@@ -1174,7 +1174,7 @@ def Up_log(MdlN: str, d_Up: dict, Pa_log=Pa_log):  # Pa_log=PJ(Pa_WS, 'Mng/log.c
                 input('log.csv is open. Press Enter after closing the file...')  # Wait for user input
 
 
-def _RunMng(args):
+def RunSim(args):
     """Helper function that runs a single model's snakemake workflow."""
     _, Se_Ln, cores_per_Sim, generate_dag, no_temp = args
     Pa_Smk = PJ(Pa_WS, f'models/{Se_Ln["model alias"]}/code/snakemake/{Se_Ln["MdlN"]}.smk')
@@ -1269,7 +1269,7 @@ def RunMng(cores=None, DAG: bool = True, Cct_Sims=None, no_temp: bool = True):
 
         # Run models in parallel
         with Pool(processes=Cct_Sims) as pool:
-            results = pool.map(_RunMng, args)
+            results = pool.map(RunSim, args)
 
         # Print results
         for result in results:
@@ -1568,7 +1568,7 @@ def rerun_Sim(MdlN: str, cores=None, DAG: bool = True):
 
         # Run models in parallel
         with Pool(processes=cores) as pool:
-            results = pool.map(_RunMng, args)
+            results = pool.map(RunSim, args)
 
         # Print results
         for result in results:

@@ -769,6 +769,30 @@ def HD_IDF_Agg_to_TIF(
         Name of the aggregation method to call on the xarray.DataArray (e.g. 'mean','min','max','median').
         This must exactly match a DataArray method (e.g. XA.mean(dim='time')).
     """
+
+    def _HD_IDF_Agg_to_TIF_process(paths, Agg_F, Pa_Out, crs, params):
+        """
+        Only for use within HD_IDF_Mo_Avg_to_MBTIF - to utilize multiprocessing.
+        Reads IDFs, aggregates along time, writes each layer as a single-band TIF.
+        """
+        XA = imod.formats.idf.open(paths)
+        XA_agg = getattr(XA, Agg_F)(dim='time')
+        base = Pa_Out[:-4]  # strip “.tif”
+        for layer in XA_agg.layer.values:
+            DA = XA_agg.sel(layer=layer).drop_vars('layer')
+            Out = f'{base}_L{layer}.tif'
+            d_MtDt = {
+                f'{Agg_F}': {
+                    'AVG': float(DA.mean().values),
+                    'coordinates': XA.coords,
+                    'variable': os.path.splitext(PBN(Pa_Out))[0],
+                    'details': f'Calculated using WS_Mdl.geo.py using the following params: {params}',
+                }
+            }
+
+            DA_to_TIF(DA, Out, d_MtDt, crs=crs)
+        return f'{os.path.basename(base)} 🟢 '
+
     vprint(Pre_Sign)
     vprint(f'*** {MdlN} *** - HD_IDF_Agg_to_TIF\n')
 
@@ -829,30 +853,6 @@ def HD_IDF_Agg_to_TIF(
     vprint(Sign)
 
 
-def _HD_IDF_Agg_to_TIF_process(paths, Agg_F, Pa_Out, crs, params):
-    """
-    Only for use within HD_IDF_Mo_Avg_to_MBTIF - to utilize multiprocessing.
-    Reads IDFs, aggregates along time, writes each layer as a single-band TIF.
-    """
-    XA = imod.formats.idf.open(paths)
-    XA_agg = getattr(XA, Agg_F)(dim='time')
-    base = Pa_Out[:-4]  # strip “.tif”
-    for layer in XA_agg.layer.values:
-        DA = XA_agg.sel(layer=layer).drop_vars('layer')
-        Out = f'{base}_L{layer}.tif'
-        d_MtDt = {
-            f'{Agg_F}': {
-                'AVG': float(DA.mean().values),
-                'coordinates': XA.coords,
-                'variable': os.path.splitext(PBN(Pa_Out))[0],
-                'details': f'Calculated using WS_Mdl.geo.py using the following params: {params}',
-            }
-        }
-
-        DA_to_TIF(DA, Out, d_MtDt, crs=crs)
-    return f'{os.path.basename(base)} 🟢 '
-
-
 def HD_Agg_name(group_keys, grouping):  # 666 could be moved to util
     if not isinstance(group_keys, (tuple, list)):
         group_keys = (group_keys,)
@@ -895,6 +895,49 @@ def HD_Agg_name(group_keys, grouping):  # 666 could be moved to util
 def HD_IDF_GXG_to_TIF(MdlN: str, N_cores: int = None, crs: str = crs, rules: str = None, iMOD5=False):
     """Reads Sim Out IDF files from the model directory and calculates GXG for each L. Saves them as MultiBand TIF files - each band representing one of the GXG params for a L."""
 
+    def _HD_IDF_GXG_to_TIF_per_L(DF, L, MdlN, Pa_PoP, Pa_HD, crs):
+        """Only for use within HD_IDF_GXG_to_TIF - to utilize multiprocessing."""
+
+        # Load HD files corresponding to the L to an XA
+        l_IDF_L = list(DF.loc[DF['L'] == 1, 'path'])
+        XA = imod.idf.open(l_IDF_L)
+
+        # Calculate Variables
+        GXG = imod.evaluate.calculate_gxg(XA.squeeze())
+        GXG = GXG.rename_vars({var: var.upper() for var in GXG.data_vars})
+        N_years_GXG = (
+            GXG['N_YEARS_GXG'].values
+            if GXG['N_YEARS_GXG'].values.max() != GXG['N_YEARS_GXG'].values.min()
+            else int(GXG['N_YEARS_GXG'].values[0, 0])
+        )
+        N_years_GVG = (
+            GXG['N_YEARS_GVG'].values
+            if GXG['N_YEARS_GVG'].values.max() != GXG['N_YEARS_GVG'].values.min()
+            else int(GXG['N_YEARS_GVG'].values[0, 0])
+        )
+        GXG['GHG_m_GLG'] = GXG['GHG'] - GXG['GLG']
+        GXG = GXG[['GHG', 'GLG', 'GHG_m_GLG', 'GVG']]
+
+        # Save to TIF
+        MDs(PJ(Pa_PoP, 'Out', MdlN, 'GXG'), exist_ok=True)
+        for V in GXG.data_vars:
+            Pa_Out = PJ(Pa_PoP, 'Out', MdlN, 'GXG', f'{V}_L{L}_{MdlN}.tif')
+
+            d_MtDt = {
+                f'{V}_L{L}_{MdlN}': {
+                    'AVG': float(GXG[V].mean().values),
+                    'coordinates': XA.coords,
+                    'N_years': N_years_GVG if V == 'GVG' else N_years_GXG,
+                    'variable': os.path.splitext(PBN(Pa_Out))[0],
+                    'details': f'{MdlN} {V} calculated from (path: {Pa_HD}), via function described in: https://deltares.github.io/imod-python/api/generated/evaluate/imod.evaluate.calculate_gxg.html',
+                }
+            }
+
+            DA = GXG[V]
+            DA_to_TIF(DA, Pa_Out, d_MtDt, crs=crs, _print=False)
+
+        return f'L{L} 🟢'
+
     vprint(Pre_Sign)
     vprint(f'*** {MdlN} *** - HD_IDF_GXG_to_TIF\n')
 
@@ -918,50 +961,6 @@ def HD_IDF_GXG_to_TIF(MdlN: str, N_cores: int = None, crs: str = crs, rules: str
 
     vprint('🟢🟢🟢 | Total elapsed:', DT.now() - start)
     vprint(Sign)
-
-
-def _HD_IDF_GXG_to_TIF_per_L(DF, L, MdlN, Pa_PoP, Pa_HD, crs):
-    """Only for use within HD_IDF_GXG_to_TIF - to utilize multiprocessing."""
-
-    # Load HD files corresponding to the L to an XA
-    l_IDF_L = list(DF.loc[DF['L'] == 1, 'path'])
-    XA = imod.idf.open(l_IDF_L)
-
-    # Calculate Variables
-    GXG = imod.evaluate.calculate_gxg(XA.squeeze())
-    GXG = GXG.rename_vars({var: var.upper() for var in GXG.data_vars})
-    N_years_GXG = (
-        GXG['N_YEARS_GXG'].values
-        if GXG['N_YEARS_GXG'].values.max() != GXG['N_YEARS_GXG'].values.min()
-        else int(GXG['N_YEARS_GXG'].values[0, 0])
-    )
-    N_years_GVG = (
-        GXG['N_YEARS_GVG'].values
-        if GXG['N_YEARS_GVG'].values.max() != GXG['N_YEARS_GVG'].values.min()
-        else int(GXG['N_YEARS_GVG'].values[0, 0])
-    )
-    GXG['GHG_m_GLG'] = GXG['GHG'] - GXG['GLG']
-    GXG = GXG[['GHG', 'GLG', 'GHG_m_GLG', 'GVG']]
-
-    # Save to TIF
-    MDs(PJ(Pa_PoP, 'Out', MdlN, 'GXG'), exist_ok=True)
-    for V in GXG.data_vars:
-        Pa_Out = PJ(Pa_PoP, 'Out', MdlN, 'GXG', f'{V}_L{L}_{MdlN}.tif')
-
-        d_MtDt = {
-            f'{V}_L{L}_{MdlN}': {
-                'AVG': float(GXG[V].mean().values),
-                'coordinates': XA.coords,
-                'N_years': N_years_GVG if V == 'GVG' else N_years_GXG,
-                'variable': os.path.splitext(PBN(Pa_Out))[0],
-                'details': f'{MdlN} {V} calculated from (path: {Pa_HD}), via function described in: https://deltares.github.io/imod-python/api/generated/evaluate/imod.evaluate.calculate_gxg.html',
-            }
-        }
-
-        DA = GXG[V]
-        DA_to_TIF(DA, Pa_Out, d_MtDt, crs=crs, _print=False)
-
-    return f'L{L} 🟢'
 
 
 # SFR ----------------------------------------------------------------------------
