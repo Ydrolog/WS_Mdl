@@ -62,8 +62,6 @@ def get_repo_root():
 
 
 Pa_WS = get_repo_root()
-# if VERBOSE:
-#     print(f'Using repository root for Pa_WS: {Pa_WS}')
 Pa_RunLog = PJ(Pa_WS, 'Mng/RunLog.xlsx')
 Pa_log = PJ(Pa_WS, 'Mng/log.csv')
 ## Can make get paths function that will provide the general directories, like Pa_WS, Pa_Mdl. Those can be derived from a folder structure.
@@ -460,14 +458,17 @@ def INI_to_d(Pa_INI: str) -> dict:
 
 
 def Mdl_Dmns_from_INI(
-    Pa_INI,
+    Pa_INI, MdlN: str = None
 ):  # 666 Can be improved. It should take a MdlN instead of a path. Makes things easier.
     """
     Returns model dimension parameters. Common use:
     import WS_Mdl.utils as U
     Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = U.Mdl_Dmns_from_INI(d_Pa['INI'])
     """
-    d_INI = INI_to_d(Pa_INI)
+    if MdlN:
+        d_INI = INI_to_d(get_MdlN_Pa(MdlN)['INI'])
+    else:
+        d_INI = INI_to_d(Pa_INI)
     Xmin, Ymin, Xmax, Ymax = [float(i) for i in d_INI['WINDOW'].split(',')]
     cellsize = float(d_INI['CELLSIZE'])
     N_R, N_C = int(-(Ymin - Ymax) / cellsize), int((Xmax - Xmin) / cellsize)
@@ -540,12 +541,9 @@ def MF6_block_to_DF(
     **read_csv_kwargs,
 ) -> pd.DataFrame:
     """
-    Read the lines between ``BEGIN <block>`` and ``END <block>`` in a MODFLOW-6 file
-    into a pandas DataFrame.
+    Read the lines between ``BEGIN <block>`` and ``END <block>`` in a MODFLOW-6 file into a pandas DataFrame.
 
-    A single comment line that **begins with ``#`` directly in front of the first data
-    row** (i.e. before any non-comment, non-blank line is seen) is interpreted as the
-    column names for the resulting DF, regardless of *has_header*.
+    A single comment line that **begins with ``#`` directly in front of the first data row** (i.e. before any non-comment, non-blank line is seen) is interpreted as the column names for the resulting DF, regardless of *has_header*.
 
     Parameters
     ----------
