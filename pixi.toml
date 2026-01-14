@@ -1,6 +1,6 @@
 [project]
 authors = ["Marios Karampasis <marios.karampasis@uu.nl>"]
-channels = ["conda-forge"]
+channels = ["conda-forge", "bioconda"]
 description = "Initially created by JoerivanEngelen <joeri.vanengelen@deltares.nl, so that I can run imod_coupler. I then added more libs to be able to run WS_Mdl functions."
 name = "pixi"
 platforms = ["win-64"]
@@ -23,6 +23,7 @@ pytest = "*"
 itables = ">=2.5.2,<3"
 plotly = "*"
 graphviz = ">=14.0.5,<15"
+ibridges = ">=2.0.1,<3"
 
 [pypi-dependencies]
 snakemake = "*"
