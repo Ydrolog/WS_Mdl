@@ -1,4 +1,4 @@
-[project]
+[workspace]
 authors = ["Marios Karampasis <marios.karampasis@uu.nl>"]
 channels = ["conda-forge", "bioconda"]
 description = "Initially created by JoerivanEngelen <joeri.vanengelen@deltares.nl, so that I can run imod_coupler. I then added more libs to be able to run WS_Mdl functions."

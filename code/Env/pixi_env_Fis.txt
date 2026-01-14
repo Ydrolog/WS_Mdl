@@ -1,4 +1,4 @@
-C:\OD\WS_Mdl\code\pixi.lock
-C:\OD\WS_Mdl\code\pixi.toml
-C:\OD\WS_Mdl\code\setup.py
-C:\OD\WS_Mdl\code\WS_Mdl
+G:\pixi.lock
+G:\pixi.toml
+G:\setup.py
+G:\code\WS_Mdl\*
