@@ -1,7 +1,7 @@
 # pixi Env guide
 -----------------------------------------
 This project uses **pixi** for managing dependencies. Why? So that Sims are reproducible and old code works.
-Pixi is also more robust/secure and fast than conda or any other package manager that I know, hence it was chosen.
+It would be possible to use other package managers, but we chose pixi because they use it at Deltares for locking specific imod python hashes.
 For more details check: https://pixi.sh/latest/
 
 This guide explains how to use **pixi** to create, reproduce, and share the software environment for the *WS_Mdl* project.
@@ -54,11 +54,11 @@ To activate it run:
 pixi shell
 This needs to be run inside the repo folder. It can be run in downstream folders as well, pixi will look upstream when there isn't a pixi.lock file in the activate folder.
 
-## 3. To export.
+## 4. To export.
 1. You don't have to do anything manually. If you've editted the WS_Mdl package, the new tag and hash will be recorded in the RunLog. Then the next time follow the guide in paragraph 2.
 	In case you want to share with someone who doesn't use pixi, it might be possible via:
 	pixi workspace export conda-environment env.yml
-2. If you want to **install a new library** or switch to a specific version, use:
+2. If you want to **install a new library** or switch to a specific version, use e.g.:
 pixi add --pypi "rasterio>=1.3"
 
 3. **Solve & lock**
