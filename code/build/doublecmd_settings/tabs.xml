@@ -1,0 +1,392 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doublecmd>
+  <Tabs>
+    <OpenedTabs>
+      <Left>
+        <ActiveTab>2</ActiveTab>
+        <Tab>
+          <FileView Type="columns">
+            <Sortings>
+              <Sorting>
+                <Direction>1</Direction>
+                <Function>12</Function>
+              </Sorting>
+            </Sortings>
+            <History>
+              <Entry Active="True">
+                <FileSource Type="FileSystem"/>
+                <Paths>
+                  <Path Filename="CHD">G:\models\NBr\In\</Path>
+                  <Path Filename="NBr1">G:\models\NBr\In\CHD\</Path>
+                  <Path Filename="HEAD_19930101_L1_NBr1.IDF">G:\models\NBr\In\CHD\NBr1\</Path>
+                  <Path Filename="NBr5">G:\models\NBr\In\CHD\</Path>
+                  <Path Filename="HEAD_20100114_L1_NBr5.IDF">G:\models\NBr\In\CHD\NBr5\</Path>
+                  <Path Filename="NBr5">G:\models\NBr\In\CHD\</Path>
+                  <Path Filename="CAP">G:\models\NBr\In\</Path>
+                  <Path Filename="P">G:\models\NBr\In\CAP\</Path>
+                  <Path Filename="NBr1">G:\models\NBr\In\CAP\P\</Path>
+                  <Path Filename="P_19910101_NBr1.asc">G:\models\NBr\In\CAP\P\NBr1\</Path>
+                  <Path Filename="NBr3">G:\models\NBr\In\CAP\P\</Path>
+                  <Path Filename="_Info.txt">G:\models\NBr\In\CAP\P\NBr3\</Path>
+                  <Path Filename="CAP_P_NBr1.tar.gz">G:\models\NBr\In\CAP\P\</Path>
+                  <Path Filename="PET">G:\models\NBr\In\CAP\</Path>
+                  <Path Filename="NBr1">G:\models\NBr\In\CAP\PET\</Path>
+                  <Path Filename="..">G:\models\NBr\In\CAP\PET\NBr1\</Path>
+                  <Path Filename="NBr1.dvc">G:\models\NBr\In\CAP\PET\</Path>
+                  <Path Filename="PET">G:\models\NBr\In\CAP\</Path>
+                  <Path Filename="CAP_PET_NBr1.tar.gz">G:\models\NBr\In\CAP\PET\</Path>
+                  <Path Filename="P">G:\models\NBr\In\CAP\</Path>
+                  <Path Filename="NBr1">G:\models\NBr\In\CAP\P\</Path>
+                  <Path Filename="P">G:\models\NBr\In\CAP\</Path>
+                  <Path Filename="CHD">G:\models\NBr\In\</Path>
+                  <Path Filename="NBr5">G:\models\NBr\In\CHD\</Path>
+                  <Path Filename="CAP">G:\models\NBr\In\</Path>
+                  <Path Filename="P">G:\models\NBr\In\CAP\</Path>
+                  <Path Filename="NBr_CAP_P_NBr3.tar.gz">G:\models\NBr\In\CAP\P\</Path>
+                  <Path Filename="PET">G:\models\NBr\In\CAP\</Path>
+                  <Path Filename="NBr_CAP_PET_NBr1.tar.gz">G:\models\NBr\In\CAP\PET\</Path>
+                  <Path Filename="PET">G:\models\NBr\In\CAP\</Path>
+                  <Path Filename="CHD">G:\models\NBr\In\</Path>
+                  <Path Filename="NBr1.dvc">G:\models\NBr\In\CHD\</Path>
+                  <Path Filename="CHD">G:\models\NBr\In\</Path>
+                  <Path Filename="..">G:\models\NBr\In\CHD\</Path>
+                  <Path Filename="CAP">G:\models\NBr\In\</Path>
+                  <Path Filename="P">G:\models\NBr\In\CAP\</Path>
+                  <Path Filename="how_to_compress.md">G:\models\NBr\In\CAP\P\</Path>
+                  <Path Filename="PET">G:\models\NBr\In\CAP\</Path>
+                  <Path Filename="..">G:\models\NBr\In\CAP\PET\</Path>
+                  <Path Filename="PET">G:\models\NBr\In\CAP\</Path>
+                  <Path Filename="CHD">G:\models\NBr\In\</Path>
+                  <Path Filename="NBr5">G:\models\NBr\In\CHD\</Path>
+                  <Path Filename="Metadata.txt">G:\models\NBr\In\CHD\NBr5\</Path>
+                  <Path Filename="NBr1">G:\models\NBr\In\CHD\</Path>
+                  <Path Filename="TS_range_show_plot.py">G:\models\NBr\In\CHD\NBr1\</Path>
+                  <Path Filename="NBr5">G:\models\NBr\In\CHD\</Path>
+                  <Path Filename="HEAD_20181228_L37_NBr5.tif.aux.xml">G:\models\NBr\In\CHD\NBr5\</Path>
+                  <Path Filename="NBr5">G:\models\NBr\In\CHD\</Path>
+                  <Path Filename="CHD">G:\models\NBr\In\</Path>
+                  <Path Filename="NBr5">G:\models\NBr\In\CHD\</Path>
+                </Paths>
+              </Entry>
+            </History>
+            <ColumnsView>
+              <ColumnsSet>Default</ColumnsSet>
+            </ColumnsView>
+          </FileView>
+        </Tab>
+        <Tab>
+          <FileView Type="columns">
+            <Sortings>
+              <Sorting>
+                <Direction>1</Direction>
+                <Function>12</Function>
+              </Sorting>
+            </Sortings>
+            <History>
+              <Entry Active="True">
+                <FileSource Type="FileSystem"/>
+                <Paths>
+                  <Path Filename="code">G:\</Path>
+                  <Path Filename="build">G:\code\</Path>
+                  <Path Filename="launch_PS_pixi.bat">G:\code\build\</Path>
+                  <Path Filename="build">G:\code\</Path>
+                  <Path Filename="other">G:\</Path>
+                  <Path Filename="plugins">G:\other\</Path>
+                  <Path Filename="plugin-windows-anaconda-environment.ps1">G:\other\plugins\</Path>
+                  <Path Filename="plugins">G:\other\</Path>
+                  <Path Filename="other">G:\</Path>
+                  <Path Filename="plugins">G:\other\</Path>
+                  <Path Filename="PS_install_pixi.ps1">G:\other\plugins\</Path>
+                  <Path Filename="plugins">G:\other\</Path>
+                  <Path Filename="code">G:\</Path>
+                  <Path Filename="build">G:\code\</Path>
+                  <Path Filename="..">G:\code\build\</Path>
+                  <Path Filename="build">G:\code\</Path>
+                  <Path Filename="..">G:\code\build\</Path>
+                  <Path Filename="build">G:\code\</Path>
+                  <Path Filename="code">G:\</Path>
+                  <Path Filename="..">C:\Users\Karam014\OneDrive - Universiteit Utrecht\Documents\TeachingAssistance\QWM\</Path>
+                  <Path Filename="QWM">C:\Users\Karam014\OneDrive - Universiteit Utrecht\Documents\TeachingAssistance\</Path>
+                  <Path Filename="TeachingAssistance">C:\Users\Karam014\OneDrive - Universiteit Utrecht\Documents\</Path>
+                  <Path Filename="Documents">C:\Users\Karam014\OneDrive - Universiteit Utrecht\</Path>
+                  <Path Filename=".irods">C:\Users\Karam014\</Path>
+                  <Path Filename="irods_environment(2).json">C:\Users\Karam014\.irods\</Path>
+                  <Path Filename=".gocmd">C:\Users\Karam014\</Path>
+                  <Path Filename="config.yml">C:\Users\Karam014\.gocmd\</Path>
+                  <Path Filename=".irods">C:\Users\Karam014\</Path>
+                  <Path Filename=".irodsA">C:\Users\Karam014\.irods\</Path>
+                  <Path Filename=".gocmd">C:\Users\Karam014\</Path>
+                  <Path Filename="config.yml.25868">C:\Users\Karam014\.gocmd\</Path>
+                  <Path Filename=".irods">C:\Users\Karam014\</Path>
+                  <Path Filename="Ss">C:\Users\Karam014\.irods\</Path>
+                  <Path Filename="..">C:\Users\Karam014\.irods\Ss\</Path>
+                  <Path Filename="20260114_pass.txt">C:\Users\Karam014\.irods\</Path>
+                  <Path Filename="..">g:\models\NBr\code\snakemake\</Path>
+                  <Path Filename="snakemake">g:\models\NBr\code\</Path>
+                  <Path Filename="code">g:\models\NBr\</Path>
+                  <Path Filename="NBr">g:\models\</Path>
+                  <Path Filename="Mng">g:\</Path>
+                  <Path Filename="TimeTracker.xlsx - Shortcut.lnk">g:\Mng\</Path>
+                  <Path Filename="code">g:\</Path>
+                  <Path Filename="Py">g:\code\</Path>
+                  <Path Filename="iBridges">g:\code\Py\</Path>
+                  <Path Filename="data">g:\code\Py\iBridges\</Path>
+                  <Path Active="True" Filename="Upl_Dates.py">g:\code\Py\iBridges\data\</Path>
+                  <Path Filename="data">g:\code\Py\iBridges\</Path>
+                  <Path Filename="iBridges">g:\code\Py\</Path>
+                  <Path Filename="Py">g:\code\</Path>
+                  <Path Filename="setup.py">g:\</Path>
+                </Paths>
+              </Entry>
+            </History>
+            <ColumnsView>
+              <ColumnsSet>Default</ColumnsSet>
+            </ColumnsView>
+          </FileView>
+        </Tab>
+        <Tab>
+          <FileView Type="columns">
+            <Sortings>
+              <Sorting>
+                <Direction>2</Direction>
+                <Function>7</Function>
+              </Sorting>
+            </Sortings>
+            <History>
+              <Entry Active="True">
+                <FileSource Type="FileSystem"/>
+                <Paths>
+                  <Path Filename="sel_key_svat_per">G:\models\NBr\In\CAP\</Path>
+                  <Path Filename="..">G:\models\NBr\In\CAP\sel_key_svat_per\</Path>
+                  <Path Filename="sel_key_svat_per">G:\models\NBr\In\CAP\</Path>
+                  <Path Filename="NBr1">G:\models\NBr\In\CAP\sel_key_svat_per\</Path>
+                  <Path Filename="..">G:\models\NBr\In\CAP\sel_key_svat_per\NBr1\</Path>
+                  <Path Filename="NBr1">G:\models\NBr\In\CAP\sel_key_svat_per\</Path>
+                  <Path Filename="RZN">G:\models\NBr\In\CAP\</Path>
+                  <Path Filename="RZN_NBr1.idf">G:\models\NBr\In\CAP\RZN\</Path>
+                  <Path Filename="PET">G:\models\NBr\In\CAP\</Path>
+                  <Path Filename="..">G:\models\NBr\In\CAP\PET\</Path>
+                  <Path Filename="para_sim">G:\models\NBr\In\CAP\</Path>
+                  <Path Filename="NBr1">G:\models\NBr\In\CAP\para_sim\</Path>
+                  <Path Filename="..">G:\models\NBr\In\CAP\para_sim\NBr1\</Path>
+                  <Path Filename="NBr2">G:\models\NBr\In\CAP\para_sim\</Path>
+                  <Path Filename="Ss">G:\models\NBr\In\CAP\para_sim\NBr2\</Path>
+                  <Path Filename="NBr2">G:\models\NBr\In\CAP\para_sim\</Path>
+                  <Path Filename="PET">G:\models\NBr\In\CAP\</Path>
+                  <Path Filename="NBr1">G:\models\NBr\In\CAP\PET\</Path>
+                  <Path Filename="P">G:\models\NBr\In\CAP\</Path>
+                  <Path Filename="NBr3">G:\models\NBr\In\CAP\P\</Path>
+                  <Path Filename="PET">G:\models\NBr\In\CAP\</Path>
+                  <Path Filename="..">G:\models\NBr\In\CAP\PET\</Path>
+                  <Path Filename="P">G:\models\NBr\In\CAP\</Path>
+                  <Path Filename="NBr1.dvc">G:\models\NBr\In\CAP\P\</Path>
+                  <Path Filename="para_sim">G:\models\NBr\In\CAP\</Path>
+                  <Path Filename="NBr1">G:\models\NBr\In\CAP\para_sim\</Path>
+                  <Path Filename="P">G:\models\NBr\In\CAP\</Path>
+                  <Path Filename="how_to_compress.md">G:\models\NBr\In\CAP\P\</Path>
+                  <Path Filename="PET">G:\models\NBr\In\CAP\</Path>
+                  <Path Filename="NBr1">G:\models\NBr\In\CAP\PET\</Path>
+                  <Path Filename="P">G:\models\NBr\In\CAP\</Path>
+                  <Path Filename="how_to_compress.md">G:\models\NBr\In\CAP\P\</Path>
+                  <Path Filename="PET">G:\models\NBr\In\CAP\</Path>
+                  <Path Filename="..">G:\models\NBr\In\CAP\PET\</Path>
+                  <Path Filename="LGN">G:\models\NBr\In\CAP\</Path>
+                  <Path Filename="CHD">G:\models\NBr\In\</Path>
+                  <Path Filename="In">G:\models\NBr\</Path>
+                  <Path Filename="CHD">G:\models\NBr\In\</Path>
+                  <Path Filename="NBr1">G:\models\NBr\In\CHD\</Path>
+                  <Path Filename="HEAD_19930101_L1_NBr1.IDF">G:\models\NBr\In\CHD\NBr1\</Path>
+                  <Path Filename="NBr5">G:\models\NBr\In\CHD\</Path>
+                  <Path Filename="HEAD_20100114_L1_NBr5.IDF">G:\models\NBr\In\CHD\NBr5\</Path>
+                  <Path Filename="NBr5">G:\models\NBr\In\CHD\</Path>
+                  <Path Filename="CHD">G:\models\NBr\In\</Path>
+                  <Path Filename="In">G:\models\NBr\</Path>
+                  <Path Filename="NBr">G:\models\</Path>
+                  <Path Filename="code">G:\</Path>
+                  <Path Filename="build">G:\code\</Path>
+                  <Path Filename="doublecmd_settings">G:\code\build\</Path>
+                  <Path Filename="session.ini">G:\code\build\doublecmd_settings\</Path>
+                </Paths>
+              </Entry>
+            </History>
+            <ColumnsView>
+              <ColumnsSet>Default</ColumnsSet>
+            </ColumnsView>
+          </FileView>
+        </Tab>
+      </Left>
+      <Right>
+        <ActiveTab>0</ActiveTab>
+        <Tab>
+          <FileView Type="columns">
+            <Sortings>
+              <Sorting>
+                <Direction>2</Direction>
+                <Function>7</Function>
+              </Sorting>
+            </Sortings>
+            <History>
+              <Entry>
+                <FileSource Type="FileSystem"/>
+                <Paths>
+                  <Path Filename="NBr39_20251125_111237.log">g:\models\NBr\code\snakemake\log\</Path>
+                  <Path Filename="log">g:\models\NBr\code\snakemake\</Path>
+                  <Path Filename="Mdl_Prep">g:\models\NBr\code\</Path>
+                  <Path Filename="Mdl_Prep_NBr3.ini">g:\models\NBr\code\Mdl_Prep\</Path>
+                  <Path Filename="Mdl_Prep">g:\models\NBr\code\</Path>
+                  <Path Filename="code">g:\models\NBr\</Path>
+                  <Path Filename="Mdl_Prep">g:\models\NBr\code\</Path>
+                  <Path Filename="code">g:\models\NBr\</Path>
+                  <Path Filename="snakemake">g:\models\NBr\code\</Path>
+                  <Path Filename="NBr39.smk">g:\models\NBr\code\snakemake\</Path>
+                  <Path Filename="snakemake">g:\models\NBr\code\</Path>
+                  <Path Filename="log">g:\models\NBr\code\snakemake\</Path>
+                  <Path Filename="NBr39_20251125_111237.log">g:\models\NBr\code\snakemake\log\</Path>
+                  <Path Filename="log">g:\models\NBr\code\snakemake\</Path>
+                  <Path Filename="NBr43_20251203_142035.log">g:\models\NBr\code\snakemake\log\</Path>
+                  <Path Filename="temp">g:\models\NBr\code\snakemake\</Path>
+                  <Path Filename="..">g:\models\NBr\code\snakemake\temp\</Path>
+                  <Path Filename="log">g:\models\NBr\code\snakemake\</Path>
+                  <Path Filename="NBr43_20251203_142035.log">g:\models\NBr\code\snakemake\log\</Path>
+                  <Path Filename="log">g:\models\NBr\code\snakemake\</Path>
+                  <Path Filename="snakemake">g:\models\NBr\code\</Path>
+                  <Path Filename="temp">g:\models\NBr\code\snakemake\</Path>
+                  <Path Filename="Log_freeze_env_NBr39">g:\models\NBr\code\snakemake\temp\</Path>
+                  <Path Filename="temp">g:\models\NBr\code\snakemake\</Path>
+                  <Path Filename="Mdl_Prep">g:\models\NBr\code\</Path>
+                  <Path Filename=".snakemake">g:\models\NBr\</Path>
+                  <Path Filename="log">g:\models\NBr\.snakemake\</Path>
+                  <Path Filename="2025-10-13T092052.799896.snakemake.log">g:\models\NBr\.snakemake\log\</Path>
+                  <Path Filename="log">g:\models\NBr\.snakemake\</Path>
+                  <Path Filename=".snakemake">g:\models\NBr\</Path>
+                  <Path Filename="metadata">g:\models\NBr\.snakemake\</Path>
+                  <Path Filename="code">g:\models\NBr\</Path>
+                  <Path Filename="Mdl_Prep">g:\models\NBr\code\</Path>
+                  <Path Filename="Ss">g:\models\NBr\code\Mdl_Prep\</Path>
+                  <Path Filename="snakemake">g:\models\NBr\code\</Path>
+                  <Path Filename="log">g:\models\NBr\code\snakemake\</Path>
+                  <Path Filename="NBr43_20251204_112331.log">g:\models\NBr\code\snakemake\log\</Path>
+                  <Path Filename="log">g:\models\NBr\code\snakemake\</Path>
+                  <Path Filename="NBr13_20250522_174855.log">g:\models\NBr\code\snakemake\log\</Path>
+                  <Path Filename="log">g:\models\NBr\code\snakemake\</Path>
+                  <Path Filename="NBr43_20251204_115724.log">g:\models\NBr\code\snakemake\log\</Path>
+                  <Path Filename="log">g:\models\NBr\code\snakemake\</Path>
+                  <Path Filename="Ss">g:\models\NBr\code\snakemake\log\</Path>
+                  <Path Filename="..">g:\models\NBr\code\snakemake\log\Ss\</Path>
+                  <Path Filename="Ss">g:\models\NBr\code\snakemake\log\</Path>
+                  <Path Filename="log">g:\models\NBr\code\snakemake\</Path>
+                  <Path Filename="NBr39_20251125_094530.log">g:\models\NBr\code\snakemake\log\</Path>
+                  <Path Filename="DAG">g:\models\NBr\code\snakemake\</Path>
+                  <Path Filename="snakemake">g:\models\NBr\code\</Path>
+                </Paths>
+              </Entry>
+              <Entry Active="True">
+                <FileSource Type="FileSystem"/>
+                <Paths>
+                  <Path Filename="research-ws-imod">Y:\</Path>
+                  <Path Filename="data">Y:\research-ws-imod\</Path>
+                  <Path Filename="..">Y:\research-ws-imod\data\</Path>
+                  <Path Filename="data">Y:\research-ws-imod\</Path>
+                  <Path Filename="MetaSWAP_DB">Y:\research-ws-imod\data\</Path>
+                  <Path Filename="MetaSWAP_DB">Y:\research-ws-imod\data\MetaSWAP_DB\</Path>
+                  <Path Filename="..">Y:\research-ws-imod\data\MetaSWAP_DB\MetaSWAP_DB\</Path>
+                  <Path Filename="LHM2018_v02v">Y:\research-ws-imod\data\MetaSWAP_DB\</Path>
+                  <Path Filename="LHM2018_v02v">Y:\research-ws-imod\data\MetaSWAP_DB\LHM2018_v02v\</Path>
+                  <Path Filename="21">Y:\research-ws-imod\data\MetaSWAP_DB\LHM2018_v02v\LHM2018_v02v\</Path>
+                  <Path Filename="LHM2018_v02v">Y:\research-ws-imod\data\MetaSWAP_DB\LHM2018_v02v\</Path>
+                  <Path Filename="LHM2018_v02v">Y:\research-ws-imod\data\MetaSWAP_DB\</Path>
+                  <Path Filename="MetaSWAP_DB">Y:\research-ws-imod\data\</Path>
+                  <Path Filename="..">Y:\research-ws-imod\data\MetaSWAP_DB\</Path>
+                  <Path Filename="MSW_DB.7z">Y:\research-ws-imod\data\</Path>
+                  <Path Filename="MSW_DB.7z">Y:\research-ws-imod\data\MSW_DB.7z\</Path>
+                  <Path Filename="MetaSWAP_DB">Y:\research-ws-imod\data\</Path>
+                  <Path Filename="data">Y:\research-ws-imod\</Path>
+                  <Path Filename="MSW_DB.7z">Y:\research-ws-imod\data\</Path>
+                  <Path Filename="data">Y:\research-ws-imod\</Path>
+                  <Path Filename="Dates.csv">Y:\research-ws-imod\data\</Path>
+                  <Path Filename="data">Y:\research-ws-imod\</Path>
+                  <Path Filename="research-ws-imod">Y:\</Path>
+                  <Path Filename="data">Y:\research-ws-imod\</Path>
+                  <Path Filename="Dates.csv">Y:\research-ws-imod\data\</Path>
+                </Paths>
+              </Entry>
+            </History>
+            <ColumnsView>
+              <ColumnsSet>Default</ColumnsSet>
+            </ColumnsView>
+          </FileView>
+        </Tab>
+        <Tab>
+          <FileView Type="columns">
+            <Sortings>
+              <Sorting>
+                <Direction>1</Direction>
+                <Function>12</Function>
+              </Sorting>
+            </Sortings>
+            <History>
+              <Entry Active="True">
+                <FileSource Type="FileSystem"/>
+                <Paths>
+                  <Path Filename="Mdl_Prep">g:\models\NBr\code\</Path>
+                  <Path Filename="code">g:\models\NBr\</Path>
+                  <Path Filename="Mdl_Prep">g:\models\NBr\code\</Path>
+                  <Path Filename="code">g:\models\NBr\</Path>
+                  <Path Filename="snakemake">g:\models\NBr\code\</Path>
+                  <Path Filename="NBr39.smk">g:\models\NBr\code\snakemake\</Path>
+                  <Path Filename="snakemake">g:\models\NBr\code\</Path>
+                  <Path Filename="log">g:\models\NBr\code\snakemake\</Path>
+                  <Path Filename="NBr39_20251125_111237.log">g:\models\NBr\code\snakemake\log\</Path>
+                  <Path Filename="log">g:\models\NBr\code\snakemake\</Path>
+                  <Path Filename="NBr43_20251203_142035.log">g:\models\NBr\code\snakemake\log\</Path>
+                  <Path Filename="temp">g:\models\NBr\code\snakemake\</Path>
+                  <Path Filename="..">g:\models\NBr\code\snakemake\temp\</Path>
+                  <Path Filename="log">g:\models\NBr\code\snakemake\</Path>
+                  <Path Filename="NBr43_20251203_142035.log">g:\models\NBr\code\snakemake\log\</Path>
+                  <Path Filename="log">g:\models\NBr\code\snakemake\</Path>
+                  <Path Filename="snakemake">g:\models\NBr\code\</Path>
+                  <Path Filename="temp">g:\models\NBr\code\snakemake\</Path>
+                  <Path Filename="Log_freeze_env_NBr39">g:\models\NBr\code\snakemake\temp\</Path>
+                  <Path Filename="temp">g:\models\NBr\code\snakemake\</Path>
+                  <Path Filename="Mdl_Prep">g:\models\NBr\code\</Path>
+                  <Path Filename=".snakemake">g:\models\NBr\</Path>
+                  <Path Filename="log">g:\models\NBr\.snakemake\</Path>
+                  <Path Filename="2025-10-13T092052.799896.snakemake.log">g:\models\NBr\.snakemake\log\</Path>
+                  <Path Filename="log">g:\models\NBr\.snakemake\</Path>
+                  <Path Filename=".snakemake">g:\models\NBr\</Path>
+                  <Path Filename="metadata">g:\models\NBr\.snakemake\</Path>
+                  <Path Filename="code">g:\models\NBr\</Path>
+                  <Path Filename="Mdl_Prep">g:\models\NBr\code\</Path>
+                  <Path Filename="Ss">g:\models\NBr\code\Mdl_Prep\</Path>
+                  <Path Filename="snakemake">g:\models\NBr\code\</Path>
+                  <Path Filename="log">g:\models\NBr\code\snakemake\</Path>
+                  <Path Filename="NBr43_20251204_112331.log">g:\models\NBr\code\snakemake\log\</Path>
+                  <Path Filename="log">g:\models\NBr\code\snakemake\</Path>
+                  <Path Filename="NBr13_20250522_174855.log">g:\models\NBr\code\snakemake\log\</Path>
+                  <Path Filename="log">g:\models\NBr\code\snakemake\</Path>
+                  <Path Filename="NBr43_20251204_115724.log">g:\models\NBr\code\snakemake\log\</Path>
+                  <Path Filename="log">g:\models\NBr\code\snakemake\</Path>
+                  <Path Filename="Ss">g:\models\NBr\code\snakemake\log\</Path>
+                  <Path Filename="..">g:\models\NBr\code\snakemake\log\Ss\</Path>
+                  <Path Filename="Ss">g:\models\NBr\code\snakemake\log\</Path>
+                  <Path Filename="log">g:\models\NBr\code\snakemake\</Path>
+                  <Path Filename="NBr39_20251125_094530.log">g:\models\NBr\code\snakemake\log\</Path>
+                  <Path Filename="DAG">g:\models\NBr\code\snakemake\</Path>
+                  <Path Filename="snakemake">g:\models\NBr\code\</Path>
+                  <Path Filename="Sim">g:\models\NBr\</Path>
+                  <Path Filename="NBR1">g:\models\NBr\Sim\</Path>
+                  <Path Filename="Sim">g:\models\NBr\</Path>
+                  <Path Active="True" Filename="..">g:\models\NBr\Sim\</Path>
+                  <Path Filename="..">C:\Program Files\Double Commander\</Path>
+                </Paths>
+              </Entry>
+            </History>
+            <ColumnsView>
+              <ColumnsSet>Default</ColumnsSet>
+            </ColumnsView>
+          </FileView>
+        </Tab>
+      </Right>
+    </OpenedTabs>
+  </Tabs>
+</doublecmd>
