@@ -24,9 +24,8 @@ from .utils import (
     INI_to_d,
     Mdl_Dmns_from_INI,
     Pa_WS,
-    Pre_Sign,
-    Sign,
     get_MdlN_Pa,
+    pre_Sign,
     r_IPF_Spa,
     set_verbose,
     vprint,
@@ -583,7 +582,7 @@ def add_OBS(MdlN: str, Opt: str = 'BEGIN OPTIONS\nEND OPTIONS', iMOD5=False):
     for iMOD5 option check WS_Mdl.utils.get_MdlN_Pa() description.
     """
 
-    vprint(Pre_Sign)
+    vprint(pre_Sign)
     vprint('Running add_OBS ...')
     d_Pa = get_MdlN_Pa(MdlN, iMOD5=iMOD5)  # Get default directories
     Pa_MdlN, Pa_INI, Pa_PRJ = (
@@ -658,7 +657,7 @@ def add_OBS(MdlN: str, Opt: str = 'BEGIN OPTIONS\nEND OPTIONS', iMOD5=False):
             os.fsync(f.fileno())  # ensure it’s on disk
             # lock is released automatically when the with-block closes
         vprint(f'🟢 - {Pa_OBS} has been added successfully!')
-    vprint(Sign)
+    vprint(post_Sign)
 
 
 # IDF processing -----------------------------------------------------------------

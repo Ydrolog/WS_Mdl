@@ -20,13 +20,16 @@ import numpy as np
 import pandas as pd
 from colored import attr, fg
 from filelock import FileLock as FL
+from ibridges import IrodsPath as iPa
+from ibridges import Session
+from ibridges import upload as Upl
 from send2trash import send2trash
 
 warnings.filterwarnings('ignore', category=UserWarning, module='openpyxl.worksheet._read_only')
 
 # --------------------------------------------------------------------------------
-Pre_Sign = f'{fg(52)}{"*" * 80}{attr("reset")}\n'
-Sign = f'{fg(52)}\nend_of_transmission\n{"*" * 80}{attr("reset")}\n'
+pre_Sign = f'{fg(52)}{"*" * 80}{attr("reset")}\n'
+post_Sign = f'{fg(52)}\nend_of_transmission\n{"*" * 80}{attr("reset")}\n'
 style_reset = f'{attr("reset")}\033[0m'
 bold = '\033[1m'
 dim = '\033[2m'
@@ -83,6 +86,14 @@ def set_verbose(v: bool):
 def bprint(*args, **kwargs):
     """Prints Bold."""
     print(f'{bold}', *args, f'{style_reset}', **kwargs)
+
+
+def dprint(N=80, bool_dim=True):
+    """Prints a divider line of N characters."""
+    if bool_dim:
+        print(f'{dim}{"-" * N}{style_reset}')
+    else:
+        print(f'{"-" * N}')
 
 
 # Get (MdlN) info ----------------------------------------------------------------
@@ -750,7 +761,7 @@ def o_(key, *l_MdlN, Pa=r'C:\Program Files\Notepad++\notepad++.exe'):
         raise ValueError(f'\nInvalid key: {key}.\nValid keys are: {", ".join(get_MdlN_Pa("NBr1").keys())}')
         return
 
-    vprint(Pre_Sign)
+    vprint(pre_Sign)
     vprint(f'\nOpening {key} file(s) for specified run(s) with the default program.\n')
     vprint(
         f"It's assumed that Notepad++ is installed in: {Pa}.\nIf that's not True, provide the correct path to Notepad++ (or another text editor) as the last argument (Pa) to this function.\n"
@@ -761,7 +772,7 @@ def o_(key, *l_MdlN, Pa=r'C:\Program Files\Notepad++\notepad++.exe'):
     for f in l_Pa:
         sp.Popen([Pa] + [f])
         vprint(f'🟢 - {f}')
-    vprint(Sign)
+    vprint(post_Sign)
 
 
 def o_VS(key, *l_MdlN, Pa='code'):
@@ -770,7 +781,7 @@ def o_VS(key, *l_MdlN, Pa='code'):
         raise ValueError(f'\nInvalid key: {key}.\nValid keys are: {", ".join(get_MdlN_Pa("NBr1").keys())}')
         return
 
-    vprint(Pre_Sign)
+    vprint(pre_Sign)
     vprint(f'\nOpening {key} file(s) for specified run(s) with VS Code.\n')
     vprint(
         "It's assumed that VS Code is accessible via the 'code' command.\nIf that's not True, provide the correct path to VS Code as the last argument (Pa) to this function.\n"
@@ -781,12 +792,13 @@ def o_VS(key, *l_MdlN, Pa='code'):
     for f in l_Pa:
         sp.Popen([Pa, f], shell=True)
         vprint(f'🟢 - {f}')
-    vprint(Sign)
+    vprint(post_Sign)
 
 
 def Sim_Cfg(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
+    dprint()
     vprint(
-        f"{'-' * 100}\nOpening all configuration files for specified runs with the default program.\nIt's assumed that Notepad++ is installed in: {Pa_NP}.\nIf that's not True, provide the correct path to Notepad++ (or another text editor) as the last argument to this function.\n"
+        f"Opening all configuration files for specified runs with the default program.\nIt's assumed that Notepad++ is installed in: {Pa_NP}.\nIf that's not True, provide the correct path to Notepad++ (or another text editor) as the last argument to this function.\n"
     )
 
     l_keys = ['Smk', 'BAT', 'INI', 'PRJ']
@@ -798,7 +810,8 @@ def Sim_Cfg(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
 
 
 def o_LSTs(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
-    vprint(f'{"-" * 100}\nOpening LST files (Mdl+Sim) for specified runs with the default program.\n')
+    dprint()
+    vprint('Opening LST files (Mdl+Sim) for specified runs with the default program.\n')
     vprint(
         f"It's assumed that Notepad++ is installed in: {Pa_NP}.\nIf that's not True, provide the correct path to Notepad++ (or another text editor) as the last argument to this function.\n"
     )
@@ -813,7 +826,8 @@ def o_LSTs(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
 
 
 def o_NAMs(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
-    vprint(f'{"-" * 100}\nOpening NAM files (Mdl+Sim) for specified runs with the default program.\n')
+    dprint()
+    vprint('Opening NAM files (Mdl+Sim) for specified runs with the default program.\n')
     vprint(
         f"It's assumed that Notepad++ is installed in: {Pa_NP}.\nIf that's not True, provide the correct path to Notepad++ (or another text editor) as the last argument to this function.\n"
     )
@@ -830,7 +844,8 @@ def o_NAMs(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
 def o_LST(
     *l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'
 ):  # 666 To be deprecated later, as o_ does the same thing, but is more versatile.
-    vprint(f'{"-" * 100}\nOpening LST files (Mdl+Sim) for specified runs with the default program.\n')
+    dprint()
+    vprint('Opening LST files (Mdl+Sim) for specified runs with the default program.\n')
     vprint(
         f"It's assumed that Notepad++ is installed in: {Pa_NP}.\nIf that's not True, provide the correct path to Notepad++ (or another text editor) as the last argument to this function.\n"
     )
@@ -1082,7 +1097,7 @@ def DF_Rd_Cols(DF, sig_figs=4):
 def S_from_B(MdlN: str, iMOD5=False):
     """Copies files that contain Sim options from the B Sim, renames them for the S Sim, and opens them in the default file editor. Assumes default WS_Mdl folder structure (as described in READ_ME.MD)."""
 
-    vprint(Pre_Sign)
+    vprint(pre_Sign)
     d_Pa = get_MdlN_Pa(MdlN, MdlN_B=True, iMOD5=iMOD5)  # Get default directories
     MdlN_B, Pa_INI_B, Pa_INI, Pa_BAT_B, Pa_BAT, Pa_Smk, Pa_Smk_B, Pa_PRJ_B, Pa_PRJ = (
         d_Pa[k] for k in ['MdlN_B', 'INI_B', 'INI', 'BAT_B', 'BAT', 'Smk', 'Smk_B', 'PRJ_B', 'PRJ']
@@ -1125,12 +1140,12 @@ def S_from_B(MdlN: str, iMOD5=False):
     except Exception as e:
         print(f'🔴 - Error copying {Pa_PRJ_B} to {Pa_PRJ}: {e}')
 
-    vprint(Sign)
+    vprint(post_Sign)
 
 
 def S_from_B_undo(MdlN: str):
     """Will undo S_from_B by deletting S files"""
-    vprint(Pre_Sign)
+    vprint(pre_Sign)
 
     set_verbose(False)  # Suppress vprint from get_MdlN_paths
     d_Pa = get_MdlN_paths(MdlN)  # Get default directories
@@ -1150,7 +1165,7 @@ def S_from_B_undo(MdlN: str):
             os.remove(Pa_S)  # Delete the S files
             vprint(f'🟢 - {Pa_S.split("/")[-1]} deleted successfully!')
 
-    vprint(Sign)
+    vprint(post_Sign)
 
 
 def Up_log(MdlN: str, d_Up: dict, Pa_log=Pa_log):  # Pa_log=PJ(Pa_WS, 'Mng/log.csv')):
@@ -1237,7 +1252,7 @@ def RunMng(cores=None, DAG: bool = True, Cct_Sims=None, no_temp: bool = True):
         )  # Leave 2 cores free for other tasks. If there aren't enough cores available, set to 1.
 
     vprint(
-        f'{Pre_Sign}RunMng initiated on {fg("cyan")}{str(DT.now()).split(".")[0]}{attr("reset")}. All Sims that are queued in the RunLog will be executed.\n'
+        f'{pre_Sign}RunMng initiated on {fg("cyan")}{str(DT.now()).split(".")[0]}{attr("reset")}. All Sims that are queued in the RunLog will be executed.\n'
     )
 
     vprint('Reading RunLog ...', end='')
@@ -1281,7 +1296,7 @@ def RunMng(cores=None, DAG: bool = True, Cct_Sims=None, no_temp: bool = True):
                 model_id, success, error = result
                 print(f'🔴🔴 Model {model_id} failed: {error}')
 
-    vprint(Sign)
+    vprint(post_Sign)
 
 
 def reset_Sim(MdlN: str, ask_permission: bool = True, Pa_log=Pa_log, permanent_delete: bool = False):
@@ -1304,7 +1319,7 @@ def reset_Sim(MdlN: str, ask_permission: bool = True, Pa_log=Pa_log, permanent_d
         If True, files are permanently deleted. If False, files are moved to recycling bin.
     """
 
-    vprint(Pre_Sign)
+    vprint(pre_Sign)
     if ask_permission:
         action = 'permanently delete' if permanent_delete else 'recycle'
         permission = (
@@ -1399,7 +1414,7 @@ def reset_Sim(MdlN: str, ask_permission: bool = True, Pa_log=Pa_log, permanent_d
             )
     else:
         print('🔴🔴🔴 - Reset cancelled by user (you).')
-    vprint(Sign)
+    vprint(post_Sign)
 
 
 def on_rm_error(func, path, exc_info):
@@ -1449,7 +1464,7 @@ def remove_Sim_Out(
     permanent_delete : bool, default=False
         If True, files are permanently deleted. If False, files are moved to recycling bin.
     """
-    vprint(Pre_Sign)
+    vprint(pre_Sign)
 
     if Del_all:
         Del_text = 'All files will be removed (Del_all=True).'
@@ -1532,7 +1547,7 @@ def remove_Sim_Out(
             print(f'🔴 - {MdlN} not found in log.')
     else:
         print('🔴🔴🔴 - Reset cancelled by user (you).')
-    vprint(Sign)
+    vprint(post_Sign)
 
 
 def rerun_Sim(MdlN: str, cores=None, DAG: bool = True):
@@ -1580,7 +1595,7 @@ def rerun_Sim(MdlN: str, cores=None, DAG: bool = True):
                 model_id, success, error = result
                 print(f'🔴🔴 Model {model_id} failed: {error}')
 
-    vprint(Sign)
+    vprint(post_Sign)
 
 
 def get_elapsed_time_str(start_time: float) -> str:
@@ -1723,3 +1738,65 @@ def add_OBS_to_MF_In(str_OBS, PKG=None, MdlN=None, Pa=None, iMOD5=False):
             vprint(f'🟢 - Added OBS to {Pa}')
         except ValueError as e:
             print(f'🔴 - Failed:\n {e}')
+
+
+# iBridges -----------------------------------------------------------------------
+def l_Fis_Exc(Pa, l_exceptions=['.gitignore', '.dvc', '.7z']):
+    if Pa.is_file():
+        l_ = [Pa] if Pa.name not in l_exceptions and Pa.suffix not in l_exceptions else []
+    else:
+        l_ = [f for f in Pa.iterdir() if f.name not in l_exceptions and f.suffix not in l_exceptions]
+    dprint()
+    vprint(
+        f'{len(l_)} files in {PBN(str(Pa))} excluding exceptions:',
+        *[f'{i} {j.name}' for i, j in enumerate(l_, 1)],
+        sep='\n',
+        end='\n',
+    )
+    dprint()
+    return l_
+
+
+def iB_get_Pw(Dir_irods=rf'C:\Users\{os.getlogin()}\.irods', Pw_txt: str = 'Pw.txt', inverse: bool = True):
+    """Reads iRODS password from Pw.txt file."""
+    Pw = open(PJ(Dir_irods, Pw_txt), 'r', encoding='utf-8-sig').read().strip()  # Read password from Pw.txt.
+    return Pw[::-1] if inverse else Pw
+
+
+def iB_load_session(Dir_irods=rf'C:\Users\{os.getlogin()}\.irods'):
+    Pw = iB_get_Pw(Dir_irods)
+    S = Session(irods_env=PJ(Dir_irods, 'irods_environment.json'), password=Pw)
+    dprint()
+    vprint(f'{bold}iBridges session info:{style_reset}')
+    vprint(f'{"username":15}:', S.username)
+    vprint(f'{"zone":15}:', S.zone)
+    vprint(f'{"server_version":15}:', S.server_version)
+    vprint(f'{"user_info":15}:', S.get_user_info())  # lists user type and groups
+    vprint(f'{"home":15}:', S.home)  # default home for iRODS /zone/home/username
+    dprint()
+    return S
+
+
+def iB_Upl_Fo(Fo: str, S, on_error='warn', l_exceptions=['.gitignore', '.dvc', '.7z']):  # , overwrite=True):
+    """Uploads a folder (Fo) from iRODS to the current working directory (CWD)."""
+
+    CWD = iPa(S, '~') / 'research-ws-imod'
+    Pa_Loc = Path(f'G:/{Fo}/')
+    l_Fi_data = l_Fis_Exc(Pa_Loc, l_exceptions=l_exceptions)
+
+    if Pa_Loc.is_file():
+        if l_Fi_data:
+            Target = CWD / Fo
+            if not Target.parent.exists():
+                Target.parent.create_collection()
+            print('1/1', Target)
+            Upl(l_Fi_data[0], Target, on_error=on_error)
+            dprint()
+    else:
+        CWD_Fo = CWD / Fo
+        if not CWD_Fo.exists():
+            CWD_Fo.create_collection()
+        for i, Pa in enumerate(l_Fi_data, 1):
+            print(f'{i}/{len(l_Fi_data)}', CWD_Fo / Pa.name)
+            Upl(Pa, CWD_Fo / Pa.name, on_error=on_error)
+            dprint()

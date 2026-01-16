@@ -25,7 +25,7 @@ from shapely.geometry import LineString, Point
 
 from . import utils as U
 from . import utils_imod as UIM
-from .utils import Pre_Sign, Sign, vprint
+from .utils import post_Sign, pre_Sign, vprint
 
 crs = 'EPSG:28992'
 
@@ -57,7 +57,7 @@ def IDF_to_TIF(Pa_IDF: str, Pa_TIF: Optional[str] = None, MtDt: Optional[Dict] =
     """Converts IDF file to TIF file.
     If Pa_TIF is not provided, it'll be the same as Pa_IDF, except for the file type ending.
     crs (coordinate reference system) is set to the Amerfoot crs by default, but can be changed for other projects."""
-    vprint(Pre_Sign)
+    vprint(pre_Sign)
     try:
         A, MtDt = imod.idf.read(Pa_IDF)
 
@@ -108,7 +108,7 @@ def IDF_to_TIF(Pa_IDF: str, Pa_TIF: Optional[str] = None, MtDt: Optional[Dict] =
         vprint(f'🟢 {Pa_TIF} has been saved (GeoTIFF) with conversion and project metadata.')
     except Exception as e:
         vprint(f'🔴 \n{e}')
-    vprint(Sign)
+    vprint(post_Sign)
 
 
 def IDFs_to_MBTIF(l_IDF, Pa_TIF: Optional[str] = None, MtDt: Optional[Dict] = None, crs=crs):
@@ -122,7 +122,7 @@ def IDFs_to_MBTIF(l_IDF, Pa_TIF: Optional[str] = None, MtDt: Optional[Dict] = No
     - crs: Coordinate reference system (default: 'EPSG:28992')
     """
 
-    vprint(Pre_Sign)
+    vprint(pre_Sign)
     try:
         # Handle glob pattern or list of files
         if isinstance(l_IDF, str):
@@ -199,7 +199,7 @@ def IDFs_to_MBTIF(l_IDF, Pa_TIF: Optional[str] = None, MtDt: Optional[Dict] = No
     except Exception as e:
         vprint(f'🔴 Error in IDFs_to_MBTIF: {e}')
 
-    vprint(Sign)
+    vprint(post_Sign)
 
 
 def DA_to_TIF(DA, Pa_Out, d_MtDt, crs=crs, _print=False):
@@ -316,7 +316,7 @@ def Diff_MBTIF(Pa_TIF1, Pa_TIF2, Pa_TIF_Out=None, verbose=True):
 
 
 def HD_Bin_GXG_to_MBTIF(MdlN, start_year='from_INI', end_year='from_INI', IDT='from_INI'):
-    vprint(Pre_Sign)
+    vprint(pre_Sign)
     U.set_verbose(False)
 
     # Load standard imod paths and variables
@@ -389,7 +389,7 @@ def HD_Bin_GXG_to_MBTIF(MdlN, start_year='from_INI', end_year='from_INI', IDT='f
         DA_to_MBTIF(GXG, Pa_Out, d_MtDt, _print=False)
         vprint(f'🟢 - Saved {K} to {Pa_Out}')
     vprint(f'🟢🟢🟢 - HD_Bin_GXG_to_MBTIF finished successfully for {MdlN}.')
-    vprint(Sign)
+    vprint(post_Sign)
 
 
 def PRJ_to_TIF(MdlN, iMOD5=False):
@@ -658,7 +658,7 @@ def PRJ_to_TIF(MdlN, iMOD5=False):
 
             except Exception as e:
                 print(f'🔴 - Error: {e}')
-    vprint(Sign)
+    vprint(post_Sign)
 
 
 def Vtr_to_TIF(Pa_Vtr, Fld, Pa_TIF, MdlN=None, crs=crs, SigDig=4):
@@ -670,7 +670,7 @@ def Vtr_to_TIF(Pa_Vtr, Fld, Pa_TIF, MdlN=None, crs=crs, SigDig=4):
     - crs: Coordinate Reference System for the output TIF.
     - SigDig: Number of significant digits to round to (default 4).
     """
-    vprint(Pre_Sign)
+    vprint(pre_Sign)
     if not MdlN:
         try:
             MdlN = Path(Pa_Vtr).stem.split('_')[-1]
@@ -729,7 +729,7 @@ def Vtr_to_TIF(Pa_Vtr, Fld, Pa_TIF, MdlN=None, crs=crs, SigDig=4):
     # Write to TIF
     DA_to_TIF(DA, Pa_TIF, d_MtDt, crs=crs)
     vprint(f'🟢🟢🟢 - Saved vector to TIF at {PBN(Pa_TIF)}')
-    vprint(Sign)
+    vprint(post_Sign)
 
 
 # HD_IDF speciic PoP (could be extended/generalized at a later stage) ------------
@@ -793,7 +793,7 @@ def HD_IDF_Agg_to_TIF(
             DA_to_TIF(DA, Out, d_MtDt, crs=crs)
         return f'{os.path.basename(base)} 🟢 '
 
-    vprint(Pre_Sign)
+    vprint(pre_Sign)
     vprint(f'*** {MdlN} *** - HD_IDF_Agg_to_TIF\n')
 
     # 1. Get paths
@@ -850,7 +850,7 @@ def HD_IDF_Agg_to_TIF(
             vprint('\t', f.result(), 'elapsed:', DT.now() - start)
 
     vprint(f'🟢🟢🟢 | Total elapsed time: {DT.now() - start}')
-    vprint(Sign)
+    vprint(post_Sign)
 
 
 def HD_Agg_name(group_keys, grouping):  # 666 could be moved to util
@@ -938,7 +938,7 @@ def HD_IDF_GXG_to_TIF(MdlN: str, N_cores: int = None, crs: str = crs, rules: str
 
         return f'L{L} 🟢'
 
-    vprint(Pre_Sign)
+    vprint(pre_Sign)
     vprint(f'*** {MdlN} *** - HD_IDF_GXG_to_TIF\n')
 
     # Get paths
@@ -960,7 +960,7 @@ def HD_IDF_GXG_to_TIF(MdlN: str, N_cores: int = None, crs: str = crs, rules: str
             vprint('\t', f.result(), '- Elapsed time (from start):', DT.now() - start)
 
     vprint('🟢🟢🟢 | Total elapsed:', DT.now() - start)
-    vprint(Sign)
+    vprint(post_Sign)
 
 
 # SFR ----------------------------------------------------------------------------
@@ -1094,7 +1094,7 @@ def SFR_to_GPkg(MdlN: str, crs: str = 28992, Pa_SFR=None, radius: float = None, 
 def Up_MM(MdlN, MdlN_MM_B=None):
     """Updates the MM (QGIS projct containing model data)."""
 
-    vprint(Pre_Sign)
+    vprint(pre_Sign)
     vprint(f' *****   Creating MM for {MdlN}   ***** ')
 
     d_Pa = U.get_MdlN_paths(MdlN)
@@ -1165,7 +1165,7 @@ def Up_MM(MdlN, MdlN_MM_B=None):
 
     sh.rmtree(Pa_temp)  # Remove the temporary folder
     vprint(f'\n🟢🟢🟢 | MM for {MdlN} has been updated.')
-    vprint(Sign)
+    vprint(post_Sign)
 
 
 # OUTDATED -----------------------------------------------------------------------
