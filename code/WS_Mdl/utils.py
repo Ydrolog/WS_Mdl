@@ -1741,7 +1741,7 @@ def add_OBS_to_MF_In(str_OBS, PKG=None, MdlN=None, Pa=None, iMOD5=False):
 
 
 # iBridges -----------------------------------------------------------------------
-def l_Fis_Exc(Pa, l_exceptions=['.gitignore', '.dvc', '.7z']):
+def l_Fis_Exc(Pa, l_exceptions=['.gitignore', '.dvc', '.7z', '.tif.aux']):
     if Pa.is_file():
         l_ = [Pa] if Pa.name not in l_exceptions and Pa.suffix not in l_exceptions else []
     else:
@@ -1777,7 +1777,7 @@ def iB_load_session(Dir_irods=rf'C:\Users\{os.getlogin()}\.irods'):
     return S
 
 
-def iB_Upl_Fo(Fo: str, S, on_error='warn', l_exceptions=['.gitignore', '.dvc', '.7z']):  # , overwrite=True):
+def iB_Upl_Fo(Fo: str, S, on_error='warn', l_exceptions=['.gitignore', '.dvc', '.7z', '.tif.aux'], overwrite=False):
     """Uploads a folder (Fo) from iRODS to the current working directory (CWD)."""
 
     CWD = iPa(S, '~') / 'research-ws-imod'
@@ -1798,5 +1798,5 @@ def iB_Upl_Fo(Fo: str, S, on_error='warn', l_exceptions=['.gitignore', '.dvc', '
             CWD_Fo.create_collection()
         for i, Pa in enumerate(l_Fi_data, 1):
             print(f'{i}/{len(l_Fi_data)}', CWD_Fo / Pa.name)
-            Upl(Pa, CWD_Fo / Pa.name, on_error=on_error)
+            Upl(Pa, CWD_Fo / Pa.name, on_error=on_error, overwrite=overwrite)
             dprint()
