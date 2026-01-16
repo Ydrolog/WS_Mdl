@@ -1798,5 +1798,5 @@ def iB_Upl_Fo(Fo: str, S, on_error='warn', l_exceptions=['.gitignore', '.dvc', '
             CWD_Fo.create_collection()
         for i, Pa in enumerate(l_Fi_data, 1):
             print(f'{i}/{len(l_Fi_data)}', CWD_Fo / Pa.name)
-            Upl(Pa, CWD_Fo / Pa.name, on_error=on_error, overwrite=overwrite)
+            Upl(Pa, CWD_Fo, on_error=on_error, overwrite=overwrite)
             dprint()
