@@ -22,6 +22,7 @@ from colored import attr, fg
 from filelock import FileLock as FL
 from ibridges import IrodsPath as iPa
 from ibridges import Session
+from ibridges import download as Dl
 from ibridges import upload as Upl
 from send2trash import send2trash
 
@@ -1783,23 +1784,30 @@ def iB_load_session(Dir_irods=rf'C:\Users\{os.getlogin()}\.irods'):
     return S
 
 
-def iB_Upl_Fo(Fo: str, S, on_error='warn', l_exceptions=['.gitignore', '.dvc', '.7z', '.aux', '.xml'], overwrite=False):
-    """Uploads a folder (Fo) from iRODS to the current working directory (CWD)."""
+def iB_Upl(
+    F: str,
+    S,
+    on_error='warn',
+    l_exceptions=['.gitignore', '.dvc', '.7z', '.aux', '.xml'],
+    overwrite=False,
+    subdir='research-ws-imod',
+):
+    """Uploads an iBridges file/folder."""
 
-    CWD = iPa(S, '~') / 'research-ws-imod'
-    Pa_Loc = Path(f'G:/{Fo}/')
+    CWD = iPa(S, '~') / subdir
+    Pa_Loc = Path(f'G:/{F}/')
     l_Fi_data = l_Fis_Exc(Pa_Loc, l_exceptions=l_exceptions)
 
     if Pa_Loc.is_file():
         if l_Fi_data:
-            Target = CWD / Fo
+            Target = CWD / F
             if not Target.parent.exists():
                 Target.parent.create_collection()
             print('1/1', Target)
             Upl(l_Fi_data[0], Target, on_error=on_error)
             dprint()
     else:
-        CWD_Fo = CWD / Fo
+        CWD_Fo = CWD / F
         if not CWD_Fo.exists():
             CWD_Fo.create_collection()
         for i, Pa in enumerate(l_Fi_data, 1):
@@ -1810,3 +1818,27 @@ def iB_Upl_Fo(Fo: str, S, on_error='warn', l_exceptions=['.gitignore', '.dvc', '
             print(f'{i}/{len(l_Fi_data)}', Target)
             Upl(Pa, Target, on_error=on_error, overwrite=overwrite)
             dprint()
+
+
+def iB_Dl(F: str, S, on_error='warn', overwrite=False, subdir='research-ws-imod'):
+    """Downloads an iBridges file/folder."""
+
+    Pa_Rem = iPa(S, '~') / subdir / F
+    Pa_Loc = Path(f'G:/{F}')
+
+    if Pa_Rem.dataobject_exists():
+        if not Pa_Loc.parent.exists():
+            Pa_Loc.parent.mkdir(parents=True, exist_ok=True)
+        print('1/1', Pa_Loc)
+        Dl(Pa_Rem, Pa_Loc, overwrite=overwrite)
+        dprint()
+    elif Pa_Rem.collection_exists():
+        Dest = Pa_Loc.parent
+        if not Dest.exists():
+            Dest.mkdir(parents=True, exist_ok=True)
+
+        print(f'Downloading folder: {Pa_Rem} -> {Pa_Loc}')
+        Dl(Pa_Rem, Dest, overwrite=overwrite)
+        dprint()
+    else:
+        vprint(f'{warn}Remote path not found: {Pa_Rem}')

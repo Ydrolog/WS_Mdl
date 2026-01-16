@@ -7,6 +7,6 @@ print(f'Uploading "{Fo}" folder to iBridges...\n')
 
 S = U.iB_load_session()
 
-U.iB_Upl_Fo(Fo, S)  # , overwrite=False)
+U.iB_Upl(Fo, S)  # , overwrite=False)
 
 print(U.post_Sign)
