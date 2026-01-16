@@ -41,6 +41,6 @@ print(
 S = U.iB_load_session()
 
 for f in l_Fo:
-    U.iB_Upl_Fo(f, S, l_exceptions=[])  # , overwrite=False)
+    U.iB_Upl_Fo(f, S)  # , overwrite=False)
 
 print(U.post_Sign)
