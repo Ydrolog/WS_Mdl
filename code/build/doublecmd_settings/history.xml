@@ -2,154 +2,55 @@
 <doublecmd>
   <History>
     <Navigation>
-      <Item>G:\models\NBr\In\CHD\</Item>
-      <Item>G:\models\NBr\In\</Item>
-      <Item>G:\models\NBr\In\CHD\NBr5\</Item>
-      <Item>G:\models\NBr\In\CHD\NBr1\</Item>
-      <Item>G:\models\NBr\In\CAP\</Item>
-      <Item>G:\models\NBr\In\CAP\PET\</Item>
-      <Item>G:\models\NBr\In\CAP\P\</Item>
-      <Item>G:\models\NBr\In\CAP\PET\NBr1\</Item>
-      <Item>G:\models\NBr\In\CAP\P\NBr3\</Item>
-      <Item>G:\models\NBr\In\CAP\P\NBr1\</Item>
-      <Item>G:\code\build\doublecmd_settings\</Item>
-      <Item>G:\code\build\</Item>
-      <Item>G:\code\</Item>
-      <Item>G:\</Item>
-      <Item>G:\models\</Item>
-      <Item>G:\models\NBr\</Item>
-      <Item>g:\code\Py\iBridges\data\</Item>
-      <Item>g:\code\Py\iBridges\</Item>
-      <Item>G:\code\Py\</Item>
-      <Item>G:\models\NBr\In\CAP\para_sim\</Item>
-      <Item>G:\models\NBr\In\CAP\para_sim\NBr2\</Item>
-      <Item>G:\models\NBr\In\CAP\para_sim\NBr1\</Item>
-      <Item>G:\models\NBr\In\CAP\RZN\</Item>
-      <Item>G:\models\NBr\In\CAP\sel_key_svat_per\</Item>
-      <Item>G:\models\NBr\In\CAP\sel_key_svat_per\NBr1\</Item>
-      <Item>G:\models\NBr\In\CAP\SEV\</Item>
-      <Item>G:\models\NBr\In\CAP\SFU\</Item>
-      <Item>G:\models\NBr\In\CAP\tiop_sim\</Item>
-      <Item>G:\models\NBr\In\CAP\tiop_sim\NBr2\</Item>
-      <Item>G:\models\NBr\In\CAP\tiop_sim\NBr1\</Item>
-      <Item>G:\models\NBr\In\CAP\UBA\</Item>
-      <Item>G:\models\NBr\In\CAP\WTA\</Item>
-      <Item>y:\research-ws-imod\data\</Item>
-      <Item>G:\models\NBr\In\CAP\para_sim\NBr39\</Item>
-      <Item>G:\models\NBr\In\CAP\para_sim\NBr1\Ss\</Item>
-      <Item>G:\models\NBr\In\CAP\mete_grid\</Item>
-      <Item>G:\models\NBr\In\CAP\mete_grid\NBr1\</Item>
-      <Item>G:\models\NBr\In\CAP\mete_grid\NBr1\temp\</Item>
-      <Item>G:\models\NBr\In\CAP\luse_svat\</Item>
-      <Item>G:\models\NBr\In\CAP\luse_svat\NBr1\</Item>
-      <Item>G:\models\NBr\In\CAP\LGN\</Item>
-      <Item>G:\models\NBr\In\CAP\init_svat\</Item>
-      <Item>G:\models\NBr\In\CAP\init_svat\NBr1\</Item>
-      <Item>G:\models\NBr\In\CAP\fact_svat\</Item>
-      <Item>G:\models\NBr\In\CAP\fact_svat\NBr1\</Item>
-      <Item>G:\models\NBr\In\CAP\ART\</Item>
-      <Item>G:\models\NBr\In\CAP\ARL\</Item>
-      <Item>G:\models\NBr\PrP\</Item>
-      <Item>G:\models\NBr\PrP\SFR\</Item>
-      <Item>G:\models\NBr\PrP\SFR\BrabantseDelta\</Item>
-      <Item>y:\research-ws-imod\</Item>
+      <Item>C:\Users\Karam014\OneDrive - Universiteit Utrecht\</Item>
+      <Item>C:\Users\Karam014\</Item>
+      <Item>C:\Users\</Item>
+      <Item>C:\</Item>
+      <Item>g:\</Item>
+      <Item>g:\code\</Item>
+      <Item>g:\code\build\</Item>
+      <Item>C:\Users\Karam014\Downloads\</Item>
+      <Item>C:\Users\Karam014\OneDrive - Universiteit Utrecht\Software\</Item>
+      <Item>C:\Users\Karam014\OneDrive - Universiteit Utrecht\Software\InstalledOutsideSoftwareCenter\</Item>
+      <Item>C:\Users\Karam014\OneDrive - Universiteit Utrecht\Software\InstalledOutsideSoftwareCenter\Ss\</Item>
+      <Item>C:\Users\Karam014\AppData\</Item>
+      <Item>C:\Users\Karam014\AppData\Roaming\</Item>
+      <Item>C:\Users\Karam014\AppData\Roaming\doublecmd\</Item>
+      <Item>g:\code\build\doublecmd_settings\</Item>
+      <Item>C:\Users\Karam014\AppData\Local\</Item>
+      <Item>C:\Users\Karam014\AppData\Local\Programs\</Item>
+      <Item>C:\Users\Karam014\AppData\Local\Programs\VS Code\</Item>
+      <Item>C:\Users\Karam014\AppData\Local\Programs\VS Code\_\</Item>
+      <Item>C:\Users\Karam014\AppData\Local\Programs\Common\</Item>
+      <Item>c:\Program Files (x86)\Microsoft\</Item>
+      <Item>C:\Program Files (x86)\</Item>
+      <Item>C:\Program Files\</Item>
+      <Item>c:\Program Files\Microsoft Office 15\</Item>
+      <Item>c:\Program Files\Microsoft Office\</Item>
+      <Item>c:\Program Files\Microsoft\</Item>
+      <Item>C:\Users\Karam014\AppData\Local\Programs\VS Code\appx\</Item>
+      <Item>C:\Users\Karam014\AppData\Local\Programs\VS Code\bin\</Item>
     </Navigation>
-    <CommandLine>
-      <Item>readme.md</Item>
-      <Item>git status</Item>
-      <Item>activate WS</Item>
-      <Item>activate imod</Item>
-      <Item>test.py</Item>
-    </CommandLine>
+    <CommandLine/>
     <FileMask>
-      <Item>*.chk</Item>
-      <Item>model_SFR.chk</Item>
-      <Item>riv*.bin</Item>
-      <Item>*model_SFR.chk</Item>
-      <Item>doublecmd</Item>
-      <Item>proj.db</Item>
-      <Item>*sfr.obs*</Item>
-      <Item>*sfr6.obs*</Item>
-      <Item>*sfr6.obs</Item>
-      <Item>*.HED</Item>
-      <Item>*.HEAD</Item>
-      <Item>sel_svat_csv</Item>
-      <Item>sel_svat_csv.inp</Item>
-      <Item>RIV</Item>
-      <Item>WhatsApp</Item>
-      <Item>metamod.py</Item>
-      <Item>PoP_HD_IDFs_NBr13</Item>
-      <Item>temp_lines</Item>
-      <Item>open</Item>
-      <Item>read</Item>
-      <Item>write</Item>
-      <Item>SS</Item>
-      <Item>*.tmp</Item>
-      <Item>primod</Item>
-      <Item>.ini</Item>
+      <Item>code.exe</Item>
+      <Item>vscode.exe</Item>
+      <Item>vscode</Item>
     </FileMask>
     <VolumeSize/>
     <CreateDirectories>
-      <Item Tag="0">PS_install_Double_Commander</Item>
-      <Item Tag="0">conda_Env_YMLs</Item>
-      <Item Tag="0">SS</Item>
-      <Item Tag="0">.irods</Item>
-      <Item Tag="0">.gocmg</Item>
-      <Item Tag="0">gocommands</Item>
-      <Item Tag="0">NBr</Item>
-      <Item Tag="0">models</Item>
-      <Item Tag="0">data</Item>
-      <Item Tag="0">2025</Item>
-      <Item Tag="0">2024</Item>
-      <Item Tag="0">SFRstage_Vs_RIVstage</Item>
-      <Item Tag="0">PRJ_copies</Item>
-      <Item Tag="0">budgets</Item>
-      <Item Tag="0">NBr39</Item>
-      <Item Tag="0">test</Item>
-      <Item Tag="0">Lecture_3_Gu</Item>
-      <Item Tag="0">TS</Item>
-      <Item Tag="0">SFR_Out</Item>
-      <Item Tag="0">SFR_in</Item>
+      <Item Tag="0">Ss</Item>
     </CreateDirectories>
-    <SearchText>
-      <Item Tag="0">NBr5\para_sim.inp</Item>
-      <Item Tag="0">NBr5*para_sim.inp</Item>
-      <Item Tag="0">RIV_OBS.CSV</Item>
-      <Item Tag="0">C:\OD\WS_Mdl</Item>
-      <Item Tag="0">sel_svat_csv</Item>
-      <Item Tag="0">MetaSWAP_DB</Item>
-      <Item Tag="0">SSYSTEM= 0</Item>
-      <Item Tag="0">SSYSTEM= 1</Item>
-      <Item Tag="0">SSYSTEM=1</Item>
-    </SearchText>
+    <SearchText/>
     <SearchTextPath/>
     <ReplaceText/>
     <ReplaceTextPath/>
     <RenameNameMask/>
     <RenameExtMask/>
     <SearchDirectories>
-      <Item>g:\models\NBr\Sim\</Item>
-      <Item>g:\models\NBr\In\PRJ\</Item>
-      <Item>g:\models\NBr\Sim\NBr39\</Item>
-      <Item>G:\</Item>
-      <Item>G:\WS_Mdl\</Item>
-      <Item>C:\OD\WS_Mdl\</Item>
-      <Item>C:\OD\WS_Mdl\models\NBr\Sim\</Item>
-      <Item>C:\OD\WS_Mdl\software\iMOD5\bin\</Item>
-      <Item>C:\OD\WS_Mdl\models\NBr\</Item>
-      <Item>C:\OD\WS_Mdl\code\</Item>
-      <Item>C:\Users\Karam014\OneDrive - Universiteit Utrecht\Documents\TeachingAssistance\Principles of GW Flow\Grading_2025\HW1\</Item>
-      <Item>C:\Users\Karam014\OneDrive - Universiteit Utrecht\Documents\TeachingAssistance\Principles of GW Flow\Grading_2025\</Item>
-      <Item>C:\OD\WS_Mdl\models\NBr\Sim\NBr32\metaswap\</Item>
-      <Item>C:\</Item>
-      <Item>C:\OD\WS_Mdl\code\.pixi\envs\default\</Item>
-      <Item>C:\OD\WS_Mdl\models\NBr\In\PRJ\</Item>
-      <Item>C:\mamba_envs\WS\</Item>
-      <Item>C:\OD\WS_Mdl\models\NBr\code\Mdl_Prep\</Item>
+      <Item>C:\Users\Karam014\AppData\Local\Programs\VS Code\</Item>
     </SearchDirectories>
     <SearchExcludeFiles/>
-    <SearchExcludeDirectories>
-      <Item>code</Item>
-    </SearchExcludeDirectories>
+    <SearchExcludeDirectories/>
   </History>
 </doublecmd>

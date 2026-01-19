@@ -4,17 +4,17 @@
     <MainToolbar>
       <Row>
         <Command>
-          <ID>{B8A69132-9134-46AC-8926-E2FB8D556050}</ID>
+          <ID>{E3FEDE60-2BAC-442C-A892-A323F7225A9F}</ID>
           <Icon>cm_refresh</Icon>
           <Command>cm_Refresh</Command>
         </Command>
         <Command>
-          <ID>{1F4BC8B3-860B-4766-8B25-C48219247332}</ID>
+          <ID>{95A87AED-30D9-47E9-AD47-3EC30141F37D}</ID>
           <Icon>cm_runterm</Icon>
           <Command>cm_RunTerm</Command>
         </Command>
         <Command>
-          <ID>{60A440AB-8387-4804-BCCE-E9517701BC7B}</ID>
+          <ID>{2935EDBB-B918-4025-A84C-9ABD6C5B5D33}</ID>
           <Icon>cm_options</Icon>
           <Command>cm_Options</Command>
         </Command>
@@ -22,17 +22,17 @@
           <Style>False</Style>
         </Separator>
         <Command>
-          <ID>{0252F9FD-E2A7-4567-9AE5-8B162F128297}</ID>
+          <ID>{6DD97BAE-AC31-4BD8-ACBD-199BD5B432B4}</ID>
           <Icon>cm_briefview</Icon>
           <Command>cm_BriefView</Command>
         </Command>
         <Command>
-          <ID>{451FC20C-E2BB-497D-ACD7-0CC2EF303CB9}</ID>
+          <ID>{3B8255C8-EDDA-43B3-9CE9-7B14B4966ECB}</ID>
           <Icon>cm_columnsview</Icon>
           <Command>cm_ColumnsView</Command>
         </Command>
         <Command>
-          <ID>{284DE6F8-5020-411B-AB01-A23DF1AA7307}</ID>
+          <ID>{D545A1CC-AD22-4066-8E09-E48733B464E1}</ID>
           <Icon>cm_thumbnailsview</Icon>
           <Command>cm_ThumbnailsView</Command>
         </Command>
@@ -40,7 +40,7 @@
           <Style>False</Style>
         </Separator>
         <Command>
-          <ID>{F9AA201B-402A-4D70-AC00-D95A38F80509}</ID>
+          <ID>{63C675D2-5BC6-438B-9CCA-D7ACAEDA25EA}</ID>
           <Icon>cm_flatview</Icon>
           <Command>cm_FlatView</Command>
         </Command>
@@ -48,12 +48,12 @@
           <Style>False</Style>
         </Separator>
         <Command>
-          <ID>{FDE5FB02-1CAC-4C3D-B370-A4B724E680D0}</ID>
+          <ID>{C0EA1F86-C9D5-46AF-9D0D-A561D7D2964F}</ID>
           <Icon>cm_viewhistoryprev</Icon>
           <Command>cm_ViewHistoryPrev</Command>
         </Command>
         <Command>
-          <ID>{F5654B33-39D1-494D-BFFD-5B417AA4023A}</ID>
+          <ID>{6EC91ABB-541B-454A-9021-521C2305C2A5}</ID>
           <Icon>cm_viewhistorynext</Icon>
           <Command>cm_ViewHistoryNext</Command>
         </Command>
@@ -61,17 +61,17 @@
           <Style>False</Style>
         </Separator>
         <Command>
-          <ID>{48567E38-D122-4C76-A261-BA25E7D49BA0}</ID>
+          <ID>{F8AEA8B0-080F-4F7F-8A50-A4AF5C31CC57}</ID>
           <Icon>cm_markplus</Icon>
           <Command>cm_MarkPlus</Command>
         </Command>
         <Command>
-          <ID>{F956FAF0-742D-4F2D-A165-E65862023382}</ID>
+          <ID>{0A14BBBC-C2B6-4E2C-97CA-BE014EECC99C}</ID>
           <Icon>cm_markminus</Icon>
           <Command>cm_MarkMinus</Command>
         </Command>
         <Command>
-          <ID>{DA7E31E2-22D6-4989-8C7F-BD83EC95EE4E}</ID>
+          <ID>{785C7F88-45F7-4828-B1D0-5DF029D8BDD2}</ID>
           <Icon>cm_markinvert</Icon>
           <Command>cm_MarkInvert</Command>
         </Command>
@@ -79,12 +79,12 @@
           <Style>False</Style>
         </Separator>
         <Command>
-          <ID>{D4C39733-BA18-4734-A313-183DFAF736E8}</ID>
+          <ID>{E9C23284-E4C8-4275-A29A-F5959F9F7D45}</ID>
           <Icon>cm_packfiles</Icon>
           <Command>cm_PackFiles</Command>
         </Command>
         <Command>
-          <ID>{4ADD6692-84D3-4AE2-B33F-B0D50B10659A}</ID>
+          <ID>{DC0D8E7D-14AF-4017-8788-ED7631E882E2}</ID>
           <Icon>cm_extractfiles</Icon>
           <Command>cm_ExtractFiles</Command>
         </Command>
@@ -92,27 +92,27 @@
           <Style>False</Style>
         </Separator>
         <Command>
-          <ID>{9FB7659F-4686-4FB2-B31E-381C355E66DC}</ID>
+          <ID>{EF07809F-8A66-463F-9797-C9BE95DD7BA2}</ID>
           <Icon>cm_networkconnect</Icon>
           <Command>cm_NetworkConnect</Command>
         </Command>
         <Command>
-          <ID>{9A133FDC-1B21-4879-89DB-88C1902AE67A}</ID>
+          <ID>{1A1C7267-A366-4607-BDB4-2AE6D09059A8}</ID>
           <Icon>cm_search</Icon>
           <Command>cm_Search</Command>
         </Command>
         <Command>
-          <ID>{89FAE1B2-F9A5-4A3E-9FF0-46862D046237}</ID>
+          <ID>{E059B2E1-DC1A-43A2-AE4B-3D5998A85518}</ID>
           <Icon>cm_multirename</Icon>
           <Command>cm_MultiRename</Command>
         </Command>
         <Command>
-          <ID>{B8478417-F45F-473A-95D2-F37A73B58D04}</ID>
+          <ID>{C3F7D01B-49EA-4CDA-98D4-749366DF7C26}</ID>
           <Icon>cm_syncdirs</Icon>
           <Command>cm_SyncDirs</Command>
         </Command>
         <Command>
-          <ID>{7EB0E700-5C79-4FAD-85D5-0FF7D1E65C85}</ID>
+          <ID>{3B007A17-1BD3-4963-A05F-0E0109F90363}</ID>
           <Icon>cm_copyfullnamestoclip</Icon>
           <Command>cm_CopyFullNamesToClip</Command>
         </Command>
@@ -121,22 +121,22 @@
     <MiddleToolbar>
       <Row>
         <Command>
-          <ID>{0B39026E-6641-44F0-BADA-BF5B5040E190}</ID>
+          <ID>{12999EDF-9EFD-4DB6-83FE-50ABE97B3A6A}</ID>
           <Icon>cm_view</Icon>
           <Command>cm_View</Command>
         </Command>
         <Command>
-          <ID>{481238E9-D829-458E-8846-40CEA6AB6DBB}</ID>
+          <ID>{3B3199BD-6892-4C32-9F45-994C8C268BB3}</ID>
           <Icon>cm_edit</Icon>
           <Command>cm_Edit</Command>
         </Command>
         <Command>
-          <ID>{71F61BAE-7CAE-48E9-BCAD-592004A1614D}</ID>
+          <ID>{903827AF-D2EA-4B79-8953-E0EAB22DBF40}</ID>
           <Icon>cm_copy</Icon>
           <Command>cm_Copy</Command>
         </Command>
         <Command>
-          <ID>{AF3F2FBE-53AD-4A1F-9E7F-3A8D25DC4371}</ID>
+          <ID>{375386F9-AEFF-47E2-BD5D-B9A453008C61}</ID>
           <Icon>cm_rename</Icon>
           <Command>cm_Rename</Command>
         </Command>
@@ -144,12 +144,12 @@
           <Style>True</Style>
         </Separator>
         <Command>
-          <ID>{A0376335-B1B9-4F4F-BDAF-45151E2835A1}</ID>
+          <ID>{DD1BF0BB-00EA-4B47-BE29-3DDA5E0306C0}</ID>
           <Icon>cm_packfiles</Icon>
           <Command>cm_PackFiles</Command>
         </Command>
         <Command>
-          <ID>{3A6906F9-9D80-4E18-AEE9-5B344EB7BFD8}</ID>
+          <ID>{926F2EB2-520E-4DD1-9F1E-8CC157378AC6}</ID>
           <Icon>cm_makedir</Icon>
           <Command>cm_MakeDir</Command>
         </Command>
@@ -158,13 +158,13 @@
   </Toolbars>
   <MainWindow>
     <Position Save="True">
-      <Left>632</Left>
-      <Top>1080</Top>
-      <Width>638</Width>
-      <Height>324</Height>
+      <Left>80</Left>
+      <Top>48</Top>
+      <Width>800</Width>
+      <Height>480</Height>
       <PixelsPerInch>96</PixelsPerInch>
       <Maximized>True</Maximized>
-      <Splitter>49.9627143922446</Splitter>
+      <Splitter>50</Splitter>
     </Position>
   </MainWindow>
   <Language>
@@ -178,7 +178,7 @@
     <RunInTerminalStayOpenParams>/K {command}</RunInTerminalStayOpenParams>
     <RunInTerminalCloseCmd>cmd.exe</RunInTerminalCloseCmd>
     <RunInTerminalCloseParams>/C {command}</RunInTerminalCloseParams>
-    <JustRunTerminal>G:\code\build\launch_PS_pixi.bat</JustRunTerminal>
+    <JustRunTerminal>g:\code\build\launch_PS_pixi.bat</JustRunTerminal>
     <JustRunTermParams/>
     <OnlyOneAppInstance>False</OnlyOneAppInstance>
     <LynxLike>True</LynxLike>
@@ -221,17 +221,17 @@
     <DelayLoadingTabs>True</DelayLoadingTabs>
     <HighlightUpdatedFiles>True</HighlightUpdatedFiles>
     <DriveBlackList/>
-    <DriveBlackListUnmounted>True</DriveBlackListUnmounted>
+    <DriveBlackListUnmounted>False</DriveBlackListUnmounted>
   </Behaviours>
   <Tools>
-    <Viewer Enabled="True">
-      <Path>"C:\Users\Karam014\AppData\Local\Programs\VS Code\Code.exe"</Path>
+    <Viewer Enabled="False">
+      <Path/>
       <Parameters/>
       <RunInTerminal>False</RunInTerminal>
       <KeepTerminalOpen>False</KeepTerminalOpen>
     </Viewer>
-    <Editor Enabled="True">
-      <Path>C:\Program Files\Notepad++\notepad++.exe</Path>
+    <Editor Enabled="False">
+      <Path/>
       <Parameters/>
       <RunInTerminal>False</RunInTerminal>
       <KeepTerminalOpen>False</KeepTerminalOpen>
@@ -246,67 +246,67 @@
   </Tools>
   <Fonts>
     <Main>
-      <Name>Cascadia Mono</Name>
+      <Name>default</Name>
       <Size>10</Size>
       <Style>1</Style>
-      <Quality>1</Quality>
+      <Quality>0</Quality>
     </Main>
     <Editor>
-      <Name>Cascadia Mono</Name>
-      <Size>13</Size>
+      <Name>Courier New</Name>
+      <Size>14</Size>
       <Style>0</Style>
       <Quality>0</Quality>
     </Editor>
     <Viewer>
-      <Name>Cascadia Mono</Name>
+      <Name>Courier New</Name>
       <Size>14</Size>
       <Style>0</Style>
       <Quality>0</Quality>
     </Viewer>
     <ViewerBook>
-      <Name>Cascadia Mono</Name>
+      <Name>default</Name>
       <Size>16</Size>
       <Style>1</Style>
       <Quality>0</Quality>
     </ViewerBook>
     <Log>
-      <Name>Cascadia Mono</Name>
+      <Name>Courier New</Name>
       <Size>12</Size>
       <Style>0</Style>
       <Quality>0</Quality>
     </Log>
     <Console>
-      <Name>Cascadia Mono</Name>
+      <Name>Courier New</Name>
       <Size>12</Size>
       <Style>0</Style>
       <Quality>0</Quality>
     </Console>
     <PathEdit>
-      <Name>Cascadia Mono</Name>
+      <Name>default</Name>
       <Size>10</Size>
       <Style>0</Style>
       <Quality>0</Quality>
     </PathEdit>
     <FunctionButtons>
-      <Name>Cascadia Mono</Name>
+      <Name>default</Name>
       <Size>10</Size>
       <Style>0</Style>
       <Quality>0</Quality>
     </FunctionButtons>
     <SearchResults>
-      <Name>Cascadia Mono</Name>
+      <Name>default</Name>
       <Size>10</Size>
       <Style>0</Style>
       <Quality>0</Quality>
     </SearchResults>
     <TreeViewMenu>
-      <Name>Cascadia Mono</Name>
+      <Name>default</Name>
       <Size>10</Size>
       <Style>0</Style>
       <Quality>0</Quality>
     </TreeViewMenu>
     <StatusBar>
-      <Name>Cascadia Mono</Name>
+      <Name>default</Name>
       <Size>0</Size>
       <Style>0</Style>
       <Quality>0</Quality>
@@ -379,7 +379,7 @@
   <FilesViews>
     <Sorting>
       <CaseSensitivity>0</CaseSensitivity>
-      <NaturalSorting>True</NaturalSorting>
+      <NaturalSorting>False</NaturalSorting>
       <SpecialSorting>False</SpecialSorting>
       <SortFolderMode>1</SortFolderMode>
       <NewFilesPosition>2</NewFilesPosition>
@@ -428,7 +428,7 @@
     <ShowCopyTabSelectPanel>False</ShowCopyTabSelectPanel>
     <UseTrash>True</UseTrash>
     <SkipFileOpError>False</SkipFileOpError>
-    <TypeOfDuplicatedRename>2</TypeOfDuplicatedRename>
+    <TypeOfDuplicatedRename>0</TypeOfDuplicatedRename>
     <DefaultDropEffect>True</DefaultDropEffect>
     <ShowDialogOnDragDrop>True</ShowDialogOnDragDrop>
     <DragAndDropTextRichtextDesireLevel>0</DragAndDropTextRichtextDesireLevel>
@@ -476,7 +476,7 @@
     </MultiRename>
   </FileOperations>
   <Tabs>
-    <Options>49937</Options>
+    <Options>54033</Options>
     <CharacterLimit>32</CharacterLimit>
     <Position>0</Position>
     <ActionOnDoubleClick>2</ActionOnDoubleClick>
@@ -507,11 +507,11 @@
     <SaveSessionModifications>False</SaveSessionModifications>
   </QuickFilter>
   <Miscellaneous>
-    <GridVertLine>True</GridVertLine>
-    <GridHorzLine>True</GridHorzLine>
+    <GridVertLine>False</GridVertLine>
+    <GridHorzLine>False</GridHorzLine>
     <ShowWarningMessages>True</ShowWarningMessages>
-    <SpaceMovesDown>True</SpaceMovesDown>
-    <DirBrackets>False</DirBrackets>
+    <SpaceMovesDown>False</SpaceMovesDown>
+    <DirBrackets>True</DirBrackets>
     <InplaceRename>False</InplaceRename>
     <InplaceRenameButton>True</InplaceRenameButton>
     <DblClickToParent>False</DblClickToParent>
@@ -559,16 +559,12 @@
     </ShowInMenus>
     <ShowButtonGlyphs>0</ShowButtonGlyphs>
   </Icons>
-  <IgnoreList Enabled="True">
+  <IgnoreList Enabled="False">
     <IgnoreListFile>%DC_CONFIG_PATH%\ignorelist.txt</IgnoreListFile>
   </IgnoreList>
   <DirectoryHotList>
-    <HotDir Name="WS_Mdl" Path="C:\OD\WS_Mdl"/>
-    <HotDir Name="QWM" Path="C:\Users\Karam014\OneDrive - Universiteit Utrecht\Documents\TeachingAssistance\QWM"/>
-    <HotDir Name="Downloads" Path="C:\Users\Karam014\Downloads"/>
-    <HotDir Name="notes" Path="C:\Users\Karam014\OneDrive - Universiteit Utrecht\Documents\notes"/>
-    <HotDir Name="Principles of GW Flow" Path="C:\Users\Karam014\OneDrive - Universiteit Utrecht\Documents\TeachingAssistance\Principles of GW Flow"/>
-    <HotDir Name="group_week" Path="C:\Users\Karam014\OneDrive - Universiteit Utrecht\Documents\other\group_week"/>
+    <HotDir Name="Downloads" Path="C:\Users\Karam014\Downloads\"/>
+    <HotDir Name="OneDrive - Universiteit Utrecht" Path="C:\Users\Karam014\OneDrive - Universiteit Utrecht\"/>
   </DirectoryHotList>
   <Viewer>
     <PreviewVisible>False</PreviewVisible>
@@ -588,7 +584,7 @@
     <TabSpaces>8</TabSpaces>
     <MaxCodeSize>128</MaxCodeSize>
     <MaxTextWidth>1024</MaxTextWidth>
-    <ViewerMode>1</ViewerMode>
+    <ViewerMode>0</ViewerMode>
     <PrintMargins>200|200|200|200</PrintMargins>
     <ShowCaret>False</ShowCaret>
     <WrapText>False</WrapText>
@@ -702,7 +698,7 @@
     <DfltRightGoTo>1</DfltRightGoTo>
     <DfltKeep>5</DfltKeep>
     <DfltSaveDirHistory>False</DfltSaveDirHistory>
-    <FavTabsLastUniqueID>{D1DA25D7-F90D-497D-9DB3-BAC8CA05F5BA}</FavTabsLastUniqueID>
+    <FavTabsLastUniqueID>{11B86284-46BD-4E62-AD43-A79B3F1BB42D}</FavTabsLastUniqueID>
   </FavoriteTabsOptions>
   <Lua>
     <PathToLibrary>lua5.1.dll</PathToLibrary>
@@ -722,7 +718,7 @@
   <ColumnsSets DefaultTitleHash="540805403">
     <ColumnsSet UseFrameCursor="False">
       <Name>Default</Name>
-      <Unique>577A80FB-96A1-4C53-BA97-60A6212A46C5</Unique>
+      <Unique>2DAD3EF7-D05C-452F-9439-F42C7D67217F</Unique>
       <CustomView>False</CustomView>
       <FileSystem>&lt;General&gt;</FileSystem>
       <PixelsPerInch>96</PixelsPerInch>
@@ -730,12 +726,12 @@
       <Columns>
         <Column>
           <Title>Name</Title>
-          <Unique>B3E684FB-4533-4A96-8615-F044516AC7D3</Unique>
+          <Unique>BE6B38AC-29FD-4A76-B3C7-10CDFA83FFE5</Unique>
           <FuncString>[DC().GETFILENAMENOEXT{}]</FuncString>
-          <Width>315</Width>
+          <Width>293</Width>
           <Align>0</Align>
           <Font>
-            <Name>Cascadia Mono</Name>
+            <Name>default</Name>
             <Size>10</Size>
             <Style>1</Style>
             <Quality>0</Quality>
@@ -746,12 +742,12 @@
         </Column>
         <Column>
           <Title>Ext</Title>
-          <Unique>7C9DFC6A-1443-44F6-A12E-019927383C03</Unique>
+          <Unique>74D74BB1-9C40-4DFE-93E4-AA09A8732903</Unique>
           <FuncString>[DC().GETFILEEXT{}]</FuncString>
-          <Width>78</Width>
+          <Width>33</Width>
           <Align>0</Align>
           <Font>
-            <Name>Cascadia Mono</Name>
+            <Name>default</Name>
             <Size>10</Size>
             <Style>1</Style>
             <Quality>0</Quality>
@@ -762,12 +758,12 @@
         </Column>
         <Column>
           <Title>Size</Title>
-          <Unique>827BD39D-A43A-4C5F-AB01-C243EBB35532</Unique>
+          <Unique>B6944796-7060-4067-BF44-EF71C688B2EC</Unique>
           <FuncString>[DC().GETFILESIZE{}]</FuncString>
-          <Width>69</Width>
+          <Width>47</Width>
           <Align>1</Align>
           <Font>
-            <Name>Cascadia Mono</Name>
+            <Name>default</Name>
             <Size>10</Size>
             <Style>1</Style>
             <Quality>0</Quality>
@@ -778,12 +774,12 @@
         </Column>
         <Column>
           <Title>Date</Title>
-          <Unique>9057FB18-48D9-40AB-B2E0-D3F3BFE18BA2</Unique>
+          <Unique>4E1AFD8E-5456-4E9B-9D78-86CD726B8AA7</Unique>
           <FuncString>[DC().GETFILETIME{}]</FuncString>
-          <Width>186</Width>
+          <Width>158</Width>
           <Align>1</Align>
           <Font>
-            <Name>Cascadia Mono</Name>
+            <Name>default</Name>
             <Size>10</Size>
             <Style>1</Style>
             <Quality>0</Quality>
@@ -794,12 +790,12 @@
         </Column>
         <Column>
           <Title>Attr</Title>
-          <Unique>62AE9AC5-C8C4-4700-8448-BC31B4B732F8</Unique>
+          <Unique>8D3E9973-E445-447A-B1F8-D135F7B45215</Unique>
           <FuncString>[DC().GETFILEATTR{}]</FuncString>
-          <Width>100</Width>
+          <Width>67</Width>
           <Align>0</Align>
           <Font>
-            <Name>Cascadia Mono</Name>
+            <Name>default</Name>
             <Size>10</Size>
             <Style>1</Style>
             <Quality>0</Quality>
@@ -1045,30 +1041,4 @@
     <PluginFilenameStyle>0</PluginFilenameStyle>
     <PluginPathToBeRelativeTo>%COMMANDER_PATH%</PluginPathToBeRelativeTo>
   </Plugins>
-  <MultiRenamePresets>
-    <LastPreset>{BC322BF1-2185-47F6-9F99-D27ED1E23E53}</LastPreset>
-    <Presets>
-      <Preset>
-        <Name>{BC322BF1-2185-47F6-9F99-D27ED1E23E53}</Name>
-        <Filename>[N]</Filename>
-        <Extension>[E]</Extension>
-        <FilenameStyle>0</FilenameStyle>
-        <ExtensionStyle>0</ExtensionStyle>
-        <Find/>
-        <Replace/>
-        <RegExp>False</RegExp>
-        <UseSubs>False</UseSubs>
-        <CaseSensitive>False</CaseSensitive>
-        <OnlyFirst>False</OnlyFirst>
-        <Counter>1</Counter>
-        <Interval>1</Interval>
-        <Width>0</Width>
-        <Log>
-          <Enabled>False</Enabled>
-          <Append>False</Append>
-          <File/>
-        </Log>
-      </Preset>
-    </Presets>
-  </MultiRenamePresets>
 </doublecmd>

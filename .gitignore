@@ -2,11 +2,10 @@
 **/*.lnk
 
 # MF6 files can be downloaded from USGS (unless Trump deletes them, kekw)
-/software/MF6
-!software\iMOD5\IMC_2024.4\
-!software\iMOD5\IMC_2024.4\**
-!software\iMOD5\IMC_2024.4\
+software/
+
 /other/
+/other/**
 
 ## models requires a complicated ignore list
 # 1st line ignores files under In by default.
