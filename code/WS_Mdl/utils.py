@@ -1830,7 +1830,7 @@ def iB_Dl(F: str, S, on_error='warn', overwrite=False, subdir='research-ws-imod'
         if not Pa_Loc.parent.exists():
             Pa_Loc.parent.mkdir(parents=True, exist_ok=True)
         print('1/1', Pa_Loc)
-        Dl(Pa_Rem, Pa_Loc, overwrite=overwrite)
+        Dl(Pa_Rem, Pa_Loc, overwrite=overwrite, on_error=on_error)
         dprint()
     elif Pa_Rem.collection_exists():
         Dest = Pa_Loc.parent
@@ -1838,7 +1838,7 @@ def iB_Dl(F: str, S, on_error='warn', overwrite=False, subdir='research-ws-imod'
             Dest.mkdir(parents=True, exist_ok=True)
 
         print(f'Downloading folder: {Pa_Rem} -> {Pa_Loc}')
-        Dl(Pa_Rem, Dest, overwrite=overwrite)
+        Dl(Pa_Rem, Dest, overwrite=overwrite, on_error=on_error)
         dprint()
     else:
         vprint(f'{warn}Remote path not found: {Pa_Rem}')
