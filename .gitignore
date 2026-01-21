@@ -2,7 +2,7 @@
 **/*.lnk
 
 # MF6 files can be downloaded from USGS (unless Trump deletes them, kekw)
-software/
+/software/
 
 /other/
 /other/**
@@ -11,16 +11,16 @@ software/
 # 1st line ignores files under In by default.
 # 2nd line ignores all sub-folders, but not the files inside them. This is so more rules for the files inside them can be added later.
 # 3rd line enables all PRJ files. The same idea is applied to other In types/files.
-models/*/In/**
+/models/*/In/**
 !models/*/In/**/
 !models/*/In/PRJ/**
 !models/*/In/CAP/
 !models/*/In/CAP/**/
 
-modes/*/doc/
-models/*/PoP/
-models/*/PrP/
-models/*/Sim/
+/models/*/doc/
+/models/*/PoP/
+/models/*/PrP/
+/models/*/Sim/
 
 # Imod temp and user files
 **/IMOD_INIT.PRF
@@ -31,8 +31,8 @@ models/*/Sim/
 **/__pycache__/
 
 # Snakemake: Ignore all folders in .snakemake except for log files. Also ignore all temp files in the code/snakemake folder.
-models/*/.snakemake/
-models/*/code/snakemake/temp/
+/models/*/.snakemake/
+/models/*/code/snakemake/temp/
 
 ## DVC files everywhere (except in SS folders) will be un-ignored. Same for .inp files, they're MetaSWAP files that are very small. CAVEAT: the folders where those file reside need to be un-ignored too, otherwise this won't work.
 !**/*.dvc
@@ -64,3 +64,6 @@ $RECYCLE.BIN/
 
 # 7z files
 **/*.7z
+
+# System Volume Information - Windows system folder
+**/System Volume Information/
