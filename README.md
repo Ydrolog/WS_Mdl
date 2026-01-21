@@ -1,32 +1,27 @@
 # Introduction
 This project folder is used for the purposes of [WaterScape](https://waterscape.sites.uu.nl/) Regional Groundwater modelling.<br>
+---
 
-Please read the entire **README.md** file to get up to date with the project before working on it.<br>
-Initially, this folder was set up in my (Marios Karampasis) **OneDrive**. Some project software requires **Windows** to run, so unfortunately it's only possible to work on this project from a Win machine.
+# Knowledge requirements
+- You need to be familiar with Groundwater Modelling concepts, version control/GitHub... TBC
+- For any questions, contact m.karampasis@uu.nl
+- **.\Mng\Acronyms.xlsx** contains acronyms and rules used throughout the project.  This is not just an acronym archive. It also explains how the **naming convention**, used throughout this project, works. You need to be familiar with the principles in this file when working on with this folder/project. New acronyms should be registered there. Make sure you read the instructions sheet/tab to understand the acronym system, and follow the system's rules when adding new shortcuts/abbreviations.
+---
 
-To avoid potential errors caused by OneDrive's default name (includes a hyphen and spaces), make a permanent **symbolic link** on your C: drive using the following command in your CMD:<br>
-mklink /D C:\OD "C:\Users\<User>\OneDrive - Universiteit Utrecht"<br>
-(change the OneDrive directory to whatever it needs to be)<br>
-The symbolic link can be deleted using:<br>
-rmdir C:\OD
-
-The model files are shared only upon request. **Clone** the repo to get the publicly avaialble files:
+# Project set-up
+- Please read the entire **README.md** file to get up to date with the project before working on it.<br>
+- Some project software require **Windows** to run, so unfortunately it's only possible to work on this project from a Win machine.
+- Follow the following guide to set-up the project Env.**.\code\Env\how_to_make_Env.md**
+- **Clone** the repo to get the publicly avaialble files:
 git clone https://github.com/Ydrolog/WS_Mdl
-
+The model files are shared only upon request. 
 ---
 
 
 # Rules and Tips
-- **.\Mng\Acronyms.xlsx** contains acronyms and rules used throughout the project.  This is not just an acronym archive. It also explains how the **naming convention**, used throughout this project, works. You need to be familiar with the principles in this file when working on with this folder/project. New acronyms should be registered there. Make sure you read the instructions sheet/tab to understand the acronym system, and follow the system's rules when adding new shortcuts/abbreviations.
 - The folder is version controlled through **GitHub** (smaller files, e.g. **code**) and **DVC**. You can use "`git ls-files`" to print all Git tracked files, and "`dvc list . --dvc-only --recursive`" (warning, it's very slow), to print the files tracked with each of the two methods. Make sure you push at frequent intervals.
 - For good **data management**, it's advised to include **metadata** in data folders, where the origin of the data isn't self-explanatory. E.g. a README file in a folder with IDFs (IDFs may contain spatial data, units etc. but oftentimes their origin/method of production, which can be very useful, is missing from the metadata).
 ---
-
-
-# Knowledge requirements
-You need to be familiar with Groundwater Modelling concepts, version control/GitHub... TBC
----
-
 
 # Folder structure/description
 Files that are specific to one of the **models** will be contained withing the folder of that model. The rest of the folders in this directory should contain files that are (or will be) used by/for multiple models.<br>
@@ -40,7 +35,6 @@ the models folder structure is described in more detail below because it is comp
 - **software**: Contains modelling software
 - SS: **Superseded** - anything not relevant anymore. (although superseded files can be found in other sub-folders too).
 ---
-
 
 ## Model(s)
 All model sub-folders contain the same folder structure for consistency. Files in those folders are only relevant to this Mdl. The Fo Str is described below:
@@ -56,13 +50,8 @@ All model sub-folders contain the same folder structure for consistency. Files i
 - **Sim**:	**Simulation** folders. 1 for each Sim. Unfortunately, the way iMOD is designed, Mdl Output needs to be saved here. Organized by Sim.
 ---
 
-
 # Guide to install SW for this project
 (optional software starts with "Opt:", the rest is mandatory)
-
-0. **symlink** OneDrive (this will be useful later)
-cmd.exe
-mklink /D C:\OD "C:\Users\<User>\OneDrive - Universiteit Utrecht"
 
 1. Opt:	Double Commander
 cd "C:\Users\mkarampasi\OneDrive - Universiteit Utrecht\Software\InstalledOutsideSoftwareCenter"
@@ -81,11 +70,8 @@ Install the pixi env, necessary for this project, following this guide:
 5. Opt: **Notepad++** - https://notepad-plus-plus.org/downloads
 ---
 
-
 ## Terminal tools
-
 There is a list of **terminal tools** that facilitate common tasks for this project. Those are listed in C:/OD/WS_Mdl/code/setup.py, with a brief description.<br>
 To add another terminal command, you need to add it to the setup file (similar to the other commands), and make a script. Then you need to install WS_Mdl (as explained in the Python Env installation guide above).<br>
 It's also possible to run Python functions from C:\OD\WS_Mdl\code\WS_Mdl\ modules via "`WS_Mdl.module` <function> <arg1> <arg2> ...".
-
 ---

@@ -18,7 +18,9 @@ def main():
             if hasattr(module, function_name):
                 func = getattr(module, function_name)
                 if callable(func):
-                    func(*args)
+                    res = func(*args)
+                    if res is not None:
+                        print(res)
                     return
                 else:
                     print(f"Error: '{function_name}' is not callable.")
