@@ -1771,22 +1771,21 @@ def iB_get_Pw(Dir_irods=rf'C:\Users\{os.getlogin()}\.irods', Pw_txt: str = 'Pw.t
     return Pw[::-1] if inverse else Pw
 
 
-class iB_session:
+class iB_session(Session):
     def __init__(self, Dir_irods=rf'C:\Users\{os.getlogin()}\.irods', PW_txt: str = 'Pw.txt'):
         """Loads an iBridges iRODS session using the irods_environment.json file and password from PW_txt."""
         Pw = iB_get_Pw(Dir_irods, Pw_txt=PW_txt)
-        self.S = Session(irods_env=PJ(Dir_irods, 'irods_environment.json'), password=Pw)
+        super().__init__(irods_env=PJ(Dir_irods, 'irods_environment.json'), password=Pw)
 
     def info(self):
         """Prints iBridges session info."""
         dprint()
         vprint(f'{bold}iBridges session info:{style_reset}')
-        vprint(f'{"username":15}:', self.S.username)
-        vprint(f'{"zone":15}:', self.S.zone)
-        vprint(f'{"server_version":15}:', self.S.server_version)
-        vprint(f'{"user_info":15}:', self.S.get_user_info())  # lists user type and groups
-        vprint(f'{"home":15}:', self.S.home)  # default home for iRODS /zone/home/username
-        vprint(f'{"current":15}:', self.S.current)  # current working directory
+        vprint(f'{"username":15}:', self.username)
+        vprint(f'{"zone":15}:', self.zone)
+        vprint(f'{"server_version":15}:', self.server_version)
+        vprint(f'{"user_info":15}:', self.get_user_info())  # lists user type and groups
+        vprint(f'{"home":15}:', self.home)  # default home for iRODS /zone/home/username
         dprint()
 
 
