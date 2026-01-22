@@ -6,7 +6,7 @@ l_F = ['data']
 
 print(f'Downloading "{l_F}" to from iBridges...\n')
 
-S = U.iB_Session()
+S = U.iB_session()
 
 S.info()
 

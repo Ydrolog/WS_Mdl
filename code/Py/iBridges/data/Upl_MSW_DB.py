@@ -5,7 +5,7 @@ Fo = 'data/MSW_DB.7z'
 
 print(f'Uploading "{Fo}" folder to iBridges...\n')
 
-S = U.iB_Session()
+S = U.iB_session()
 
 U.iB_Upl(Fo, S, l_exceptions=[])  # , overwrite=False)
 

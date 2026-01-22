@@ -6,7 +6,7 @@ l_F = ['software/installers']
 
 print(f'Downloading "{l_F}" to from iBridges...\n')
 
-S = U.iB_Session()
+S = U.iB_session()
 
 for F in l_F:
     U.iB_Dl(F, S)  # , overwrite=False)
