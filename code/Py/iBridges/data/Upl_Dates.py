@@ -1,12 +1,13 @@
 import WS_Mdl.utils as U
 
 print(U.pre_Sign)
-Fo = 'data/Dates.csv'
+l_F = ['data/Dates.csv', 'data/.gitignore']
 
-print(f'Uploading "{Fo}" folder to iBridges...\n')
+print(f'Uploading "{l_F}" folder to iBridges...\n')
 
 S = U.iB_session()
 
-U.iB_Upl(Fo, S, l_exceptions=[])  # , overwrite=False)
+for F in l_F:
+    U.iB_Upl(F, S)  # , overwrite=False)
 
 print(U.post_Sign)

@@ -1744,7 +1744,7 @@ def add_OBS_to_MF_In(str_OBS, PKG=None, MdlN=None, Pa=None, iMOD5=False):
 
 
 # iBridges -----------------------------------------------------------------------
-def l_Fis_Exc(Pa, l_exceptions=['.gitignore', '.dvc', '.7z', '.aux', '.xml']):
+def l_Fis_Exc(Pa, l_exceptions=['.7z', '.aux', '.xml']):
     l_ = []
     if Pa.is_file():
         if Pa.name not in l_exceptions and Pa.suffix not in l_exceptions:
