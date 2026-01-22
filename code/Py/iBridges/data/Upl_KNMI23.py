@@ -5,7 +5,7 @@ Fo = 'data/KNMI23'
 
 print(f'Uploading "{Fo}" folder to iBridges...\n')
 
-S = U.iB_load_session()
+S = U.iB_Session()
 
 U.iB_Upl(Fo, S)  # , overwrite=False)
 

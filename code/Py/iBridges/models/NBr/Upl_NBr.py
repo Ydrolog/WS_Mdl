@@ -38,7 +38,7 @@ print(
     f'Uploading:\n{"\n".join([f"{i:2}/{len(l_Fo)} - {j}" for i, j in enumerate(l_Fo, 1)])}\nfolder(s) to iBridges...\n'
 )
 
-S = U.iB_load_session()
+S = U.iB_Session()
 
 for f in l_Fo:
     U.iB_Upl(f, S)  # , overwrite=False)

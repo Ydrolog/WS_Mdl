@@ -2,11 +2,13 @@ import WS_Mdl.utils as U
 
 print(U.pre_Sign)
 
-l_F = ['data', 'models']
+l_F = ['data']
 
 print(f'Downloading "{l_F}" to from iBridges...\n')
 
-S = U.iB_load_session()
+S = U.iB_Session()
+
+S.info()
 
 for F in l_F:
     U.iB_Dl(F, S)  # , overwrite=False)

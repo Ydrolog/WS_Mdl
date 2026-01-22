@@ -6,6 +6,7 @@ import shutil as sh
 import stat
 import subprocess as sp
 import sys
+import tarfile
 import warnings
 from datetime import datetime as DT
 from io import StringIO
@@ -1770,18 +1771,23 @@ def iB_get_Pw(Dir_irods=rf'C:\Users\{os.getlogin()}\.irods', Pw_txt: str = 'Pw.t
     return Pw[::-1] if inverse else Pw
 
 
-def iB_load_session(Dir_irods=rf'C:\Users\{os.getlogin()}\.irods'):
-    Pw = iB_get_Pw(Dir_irods)
-    S = Session(irods_env=PJ(Dir_irods, 'irods_environment.json'), password=Pw)
-    dprint()
-    vprint(f'{bold}iBridges session info:{style_reset}')
-    vprint(f'{"username":15}:', S.username)
-    vprint(f'{"zone":15}:', S.zone)
-    vprint(f'{"server_version":15}:', S.server_version)
-    vprint(f'{"user_info":15}:', S.get_user_info())  # lists user type and groups
-    vprint(f'{"home":15}:', S.home)  # default home for iRODS /zone/home/username
-    dprint()
-    return S
+class iB_session:
+    def __init__(self, Dir_irods=rf'C:\Users\{os.getlogin()}\.irods', PW_txt: str = 'Pw.txt'):
+        """Loads an iBridges iRODS session using the irods_environment.json file and password from PW_txt."""
+        Pw = iB_get_Pw(Dir_irods, Pw_txt=PW_txt)
+        self.S = Session(irods_env=PJ(Dir_irods, 'irods_environment.json'), password=Pw)
+
+    def info(self):
+        """Prints iBridges session info."""
+        dprint()
+        vprint(f'{bold}iBridges session info:{style_reset}')
+        vprint(f'{"username":15}:', self.S.username)
+        vprint(f'{"zone":15}:', self.S.zone)
+        vprint(f'{"server_version":15}:', self.S.server_version)
+        vprint(f'{"user_info":15}:', self.S.get_user_info())  # lists user type and groups
+        vprint(f'{"home":15}:', self.S.home)  # default home for iRODS /zone/home/username
+        vprint(f'{"current":15}:', self.S.current)  # current working directory
+        dprint()
 
 
 def iB_Upl(
@@ -1820,25 +1826,46 @@ def iB_Upl(
             dprint()
 
 
-def iB_Dl(F: str, S, on_error='warn', overwrite=False, subdir='research-ws-imod'):
+def iB_Dl(F: str, S, on_error='warn', overwrite=False, subdir='research-ws-imod', decompress: bool = True):
     """Downloads an iBridges file/folder."""
 
-    Pa_Rem = iPa(S, '~') / subdir / F
+    Pa_Rmt = iPa(S, '~') / subdir / F
     Pa_Loc = Path(f'G:/{F}')
 
-    if Pa_Rem.dataobject_exists():
+    if Pa_Rmt.dataobject_exists():
         if not Pa_Loc.parent.exists():
             Pa_Loc.parent.mkdir(parents=True, exist_ok=True)
         print('1/1', Pa_Loc)
-        Dl(Pa_Rem, Pa_Loc, overwrite=overwrite, on_error=on_error)
-        dprint()
-    elif Pa_Rem.collection_exists():
+        Dl(Pa_Rmt, Pa_Loc, overwrite=overwrite, on_error=on_error)
+
+    elif Pa_Rmt.collection_exists():
         Dest = Pa_Loc.parent
         if not Dest.exists():
             Dest.mkdir(parents=True, exist_ok=True)
 
-        print(f'Downloading folder: {Pa_Rem} -> {Pa_Loc}')
-        Dl(Pa_Rem, Dest, overwrite=overwrite, on_error=on_error)
-        dprint()
+        print(f'Downloading folder: {Pa_Rmt} -> {Pa_Loc}')
+        Dl(Pa_Rmt, Dest, overwrite=overwrite, on_error=on_error)
     else:
-        vprint(f'{warn}Remote path not found: {Pa_Rem}')
+        vprint(f'{warn}Remote path not found: {Pa_Rmt}')
+        return
+
+    # Post-process: Decompress .tar.gz files
+    if decompress and Pa_Loc.exists():
+
+        def decompress_and_clean(file_path):  # Helper to decompress and remove .tar.gz files
+            if str(file_path).endswith('.tar.gz'):
+                print(f'Decompressing {file_path}...')
+                try:
+                    with tarfile.open(file_path, 'r:gz') as tar:
+                        tar.extractall(path=file_path.parent)
+                    os.remove(file_path)
+                except Exception as e:
+                    print(f'{warn}Failed to decompress {file_path}: {e}')
+
+        if Pa_Loc.is_file():
+            decompress_and_clean(Pa_Loc)
+        elif Pa_Loc.is_dir():
+            for root, _, files in os.walk(Pa_Loc):
+                for file in files:
+                    decompress_and_clean(Path(root) / file)
+    dprint()

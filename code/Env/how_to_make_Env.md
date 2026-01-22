@@ -55,9 +55,11 @@ pixi shell
 This needs to be run inside the repo folder. It can be run in downstream folders as well, pixi will look upstream when there isn't a pixi.lock file in the activate folder.
 
 ## 4. To export.
+
 1. You don't have to do anything manually. If you've editted the WS_Mdl package, the new tag and hash will be recorded in the RunLog. Then the next time follow the guide in paragraph 2.
 	In case you want to share with someone who doesn't use pixi, it might be possible via:
 	pixi workspace export conda-environment env.yml
+
 2. If you want to **install a new library** or switch to a specific version, use e.g.:
 pixi add --pypi "rasterio>=1.3"
 
@@ -68,40 +70,18 @@ pixi add --pypi "rasterio>=1.3"
    git add pixi.toml pixi.lock
    example commit:
    git commit -m "Added rasterio 1.3+"
------------------------------------------
 
 
-# THE GUIDE BELOW IS THE OLD ONE. That way of env management was used for the last time on 04/08, NBr32, hash b5dfc2b.
------------------------------------------
---- To freeze/export: ---
-The WS env should be frozen on every change. If no Env is present for a run/Sim you want to repeat, assume that the previous one will do the job.
+## 5. Transfering large files - YoDa
 
-1. activate:
-conda activate WS
+0. To transfer large files within the scope of this project, we use YoDa [YoDa](https://geo.yoda.uu.nl), which is accessed through iBridges.
 
-2. freeze (run this in this folder):
-python .\freeze_env_WS.py
+1. Use the scripts in code/Py/iBridges, which utilize the iB commands from utils to transfer your files accross.
 
-This will create a .yml file for the conda and pip dependencies
-WS_Mdl is the only lib that has to be installed separatelly. 
------------------------------------------
-
-
------------------------------------------
---- To import/install: ---
-1. install from .yml
-mamba env create -f ./WS_env_<MdlN>.yml
-# Can use conda instead of mamba
-
-2. activate env
-conda activate WS
-
-3. (optional) check conda packages
-conda list
-
-4. (optional) check pip packages
-pip list
-
-5. Install WS_Mdl. You'll need to be on the WS_Mdl repo version that corresonds to your MdlN (repo_V Col in RunLog). Then run:
-pip install -e G:\code --use-pep517 --no-deps --no-build-isolation
+2. For folders that contain a large amount of not so big files, it's advised to bundle (.tar) and compress (.gz) them.
+	Use the method below:
+	wsl # requires WSL installation
+	tar -cf - <folder_name> | pv | gzip -1 > <compressed_name>.tar.gz
+	
+3. It's possible to connect YoDa as a drive (right click This PC -> Map Network Drive -> Folder: https://geo.yoda.uu.nl, password: get one from https://geo.yoda.uu.nl/user/data_access and copy it to C:\Users\<User>\.irods\Pw.txt (reverse the Pw string, iB_get_Pw will reverse it back by default - small safety feature), or remember it some other way.
 -----------------------------------------

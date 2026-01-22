@@ -6,7 +6,7 @@ l_F = ['software/iMOD5']
 
 print(f'Downloading "{l_F}" to from iBridges...\n')
 
-S = U.iB_load_session()
+S = U.iB_Session()
 
 for F in l_F:
     U.iB_Dl(F, S)  # , overwrite=False)

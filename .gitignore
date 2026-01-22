@@ -62,8 +62,10 @@ $RECYCLE.BIN/
 *.egg-info/
 *.egg-info/**
 
-# 7z files
+# compressed files
 **/*.7z
+**/*.zip
+**/*.tar.gz
 
 # System Volume Information - Windows system folder
 **/System Volume Information/
