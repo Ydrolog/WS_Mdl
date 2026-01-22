@@ -26,6 +26,7 @@ from ibridges import Session
 from ibridges import download as Dl
 from ibridges import upload as Upl
 from send2trash import send2trash
+from tqdm import tqdm
 
 warnings.filterwarnings('ignore', category=UserWarning, module='openpyxl.worksheet._read_only')
 
@@ -1793,7 +1794,7 @@ def iB_Upl(
     F: str,
     S,
     on_error='warn',
-    l_exceptions=['.gitignore', '.dvc', '.7z', '.aux', '.xml'],
+    l_exceptions=['.dvc', '.7z', '.aux', '.xml'],
     overwrite=False,
     subdir='research-ws-imod',
 ):
@@ -1803,9 +1804,11 @@ def iB_Upl(
     Pa_Loc = Path(f'G:/{F}/')
     l_Fi_data = l_Fis_Exc(Pa_Loc, l_exceptions=l_exceptions)
 
+    print(f'Uploading from: {Pa_Loc}')
     if Pa_Loc.is_file():
         if l_Fi_data:
             Target = CWD / F
+            print(f'Uploading to:   {Target}')
             if not Target.parent.exists():
                 Target.parent.create_collection()
             print('1/1', Target)
@@ -1813,6 +1816,7 @@ def iB_Upl(
             dprint()
     else:
         CWD_Fo = CWD / F
+        print(f'Uploading to:   {CWD_Fo}')
         if not CWD_Fo.exists():
             CWD_Fo.create_collection()
         for i, Pa in enumerate(l_Fi_data, 1):
@@ -1856,7 +1860,12 @@ def iB_Dl(F: str, S, on_error='warn', overwrite=False, subdir='research-ws-imod'
                 print(f'Decompressing {file_path}...')
                 try:
                     with tarfile.open(file_path, 'r:gz') as tar:
-                        tar.extractall(path=file_path.parent)
+                        members = tar.getmembers()
+                        pbar = tqdm(total=len(members), desc=f'Extracting {file_path.name}', unit='file')
+                        for member in members:
+                            tar.extract(member, path=file_path.parent)
+                            pbar.update(1)
+                        pbar.close()
                     os.remove(file_path)
                 except Exception as e:
                     print(f'{warn}Failed to decompress {file_path}: {e}')

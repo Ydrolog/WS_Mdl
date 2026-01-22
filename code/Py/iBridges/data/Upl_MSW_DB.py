@@ -1,7 +1,7 @@
 import WS_Mdl.utils as U
 
 print(U.pre_Sign)
-Fo = 'data/MSW_DB.7z'
+Fo = 'data/MSW_DB.tar.gz'
 
 print(f'Uploading "{Fo}" folder to iBridges...\n')
 
