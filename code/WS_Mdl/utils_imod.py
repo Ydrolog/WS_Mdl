@@ -25,6 +25,7 @@ from .utils import (
     Mdl_Dmns_from_INI,
     Pa_WS,
     get_MdlN_Pa,
+    post_Sign,
     pre_Sign,
     r_IPF_Spa,
     set_verbose,
@@ -528,7 +529,7 @@ def Mdl_Prep(MdlN: str, Pa_MF6_DLL: str = None, Pa_MSW_DLL: str = None, verbose=
     try:
         for Pkg in [i for i in MF6_Mdl_AoI.keys() if ('riv' in i.lower()) or ('drn' in i.lower())]:
             MF6_Mdl_AoI[Pkg].cleanup(DIS_AoI)
-    except:
+    except Exception:
         print('Failed to cleanup packages. Proceeding without cleanup. Fingers crossed!')
 
     # MetaSWAP cleanup

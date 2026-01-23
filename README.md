@@ -5,7 +5,7 @@ This project folder is used for the purposes of [WaterScape](https://waterscape.
 # Knowledge requirements
 - You need to be familiar with Groundwater Modelling concepts, version control/GitHub... TBC
 - For any questions, contact m.karampasis@uu.nl
-- **.\Mng\Acronyms.xlsx** contains acronyms and rules used throughout the project.  This is not just an acronym archive. It also explains how the **naming convention**, used throughout this project, works. You need to be familiar with the principles in this file when working on with this folder/project. New acronyms should be registered there. Make sure you read the instructions sheet/tab to understand the acronym system, and follow the system's rules when adding new shortcuts/abbreviations.
+- **.\Mng\Acronyms.xlsx** contains acronyms and rules used throughout the project. It also explains how the **naming convention**, used throughout this project, works. You need to be familiar with the principles in this file when working on with this folder/project. New acronyms should be registered there. Make sure you read the instructions sheet/tab to understand the acronym system, and follow the system's rules when adding new shortcuts/abbreviations.
 ---
 
 # Project set-up
@@ -61,7 +61,7 @@ Opt: replace files in C:\Users\<User>\AppData\Roaming\doublecmd\ with files in C
 2. **pixi Env** (with snakmake)
 Install the pixi env, necessary for this project, following this guide:
 ./code/Env/how_to_make_Env.md
-(C:\OD\WS_Mdl\code\Env\How_to_make_env.md)
+(G:\code\Env\How_to_make_env.md)
 
 3. (Opt: **PS7** - #666 I should make a guide later)
 
@@ -71,7 +71,7 @@ Install the pixi env, necessary for this project, following this guide:
 ---
 
 ## Terminal tools
-There is a list of **terminal tools** that facilitate common tasks for this project. Those are listed in C:/OD/WS_Mdl/code/setup.py, with a brief description.<br>
+There is a list of **terminal tools** that facilitate common tasks for this project. Those are listed in G:/code/setup.py, with a brief description.<br>
 To add another terminal command, you need to add it to the setup file (similar to the other commands), and make a script. Then you need to install WS_Mdl (as explained in the Python Env installation guide above).<br>
-It's also possible to run Python functions from C:\OD\WS_Mdl\code\WS_Mdl\ modules via "`WS_Mdl.module` <function> <arg1> <arg2> ...".
+It's also possible to run Python functions from G:\code\WS_Mdl\ modules via "`WS_Mdl.module` <function> <arg1> <arg2> ...".
 ---

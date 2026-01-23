@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 
 setup(
     name='WS_Mdl',
-    version='0.1',
+    version='0.2.0',
     package_dir={'': 'code'},
     packages=find_packages(where='code'),
     install_requires=[
