@@ -33,10 +33,10 @@ Make sure you write in the descriptio which Sims you're repeating and how you're
    *Open* `./Mng/RunLog.xlsx` and copy the *Tag* or *Hash* column for the Sim you want to re-run.
 
 4. **Restore** env defining files:
-git restore --source <sha_or_tag> --pathspec-from-file=C:\WS_Mdl\code\Env\pixi_env_Fis.txt
+git restore --source <sha_or_tag> --pathspec-from-file=G:\code\Env\pixi_env_Fis.txt
 
 5. Change directory
-cd C:\WS_Mdl\code
+cd G:\code
 
 6. **Re-build** env:
 pixi install --frozen # This uses both the pixi.lock and pixi.toml files to ensure reinstallation of locked package versions.

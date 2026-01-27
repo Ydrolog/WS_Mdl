@@ -35,6 +35,7 @@ setup(
             'o_VS=WS_Mdl.scripts.o_VS:main',  # Opens the provided path in VSCode.
             'SFR_to_GPkg=WS_Mdl.scripts.SFR_to_GPkg:main',  # Converts SFR data to GeoPackage format.
             'p_TS_range=WS_Mdl.scripts.p_TS_range:main',  # Plots time series range from files with date patterns in their names.
+            'Bin_to_text=WS_Mdl.scripts.Bin_to_text:main',  # Converts specific binary files to text format.
         ]
     },
 )
