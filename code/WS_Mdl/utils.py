@@ -1733,7 +1733,7 @@ def add_OBS_to_MF_In(str_OBS, PKG=None, MdlN=None, Pa=None, iMOD5=False):
     with open(Pa, 'r+') as f:
         l_Lns = f.readlines()
         try:
-            i = next(i for i, ln in enumerate(l_Lns) if 'END OPTIONS' in ln)
+            i = next(i for i, ln in enumerate(l_Lns) if 'END OPTIONS' in ln.upper())
             l_1, l_2 = l_Lns[:i], l_Lns[i:]
             l_Lns = l_1 + [f'{str_OBS}\n'] + l_2
             f.seek(0)

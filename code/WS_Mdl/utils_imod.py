@@ -416,7 +416,7 @@ def mete_grid_Cvt_to_AbsPa(Pa_PRJ: str, PRJ: dict = None):
 
     DF = pd.read_csv(Pa_mete_grid, header=None, names=['N', 'Y', 'P', 'PET'])
     DF.P = DF.P.apply(lambda x: os.path.abspath(PJ(Dir_PRJ, x)))
-    DF.PET = DF.PET.apply(lambda x: os.path.abspath(PJ(Dir_PRJ, x)))  # Fixed: was DF.P instead of DF.PET
+    DF.PET = DF.PET.apply(lambda x: os.path.abspath(PJ(Dir_PRJ, x)))
 
     # Write CSV with proper format to avoid imod parsing issues with newlines
     # imod doesn't strip newlines from paths, so we need to format carefully
@@ -437,6 +437,9 @@ def mete_grid_Cvt_to_AbsPa(Pa_PRJ: str, PRJ: dict = None):
     print(f'Created corrected mete_grid.inp: {Pa_mete_grid_AbsPa}')
 
     return Pa_mete_grid_AbsPa
+
+
+# def BND_set_outer()
 
 
 # Mdl related --------------------------------------------------------------------
