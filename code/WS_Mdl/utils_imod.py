@@ -14,6 +14,7 @@ from os.path import join as PJ
 import imod
 import numpy as np
 import pandas as pd
+import plotly.graph_objects as go
 import primod
 import xarray as xr
 from filelock import FileLock as FL
@@ -24,10 +25,14 @@ from .utils import (
     INI_to_d,
     Mdl_Dmns_from_INI,
     Pa_WS,
+    SFR_PkgD_to_DF,
+    dprint,
     get_MdlN_Pa,
     post_Sign,
     pre_Sign,
     r_IPF_Spa,
+    reach_to_cell_id,
+    reach_to_XY,
     set_verbose,
     vprint,
 )
@@ -404,8 +409,8 @@ def mete_grid_Cvt_to_AbsPa(Pa_PRJ: str, PRJ: dict = None):
     Dir_PRJ = PDN(Pa_PRJ)
 
     if not PRJ:  # If PRJ is not provided, load it from Pa_PRJ
-        PRJ_, PRJ_OBS = o_PRJ_with_OBS(Pa_PRJ)
-        PRJ, period_data = PRJ_[0], PRJ_[1]
+        PRJ_, _ = o_PRJ_with_OBS(Pa_PRJ)
+        PRJ, _ = PRJ_[0], PRJ_[1]
         return None
 
     Pa_mete_grid = PRJ['extra']['paths'][2][0]  # 3rd file (index 2) (by default. immutable order)
@@ -455,13 +460,13 @@ def Mdl_Prep(MdlN: str, Pa_MF6_DLL: str = None, Pa_MSW_DLL: str = None, verbose=
     # Load paths and variables from PRJ & INI
     d_Pa = get_MdlN_Pa(MdlN)
     Pa_PRJ = d_Pa['PRJ']
-    Dir_PRJ = PDN(Pa_PRJ)
+    # Dir_PRJ = PDN(Pa_PRJ)
     d_INI = INI_to_d(d_Pa['INI'])
     Xmin, Ymin, Xmax, Ymax = [float(i) for i in d_INI['WINDOW'].split(',')]
     SP_date_1st, SP_date_last = [
         DT.strftime(DT.strptime(d_INI[f'{i}'], '%Y%m%d'), '%Y-%m-%d') for i in ['SDATE', 'EDATE']
     ]
-    dx = dy = float(d_INI['CELLSIZE'])
+    # dx = dy = float(d_INI['CELLSIZE'])
 
     if not Pa_MF6_DLL:  # If not specified, the default location will be used.
         Pa_MF6_DLL = d_Pa['MF6_DLL']
@@ -469,7 +474,7 @@ def Mdl_Prep(MdlN: str, Pa_MF6_DLL: str = None, Pa_MSW_DLL: str = None, verbose=
         Pa_MSW_DLL = d_Pa['MSW_DLL']
 
     # Load PRJ & regrid it to Mdl Aa
-    PRJ_, PRJ_OBS = o_PRJ_with_OBS(Pa_PRJ)
+    PRJ_, _ = o_PRJ_with_OBS(Pa_PRJ)
     PRJ, period_data = PRJ_[0], PRJ_[1]
     PRJ_regrid = regrid_PRJ(
         PRJ, MdlN
@@ -1015,7 +1020,7 @@ def xr_get_value(A, X, Y, dx, dy, L=None, method='nearest', validate=True):
         X_A, Y_A = value['x'].values, value['y'].values
         if not (abs(X - X_A) <= abs(dx / 2)) or not (abs(Y - Y_A) <= abs(dy / 2)):
             print(
-                f'🟡 - Retrieved value coordinates (X: {X_A}, Y: {Y_A}) differ from requested coordinates (X: {X}, Y: {Y}) by more than half the cell size (dx: {dx}, dy: {dy}).\nThat may be valid if the resolution of the two arrays is different, but please double-check.'
+                f'🟡 - Retrieved value coordinates (X: {X_A}, Y: {Y_A}) differ from requested coordinates (X: {X}, Y: {Y}) by more than half the cell size (dx: {dx}, dy: {dy}).\nThat may be valid if the resolution of the two arrays is different, but you should double-check.'
             )
 
     return value
@@ -1091,3 +1096,477 @@ def get_CeCes_from_INI(MdlN: str):
     dy = -float(cellsize)
 
     return np.arange(Xmin + dx / 2, Xmax, dx), np.arange(Ymax + dy / 2, Ymin, dy)
+
+
+# SFR PoP ------------------------------------------------------------------------
+def get_SFR_OBS_Out_Pas(MdlN, filetype='.csv'):
+    """
+    Gets the SFR OBS output paths from the model simulation input folder.
+    Returns a list of paths if multiple found, or a single path if only one found.
+    666 need to add argument to select specific OBS file if arg is not None.
+    """
+    d_Pa = get_MdlN_Pa(MdlN)
+    l_Pa = [
+        PJ(d_Pa['Sim_In'], i)
+        for i in os.listdir(d_Pa['Sim_In'])
+        if 'SFR' in i.upper() and 'OBS' in i.upper() and i.lower().endswith(filetype)
+    ]
+    if len(l_Pa) == 1:
+        l_Pa = l_Pa[0]
+    return l_Pa
+
+    def plot_SFR_reach_TS(
+        reach,
+        L,
+        R,
+        C,
+        X,
+        Y,
+        MdlN,
+        SFR_Stg,
+        RIV_Stg,
+        RIV_Btm,
+        top,
+        Btm,
+        HD,
+        Pa_Out=PJ(d_Pa['PoP_Out_MdlN'], 'SFR_stage'),
+    ):
+        """
+        Plot SFR stage time series for a specific reach along with reference lines for river stage, river bottom, layer top, and layer bottom.
+        """
+        # Get the stage column name
+        stg_cellid = f'L{L}_R{R}_C{C}'
+
+        fig = go.Figure()
+
+        # Create arrays with same length as time series for constant values
+        n = len(SFR_Stg)
+        riv_stg_arr = [RIV_Stg] * n
+        riv_btm_arr = [RIV_Btm] * n
+        top_arr = [top] * n
+        btm_arr = [Btm] * n
+
+        # SFR stage TS
+        fig.add_trace(
+            go.Scatter(
+                x=SFR_Stg['time'],
+                y=SFR_Stg[stg_cellid],
+                mode='lines',
+                name='SFR stage',
+                line=dict(color='royalblue', width=3),
+                hovertemplate='%{y:.3f}',
+                showlegend=True,
+            )
+        )
+
+        # Head TS
+        fig.add_trace(
+            go.Scatter(
+                x=HD['time'],
+                y=HD['head'],
+                mode='lines',
+                name='Head',
+                line=dict(color='purple', width=3),
+                hovertemplate='%{y:.3f}',
+                showlegend=True,
+            )
+        )
+
+        # RIV - Horizontal reference lines (constant values)
+        fig.add_trace(
+            go.Scatter(
+                x=SFR_Stg['time'],
+                y=riv_stg_arr,
+                mode='lines',
+                name='RIV stage',
+                line=dict(color='green', width=3, dash='dash'),
+                hovertemplate='%{y:.3f}',
+            )
+        )
+
+        fig.add_trace(
+            go.Scatter(
+                x=SFR_Stg['time'],
+                y=riv_btm_arr,
+                mode='lines',
+                name='RIV bottom',
+                line=dict(color='green', width=2),
+                hovertemplate='%{y:.3f}',
+            )
+        )
+
+        # Layer top and bottom
+        fig.add_trace(
+            go.Scatter(
+                x=SFR_Stg['time'],
+                y=top_arr,
+                mode='lines',
+                name=f'L{L} top',
+                line=dict(color='#945400', width=2),
+                hovertemplate='%{y:.3f}',
+            )
+        )
+
+        fig.add_trace(
+            go.Scatter(
+                x=SFR_Stg['time'],
+                y=btm_arr,
+                mode='lines',
+                name=f'L{L} bottom',
+                line=dict(color='#945400', width=2),
+                hovertemplate='%{y:.3f}',
+            )
+        )
+
+        fig.update_layout(
+            title=dict(
+                text=f'SFR Stage Time-Series - Reach number: {reach}, L: {L}, R: {R}, C: {C}, X: {X}, Y: {Y} - MdlN: {MdlN}',
+                x=0.5,
+                xanchor='center',
+            ),
+            # xaxis_title='Time',
+            yaxis_title='Elevation (mNAP)',
+            legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5),
+            hovermode='x unified',
+            hoverlabel=dict(namelength=0, bgcolor='white', bordercolor='gray', font=dict(family='Consolas, monospace')),
+            template='plotly_white',
+            margin=dict(t=100),
+            xaxis=dict(
+                showspikes=True,
+                spikemode='across',
+                spikesnap='cursor',
+                spikecolor='gray',
+                spikethickness=1,
+                dtick='M1',
+                showgrid=True,
+                gridcolor='rgba(200, 200, 200, 0.5)',
+                gridwidth=1,
+            ),
+            yaxis=dict(showspikes=True, spikemode='across', spikesnap='cursor', spikecolor='gray', spikethickness=1),
+        )
+
+        fig.write_html(Pa_Out, auto_open=True)
+
+
+def plot_SFR_reach_TS(r_info, SFR_Stg, RIV_Stg, RIV_Btm, top, Btm, Pa_Out, HD=None):
+    """
+    Plot SFR stage time series for a specific reach along with reference lines for river stage, river bottom, layer top, and layer bottom.
+    r_info: dict with keys 'reach', 'L', 'R', 'C', 'X', 'Y', 'MdlN'
+    SFR_Stg: DataFrame with SFR stage time series
+    RIV_Stg: float, river stage
+    RIV_Btm: float, river bottom
+    top: float, layer top elevation
+    Btm: float, layer bottom elevation
+    Pa_Out: str, output HTML file path
+    HD: DataFrame with head time series (optional)
+    """
+
+    reach_cellid = f'L{r_info["L"]}_R{r_info["R"]}_C{r_info["C"]}'
+    header_data = f'Reach number: {r_info["reach"]}, L: {r_info["L"]}, R: {r_info["R"]}, C: {r_info["C"]}, X: {r_info["X"]}, Y: {r_info["Y"]} - MdlN: {r_info["MdlN"]}'
+    L = r_info['L']
+
+    fig = go.Figure()
+
+    # Create arrays with same length as time series for constant values
+    n = len(SFR_Stg)
+    riv_stg_arr = [RIV_Stg] * n
+    riv_btm_arr = [RIV_Btm] * n
+    top_arr = [top] * n
+    btm_arr = [Btm] * n
+
+    # SFR stage TS
+    fig.add_trace(
+        go.Scatter(
+            x=SFR_Stg['time'],
+            y=SFR_Stg[reach_cellid],
+            mode='lines',
+            name='SFR stage',
+            line=dict(color='royalblue', width=3),
+            hovertemplate='%{y:.3f}',
+            showlegend=True,
+        )
+    )
+
+    # Head TS
+    if HD is not None:
+        fig.add_trace(
+            go.Scatter(
+                x=HD['time'],
+                y=HD['head'],
+                mode='lines',
+                name='Head',
+                line=dict(color='purple', width=3),
+                hovertemplate='%{y:.3f}',
+                showlegend=True,
+            )
+        )
+
+    # RIV - Horizontal reference lines (constant values)
+    fig.add_trace(
+        go.Scatter(
+            x=SFR_Stg['time'],
+            y=riv_stg_arr,
+            mode='lines',
+            name='RIV stage',
+            line=dict(color='green', width=3, dash='dash'),
+            hovertemplate='%{y:.3f}',
+        )
+    )
+
+    fig.add_trace(
+        go.Scatter(
+            x=SFR_Stg['time'],
+            y=riv_btm_arr,
+            mode='lines',
+            name='RIV bottom',
+            line=dict(color='green', width=2),
+            hovertemplate='%{y:.3f}',
+        )
+    )
+
+    # Layer top and bottom
+    fig.add_trace(
+        go.Scatter(
+            x=SFR_Stg['time'],
+            y=top_arr,
+            mode='lines',
+            name=f'L{L} top',
+            line=dict(color='#945400', width=2),
+            hovertemplate='%{y:.3f}',
+        )
+    )
+
+    fig.add_trace(
+        go.Scatter(
+            x=SFR_Stg['time'],
+            y=btm_arr,
+            mode='lines',
+            name=f'L{L} bottom',
+            line=dict(color='#945400', width=2),
+            hovertemplate='%{y:.3f}',
+        )
+    )
+
+    # layout settings
+    fig.update_layout(
+        title=dict(text=f'SFR Stage Time-Series - {header_data}', x=0.5, xanchor='center'),
+        # xaxis_title='Time',
+        yaxis_title='Elevation (mNAP)',
+        legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5),
+        hovermode='x unified',
+        hoverlabel=dict(namelength=0, bgcolor='white', bordercolor='gray', font=dict(family='Consolas, monospace')),
+        template='plotly_white',
+        margin=dict(t=100),
+        xaxis=dict(
+            showspikes=True,
+            spikemode='across',
+            spikesnap='cursor',
+            spikecolor='gray',
+            spikethickness=1,
+            dtick='M1',
+            showgrid=True,
+            gridcolor='rgba(200, 200, 200, 0.5)',
+            gridwidth=1,
+        ),
+        yaxis=dict(showspikes=True, spikemode='across', spikesnap='cursor', spikecolor='gray', spikethickness=1),
+    )
+
+    fig.write_html(Pa_Out, auto_open=True)
+
+
+def SFR_stage_TS(MdlN: str, MdlN_RIV: str, N_system: int = None, load_head: bool = True):
+    """
+    Generates time series plots of SFR stage data from model output.
+    """
+
+    vprint(pre_Sign)
+    vprint(f'Generating SFR stage time series plots for model: {MdlN} and RIV model: {MdlN_RIV}, system: {N_system}\n')
+    set_verbose(False)
+
+    # Load paths and variables from PRJ & INI
+    d_Pa = get_MdlN_Pa(MdlN)
+    Pa_PRJ = d_Pa['PRJ']
+    d_INI = INI_to_d(d_Pa['INI'])
+    Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = Mdl_Dmns_from_INI(d_Pa['INI'])
+    SP_date_1st, SP_date_last = [
+        DT.strftime(DT.strptime(d_INI[f'{i}'], '%Y%m%d'), '%Y-%m-%d') for i in ['SDATE', 'EDATE']
+    ]
+    dx = dy = float(d_INI['CELLSIZE'])
+
+    # Load paths and variables from PRJ & INI
+    d_Pa_RIV = get_MdlN_Pa(MdlN_RIV)
+    Pa_PRJ_RIV = d_Pa_RIV['PRJ']
+
+    # Check that model dimensions are the same
+    if (Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C) != Mdl_Dmns_from_INI(d_Pa_RIV['INI']):
+        print('Warning: Model dimensions for RIV model differ from main model.')
+
+    print('--- Loading PRJ data...')
+    PRJ, PRJ_OBS = r_PRJ_with_OBS(Pa_PRJ)
+
+    print('--- Loading SFR OBS data...')
+    DF_ = pd.read_csv(get_SFR_OBS_Out_Pas(MdlN)[1])  # 666 replace 1. This needs to be standardized.
+    DF = DF_[[i for i in DF_.columns if i == 'time' or 'L' in i]].copy()
+    DF['time'] = pd.to_datetime(SP_date_1st) + pd.to_timedelta(DF['time'] - 1, unit='D')
+
+    print('--- Loading SFR PACKAGEDATA block...')
+    GDF_SFR = SFR_PkgD_to_DF(MdlN)
+
+    print('--- Loading RIV data...')
+    RIV_params = ['conductance', 'stage', 'bottom_elevation', 'infiltration_factor']
+    Pa_PRJ_RIV = d_Pa_RIV['PRJ']
+    PRJ_RIV, PRJ_OBS_RIV = r_PRJ_with_OBS(Pa_PRJ_RIV)
+
+    l_N_system_print = []
+    for i in range(PRJ_RIV['(riv)']['n_system']):
+        l_N_system_print.append(f'System {i + 1}:')
+        for j in RIV_params:
+            if 'path' in PRJ_RIV['(riv)'][j][i]:
+                l_N_system_print.append(f'\t{j:<20}: {PBN(PRJ_RIV["(riv)"][j][i]["path"])}')
+            elif 'constant' in PRJ_RIV['(riv)'][j][i]:
+                l_N_system_print.append(f'\t{j:<20}: {PRJ_RIV["(riv)"][j][i]["constant"]}')
+            else:
+                l_N_system_print.append(f'\t{j:<20}: N/A')
+
+    str_N_system_print = '\n'.join(l_N_system_print)
+
+    if N_system is None:
+        print(
+            f'  - You need to choose one of {PRJ_RIV["(riv)"]["n_system"]} river systems.\nHere is some information about the RIV systems:\n{str_N_system_print}\n'
+        )
+        N_system = int(input('Select the number of the RIV system you want to plot (1-indexed).'))
+    if N_system < 1 or N_system > PRJ_RIV['(riv)']['n_system']:
+        print('Invalid system number.')
+        return
+    A_RIV_Stg = xr_clip_Mdl_Aa(imod.idf.open(PRJ_RIV['(riv)']['stage'][N_system - 1]['path']), MdlN=MdlN)
+    A_RIV_Btm = xr_clip_Mdl_Aa(imod.idf.open(PRJ_RIV['(riv)']['bottom_elevation'][N_system - 1]['path']), MdlN=MdlN)
+
+    if A_RIV_Btm.notnull().sum().values == (A_RIV_Btm == A_RIV_Stg).sum().values:
+        print('\tAll river bottom elevations are equal to stage elevations.')
+    dprint()
+
+    print('--- Loading TOP BOT data...')
+    l_Pa_TOP = [i['path'] for i in PRJ['(top)']['top']]
+    A_TOP = xr_clip_Mdl_Aa(
+        imod.idf.open(l_Pa_TOP, pattern=r'TOP_L{layer}_{name}'), MdlN=MdlN
+    )  # We're just doing this to avoid errors - using {name} to capture the model number part - imod will use it for the DataArray name.
+    l_Pa_BOT = [i['path'] for i in PRJ['(bot)']['bottom']]
+    A_BOT = xr_clip_Mdl_Aa(imod.idf.open(l_Pa_BOT, pattern=r'BOT_L{layer}_{name}'), MdlN=MdlN)
+
+    print('--- Loading HD data...')
+    # Get layers relevant for SFR (HDS output can be too big to load to memory, and it's also efficient to just save the relevant layers)
+    DF_ = pd.DataFrame({'L': GDF_SFR.k.value_counts().index, 'count': GDF_SFR.k.value_counts()})
+    DF_['percentage'] = (GDF_SFR.k.value_counts(normalize=True) * 100).apply(lambda x: round(x, 2))
+    l_SFR_Ls = [int(i) for i in sorted(DF_.loc[DF_['percentage'] >= 1, 'L'].unique())]
+
+    print(
+        f"--- Loading GW HDs for SFR-relevant Ls: {l_SFR_Ls}.\n\tEach of those Ls contains at least 1% of the SFR reaches.\n\tIf you request to plot a TS for a reach not included in those Ls, it'll have to load separately, which may take some time."
+    )
+
+    set_verbose(True)
+
+    if load_head:
+        try:
+            A_HD_ = imod.mf6.open_hds(
+                hds_path=d_Pa['Out_HD_Bin'],
+                grb_path=d_Pa['DIS_GRB'],
+                simulation_start_time=pd.to_datetime(SP_date_1st),
+                time_unit='d',
+            ).astype('float32')
+            A_HD = A_HD_.sel(layer=l_SFR_Ls).compute()
+        except Exception as e:
+            print(f'🔴🔴🔴 - An error occurred while loading HD data: {e}')
+    vprint('🟢🟢 - Data loaded successfully. Ready to plot.')
+
+    while True:
+        In1 = input(
+            f'Start date is {DF["time"].min()} to {DF["time"].max()} for model {MdlN}.\nPress any key except Y and E to continue using this temporal extent.\nPress Y to set another temporal extent.\nPress E to exit.\n'
+        )
+        if In1.upper() == 'E':
+            break
+
+        start_date = (
+            pd.to_datetime(input('Enter start date (YYYY-MM-DD):\n')) if In1.upper() == 'Y' else DF['time'].min()
+        )
+        end_date = pd.to_datetime(input('Enter end date (YYYY-MM-DD):\n')) if In1.upper() == 'Y' else DF['time'].max()
+        DF_trim = (
+            DF.copy().loc[(DF['time'] >= start_date) & (DF['time'] <= end_date)].reset_index(drop=True)
+            if In1.upper() == 'Y'
+            else DF.copy()
+        )
+
+        while True:
+            In2 = input(
+                "Provide a cell ID (L R C) (with spaces or commas as separators) or a reach number. If you're providing a reach number, prefix it with 'R' (e.g., R15). Type 'E' to quit:\n"
+            )
+
+            vprint('  - Loading data for specified reach/cell...')
+
+            if In2.upper() == 'E':
+                break
+
+            elif In2.upper().startswith('R'):
+                reach = int(In2.upper().replace('R', ''))
+                L, R, C = reach_to_cell_id(reach, GDF_SFR)
+                X, Y = reach_to_XY(reach, GDF_SFR)
+            else:
+                # Split by commas and/or whitespace
+                parts = re.split(r'[,\s]+', In2.strip())
+                L, R, C = [int(j) for j in parts]
+
+            SFR_Stg = DF_trim[['time', f'L{L}_R{R}_C{C}']]
+            RIV_Stg = round(float(xr_get_value(A_RIV_Stg, X, Y, dx, dy)), 3)
+            RIV_Btm = round(float(xr_get_value(A_RIV_Btm, X, Y, dx, dy)), 3)
+            top = round(float(xr_get_value(A_TOP, X, Y, dx, dy, L=L)), 3)
+            Btm = round(float(xr_get_value(A_BOT, X, Y, dx, dy, L=L)), 3)
+
+            # Extract head time series at this location (compute to load from Dask)
+            if load_head:
+                try:
+                    HD_ts = xr_get_value(A_HD.sel(time=slice(start_date, end_date)), X, Y, dx, dy, L=L)
+                except Exception as e:
+                    print(
+                        f"L {L} probably contains less than 1% of the SFR reaches, so its HD wasn't loaded.\nAn error occurred while extracting head time series: {e}"
+                    )
+                    print('Attempting to load full head data for the specified layer...')
+                    A_HD_full = imod.mf6.open_hds(
+                        hds_path=d_Pa['Out_HD_Bin'],
+                        grb_path=d_Pa['DIS_GRB'],
+                        simulation_start_time=pd.to_datetime(SP_date_1st),
+                        time_unit='d',
+                    ).astype('float32')
+                    A_HD_L = A_HD_full.sel(layer=L)
+                    HD_ts = xr_get_value(A_HD_L.sel(time=slice(start_date, end_date)), X, Y, dx, dy)
+
+                HD = pd.DataFrame({'time': HD_ts.time.values, 'head': HD_ts.values})
+
+            r_info = {'reach': reach, 'L': L, 'R': R, 'C': C, 'X': X, 'Y': Y, 'MdlN': MdlN}
+            vprint(f'  - Plotting... {r_info}')
+
+            Pa_Out = PJ(d_Pa['PoP_Out_MdlN'], f'SFR_stage_TS-reach{reach}.html')
+            os.makedirs(os.path.dirname(Pa_Out), exist_ok=True)
+
+            if load_head:
+                plot_SFR_reach_TS(
+                    r_info,
+                    SFR_Stg,
+                    RIV_Stg,
+                    RIV_Btm,
+                    top,
+                    Btm,
+                    Pa_Out=Pa_Out,
+                    HD=HD,
+                )
+            else:
+                plot_SFR_reach_TS(
+                    r_info,
+                    SFR_Stg,
+                    RIV_Stg,
+                    RIV_Btm,
+                    top,
+                    Btm,
+                    Pa_Out=Pa_Out,
+                )
+
+            vprint('  🟢🟢 - Success!')
+    vprint('🟢🟢🟢 - Finished SFR stage TS plotting.')

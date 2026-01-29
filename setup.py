@@ -36,6 +36,7 @@ setup(
             'SFR_to_GPkg=WS_Mdl.scripts.SFR_to_GPkg:main',  # Converts SFR data to GeoPackage format.
             'p_TS_range=WS_Mdl.scripts.p_TS_range:main',  # Plots time series range from files with date patterns in their names.
             'Bin_to_text=WS_Mdl.scripts.Bin_to_text:main',  # Converts specific binary files to text format.
+            'SFR_stage_TS=WS_Mdl.scripts.SFR_stage_TS:main',  # Plots SFR stage time series for specified models.
         ]
     },
 )
