@@ -432,6 +432,39 @@ def DF_match_MdlN(DF: pd.DataFrame, MdlN: str, Col_name='MdlN', case_insensitive
         return DF[Col_name] == MdlN
 
 
+def reach_to_cell_id(reach: int, GDF_SFR: pd.DataFrame, MdlN=None, reach_Col='rno', L_C='k', R_C='i', C_C='j'):
+    """Returns the cell_id (L, R, C) tuple for a given reach number using the provided SFR GeoDataFrame."""
+    if (GDF_SFR is None) and (MdlN is None):
+        raise ValueError('Either GDF_SFR or MdlN must be provided.')
+    if MdlN:
+        GDF_SFR = SFR_PkgD_to_DF(MdlN)
+
+    if reach not in GDF_SFR[reach_Col].values:
+        raise ValueError(f'Reach number {reach} not found in the model.')
+
+    L = GDF_SFR.loc[GDF_SFR[reach_Col] == reach, L_C].values[0]
+    R = GDF_SFR.loc[GDF_SFR[reach_Col] == reach, R_C].values[0]
+    C = GDF_SFR.loc[GDF_SFR[reach_Col] == reach, C_C].values[0]
+
+    return (L, R, C)
+
+
+def reach_to_XY(reach: int, GDF_SFR: pd.DataFrame, MdlN=None, reach_Col='rno', X_C='X', Y_C='Y'):
+    """Returns the X, Y coordinates for a given reach number using the provided SFR GeoDataFrame."""
+    if (GDF_SFR is None) and (MdlN is None):
+        raise ValueError('Either GDF_SFR or MdlN must be provided.')
+    if MdlN:
+        GDF_SFR = SFR_PkgD_to_DF(MdlN)
+
+    if reach not in GDF_SFR[reach_Col].values:
+        raise ValueError(f'Reach number {reach} not found in the model.')
+
+    X = GDF_SFR.loc[GDF_SFR[reach_Col] == reach, X_C].values[0]
+    Y = GDF_SFR.loc[GDF_SFR[reach_Col] == reach, Y_C].values[0]
+
+    return (X, Y)
+
+
 # Read files/Py objects ----------------------------------------------------------
 def r_RunLog():
     return pd.read_excel(Pa_RunLog, sheet_name='RunLog').dropna(subset='runN')  # Read RunLog

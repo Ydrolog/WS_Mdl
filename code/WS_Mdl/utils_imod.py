@@ -113,7 +113,8 @@ def r_PRJ_with_OBS(Pa_PRJ, remove_SS=True, season_to_DT=True):
 
     # Write to a temporary file
     l_filtered_Lns = l_filtered_Lns2
-    with tempfile.NamedTemporaryFile(delete=False, mode='w', suffix='.prj') as temp_file:
+    # Create the temp file in the same directory as the original PRJ so relative paths resolve correctly
+    with tempfile.NamedTemporaryFile(delete=False, mode='w', dir=PDN(Pa_PRJ), suffix='.prj') as temp_file:
         temp_file.writelines(l_filtered_Lns)
         Pa_PRJ_temp = temp_file.name
 
@@ -996,6 +997,28 @@ def xr_compare_As(
         results['array2_has_nan'] = None
 
     return results
+
+
+def xr_get_value(A, X, Y, dx, dy, L=None, method='nearest', validate=True):
+    """
+    - Gets value from xarray DataArray A at coordinates X, Y, L (if provided).
+    - If validate is True, checks if value coordinates are within the same cell.
+    """
+
+    sel = {'x': X, 'y': Y}
+    if L:
+        sel['layer'] = L
+
+    value = A.sel(sel, method=method)
+
+    if validate:
+        X_A, Y_A = value['x'].values, value['y'].values
+        if not (abs(X - X_A) <= abs(dx / 2)) or not (abs(Y - Y_A) <= abs(dy / 2)):
+            print(
+                f'🟡 - Retrieved value coordinates (X: {X_A}, Y: {Y_A}) differ from requested coordinates (X: {X}, Y: {Y}) by more than half the cell size (dx: {dx}, dy: {dy}).\nThat may be valid if the resolution of the two arrays is different, but please double-check.'
+            )
+
+    return value
 
 
 # Standard options ---------------------------------------------------------------
