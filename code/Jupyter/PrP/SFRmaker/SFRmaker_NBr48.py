@@ -22,6 +22,7 @@ import WS_Mdl.geo as G
 import WS_Mdl.utils as U
 import WS_Mdl.utils_imod as UIM
 from imod import mf6, msw
+from imod.mf6 import ConstantHead
 from scipy.spatial.distance import cdist
 from shapely.geometry import box
 
@@ -30,6 +31,7 @@ from shapely.geometry import box
 # IL.reload(U)
 # IL.reload(UIM)
 # IL.reload(G)
+print('🟢 - Imports successful!')
 # endregion
 
 # %% [markdown]
@@ -57,6 +59,7 @@ dx = dy = float(d_INI['CELLSIZE'])
 # %%
 l_X_Y_Cols = ['Xstart', 'Ystart', 'Xend', 'Yend']
 l_Circ_IDs = [6561, 8788, 18348]
+print('🟢 - Options set successfully!')
 # endregion
 
 # %% [markdown]
@@ -69,6 +72,7 @@ l_Circ_IDs = [6561, 8788, 18348]
 # %%
 PRJ_, PRJ_OBS = UIM.o_PRJ_with_OBS(Pa_PRJ)
 PRJ, period_data = PRJ_[0], PRJ_[1]
+print('🟢 - PRJ loaded successfully!')
 
 # %% [markdown]
 # ## 1.1. Load DIS and limit to Mdl Aa
@@ -93,10 +97,10 @@ BND.loc[:, first_y, :] = -1  # Top row (all layers, first y, all x)
 BND.loc[:, last_y, :] = -1  # Bottom row (all layers, last y, all x)
 BND.loc[:, :, first_x] = -1  # Left column (all layers, all y, first x)
 BND.loc[:, :, last_x] = -1  # Right column (all layers, all y, last x)
-print('🟢 - Boundary conditions set successfully!')
 
 # %%
 BND.isel(layer=0, x=range(0, 10), y=range(0, 10)).plot.imshow(cmap='viridis')
+print('🟢 - Boundaries set successfully!')
 
 # %% [markdown]
 # ## 1.2. Load MF6 Mdl
@@ -106,6 +110,7 @@ times = pd.date_range(SP_date_1st, SP_date_last, freq='D')
 
 # %%
 Sim_MF6 = mf6.Modflow6Simulation.from_imod5_data(PRJ_regrid, period_data, times)
+print('🟢 - MF6 model loaded successfully!')
 
 # %%
 MF6_Mdl = Sim_MF6['imported_model']
@@ -176,7 +181,6 @@ mask = MF6_Mdl_AoI.domain
 
 # %%
 # Fix CHD package layer ordering issue (layers must be monotonically increasing)
-from imod.mf6 import ConstantHead
 
 chd_pkg = Sim_MF6_AoI['imported_model']['chd_merged']
 head_data_sorted = chd_pkg.dataset['head'].load().sortby('layer')
@@ -224,6 +228,7 @@ Pa_IMC = d_Pa['coupler_Exe']
 metamod.write(
     directory=d_Pa['Pa_MdlN'], modflow6_dll=Pa_MF6_DLL, metaswap_dll=Pa_MSW_DLL, metaswap_dll_dependency=PDN(Pa_MF6_DLL)
 )
+print('🟢 - Coupled model written successfully!')
 # endregion
 
 # %% [markdown]
@@ -444,6 +449,7 @@ lines = sfr.Lines.from_dataframe(
 # %%
 DF_lines = lines.df
 U.DF_info(lines.df)
+print('🟢 - SFR lines generated successfully!')
 # endregion
 
 # %% [markdown]
@@ -955,6 +961,7 @@ with open(d_Pa['SFR'], 'r+', encoding='cp1252') as f:
 
 # %%
 sh.copy2('model_SFR.chk', PJ(d_Pa['MF6'], 'imported_model/model_SFR.chk'))
+os.remove('model_SFR.chk')
 
 # %%
 with open(d_Pa['NAM_Mdl'], 'r') as f1:
@@ -966,6 +973,7 @@ l_Lns_NAM.insert(-1, f'  sfr6 imported_model/{PBN(d_Pa["SFR"])} sfr\n')
 # %%
 with open(d_Pa['NAM_Mdl'], 'w') as f2:
     f2.writelines(l_Lns_NAM)
+print('🟢 - SFR package added to NAM file.')
 # endregion
 
 # %% [markdown]
@@ -1119,6 +1127,7 @@ for i in d_DRN_DF.keys():
 
     with open(PJ(d_Pa['Sim_In'], f'drn-{i}.drn'), 'w') as f2:
         f2.writelines(l_Lns_DRN)
+print('🟢 - DRN connected to SFR via MVR.')
 # endregion
 
 # %% [markdown]
@@ -1139,6 +1148,7 @@ sh.copy2(Pa_RIV_OBS, PJ(d_Pa['Sim_In'], PBN(Pa_RIV_OBS)))
 
 # %%
 U.add_OBS_to_MF_In(Pa=PJ(d_Pa['Sim_In'], PBN('rivriv.riv')), str_OBS=' OBS6 FILEIN ./imported_model/NBr45.RIV.OBS6')
+print('🟢 - RIV OBS added to model.')
 # endregion
 
 # %% [markdown]
@@ -1147,4 +1157,5 @@ U.add_OBS_to_MF_In(Pa=PJ(d_Pa['Sim_In'], PBN('rivriv.riv')), str_OBS=' OBS6 FILE
 
 # %%
 U.mete_grid_add_missing_Cols(PJ(d_Pa['Pa_MdlN'], 'metaswap/mete_grid.inp'))
+print('🟢 - mete_grid.inp corrected.')
 # endregion
