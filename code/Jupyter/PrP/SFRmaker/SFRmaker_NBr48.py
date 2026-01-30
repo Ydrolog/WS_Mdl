@@ -23,7 +23,7 @@ import WS_Mdl.utils as U
 import WS_Mdl.utils_imod as UIM
 from imod import mf6, msw
 from imod.mf6 import ConstantHead
-from scipy.spatial.distance import cdist
+from scipy.spatial import cKDTree
 from shapely.geometry import box
 
 # %%
@@ -1042,14 +1042,17 @@ DF_DRN_all = pd.concat(d_DRN_DF.values(), ignore_index=True)
 # Calculate distances and find closest reach for each DRN point
 drn_coords = DF_DRN_all[['X', 'Y']].values
 reach_coords = DF_reach_for_DRN[['X', 'Y']].values
-distances = cdist(drn_coords, reach_coords, metric='euclidean')
-min_indices = np.argmin(distances, axis=1)
+
+# Use cKDTree for memory-efficient nearest neighbor search
+# This avoids creating the large (N x M) distance matrix that cdist produces
+tree = cKDTree(reach_coords)
+dist_values, min_indices = tree.query(drn_coords, k=1)
 
 # Add matched reach data to DRN DataFrame
 matched_reach_data = DF_reach_for_DRN.iloc[min_indices].reset_index(drop=True)
 DF_DRN_all_matched = DF_DRN_all.copy()
 DF_DRN_all_matched['Rcv_ID'] = matched_reach_data['rno'].values
-DF_DRN_all_matched['distance_to_match'] = distances[np.arange(len(drn_coords)), min_indices]
+DF_DRN_all_matched['distance_to_match'] = dist_values
 
 print(f'Combined {len(DF_DRN_all):,} DRN points from {len(d_DRN_DF)} DataFrames')
 print(f'Matched to {DF_DRN_all_matched["Rcv_ID"].nunique()} unique reaches')
