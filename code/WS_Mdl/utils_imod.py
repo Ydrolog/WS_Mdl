@@ -1248,7 +1248,7 @@ def get_SFR_OBS_Out_Pas(MdlN, filetype='.csv'):
         fig.write_html(Pa_Out, auto_open=True)
 
 
-def plot_SFR_reach_TS(r_info, SFR_Stg, RIV_Stg, RIV_Btm, top, Btm, Pa_Out, HD=None):
+def plot_SFR_reach_TS(r_info, SFR_Stg, SFR_rtp, RIV_Stg, RIV_Btm, top, Btm, Pa_Out, HD=None):
     """
     Plot SFR stage time series for a specific reach along with reference lines for river stage, river bottom, layer top, and layer bottom.
     r_info: dict with keys 'reach', 'L', 'R', 'C', 'X', 'Y', 'MdlN'
@@ -1274,7 +1274,7 @@ def plot_SFR_reach_TS(r_info, SFR_Stg, RIV_Stg, RIV_Btm, top, Btm, Pa_Out, HD=No
     top_arr = [top] * n
     btm_arr = [Btm] * n
 
-    # SFR stage TS
+    # SFR stage TS & rtp
     fig.add_trace(
         go.Scatter(
             x=SFR_Stg['time'],
@@ -1284,6 +1284,17 @@ def plot_SFR_reach_TS(r_info, SFR_Stg, RIV_Stg, RIV_Btm, top, Btm, Pa_Out, HD=No
             line=dict(color='royalblue', width=3),
             hovertemplate='%{y:.3f}',
             showlegend=True,
+        )
+    )
+
+    fig.add_trace(
+        go.Scatter(
+            x=SFR_Stg['time'],
+            y=SFR_rtp,
+            mode='lines',
+            name='SFR riverbed top',
+            line=dict(color='royalblue', width=2, dash='dash'),
+            hovertemplate='%{y:.3f}',
         )
     )
 
@@ -1510,11 +1521,12 @@ def SFR_stage_TS(MdlN: str, MdlN_RIV: str, N_system: int = None, load_head: bool
                 L, R, C = reach_to_cell_id(reach, GDF_SFR)
                 X, Y = reach_to_XY(reach, GDF_SFR)
             else:
-                # Split by commas and/or whitespace
-                parts = re.split(r'[,\s]+', In2.strip())
+                parts = re.split(r'[,\s]+', In2.strip())  # Split by commas and/or whitespace
                 L, R, C = [int(j) for j in parts]
+                reach = GDF_SFR.loc[(GDF_SFR.k == L) & (GDF_SFR.i == R) & (GDF_SFR.j == C), 'reach']
 
             SFR_Stg = DF_trim[['time', f'L{L}_R{R}_C{C}']]
+            SFR_rtp = GDF_SFR.loc[GDF_SFR['reach'] == reach, 'rtp']
             RIV_Stg = round(float(xr_get_value(A_RIV_Stg, X, Y, dx, dy)), 3)
             RIV_Btm = round(float(xr_get_value(A_RIV_Btm, X, Y, dx, dy)), 3)
             top = round(float(xr_get_value(A_TOP, X, Y, dx, dy, L=L)), 3)
@@ -1550,6 +1562,7 @@ def SFR_stage_TS(MdlN: str, MdlN_RIV: str, N_system: int = None, load_head: bool
                 plot_SFR_reach_TS(
                     r_info,
                     SFR_Stg,
+                    SFR_rtp,
                     RIV_Stg,
                     RIV_Btm,
                     top,
@@ -1561,6 +1574,7 @@ def SFR_stage_TS(MdlN: str, MdlN_RIV: str, N_system: int = None, load_head: bool
                 plot_SFR_reach_TS(
                     r_info,
                     SFR_Stg,
+                    SFR_rtp,
                     RIV_Stg,
                     RIV_Btm,
                     top,
