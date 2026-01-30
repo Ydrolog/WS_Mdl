@@ -32,8 +32,8 @@ from tqdm import tqdm
 warnings.filterwarnings('ignore', category=UserWarning, module='openpyxl.worksheet._read_only')
 
 # --------------------------------------------------------------------------------
-pre_Sign = f'{fg(52)}{"*" * 80}{attr("reset")}\n'
-post_Sign = f'{fg(52)}\nend_of_transmission\n{"*" * 80}{attr("reset")}\n'
+pre_Sign = f'{fg(52)}{"~" * 80}{attr("reset")}\n'
+post_Sign = f'{fg(52)}\nend_of_transmission\n{"-" * 80}{attr("reset")}\n'
 style_reset = f'{attr("reset")}\033[0m'
 bold = '\033[1m'
 dim = '\033[2m'
