@@ -37,6 +37,10 @@ setup(
             'p_TS_range=WS_Mdl.scripts.p_TS_range:main',  # Plots time series range from files with date patterns in their names.
             'Bin_to_text=WS_Mdl.scripts.Bin_to_text:main',  # Converts specific binary files to text format.
             'SFR_stage_TS=WS_Mdl.scripts.SFR_stage_TS:main',  # Plots SFR stage time series for specified models.
+            'SFR_Par_to_Rst=WS_Mdl.scripts.SFR_Par_to_Rst:main',  # Creates a raster from an SFR parameter.
         ]
     },
 )
+
+# How to access entry_point scripts:
+#  

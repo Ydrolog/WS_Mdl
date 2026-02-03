@@ -964,6 +964,59 @@ def HD_IDF_GXG_to_TIF(MdlN: str, N_cores: int = None, crs: str = crs, rules: str
 
 
 # SFR ----------------------------------------------------------------------------
+def SFR_Par_to_Rst(
+    MdlN: str, Par: str, crs: str = 28992, Pa_SFR=None, radius: float = None, iMOD5=False, verbose: bool = True
+):
+    """
+    Creates a raster out of a parameter of an SFR file. Parameter needs to be typed exactly as in the PACKAGEDATA DF header (1st commented out line in PACKAGEDATA)
+    """
+
+    # --- Prep ---
+    U.set_verbose(verbose)
+    d_Pa = U.get_MdlN_Pa(MdlN, iMOD5=iMOD5)
+
+    if Pa_SFR is None:
+        Pa_SFR = d_Pa['SFR']
+
+    if not os.path.exists(Pa_SFR):
+        vprint(f'🔴 ERROR: SFR file not found at {Pa_SFR}. Cannot proceed.')
+
+    d_INI = U.INI_to_d(d_Pa['INI'])
+    Xmin, Ymin, Xmax, Ymax = [float(i) for i in d_INI['WINDOW'].split(',')]
+    cellsize = float(d_INI['CELLSIZE'])
+    N_R, N_C = int(-(Ymin - Ymax) / cellsize), int((Xmax - Xmin) / cellsize)
+
+    # --- Load PACKAGEDATA DF ---
+    DF_PkgDt = U.SFR_PkgD_to_DF(MdlN, Pa_SFR=Pa_SFR, iMOD5=iMOD5)
+
+    Pa_Out = PJ(d_Pa['PoP'], f'In/SFR/{MdlN}/SFR_{Par}_{MdlN}.tif')
+
+    # --- Create & Fill Array ---
+    Arr = np.full((N_R, N_C), np.nan)  # Create empty array
+    Arr[DF_PkgDt['i'].astype(int) - 1, DF_PkgDt['j'].astype(int) - 1] = DF_PkgDt[Par]  # Populate array using i, j
+
+    # --- Save ---
+    MDs(PDN(Pa_Out), exist_ok=True)
+    transform = from_bounds(Xmin, Ymin, Xmax, Ymax, N_C, N_R)
+
+    with rasterio.open(
+        Pa_Out,
+        'w',
+        driver='GTiff',
+        height=N_R,
+        width=N_C,
+        count=1,
+        dtype=Arr.dtype,
+        crs=crs,
+        transform=transform,
+        nodata=np.nan,
+    ) as dst:
+        dst.write(Arr, 1)
+
+    vprint(f'🟢🟢🟢 - Saved to {Pa_Out}')
+    print(post_Sign)
+
+
 def SFR_to_GPkg(MdlN: str, crs: str = 28992, Pa_SFR=None, radius: float = None, iMOD5=False, verbose: bool = True):
     """
     Reads SFR package file and converts it to a GeoDataFrame, then saves it as a GPkg file.
