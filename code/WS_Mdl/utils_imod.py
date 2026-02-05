@@ -1,3 +1,4 @@
+# region ----- Imports ---------------------------------------------------------
 # ***** Similar to utils.py, but those utilize imod, which takes a long time to load. *****
 import math
 import os
@@ -10,6 +11,7 @@ from os.path import basename as PBN
 from os.path import dirname as PDN
 from os.path import exists as PE
 from os.path import join as PJ
+from pathlib import Path
 
 import imod
 import numpy as np
@@ -19,8 +21,12 @@ import primod
 import xarray as xr
 from filelock import FileLock as FL
 from imod import mf6, msw
-from tqdm import tqdm  # Track progress of the loop
+from tqdm import tqdm
+from tqdm.dask import TqdmCallback
 
+from .utils import (
+    CuCh as CuCh,
+)
 from .utils import (
     INI_to_d,
     Mdl_Dmns_from_INI,
@@ -28,6 +34,7 @@ from .utils import (
     SFR_PkgD_to_DF,
     dprint,
     get_MdlN_Pa,
+    mete_grid_inp_to_DF,
     post_Sign,
     pre_Sign,
     r_IPF_Spa,
@@ -37,16 +44,8 @@ from .utils import (
     vprint,
 )
 
-CuCh = {
-    '-': '🔴',  # negative
-    '0': '🟡',  # neutral
-    '+': '🟢',  # positive
-    '=': '⚪️',  # no action required
-    'x': '⚫️',  # already done
-}  # Rule for using multiple e.g. 🟢🟢🟢. Use 2 when a function returns an object. Use 3 for more impactful functions that save a file, or complete a longer process, like commiting git changes. In all other cases use 1.
 
-
-# PRJ related --------------------------------------------------------------------
+# region ----- PRJ related -----------------------------------------------------
 def r_PRJ_with_OBS(Pa_PRJ, remove_SS=True, season_to_DT=True):
     """
     imod.formats.prj.read_projectfile struggles with .prj files that contain OBS blocks. This will read the PRJ file and return a tuple. The first item is a PRJ dictionary (as imod.formats.prj would return) and also a list of the OBS block lines.
@@ -447,8 +446,10 @@ def mete_grid_Cvt_to_AbsPa(Pa_PRJ: str, PRJ: dict = None):
 
 # def BND_set_outer()
 
+# endregion
 
-# Mdl related --------------------------------------------------------------------
+
+# region ----- Mdl related -----------------------------------------------------
 def Mdl_Prep(MdlN: str, Pa_MF6_DLL: str = None, Pa_MSW_DLL: str = None, verbose=False):
     """
     Prepares Sim Fis from In Fis.
@@ -584,7 +585,10 @@ def Mdl_Prep(MdlN: str, Pa_MF6_DLL: str = None, Pa_MSW_DLL: str = None, verbose=
         print(f'❌ Error executing model: {e}')
 
 
-# PrSimP related -----------------------------------------------------------------
+# endregion
+
+
+# region ----- PrSimP related --------------------------------------------------
 def add_OBS(MdlN: str, Opt: str = 'BEGIN OPTIONS\nEND OPTIONS', iMOD5=False):
     """
     Adds OBS file(s) from PRJ file OBS block to Mdl Sim (which iMOD can't do). Thus the OBS file needs to be written, and then a link to the OBS file needs to be created within the NAM file.
@@ -670,7 +674,10 @@ def add_OBS(MdlN: str, Opt: str = 'BEGIN OPTIONS\nEND OPTIONS', iMOD5=False):
     vprint(post_Sign)
 
 
-# IDF processing -----------------------------------------------------------------
+# endregion
+
+
+# region ----- IDF processing --------------------------------------------------
 def IDFs_to_DF(S_Pa_IDF):
     """Reads all .IDF Fis listed in a S_Fi_IDF into DF['IDF']. Returns the DF containing Fi_names and the IDF contents.
     Pa_Fo is the path of the Fo where th files are stored in."""
@@ -686,7 +693,10 @@ def IDFs_to_DF(S_Pa_IDF):
     return DF
 
 
-# xarray processing --------------------------------------------------------------
+# endregion
+
+
+# region ----- xarray processing -----------------------------------------------
 def xr_describe(data, name: str = None):
     """
     Generates descriptive statistics for an xarray DataArray or Dataset,
@@ -1026,7 +1036,10 @@ def xr_get_value(A, X, Y, dx, dy, L=None, method='nearest', validate=True):
     return value
 
 
-# Standard options ---------------------------------------------------------------
+# endregion
+
+
+# region ----- Standard options ------------------------------------------------
 def mf6_solution_moderate_settings(
     modelnames: list[str] = ['imported_model'],
     print_option: str = 'summary',
@@ -1086,7 +1099,10 @@ def mf6_solution_moderate_settings(
     )
 
 
-# numpy --------------------------------------------------------------------------
+# endregion
+
+
+# region ----- numpy -----------------------------------------------------------
 def get_CeCes_from_INI(MdlN: str):
     """Get centroids of the model grid from the INI file of the model.
     Returns x_CeCes, y_CeCes."""
@@ -1098,7 +1114,10 @@ def get_CeCes_from_INI(MdlN: str):
     return np.arange(Xmin + dx / 2, Xmax, dx), np.arange(Ymax + dy / 2, Ymin, dy)
 
 
-# SFR PoP ------------------------------------------------------------------------
+# endregion
+
+
+# region ----- SFR PoP ---------------------------------------------------------
 def get_SFR_OBS_Out_Pas(MdlN, filetype='.csv'):
     """
     Gets the SFR OBS output paths from the model simulation input folder.
@@ -1116,99 +1135,123 @@ def get_SFR_OBS_Out_Pas(MdlN, filetype='.csv'):
     return l_Pa
 
 
-def plot_SFR_reach_TS(r_info, X_axis, SFR_Stg, d_Ct, Pa_Out, HD=None, HD_RIV=None):
-    """
-    Plot SFR stage time series for a specific reach along with reference lines for river stage, river bottom, layer top, and layer bottom.
-    r_info: dict with keys 'reach', 'L', 'R', 'C', 'X', 'Y', 'MdlN'
-    X: array-like, time values
-    SFR_Stg: DataFrame with SFR stage time series
-    d_Ct: dict with constant value info
-    Pa_Out: str, output HTML file path
-    HD: DataFrame with head time series (optional)
-    HD_RIV: DataFrame with head time series from RIV model (optional)
-    """
-
-    reach_cellid = f'L{r_info["L"]}_R{r_info["R"]}_C{r_info["C"]}'
-    header_data = f'Reach number: {r_info["reach"]}, L: {r_info["L"]}, R: {r_info["R"]}, C: {r_info["C"]}, X: {r_info["X"]}, Y: {r_info["Y"]} - MdlN: {r_info["MdlN"]}'
-
+def plot_SFR_reach_TS(sub_title, X_axis, d_plot, Pa_Out):
     fig = go.Figure()
 
-    # Add Ct As
-    n = len(SFR_Stg)  # Make them the same length as SFR_Stg
-    print(d_Ct)
-    for k in d_Ct.keys():
-        fig.add_trace(
-            go.Scatter(
-                x=X_axis,
-                y=[d_Ct[k]['value']] * n,
-                mode='lines',
-                name=k,
-                line=d_Ct[k]['line'],
-                hovertemplate='%{y:.3f}',
-            )
-        )
+    y_vals = []
+    y_2_vals = []
+    for k, v in d_plot.items():
+        # Prepare kwargs
+        kwargs = v['kwargs'].copy()
+        kwargs['name'] = k
+        y_data = v['y']
 
-    # SFR stage TS & rtp
-    fig.add_trace(
-        go.Scatter(
-            x=X_axis,
-            y=SFR_Stg[reach_cellid],
-            mode='lines',
-            name='SFR stage',
-            line=dict(color='royalblue', width=3),
-            hovertemplate='%{y:.3f}',
-            showlegend=True,
-        )
-    )
+        # Collect data for auto-scaling
+        if 'yaxis' in kwargs and kwargs['yaxis'] == 'y2':
+            y_2_vals.extend(y_data)
+        else:
+            # Handle potential None/NaNs in data before extending default list
+            if hasattr(y_data, 'dropna'):
+                y_vals.extend(y_data.dropna().values)
+            else:
+                y_vals.extend([y for y in y_data if pd.notna(y)])
 
-    # Head TS
-    if HD is not None:
-        fig.add_trace(
-            go.Scatter(
-                x=X_axis,
-                y=HD['head'],
-                mode='lines',
-                name='Head',
-                line=dict(color='purple', width=3),
-                hovertemplate='%{y:.3f}',
-                showlegend=True,
-            )
-        )
+        # Plot
+        fig.add_trace(v['plot_type'](x=X_axis, y=y_data, **kwargs))
 
-    if HD_RIV is not None:
-        fig.add_trace(
-            go.Scatter(
-                x=X_axis,
-                y=HD_RIV['head'],
-                mode='lines',
-                name='Head',
-                line=dict(color='purple', width=3),
-                hovertemplate='%{y:.3f}',
-                showlegend=True,
-            )
-        )
+    # ---------------------------
+    # Auto-Scaling Calculation for Bottom Plot
+    if y_vals:
+        y_min, y_max = min(y_vals), max(y_vals)
+        # Add 5% padding
+        y_pad = (y_max - y_min) * 0.05 if (y_max - y_min) > 0 else 0.5
+        y_vals_range = [y_min - y_pad, y_max + y_pad]
+    else:
+        y_vals_range = [0, 1]
 
-    # layout settings
     fig.update_layout(
-        title=dict(text=f'SFR Stage Time-Series - {header_data}', x=0.5, xanchor='center'),
-        yaxis_title='Elevation (mNAP)',
-        legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5),
-        hovermode='x unified',
-        hoverlabel=dict(namelength=0, bgcolor='white', bordercolor='gray', font=dict(family='Consolas, monospace')),
+        title=dict(
+            text=f'SFR Vs RIV stage<br><span style="font-size: 14px; color: gray;">{sub_title}</span>',
+            x=0.5,
+            xanchor='center',
+            y=0.98,  # Position title just above the plot area/below legend
+            yanchor='top',
+        ),
+        legend=dict(
+            orientation='v',
+            yanchor='middle',
+            y=0.5,
+            xanchor='left',
+            x=1.02,
+            font=dict(family='Consolas, monospace', size=12),  # Monospace for alignment
+        ),
+        hovermode='x unified',  # Unified hover for single window
+        # Ensure hover searches across the whole column regardless of cursor Y position
+        hoverdistance=-1,
+        spikedistance=-1,
+        hoverlabel=dict(
+            namelength=-1, bgcolor='white', bordercolor='gray', font=dict(family='Consolas, monospace'), align='right'
+        ),
         template='plotly_white',
-        margin=dict(t=100),
+        margin=dict(t=80, l=60, r=40, b=40),  # Decreased top margin slightly as requested (180->160)
+        # X Axis (Shared)
         xaxis=dict(
+            domain=[0, 1],
+            anchor='free',  # Anchor to free to allow unified hover across disjoint y-domains
+            position=0,
+            dtick='M1',  # Ticks every month
+            tickformat='%b %Y',  # e.g., 'Jan 1994'
+            tickangle=-90,  # Vertical text
+            hoverformat='%d %b %Y',  # Full date in hover
             showspikes=True,
             spikemode='across',
             spikesnap='cursor',
             spikecolor='gray',
             spikethickness=1,
-            dtick='M1',
+            showline=True,
+            linewidth=1,
+            linecolor='gray',
+            mirror=False,
             showgrid=True,
-            gridcolor='rgba(200, 200, 200, 0.5)',
-            gridwidth=1,
         ),
-        yaxis=dict(showspikes=True, spikemode='across', spikesnap='cursor', spikecolor='gray', spikethickness=1),
+        # Y Axis (Elevation - Bottom)
+        yaxis=dict(
+            title_text='Elevation (mNAP)',
+            domain=[0, 0.68],
+            range=y_vals_range,
+            nticks=15,  # Force more ticks/gridlines
+            showspikes=True,
+            spikemode='across',
+            spikesnap='cursor',
+            spikecolor='gray',
+            spikethickness=1,
+            showline=True,
+            linewidth=1,
+            linecolor='gray',
+            mirror=False,
+            showgrid=True,
+            fixedrange=False,  # Ensure interactive
+        ),
+        # Y Axis 2 (Precipitation - Top)
+        yaxis2=dict(
+            title_text='Precipitation (mm)',
+            domain=[0.72, 1],
+            # max=None, min=0 auto
+            showspikes=True,
+            spikemode='across',
+            spikesnap='cursor',
+            spikecolor='gray',
+            spikethickness=1,
+            showline=True,
+            linewidth=1,
+            linecolor='gray',
+            mirror=False,
+            showgrid=True,
+            zeroline=True,
+            zerolinewidth=2,
+            zerolinecolor='gray',
+            fixedrange=False,  # Ensure interactive
+        ),
     )
 
     fig.write_html(Pa_Out, auto_open=True)
@@ -1219,8 +1262,9 @@ def SFR_stage_TS(
     MdlN_RIV: str,
     N_system_RIV: int = None,
     N_system_DRN: int = None,
-    load_head: bool = True,
-    load_head_RIV: bool = True,
+    load_HD: bool = True,
+    load_HD_RIV: bool = True,
+    load_P: bool = True,
 ):
     """
     Generates time series plots of SFR stage data from model output.
@@ -1228,12 +1272,14 @@ def SFR_stage_TS(
 
     vprint(pre_Sign)
     vprint(
-        f'Generating SFR stage time series plots for model: {MdlN} and RIV model: {MdlN_RIV}, system: {N_system_RIV}\n'
+        f'----- Generating SFR stage time series plots for model: {MdlN} and RIV model: {MdlN_RIV}, system: {N_system_RIV} -----\n'
     )
     set_verbose(False)
 
-    # region ---------- Load data ----------
-    # Load paths and variables from PRJ & INI
+    # region ----- Load data -------------------------------------------------------
+    print('--- Loading data ... ', end='')
+
+    print(' -- Loading PRJ data ... ', end='')
     d_Pa = get_MdlN_Pa(MdlN)
     d_INI = INI_to_d(d_Pa['INI'])
     Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = Mdl_Dmns_from_INI(d_Pa['INI'])
@@ -1248,18 +1294,18 @@ def SFR_stage_TS(
     if (Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C) != Mdl_Dmns_from_INI(d_Pa_RIV['INI']):
         print('Warning: Model dimensions for RIV model differ from main model.')
 
-    print('--- Loading PRJ data...')
     PRJ, PRJ_OBS = r_PRJ_with_OBS(d_Pa['PRJ'])
+    print('🟢')
 
-    print('--- Loading SFR OBS data...')
+    print(' -- Loading SFR data ... ', end='')
     DF_ = pd.read_csv(get_SFR_OBS_Out_Pas(MdlN)[0])  # 666 replace 1. This needs to be standardized.
     DF = DF_[[i for i in DF_.columns if i == 'time' or 'L' in i]].copy()
     DF['time'] = pd.to_datetime(SP_date_1st) + pd.to_timedelta(DF['time'] - 1, unit='D')
 
-    print('--- Loading SFR PACKAGEDATA block...')
     GDF_SFR = SFR_PkgD_to_DF(MdlN)
+    print('🟢')
 
-    print('--- Loading RIV data...')
+    print(' -- Loading RIV data...')
     RIV_params = ['conductance', 'stage', 'bottom_elevation', 'infiltration_factor']
     PRJ_RIV, PRJ_OBS_RIV = r_PRJ_with_OBS(d_Pa_RIV['PRJ'])
 
@@ -1288,10 +1334,11 @@ def SFR_stage_TS(
     A_RIV_Stg = xr_clip_Mdl_Aa(imod.idf.open(PRJ_RIV['(riv)']['stage'][N_system_RIV - 1]['path']), MdlN=MdlN)
     A_RIV_Btm = xr_clip_Mdl_Aa(imod.idf.open(PRJ_RIV['(riv)']['bottom_elevation'][N_system_RIV - 1]['path']), MdlN=MdlN)
 
+    print('🟢')
     if A_RIV_Btm.notnull().sum().values == (A_RIV_Btm == A_RIV_Stg).sum().values:
         print('\tAll river bottom elevations are equal to stage elevations.')
 
-    print('--- Loading DRN data...')
+    print(' -- Loading DRN data...', end='')
     DRN_params = ['conductance', 'elevation', 'n_system', 'active']
     l_N_system_DRN_print = []
     for i in range(PRJ['(drn)']['n_system']):
@@ -1317,26 +1364,33 @@ def SFR_stage_TS(
         return
 
     A_DRN_Elv = xr_clip_Mdl_Aa(imod.idf.open(PRJ['(drn)']['elevation'][N_system_DRN - 1]['path']), MdlN=MdlN)
+    print('🟢')
 
-    print('--- Loading TOP BOT data...')
+    print(' -- Loading TOP BOT data...', end='')
     l_Pa_TOP = [i['path'] for i in PRJ['(top)']['top']]
     A_TOP = xr_clip_Mdl_Aa(
         imod.idf.open(l_Pa_TOP, pattern=r'TOP_L{layer}_{name}'), MdlN=MdlN
     )  # We're just doing this to avoid errors - using {name} to capture the model number part - imod will use it for the DataArray name.
     l_Pa_BOT = [i['path'] for i in PRJ['(bot)']['bottom']]
     A_BOT = xr_clip_Mdl_Aa(imod.idf.open(l_Pa_BOT, pattern=r'BOT_L{layer}_{name}'), MdlN=MdlN)
+    print('🟢')
 
     # Get layers relevant for SFR (HDS output can be too big to load to memory, and it's also efficient to just save the relevant layers)
     DF_ = pd.DataFrame({'L': GDF_SFR.k.value_counts().index, 'count': GDF_SFR.k.value_counts()})
     DF_['percentage'] = (GDF_SFR.k.value_counts(normalize=True) * 100).apply(lambda x: round(x, 2))
     l_SFR_Ls = [int(i) for i in sorted(DF_.loc[DF_['percentage'] >= 1, 'L'].unique())]
-    print(
-        f"--- Reading HD data...\nOnly nSFR-relevant Ls will be loaded - Ls: {l_SFR_Ls}.\n\tEach of those Ls contains at least 1% of the SFR reaches.\n\tIf you request to plot a TS for a reach not included in those Ls, it'll have to load separately, which may take some time."
-    )
+    print(' -- Reading HD data...\n')
+    print('🟢')
+    print(f'  - Only layers containing >=1% of SFR reaches were loaded: {l_SFR_Ls}\n')
+
+    print(' -- Loading precipitation data ... ', end='')
+    DF_meteo = mete_grid_inp_to_DF(PRJ)
+    print('🟢')
 
     set_verbose(True)
 
-    if load_head:
+    print(' -- Reading HD data ... ', end='')
+    if load_HD:
         try:
             A_HD_ = imod.mf6.open_hds(
                 hds_path=d_Pa['Out_HD_Bin'],
@@ -1347,7 +1401,7 @@ def SFR_stage_TS(
         except Exception as e:
             print(f'🔴🔴🔴 - An error occurred while loading HD data: {e}')
 
-    if load_head_RIV:
+    if load_HD_RIV:
         try:
             A_HD_RIV_ = imod.mf6.open_hds(
                 hds_path=d_Pa_RIV['Out_HD_Bin'],
@@ -1357,13 +1411,13 @@ def SFR_stage_TS(
             ).astype('float32')
         except Exception as e:
             print(f'🔴🔴🔴 - An error occurred while loading HD data: {e}')
-
+    print('🟢')
     dprint()
     # endregion ---------- Load data ----------
 
     while True:
         In1 = input(
-            f'Start date is {DF["time"].min()} to {DF["time"].max()} for model {MdlN}.\nPress any key except Y and E to continue using this temporal extent.\nPress Y to set another temporal extent.\nPress E to exit.\n'
+            f'Start date is {DF["time"].min()} to {DF["time"].max()} for model {MdlN}.\n\nPress any key except Y and E to continue using this temporal extent.\nPress Y to set another temporal extent.\nPress E to exit.\n'
         )
         if In1.upper() == 'E':
             break
@@ -1379,11 +1433,18 @@ def SFR_stage_TS(
         )
 
         vprint('--- Loading HD data for SFR-relevant layers and specified time range ...')
-        vprint(f' -- {MdlN} HD ...')
-        A_HD = A_HD_.sel(layer=l_SFR_Ls).sel(time=slice(start_date, end_date)).compute()
-        vprint(f' -- {MdlN_RIV} HD ...')
-        A_HD_RIV = A_HD_RIV_.sel(layer=l_SFR_Ls).sel(time=slice(start_date, end_date)).compute()
-        vprint('  🟢 - HD data loaded.')
+
+        if load_P:
+            DF_meteo_DT_trim = DF_meteo.loc[(DF_meteo['DT'] >= start_date) & (DF_meteo['DT'] <= end_date)]
+            DF_meteo_DT_trim['Pa'] = (Path(d_Pa['PRJ']).parent / DF_meteo_DT_trim['P']).resolve()
+            A_P = MSW_meteo_to_XA(DF_meteo_DT_trim['Pa'], Xmin, Ymin, Xmax, Ymax)
+
+        with TqdmCallback(desc='--- Loading HD data for SFR-relevant layers and specified time range ...'):
+            if load_HD:
+                A_HD = A_HD_.sel(layer=l_SFR_Ls).sel(time=slice(start_date, end_date)).compute()
+            if load_HD_RIV:
+                A_HD_RIV = A_HD_RIV_.sel(layer=l_SFR_Ls).sel(time=slice(start_date, end_date)).compute()
+            vprint(' 🟢')
 
         while True:
             In2 = input(
@@ -1403,38 +1464,8 @@ def SFR_stage_TS(
                 reach = GDF_SFR.loc[(GDF_SFR.k == L) & (GDF_SFR.i == R) & (GDF_SFR.j == C), 'reach'].values[0]
             X, Y = reach_to_XY(reach, GDF_SFR)
 
-            SFR_Stg = DF_trim[['time', f'L{L}_R{R}_C{C}']]
-
-            # Pass values and plotting params for Ct values to dictionary
-            d_Ct = {
-                'SFR riverbed top': {
-                    'value': GDF_SFR.loc[GDF_SFR['rno'] == reach, 'rtp'].values[0],
-                    'line': dict(color='#13f04b', width=2, dash='dash'),
-                },
-                'RIV stage': {
-                    'value': round(float(xr_get_value(A_RIV_Stg, X, Y, dx, dy)), 3),
-                    'line': dict(color='#36b2ff', width=3),
-                },
-                'RIV bottom': {
-                    'value': round(float(xr_get_value(A_RIV_Btm, X, Y, dx, dy)), 3),
-                    'line': dict(color='#36b2ff', width=2, dash='dash'),
-                },
-                'A_DRN_Elv': {
-                    'value': round(float(xr_get_value(A_DRN_Elv, X, Y, dx, dy)), 3),
-                    'line': dict(color='#e118ff', width=2, dash='dash'),
-                },
-                'top': {
-                    'value': round(float(xr_get_value(A_TOP, X, Y, dx, dy, L=L)), 3),
-                    'line': dict(color='#a47300', width=2, dash='dash'),
-                },
-                'Btm': {
-                    'value': round(float(xr_get_value(A_BOT, X, Y, dx, dy, L=L)), 3),
-                    'line': dict(color='#a47300', width=2, dash='dash'),
-                },
-            }
-
             # Extract head time series at this location (compute to load from Dask)
-            if load_head:
+            if load_HD:
                 try:
                     HD_ts = xr_get_value(A_HD.sel(time=slice(start_date, end_date)), X, Y, dx, dy, L=L)
                 except Exception as e:
@@ -1446,7 +1477,7 @@ def SFR_stage_TS(
                     HD_ts = xr_get_value(A_HD_L.sel(time=slice(start_date, end_date)), X, Y, dx, dy)
                 HD = pd.DataFrame({'time': HD_ts.time.values, 'head': HD_ts.values})
 
-            if load_head_RIV:
+            if load_HD_RIV:
                 try:
                     HD_ts_RIV = xr_get_value(A_HD_RIV.sel(time=slice(start_date, end_date)), X, Y, dx, dy, L=L)
                 except Exception as e:
@@ -1458,20 +1489,209 @@ def SFR_stage_TS(
                     HD_ts_RIV = xr_get_value(A_HD_L_RIV.sel(time=slice(start_date, end_date)), X, Y, dx, dy)
                 HD_RIV = pd.DataFrame({'time': HD_ts_RIV.time.values, 'head': HD_ts_RIV.values})
 
-            r_info = {'reach': reach, 'L': L, 'R': R, 'C': C, 'X': X, 'Y': Y, 'MdlN': MdlN}
-            vprint(f'  - Plotting... {r_info}')
+                # required keys: plot_type, y. Rest are kwargs for the plot type (e.g., line dict for scatter, marker dict for bar, etc.)
+
+            X_axis = DF_trim['time']
+
+            # region - Design dictionary for plotting. Mandatory keys: plot_type, y. Rest are kwargs for the plot type (e.g., line dict for scatter, marker dict for bar, etc.)
+            d_plot = {}
+
+            load_P and d_plot.update(
+                {
+                    f'{"Precipitation":<17}': {
+                        'plot_type': go.Bar,
+                        'y': A_P.values if hasattr(A_P, 'values') else A_P,
+                        'kwargs': {
+                            'marker': dict(color='#ff0000', width=3),
+                            'hovertemplate': '%{y:8.1f} mm',
+                            'yaxis': 'y2',
+                        },
+                    }
+                }
+            )
+
+            load_HD and d_plot.update(
+                {
+                    f'{"Head " + MdlN:<17}': {
+                        'plot_type': go.Scatter,
+                        'y': HD['head'],
+                        'kwargs': {
+                            'mode': 'lines',
+                            'line': dict(color='#e26a5a', width=3),
+                            'hovertemplate': '%{y:3.3f} mNAP',
+                        },
+                    }
+                }
+            )
+
+            load_HD_RIV and d_plot.update(
+                {
+                    f'{"Head " + MdlN_RIV:<17}': {
+                        'plot_type': go.Scatter,
+                        'y': HD_RIV['head'],
+                        'kwargs': {
+                            'mode': 'lines',
+                            'line': dict(color='#6baed6', width=3),
+                            'hovertemplate': '%{y:3.3f} mNAP',
+                        },
+                    }
+                }
+            )
+
+            d_plot.update(
+                {
+                    f'{"SFR stage":<17}': {
+                        'plot_type': go.Scatter,
+                        'y': DF_trim[f'L{L}_R{R}_C{C}'],
+                        'kwargs': {
+                            'mode': 'lines',
+                            'line': dict(color='#ff0000', width=3),
+                            'hovertemplate': '%{y:3.3f} mNAP',
+                            # showlegend=True
+                        },
+                    }
+                }
+            )
+
+            d_plot.update(
+                {
+                    f'{"SFR riverbet top":<17}': {
+                        'plot_type': go.Scatter,
+                        'y': [GDF_SFR.loc[GDF_SFR['rno'] == reach, 'rtp'].values[0]] * len(DF_trim),
+                        'kwargs': {
+                            'mode': 'lines',
+                            'line': dict(color='#ff0000', width=2, dash='dash'),
+                            'hovertemplate': '%{y:3.3f} mNAP',
+                        },
+                    }
+                }
+            )
+
+            d_plot.update(
+                {
+                    f'{"RIV stage":<17}': {
+                        'plot_type': go.Scatter,
+                        'y': [round(float(xr_get_value(A_RIV_Stg, X, Y, dx, dy)), 3)] * len(DF_trim),
+                        'kwargs': {
+                            'mode': 'lines',
+                            'line': dict(color='#0000ff', width=3),
+                            'hovertemplate': '%{y:3.3f} mNAP',
+                        },
+                    }
+                }
+            )
+
+            d_plot.update(
+                {
+                    f'{"RIV bottom":<17}': {
+                        'plot_type': go.Scatter,
+                        'y': [round(float(xr_get_value(A_RIV_Btm, X, Y, dx, dy)), 3)] * len(DF_trim),
+                        'kwargs': {
+                            'mode': 'lines',
+                            'line': dict(color='#0000ff', width=2, dash='dash'),
+                            'hovertemplate': '%{y:3.3f} mNAP',
+                        },
+                    }
+                }
+            )
+
+            d_plot.update(
+                {
+                    f'{"DRN elevation":<17}': {
+                        'plot_type': go.Scatter,
+                        'y': [round(float(xr_get_value(A_DRN_Elv, X, Y, dx, dy)), 3)] * len(DF_trim),
+                        'kwargs': {
+                            'mode': 'lines',
+                            'line': dict(color='#d000ff', width=2, dash='dash'),
+                            'hovertemplate': '%{y:3.3f} mNAP',
+                        },
+                    }
+                }
+            )
+
+            d_plot.update(
+                {
+                    f'{"top":<17}': {
+                        'plot_type': go.Scatter,
+                        'y': [round(float(xr_get_value(A_TOP, X, Y, dx, dy, L=L)), 3)] * len(DF_trim),
+                        'kwargs': {
+                            'mode': 'lines',
+                            'line': dict(color='#a47300', width=2, dash='dash'),
+                            'hovertemplate': '%{y:3.3f} mNAP',
+                        },
+                    }
+                }
+            )
+
+            d_plot.update(
+                {
+                    f'{"bottom":<17}': {
+                        'plot_type': go.Scatter,
+                        'y': [round(float(xr_get_value(A_BOT, X, Y, dx, dy, L=L)), 3)] * len(DF_trim),
+                        'kwargs': {
+                            'mode': 'lines',
+                            'line': dict(color='#a47300', width=2, dash='dash'),
+                            'hovertemplate': '%{y:3.3f} mNAP',
+                        },
+                    }
+                }
+            )
+            # endregion
+
+            r_info = {'reach': reach, 'L': L, 'R': R, 'C': C, 'X': X, 'Y': Y, 'MdlN': MdlN, 'MdlN_RIV': MdlN_RIV}
+
+            vprint('  - Plotting...')
 
             Pa_Out = PJ(d_Pa['PoP_Out_MdlN'], f'SFR/SFR_stage_TS-reach{reach}.html')
             os.makedirs(os.path.dirname(Pa_Out), exist_ok=True)
 
-            X_axis = SFR_Stg['time']
-
-            args = [r_info, X_axis, SFR_Stg, d_Ct, Pa_Out]
-            if load_head:
-                args.append(HD)
-            if load_head_RIV:
-                args.append(HD_RIV)
-            plot_SFR_reach_TS(*args)
-
+            plot_SFR_reach_TS(sub_title=r_info, X_axis=X_axis, d_plot=d_plot, Pa_Out=Pa_Out)
             vprint('  🟢🟢 - Success!')
     vprint('🟢🟢🟢 - Finished SFR stage TS plotting.')
+
+
+# endregion
+
+
+# region ----- ASCII ----------------------------------------------------------
+
+
+def MSW_meteo_to_XA(DF_meteo, Par, Pa_PRJ, Xmin=None, Ymin=None, Xmax=None, Ymax=None):
+    """
+    Reads multiple .asc files listed in one of DF_meteo's columns and combines them into a single xarray DataArray.
+    """
+
+    base_dir = Path(Pa_PRJ).parent
+
+    l_da = []
+    # Iterate over the DataFrame rows to read each .asc file # I've tried parallelizing this, and the speed was about the same. So I'm keeping the simpler serial approach.
+    for index, row in tqdm(DF_meteo.iterrows(), total=len(DF_meteo), desc='Loading P'):
+        file_path = (base_dir / row[Par]).resolve()
+
+        # Read the .asc file using imod.rasterio (lazy)
+        da = imod.rasterio.open(file_path)
+        if 'band' in da.dims:
+            da = da.squeeze('band', drop=True)
+
+        # Sort by y to ensure slicing works correctly (rasters are often descending y)
+        da = da.sortby('y')
+
+        # Select only the Area of Interest
+        da = da.sel(x=slice(Xmin, Xmax), y=slice(Ymin, Ymax))
+
+        l_da.append(da)
+
+    if l_da:
+        # Concatenate along the 'time' dimension directly using the datetime values
+        # This keeps 'time' as a single dimension instead of MultiIndex (year, day)
+        # We use 'DT' column which we prepared earlier
+        times = DF_meteo['DT'].values
+        A_P = xr.concat(l_da, dim='time')
+        A_P = A_P.assign_coords(time=times)
+    else:
+        print('No data loaded.')
+        A_P = None
+    return A_P
+
+
+# endregion

@@ -1,3 +1,4 @@
+# region ----- Imports ---------------------------------------------------------
 # ***** Utility functions to facilitate more robust modelling. *****
 import json
 import os
@@ -30,9 +31,11 @@ from send2trash import send2trash
 from tqdm import tqdm
 
 warnings.filterwarnings('ignore', category=UserWarning, module='openpyxl.worksheet._read_only')
+# endregion
 
-# --------------------------------------------------------------------------------
-pre_Sign = f'{fg(52)}{"~" * 80}{attr("reset")}\n'
+
+# region ----- Basics ----------------------------------------------------------
+pre_Sign = f'{fg(52)}{"-" * 80}{attr("reset")}\n'
 post_Sign = f'{fg(52)}\nend_of_transmission\n{"-" * 80}{attr("reset")}\n'
 style_reset = f'{attr("reset")}\033[0m'
 bold = '\033[1m'
@@ -72,9 +75,10 @@ Pa_WS = get_repo_root()
 Pa_RunLog = PJ(Pa_WS, 'Mng/RunLog.xlsx')
 Pa_log = PJ(Pa_WS, 'Mng/log.csv')
 ## Can make get paths function that will provide the general directories, like Pa_WS, Pa_Mdl. Those can be derived from a folder structure.
+# endregion
 
 
-# VERBOSE ------------------------------------------------------------------------
+# region ----- Printing --------------------------------------------------------
 def vprint(*args, **kwargs):
     """Prints only if VERBOSE is True."""
     if VERBOSE:
@@ -100,7 +104,10 @@ def dprint(N=80, bool_dim=True):
         print(f'{"-" * N}')
 
 
-# Get (MdlN) info ----------------------------------------------------------------
+# endregion
+
+
+# region ----- Get (MdlN) info -------------------------------------------------
 def MdlN_Se_from_RunLog(
     MdlN,
 ):  # Can be made faster. May need to make excel export the RunLog as a csv, so that I can use pd.read_csv instead of pd.read_excel.
@@ -465,7 +472,10 @@ def reach_to_XY(reach: int, GDF_SFR: pd.DataFrame, MdlN=None, reach_Col='rno', X
     return (X, Y)
 
 
-# Read files/Py objects ----------------------------------------------------------
+# endregion
+
+
+# region ----- Formatting + common DF functions --------------------------------
 def r_RunLog():
     return pd.read_excel(Pa_RunLog, sheet_name='RunLog').dropna(subset='runN')  # Read RunLog
 
@@ -791,7 +801,10 @@ def r_Txt_Lns(Pa):
     return l_Ln
 
 
-# Open files ---------------------------------------------------------------------
+# endregion
+
+
+# region ----- Open files ------------------------------------------------------
 def o_(key, *l_MdlN, Pa=r'C:\Program Files\Notepad++\notepad++.exe'):
     """Opens files at default locations, as specified by get_MdlN_Pa()."""
     if key not in get_MdlN_Pa('NBr1').keys():
@@ -896,7 +909,18 @@ def o_LST(
         vprint(f'🟢 - {f}')
 
 
-# Formatting + common DF functions -----------------------------------------------
+def mete_grid_inp_to_DF(PRJ):
+    DF_meteo = pd.read_csv(PRJ['extra']['paths'][2][0], names=['day', 'year', 'P', 'PET'])
+    DF_meteo['DT'] = pd.to_datetime(
+        DF_meteo['year'].astype(int).astype(str) + '-' + (DF_meteo['day'].astype(int) + 1).astype(str), format='%Y-%j'
+    )
+    return DF_meteo
+
+
+# endregion
+
+
+# region ----- Formatting + common DF functions --------------------------------
 def DF_to_MF_block(DF, Min_width=4, indent='    ', Max_decimals=4):
     """
     Convert DataFrame to formatted MODFLOW input block.
@@ -1130,7 +1154,10 @@ def DF_Rd_Cols(DF, sig_figs=4):
     return DF_r
 
 
-# Sim Prep + Run -----------------------------------------------------------------
+# endregion
+
+
+# region ----- Sim Prep + Run --------------------------------------------------
 def S_from_B(MdlN: str, iMOD5=False):
     """Copies files that contain Sim options from the B Sim, renames them for the S Sim, and opens them in the default file editor. Assumes default WS_Mdl folder structure (as described in READ_ME.MD)."""
 
@@ -1707,7 +1734,10 @@ def freeze_pixi_env(MdlN: str):
         sys.exit(1)
 
 
-# Edit common text files ---------------------------------------------------------
+# endregion
+
+
+# region ----- Edit common text files ------------------------------------------
 def add_MVR_to_OPTIONS(Pa):
     """
     Opens a MODFLOW 6 input files (based on provided path), finds the OPTIONS block, and adds the MOVER option before the END OPTIONS line. Uses a file lock to ensure thread-safe file editing.
@@ -1884,7 +1914,10 @@ def Bin_to_text(bin_path):
     print(f'\n{CuCh["-"]} Failed to automatically convert. The file format might differ from (L,R,C,Stage,Cond,Rbot).')
 
 
-# iBridges -----------------------------------------------------------------------
+# endregion
+
+
+# region ----- iBridges --------------------------------------------------------
 def l_Fis_Exc(Pa, l_exceptions=['.7z', '.aux', '.xml']):
     l_ = []
     if Pa.is_file():
@@ -2018,3 +2051,6 @@ def iB_Dl(F: str, S, on_error='warn', overwrite=False, subdir='research-ws-imod'
                 for file in files:
                     decompress_and_clean(Path(root) / file)
     dprint()
+
+
+# endregion

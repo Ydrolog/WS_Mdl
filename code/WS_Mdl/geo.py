@@ -38,7 +38,7 @@ CuCh = {
 }
 
 
-# TIF ----------------------------------------------------------------------------
+# region ----- TIF -------------------------------------------------------------
 def DA_stats(DA, verbose: bool = False):
     d_stats = {
         'mean': DA.mean().values,
@@ -732,7 +732,10 @@ def Vtr_to_TIF(Pa_Vtr, Fld, Pa_TIF, MdlN=None, crs=crs, SigDig=4):
     vprint(post_Sign)
 
 
-# HD_IDF speciic PoP (could be extended/generalized at a later stage) ------------
+# endregion
+
+
+# region ----- HD_IDF speciic PoP (could be extended/generalized at a later stage) ---
 def HD_IDF_Agg_to_TIF(
     MdlN: str,
     rules=None,
@@ -963,7 +966,10 @@ def HD_IDF_GXG_to_TIF(MdlN: str, N_cores: int = None, crs: str = crs, rules: str
     vprint(post_Sign)
 
 
-# SFR ----------------------------------------------------------------------------
+# endregion
+
+
+# region ----- SFR -------------------------------------------------------------
 def SFR_Par_to_Rst(
     MdlN: str, Par: str, crs: str = 28992, Pa_SFR=None, radius: float = None, iMOD5=False, verbose: bool = True
 ):
@@ -1143,7 +1149,10 @@ def SFR_to_GPkg(MdlN: str, crs: str = 28992, Pa_SFR=None, radius: float = None, 
     vprint(f'🟢🟢 - SFR for {MdlN} has been converted to Gpkg and saved at:\n\t{Pa_SHP}\n\t')
 
 
-# MM Update ----------------------------------------------------------------------
+# endregion
+
+
+# region ----- MM Update -------------------------------------------------------
 def Up_MM(MdlN, MdlN_MM_B=None):
     """Updates the MM (QGIS projct containing model data)."""
 
@@ -1221,7 +1230,10 @@ def Up_MM(MdlN, MdlN_MM_B=None):
     vprint(post_Sign)
 
 
-# OUTDATED -----------------------------------------------------------------------
+# endregion
+
+
+# region ----- OUTDATED ---------------------------------------------------------------- ---
 def A_to_Raster_n_IDF(A, IDF_MtDt, Pa_Out, field='HD_L1', crs='EPSG:4326'):
     """This was used in PoP_HD_IDF a long time ago and is now outdated."""
     # 1. Write a GeoTIFF raster with rasterio
@@ -1264,3 +1276,6 @@ def A_to_Raster_n_IDF(A, IDF_MtDt, Pa_Out, field='HD_L1', crs='EPSG:4326'):
     idf_path = Pa_Out + '.idf'
     imod.idf.write(idf_path, DA)
     vprint(f'{idf_path} has been saved (iMOD IDF).')
+
+
+# endregion
