@@ -1,5 +1,6 @@
 # region ----- Imports ---------------------------------------------------------
 # ***** Similar to utils.py, but those utilize imod, which takes a long time to load. *****
+import importlib as IL
 import math
 import os
 import re
@@ -24,6 +25,7 @@ from imod import mf6, msw
 from tqdm import tqdm
 from tqdm.dask import TqdmCallback
 
+from . import plot_SFR
 from .utils import (
     CuCh as CuCh,
 )
@@ -1135,128 +1137,6 @@ def get_SFR_OBS_Out_Pas(MdlN, filetype='.csv'):
     return l_Pa
 
 
-def plot_SFR_reach_TS(sub_title, X_axis, d_plot, Pa_Out):
-    fig = go.Figure()
-
-    y_vals = []
-    y_2_vals = []
-    for k, v in d_plot.items():
-        # Prepare kwargs
-        kwargs = v['kwargs'].copy()
-        kwargs['name'] = k
-        y_data = v['y']
-
-        # Collect data for auto-scaling
-        if 'yaxis' in kwargs and kwargs['yaxis'] == 'y2':
-            y_2_vals.extend(y_data)
-        else:
-            # Handle potential None/NaNs in data before extending default list
-            if hasattr(y_data, 'dropna'):
-                y_vals.extend(y_data.dropna().values)
-            else:
-                y_vals.extend([y for y in y_data if pd.notna(y)])
-
-        # Plot
-        fig.add_trace(v['plot_type'](x=X_axis, y=y_data, **kwargs))
-
-    # ---------------------------
-    # Auto-Scaling Calculation for Bottom Plot
-    if y_vals:
-        y_min, y_max = min(y_vals), max(y_vals)
-        # Add 5% padding
-        y_pad = (y_max - y_min) * 0.05 if (y_max - y_min) > 0 else 0.5
-        y_vals_range = [y_min - y_pad, y_max + y_pad]
-    else:
-        y_vals_range = [0, 1]
-
-    fig.update_layout(
-        title=dict(
-            text=f'SFR Vs RIV stage<br><span style="font-size: 14px; color: gray;">{sub_title}</span>',
-            x=0.5,
-            xanchor='center',
-            y=0.98,  # Position title just above the plot area/below legend
-            yanchor='top',
-        ),
-        legend=dict(
-            orientation='v',
-            yanchor='middle',
-            y=0.5,
-            xanchor='left',
-            x=1.02,
-            font=dict(family='Consolas, monospace', size=12),  # Monospace for alignment
-        ),
-        hovermode='x unified',  # Unified hover for single window
-        # Ensure hover searches across the whole column regardless of cursor Y position
-        hoverdistance=-1,
-        spikedistance=-1,
-        hoverlabel=dict(
-            namelength=-1, bgcolor='white', bordercolor='gray', font=dict(family='Consolas, monospace'), align='right'
-        ),
-        template='plotly_white',
-        margin=dict(t=80, l=60, r=40, b=40),  # Decreased top margin slightly as requested (180->160)
-        # X Axis (Shared)
-        xaxis=dict(
-            domain=[0, 1],
-            anchor='free',  # Anchor to free to allow unified hover across disjoint y-domains
-            position=0,
-            dtick='M1',  # Ticks every month
-            tickformat='%b %Y',  # e.g., 'Jan 1994'
-            tickangle=-90,  # Vertical text
-            hoverformat='%d %b %Y',  # Full date in hover
-            showspikes=True,
-            spikemode='across',
-            spikesnap='cursor',
-            spikecolor='gray',
-            spikethickness=1,
-            showline=True,
-            linewidth=1,
-            linecolor='gray',
-            mirror=False,
-            showgrid=True,
-        ),
-        # Y Axis (Elevation - Bottom)
-        yaxis=dict(
-            title_text='Elevation (mNAP)',
-            domain=[0, 0.68],
-            range=y_vals_range,
-            nticks=15,  # Force more ticks/gridlines
-            showspikes=True,
-            spikemode='across',
-            spikesnap='cursor',
-            spikecolor='gray',
-            spikethickness=1,
-            showline=True,
-            linewidth=1,
-            linecolor='gray',
-            mirror=False,
-            showgrid=True,
-            fixedrange=False,  # Ensure interactive
-        ),
-        # Y Axis 2 (Precipitation - Top)
-        yaxis2=dict(
-            title_text='Precipitation (mm)',
-            domain=[0.72, 1],
-            # max=None, min=0 auto
-            showspikes=True,
-            spikemode='across',
-            spikesnap='cursor',
-            spikecolor='gray',
-            spikethickness=1,
-            showline=True,
-            linewidth=1,
-            linecolor='gray',
-            mirror=False,
-            showgrid=True,
-            zeroline=True,
-            zerolinewidth=2,
-            zerolinecolor='gray',
-            fixedrange=False,  # Ensure interactive
-        ),
-    )
-
-    fig.write_html(Pa_Out, auto_open=True)
-
-
 def SFR_stage_TS(
     MdlN: str,
     MdlN_RIV: str,
@@ -1277,7 +1157,7 @@ def SFR_stage_TS(
     set_verbose(False)
 
     # region ----- Load data -------------------------------------------------------
-    print('--- Loading data ... ', end='')
+    print('--- Loading data ... ')
 
     print(' -- Loading PRJ data ... ', end='')
     d_Pa = get_MdlN_Pa(MdlN)
@@ -1305,7 +1185,7 @@ def SFR_stage_TS(
     GDF_SFR = SFR_PkgD_to_DF(MdlN)
     print('🟢')
 
-    print(' -- Loading RIV data...')
+    print(' -- Loading RIV data...', end='')
     RIV_params = ['conductance', 'stage', 'bottom_elevation', 'infiltration_factor']
     PRJ_RIV, PRJ_OBS_RIV = r_PRJ_with_OBS(d_Pa_RIV['PRJ'])
 
@@ -1379,9 +1259,11 @@ def SFR_stage_TS(
     DF_ = pd.DataFrame({'L': GDF_SFR.k.value_counts().index, 'count': GDF_SFR.k.value_counts()})
     DF_['percentage'] = (GDF_SFR.k.value_counts(normalize=True) * 100).apply(lambda x: round(x, 2))
     l_SFR_Ls = [int(i) for i in sorted(DF_.loc[DF_['percentage'] >= 1, 'L'].unique())]
-    print(' -- Reading HD data...\n')
+    print(' -- Reading HD data... ', end='')
     print('🟢')
-    print(f'  - Only layers containing >=1% of SFR reaches were loaded: {l_SFR_Ls}\n')
+    print(
+        f'  - Only layers containing >=1% of SFR reaches were loaded: {l_SFR_Ls}.\n\t You can still request for a TS from the other layers, but it may take a while to load the data if you do.'
+    )
 
     print(' -- Loading precipitation data ... ', end='')
     DF_meteo = mete_grid_inp_to_DF(PRJ)
@@ -1432,14 +1314,11 @@ def SFR_stage_TS(
             else DF.copy()
         )
 
-        vprint('--- Loading HD data for SFR-relevant layers and specified time range ...')
-
         if load_P:
-            DF_meteo_DT_trim = DF_meteo.loc[(DF_meteo['DT'] >= start_date) & (DF_meteo['DT'] <= end_date)]
-            DF_meteo_DT_trim['Pa'] = (Path(d_Pa['PRJ']).parent / DF_meteo_DT_trim['P']).resolve()
-            A_P = MSW_meteo_to_XA(DF_meteo_DT_trim['Pa'], Xmin, Ymin, Xmax, Ymax)
+            DF_meteo_DT_trim = DF_meteo.loc[(DF_meteo['DT'] >= start_date) & (DF_meteo['DT'] <= end_date)].copy()
+            A_P = MSW_meteo_to_XA(DF_meteo_DT_trim, 'P', d_Pa['PRJ'], Xmin, Ymin, Xmax, Ymax)
 
-        with TqdmCallback(desc='--- Loading HD data for SFR-relevant layers and specified time range ...'):
+        with TqdmCallback(desc=' -- Loading HD data for SFR-relevant layers and specified time range ...'):
             if load_HD:
                 A_HD = A_HD_.sel(layer=l_SFR_Ls).sel(time=slice(start_date, end_date)).compute()
             if load_HD_RIV:
@@ -1450,6 +1329,11 @@ def SFR_stage_TS(
             In2 = input(
                 "Provide a cell ID (L R C) (with spaces or commas as separators) or a reach number. If you're providing a reach number, prefix it with 'R' (e.g., R15). Type 'E' to quit:\n"
             )
+
+            IL.reload(plot_SFR)
+            # Re-bind the function from the reloaded module
+            plot_SFR_reach_TS = plot_SFR.plot_SFR_reach_TS
+
             vprint('  - Loading data for specified reach/cell...')
 
             if In2.upper() == 'E':
@@ -1463,6 +1347,9 @@ def SFR_stage_TS(
                 L, R, C = [int(j) for j in parts]
                 reach = GDF_SFR.loc[(GDF_SFR.k == L) & (GDF_SFR.i == R) & (GDF_SFR.j == C), 'reach'].values[0]
             X, Y = reach_to_XY(reach, GDF_SFR)
+
+            if load_P:
+                P_ts = xr_get_value(A_P, X, Y, dx, dy)
 
             # Extract head time series at this location (compute to load from Dask)
             if load_HD:
@@ -1500,9 +1387,9 @@ def SFR_stage_TS(
                 {
                     f'{"Precipitation":<17}': {
                         'plot_type': go.Bar,
-                        'y': A_P.values if hasattr(A_P, 'values') else A_P,
+                        'y': P_ts.values if hasattr(P_ts, 'values') else P_ts,
                         'kwargs': {
-                            'marker': dict(color='#ff0000', width=3),
+                            'marker': dict(color='#919cd5', line=dict(color='#919cd5', width=3)),
                             'hovertemplate': '%{y:8.1f} mm',
                             'yaxis': 'y2',
                         },
@@ -1517,7 +1404,7 @@ def SFR_stage_TS(
                         'y': HD['head'],
                         'kwargs': {
                             'mode': 'lines',
-                            'line': dict(color='#e26a5a', width=3),
+                            'line': dict(color='#b63a3a', width=3),
                             'hovertemplate': '%{y:3.3f} mNAP',
                         },
                     }
@@ -1531,7 +1418,7 @@ def SFR_stage_TS(
                         'y': HD_RIV['head'],
                         'kwargs': {
                             'mode': 'lines',
-                            'line': dict(color='#6baed6', width=3),
+                            'line': dict(color='#3a7fb8', width=3),
                             'hovertemplate': '%{y:3.3f} mNAP',
                         },
                     }
@@ -1638,7 +1525,7 @@ def SFR_stage_TS(
             )
             # endregion
 
-            r_info = {'reach': reach, 'L': L, 'R': R, 'C': C, 'X': X, 'Y': Y, 'MdlN': MdlN, 'MdlN_RIV': MdlN_RIV}
+            r_info = f'reach: {reach}, L: {L}, R: {R}, C: {C}, X: {X}, Y: {Y}, MdlN: {MdlN}, MdlN_RIV: {MdlN_RIV}'
 
             vprint('  - Plotting...')
 
@@ -1665,7 +1552,7 @@ def MSW_meteo_to_XA(DF_meteo, Par, Pa_PRJ, Xmin=None, Ymin=None, Xmax=None, Ymax
 
     l_da = []
     # Iterate over the DataFrame rows to read each .asc file # I've tried parallelizing this, and the speed was about the same. So I'm keeping the simpler serial approach.
-    for index, row in tqdm(DF_meteo.iterrows(), total=len(DF_meteo), desc='Loading P'):
+    for index, row in tqdm(DF_meteo.iterrows(), total=len(DF_meteo), desc=f' -- Loading {Par}'):
         file_path = (base_dir / row[Par]).resolve()
 
         # Read the .asc file using imod.rasterio (lazy)
