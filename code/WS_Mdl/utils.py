@@ -229,16 +229,18 @@ def get_MdlN_Pa(MdlN: str, MdlN_B=None, iMOD5=None):
         d_Pa['MSW'] = PJ(d_Pa['Pa_MdlN'], 'metaswap') if not iMOD5 else PJ(d_Pa['Pa_MdlN'], 'GWF_1/MSWAPINPUT')
         d_Pa['TOML'] = PJ(d_Pa['Pa_MdlN'], 'imod_coupler.toml')
         d_Pa['TOML_iMOD5'] = PJ(d_Pa['Pa_MdlN'], f'{MdlN}.toml')
+        d_Pa['Sim_In'] = (
+            PJ(d_Pa['Pa_MdlN'], 'modflow6/imported_model') if not iMOD5 else PJ(d_Pa['Pa_MdlN'], 'GWF_1/MODELINPUT')
+        )
         d_Pa['LST_Sim'] = PJ(d_Pa['Pa_MdlN'], 'mfsim.lst')  # Sim LST file
-        d_Pa['LST_Mdl'] = PJ(d_Pa['Pa_MdlN'], f'GWF_1/{MdlN}.lst')  # Mdl LST file
+        d_Pa['LST_Mdl'] = (
+            PJ(d_Pa['Sim_In'], 'imported_model.lst') if not iMOD5 else PJ(d_Pa['Pa_MdlN'], f'GWF_1/{MdlN}.lst')
+        )  # Mdl LST file
         d_Pa['NAM_Sim'] = PJ(d_Pa['Pa_MdlN'], 'MFSIM.NAM')  # Sim LST file
         d_Pa['NAM_Mdl'] = (
             PJ(d_Pa['Pa_MdlN'], 'modflow6/imported_model/imported_model.NAM')
             if not iMOD5
             else PJ(d_Pa['Pa_MdlN'], f'GWF_1/{MdlN}.NAM')
-        )
-        d_Pa['Sim_In'] = (
-            PJ(d_Pa['Pa_MdlN'], 'modflow6/imported_model') if not iMOD5 else PJ(d_Pa['Pa_MdlN'], 'GWF_1/MODELINPUT')
         )
         d_Pa['Sim_Out'] = None if not iMOD5 else PJ(d_Pa['Pa_MdlN'], 'GWF_1/MODELOUTPUT')
         d_Pa['SFR'] = (
