@@ -1,0 +1,54 @@
+Assuming unrestricted shared filesystem usage.
+host: ws6-waterscapei
+Building DAG of jobs...
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Job stats:
+job                 count
+----------------  -------
+Mdl_Prep                1
+Sim                     1
+add_DRN_OBS_copy        1
+add_HD_OBS_WEL          1
+add_RIV_OBS_copy        1
+all                     1
+total                   6
+
+Select jobs to execute...
+Execute 1 jobs...
+
+[Mon Feb 16 12:52:40 2026]
+localrule Mdl_Prep:
+    input: G:/models/NBr/code/snakemake/temp/Log_init_NBr49, code/Mdl_Prep/Mdl_Prep_NBr49.bat, code/Mdl_Prep/Mdl_Prep_NBr49.ini, In/PRJ/NBr49.prj
+    output: G:/models/NBr/Sim/NBr49/RUN.BAT
+    jobid: 3
+    reason: Missing output files: G:/models/NBr/Sim/NBr49/RUN.BAT
+    resources: tmpdir=C:\Users\MKARAM~1\AppData\Local\Temp\2
+Shell command: call code/Mdl_Prep/Mdl_Prep_NBr49.bat
+Access is denied.
+RuleException:
+CalledProcessError in file "G:\models\NBr\code\snakemake\NBr49.smk", line 111:
+Command 'call code/Mdl_Prep/Mdl_Prep_NBr49.bat' returned non-zero exit status 5.
+[Mon Feb 16 12:53:02 2026]
+Error in rule Mdl_Prep:
+    message: None
+    jobid: 3
+    input: G:/models/NBr/code/snakemake/temp/Log_init_NBr49, code/Mdl_Prep/Mdl_Prep_NBr49.bat, code/Mdl_Prep/Mdl_Prep_NBr49.ini, In/PRJ/NBr49.prj
+    output: G:/models/NBr/Sim/NBr49/RUN.BAT
+    shell:
+        call code/Mdl_Prep/Mdl_Prep_NBr49.bat
+        (command exited with non-zero exit code)
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look below for error messages
+[Mon Feb 16 12:53:02 2026]
+Error in rule Mdl_Prep:
+    message: None
+    jobid: 3
+    input: G:/models/NBr/code/snakemake/temp/Log_init_NBr49, code/Mdl_Prep/Mdl_Prep_NBr49.bat, code/Mdl_Prep/Mdl_Prep_NBr49.ini, In/PRJ/NBr49.prj
+    output: G:/models/NBr/Sim/NBr49/RUN.BAT
+    shell:
+        call code/Mdl_Prep/Mdl_Prep_NBr49.bat
+        (command exited with non-zero exit code)
+Complete log(s): G:\models\NBr\.snakemake\log\2026-02-16T125240.071051.snakemake.log
+WorkflowError:
+At least one job did not complete successfully.
