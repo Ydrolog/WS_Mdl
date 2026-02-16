@@ -189,7 +189,7 @@ def get_MdlN_Pa(MdlN: str, MdlN_B=None, iMOD5=None):
             iMOD5 = False
         else:
             iMOD5 = False
-            print(
+            vprint(
                 f"🔴 - Couldn't determine imod version from Sim/{MdlN} folder. Proceeding assuming it's imod_python. Provide iMOD5=True if you want to proceed with iMOD5's structure instead."
             )
 
