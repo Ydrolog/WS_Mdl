@@ -236,7 +236,7 @@ def get_MdlN_Pa(MdlN: str, MdlN_B=None, iMOD5=None):
         d_Pa['LST_Mdl'] = (
             PJ(d_Pa['Sim_In'], 'imported_model.lst') if not iMOD5 else PJ(d_Pa['Pa_MdlN'], f'GWF_1/{MdlN}.lst')
         )  # Mdl LST file
-        d_Pa['NAM_Sim'] = PJ(d_Pa['Pa_MdlN'], 'MFSIM.NAM')  # Sim LST file
+        d_Pa['NAM_Sim'] = PJ(d_Pa['Pa_MdlN'], 'MFSIM.NAM')
         d_Pa['NAM_Mdl'] = (
             PJ(d_Pa['Pa_MdlN'], 'modflow6/imported_model/imported_model.NAM')
             if not iMOD5
@@ -2056,3 +2056,49 @@ def iB_Dl(F: str, S, on_error='warn', overwrite=False, subdir='research-ws-imod'
 
 
 # endregion
+
+# region ----- PoP -------------------------------------------------------------
+
+
+def Agg_OBS(MdlN, Pkg):
+
+    set_verbose(False)
+    d_Pa = get_MdlN_Pa(MdlN)
+    start_date = INI_to_d(d_Pa['INI'])['SDATE']
+    l_Pa_OBS = [i for i in LD(d_Pa['Pa_MdlN']) if f'{Pkg}_OBS' in i]
+    set_verbose(True)
+
+    l_DF = []
+
+    for f in l_Pa_OBS:
+        Pa = PJ(d_Pa['Pa_MdlN'], f)
+        try:
+            DF_ = pd.read_csv(Pa)
+            DF_['date'] = DT.strptime(start_date, '%Y%m%d') + pd.to_timedelta(DF_['time'] - 1, unit='D')
+            DF_ = DF_.drop(columns=['time'])
+            l_DF.append(DF_.copy())
+
+            Cols_no_date = [i for i in DF_.columns if i != 'date']
+            DF_['SUM'] = DF_[Cols_no_date].sum(axis=1)
+            DF_ = DF_[['date', 'SUM']]
+
+            Pa_Out = PJ(d_Pa['Pa_MdlN'], f'OBS_Agg/{f.replace(".csv", "_Agg.csv")}')
+            os.makedirs(PDN(Pa_Out), exist_ok=True)
+            DF_.to_csv(Pa_Out, index=False)
+            print('🟢 - Successfully processed:', Pa)
+
+        except Exception as e:
+            print(f'🔴 - Failed to read {Pa}: {e}')
+
+    if not l_DF:
+        print(f'{warn}No {Pkg}_OBS files found or all failed to read for model {MdlN}.')
+        return
+
+    DF = pd.concat(l_DF, ignore_index=True, copy=False)
+    Cols_no_date = [i for i in DF.columns if i != 'date']
+    DF['SUM'] = DF[Cols_no_date].sum(axis=1)
+    DF.drop(columns=Cols_no_date, inplace=True)
+    Pa_Out = PJ(d_Pa['Pa_MdlN'], f'OBS_Agg/{Pkg}_OBS_SUM_{MdlN}.csv')
+    DF.to_csv(Pa_Out, index=False)
+
+    print(f'🟢🟢 - Successfully aggregated all OBS files for {Pkg} and saved to: {Pa_Out}')

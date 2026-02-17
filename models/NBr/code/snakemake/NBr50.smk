@@ -21,8 +21,9 @@ from filelock import FileLock as FL
 # --- Variables ---
 
 ## Options
-MdlN        =   "NBr49"
+MdlN        =   "NBr50"
 MdlN_MM_B   =   'NBr17'
+MdlN_OBS    =   'NBr50'
 Mdl         =   ''.join([i for i in MdlN if i.isalpha()])
 rule_       =   "(L == 1)"
 iMOD5       =   True 
@@ -36,15 +37,22 @@ Pa_temp                             =   PJ(Pa_Smk, 'temp')
 Pa_Sim                              =   PJ(Pa_Mdl, 'Sim')
 Pa_MdlN                             =   PJ(Pa_Sim, f'{MdlN}')
 Pa_BAT_RUN                          =   PJ(Pa_MdlN, 'RUN.BAT')
+
 Pa_HD_OBS_Ogn                       =   PJ(d_Pa['In'], 'OBS/HD', f'{MdlN}/{MdlN}.HD.OBS6')
 Pa_HD_OBS_WEL, Pa_HD_OBS, Pa_NAM    =   [PJ(Pa_MdlN, 'GWF_1', i) for i in [f'MODELINPUT/{MdlN}.OBS6', f'MODELINPUT/{MdlN}.HD.OBS6', f'{MdlN}.NAM']]
-Pa_RIV_OBS_Src, Pa_DRN_OBS_Src      =   [PJ(Pa_Mdl, f"In/OBS/{i}/NBr39/NBr39.{i}.OBS6") for i in ['RIV', 'DRN']]
-Pa_RIV_OBS_Dst, Pa_DRN_OBS_Dst      =   [PJ(Pa_MdlN, f"GWF_1/MODELINPUT/{MdlN}.{i}.OBS6") for i in ['RIV', 'DRN']]
-Pa_HED, Pa_CBC                      =   [PJ(Pa_MdlN, 'GWF_1/MODELOUTPUT', i) for i in ['HEAD/HEAD.HED', 'BUDGET/BUDGET.CBC']]
-l_Fi_to_git                         =   [PJ(Pa_WS, i) for i in ['pixi.toml', 'pixi.lock', 'code/WS_Mdl']] # If any of these code files changes, the 
 
-git_hash = shell(f"git -C {Pa_WS} rev-parse HEAD", read=True).strip()
-git_tag  = shell(f"git -C {Pa_WS} describe --tags --always", read=True, allow_error=True).strip() or "no_tag"
+l_Fi_RIV_OBS        =   os.listdir(PJ(Pa_Mdl, f"In/OBS/RIV/{MdlN_OBS}"))
+l_Fi_DRN_OBS        =   os.listdir(PJ(Pa_Mdl, f"In/OBS/DRN/{MdlN_OBS}"))
+Pa_RIV_OBS_Src      =   [PJ(Pa_Mdl, f"In/OBS/RIV/{MdlN_OBS}/{i}") for i in l_Fi_RIV_OBS]
+Pa_DRN_OBS_Src      =   [PJ(Pa_Mdl, f"In/OBS/DRN/{MdlN_OBS}/{i}") for i in l_Fi_DRN_OBS]
+Pa_RIV_OBS_Dst      =   [PJ(d_Pa['Sim_In'], i) for i in l_Fi_RIV_OBS]
+Pa_DRN_OBS_Dst      =   [PJ(d_Pa['Sim_In'], i) for i in l_Fi_DRN_OBS]
+
+Pa_HED, Pa_CBC      =   [PJ(Pa_MdlN, 'GWF_1/MODELOUTPUT', i) for i in ['HEAD/HEAD.HED', 'BUDGET/BUDGET.CBC']]
+
+l_Fi_to_git         =   [PJ(Pa_WS, i) for i in ['pixi.toml', 'pixi.lock', 'code/WS_Mdl']] # If any of these code files changes, the 
+git_hash            = shell(f"git -C {Pa_WS} rev-parse HEAD", read=True).strip()
+git_tag             = shell(f"git -C {Pa_WS} describe --tags --always", read=True, allow_error=True).strip() or "no_tag"
 
 ## Temp files (for completion validation)
 log_Init        =   f"{Pa_Smk}/temp/Log_init_{MdlN}"
@@ -65,7 +73,7 @@ onerror: fail
 rule all: # Final rule
     input:
         log_Sim,
-        # log_Up_MM,
+        log_Up_MM,
         log_freeze_env
         
 ## -- PrP --
@@ -132,13 +140,15 @@ rule add_HD_OBS_WEL:
 rule add_RIV_OBS_copy: # By copying file.
     input:
         d_Pa['NAM_Sim'],
-        Pa_RIV_OBS_Src
+        Pa_RIV_OBS_Src,
     output:
         Pa_RIV_OBS_Dst
     run:
         PKG = 'RIV'
-        sh.copy2(Pa_RIV_OBS_Src, Pa_RIV_OBS_Dst)
-        U.add_OBS_to_MF_In(MdlN=MdlN, PKG=PKG, str_OBS=f" OBS6 FILEIN ./GWF_1/MODELINPUT/{MdlN}.{PKG}.OBS6", iMOD5=iMOD5)
+        for i in range(len(Pa_RIV_OBS_Src)):
+            Fi = Path(PBN(Pa_RIV_OBS_Src[i]))
+            sh.copy2(Pa_RIV_OBS_Src[i], Pa_RIV_OBS_Dst[i])
+            U.add_OBS_to_MF_In(str_OBS=f" OBS6 FILEIN ./GWF_1/MODELINPUT/{Fi}", Pa=PJ(d_Pa['Sim_In'], f"{Fi.stem}6"))
 
 rule add_DRN_OBS_copy: # By copying file.
     input:
@@ -148,9 +158,10 @@ rule add_DRN_OBS_copy: # By copying file.
         Pa_DRN_OBS_Dst
     run:
         PKG = 'DRN'
-        sh.copy2(Pa_DRN_OBS_Src, Pa_DRN_OBS_Dst)
-        U.add_OBS_to_MF_In(MdlN=MdlN, PKG=PKG, str_OBS=f" OBS6 FILEIN ./GWF_1/MODELINPUT/{MdlN}.{PKG}.OBS6", iMOD5=iMOD5)
-
+        for i in range(len(Pa_DRN_OBS_Src)):
+            Fi = Path(PBN(Pa_DRN_OBS_Src[i]))
+            sh.copy2(Pa_DRN_OBS_Src[i], Pa_DRN_OBS_Dst[i])
+            U.add_OBS_to_MF_In(str_OBS=f" OBS6 FILEIN ./GWF_1/MODELINPUT/{Fi}", Pa=PJ(d_Pa['Sim_In'], f"{Fi.stem}6"))
 
 ## -- Sim ---
 rule Sim: # Runs the simulation via BAT file.
@@ -171,36 +182,36 @@ rule Sim: # Runs the simulation via BAT file.
                         'Sim Dur'       :   get_elapsed_time_str(DT_Sim_Start),
                         'End Status'    :   'Completed'})
 
-## -- PoP ---
-# rule PRJ_to_TIF:
-#     input:
-#         log_Sim
-#     output:
-#         temp(log_PRJ_to_TIF)
-#     run:
-#         G.PRJ_to_TIF(MdlN, iMOD5=iMOD5, ) # Convert PRJ to TIFs
-#         Up_log(MdlN, {  'PRJ_to_TIF':   1})
-#         pathlib.Path(output[0]).touch() # Create the file to mark the rule as done.
+# -- PoP ---
+rule PRJ_to_TIF:
+    input:
+        log_Sim
+    output:
+        temp(log_PRJ_to_TIF)
+    run:
+        G.PRJ_to_TIF(MdlN, iMOD5=iMOD5, ) # Convert PRJ to TIFs
+        Up_log(MdlN, {  'PRJ_to_TIF':   1})
+        pathlib.Path(output[0]).touch() # Create the file to mark the rule as done.
 
-# # rule GXG:
-# #     input:
-# #         log_Sim
-# #     output:
-# #         temp(log_GXG)
-# #     run:
-# #         G.HD_IDF_GXG_to_TIF(MdlN, rules=rules, iMOD5=iMOD5) # Calculate GXG and save as TIFs
-# #         Up_log(MdlN, {  'GXG':   rule_})
-# #         pathlib.Path(output[0]).touch() # Create the file to mark the rule as done.
+rule GXG:
+    input:
+        log_Sim
+    output:
+        temp(log_GXG)
+    run:
+        G.HD_IDF_GXG_to_TIF(MdlN, rules=rules, iMOD5=iMOD5) # Calculate GXG and save as TIFs
+        Up_log(MdlN, {  'GXG':   rule_})
+        pathlib.Path(output[0]).touch() # Create the file to mark the rule as done.
 
-# rule Up_MM:
-#     input:
-#         log_PRJ_to_TIF,
-#         # log_GXG
-#     output:
-#         log_Up_MM
-#     run:
-#         G.Up_MM(MdlN, MdlN_MM_B=MdlN_MM_B)     # Update MM 
-#         Up_log(MdlN, {  'PoP end DT':   DT.now().strftime("%Y-%m-%d %H:%M:%S"),
-#                         'End Status':   'PoPed',
-#                         'Up_MM'     :   1}) # Update log
-#         pathlib.Path(output[0]).touch()     # Create the file to mark the rule as done.
+rule Up_MM:
+    input:
+        log_PRJ_to_TIF,
+        log_GXG
+    output:
+        log_Up_MM
+    run:
+        G.Up_MM(MdlN, MdlN_MM_B=MdlN_MM_B)     # Update MM 
+        Up_log(MdlN, {  'PoP end DT':   DT.now().strftime("%Y-%m-%d %H:%M:%S"),
+                        'End Status':   'PoPed',
+                        'Up_MM'     :   1}) # Update log
+        pathlib.Path(output[0]).touch()     # Create the file to mark the rule as done.
