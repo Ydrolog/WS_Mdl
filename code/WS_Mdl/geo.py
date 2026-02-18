@@ -1104,9 +1104,11 @@ def SFR_to_GPkg(MdlN: str, crs: str = 28992, Pa_SFR=None, radius: float = None, 
 
     # Create LineString geometries for all reaches
     DF['geometry'] = DF.apply(
-        lambda row: LineString([(row['X'], row['Y']), (row['DStr_X'], row['DStr_Y'])])
-        if pd.notnull(row['DStr_X']) and pd.notnull(row['DStr_Y'])
-        else Point(row['X'], row['Y']).buffer(radius),
+        lambda row: (
+            LineString([(row['X'], row['Y']), (row['DStr_X'], row['DStr_Y'])])
+            if pd.notnull(row['DStr_X']) and pd.notnull(row['DStr_Y'])
+            else Point(row['X'], row['Y']).buffer(radius)
+        ),
         axis=1,
     )
 
@@ -1167,6 +1169,7 @@ def Up_MM(MdlN, MdlN_MM_B=None):
         Pa_QGZ_B = Pa_QGZ_B.replace(d_Pa['MdlN_B'], MdlN_MM_B)
 
     MDs(PBN(Pa_QGZ), exist_ok=True)  # Ensure destination folder exists
+    os.makedirs(PDN(Pa_QGZ), exist_ok=True)
     sh.copy(Pa_QGZ_B, Pa_QGZ)  # Copy the QGIS file
     vprint(f'Copied QGIS project from {Pa_QGZ_B} to {Pa_QGZ}.\nUpdating layer path ...')
 

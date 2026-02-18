@@ -2076,15 +2076,12 @@ def Agg_OBS(MdlN, Pkg):
             DF_ = pd.read_csv(Pa)
             DF_['date'] = DT.strptime(start_date, '%Y%m%d') + pd.to_timedelta(DF_['time'] - 1, unit='D')
             DF_ = DF_.drop(columns=['time'])
-            l_DF.append(DF_.copy())
 
             Cols_no_date = [i for i in DF_.columns if i != 'date']
-            DF_['SUM'] = DF_[Cols_no_date].sum(axis=1)
-            DF_ = DF_[['date', 'SUM']]
+            DF_[f] = DF_[Cols_no_date].sum(axis=1)
+            DF_ = DF_[['date', f]]
+            l_DF.append(DF_.set_index('date')[f].copy())
 
-            Pa_Out = PJ(d_Pa['Pa_MdlN'], f'OBS_Agg/{f.replace(".csv", "_Agg.csv")}')
-            os.makedirs(PDN(Pa_Out), exist_ok=True)
-            DF_.to_csv(Pa_Out, index=False)
             print('🟢 - Successfully processed:', Pa)
 
         except Exception as e:
@@ -2094,11 +2091,11 @@ def Agg_OBS(MdlN, Pkg):
         print(f'{warn}No {Pkg}_OBS files found or all failed to read for model {MdlN}.')
         return
 
-    DF = pd.concat(l_DF, ignore_index=True, copy=False)
-    Cols_no_date = [i for i in DF.columns if i != 'date']
-    DF['SUM'] = DF[Cols_no_date].sum(axis=1)
-    DF.drop(columns=Cols_no_date, inplace=True)
-    Pa_Out = PJ(d_Pa['Pa_MdlN'], f'OBS_Agg/{Pkg}_OBS_SUM_{MdlN}.csv')
+    DF = pd.concat(l_DF, axis=1).sort_index()
+    DF['SUM'] = DF.sum(axis=1, min_count=1)
+    DF = DF.reset_index().rename(columns={'index': 'date'})
+    Pa_Out = PJ(d_Pa['Pa_MdlN'], f'OBS_Agg/{Pkg}_OBS_Agg_{MdlN}.csv')
+    os.makedirs(PDN(Pa_Out), exist_ok=True)
     DF.to_csv(Pa_Out, index=False)
 
     print(f'🟢🟢 - Successfully aggregated all OBS files for {Pkg} and saved to: {Pa_Out}')

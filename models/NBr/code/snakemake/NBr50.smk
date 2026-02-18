@@ -199,7 +199,7 @@ rule GXG:
     output:
         temp(log_GXG)
     run:
-        G.HD_IDF_GXG_to_TIF(MdlN, rules=rules, iMOD5=iMOD5) # Calculate GXG and save as TIFs
+        G.HD_IDF_GXG_to_TIF(MdlN, rules=rule_, iMOD5=iMOD5) # Calculate GXG and save as TIFs
         Up_log(MdlN, {  'GXG':   rule_})
         pathlib.Path(output[0]).touch() # Create the file to mark the rule as done.
 
@@ -210,7 +210,7 @@ rule Up_MM:
     output:
         log_Up_MM
     run:
-        G.Up_MM(MdlN, MdlN_MM_B=MdlN_MM_B)     # Update MM 
+        G.Up_MM(MdlN, MdlN_MM_B=MdlN_MM_B)      # Update MM 
         Up_log(MdlN, {  'PoP end DT':   DT.now().strftime("%Y-%m-%d %H:%M:%S"),
                         'End Status':   'PoPed',
                         'Up_MM'     :   1}) # Update log
