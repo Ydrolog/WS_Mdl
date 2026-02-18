@@ -735,7 +735,7 @@ def Vtr_to_TIF(Pa_Vtr, Fld, Pa_TIF, MdlN=None, crs=crs, SigDig=4):
 # endregion
 
 
-# region ----- HD_IDF speciic PoP (could be extended/generalized at a later stage) ---
+# region ----- HD_IDF specific PoP (could be extended/generalized at a later stage) ---
 def HD_IDF_Agg_to_TIF(
     MdlN: str,
     rules=None,
@@ -902,7 +902,7 @@ def HD_IDF_GXG_to_TIF(MdlN: str, N_cores: int = None, crs: str = crs, rules: str
         """Only for use within HD_IDF_GXG_to_TIF - to utilize multiprocessing."""
 
         # Load HD files corresponding to the L to an XA
-        l_IDF_L = list(DF.loc[DF['L'] == 1, 'path'])
+        l_IDF_L = list(DF.loc[DF['L'] == L, 'path'])
         XA = imod.idf.open(l_IDF_L)
 
         # Calculate Variables
