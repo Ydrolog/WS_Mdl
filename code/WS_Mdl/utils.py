@@ -2099,13 +2099,20 @@ def Agg_OBS(MdlN, Pkg):
     set_verbose(False)
     d_Pa = get_MdlN_Pa(MdlN)
     start_date = INI_to_d(d_Pa['INI'])['SDATE']
-    l_Pa_OBS = [i for i in LD(d_Pa['Pa_MdlN']) if f'{Pkg}_OBS' in i]
+
+    if d_Pa['imod_V'] == 'imod5':
+        Pa_base = d_Pa['Pa_MdlN']
+    else:
+        Pa_base = d_Pa['MF6']
+
+    l_Pa_OBS = [i for i in LD(Pa_base) if f'{Pkg}_OBS' in i]
     set_verbose(True)
 
     l_DF = []
 
     for f in l_Pa_OBS:
-        Pa = PJ(d_Pa['Pa_MdlN'], f)
+        Pa = PJ(Pa_base, f)
+
         try:
             DF_ = pd.read_csv(Pa)
             DF_['date'] = DT.strptime(start_date, '%Y%m%d') + pd.to_timedelta(DF_['time'] - 1, unit='D')
@@ -2128,8 +2135,11 @@ def Agg_OBS(MdlN, Pkg):
     DF = pd.concat(l_DF, axis=1).sort_index()
     DF['SUM'] = DF.sum(axis=1, min_count=1)
     DF = DF.reset_index().rename(columns={'index': 'date'})
-    Pa_Out = PJ(d_Pa['Pa_MdlN'], f'OBS_Agg/{Pkg}_OBS_Agg_{MdlN}.csv')
+    Pa_Out = PJ(Pa_base, f'OBS_Agg/{Pkg}_OBS_Agg_{MdlN}.csv')
     os.makedirs(PDN(Pa_Out), exist_ok=True)
     DF.to_csv(Pa_Out, index=False)
 
     print(f'🟢🟢 - Successfully aggregated all OBS files for {Pkg} and saved to: {Pa_Out}')
+
+
+# endregion --------------------------------------------------------------------
