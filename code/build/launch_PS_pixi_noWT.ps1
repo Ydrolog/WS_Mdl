@@ -1,5 +1,5 @@
 Invoke-Expression (pixi shell-hook -s powershell | Out-String)
-$env:Path += ";C:\Users\Karam014\.gocmd"
+$env:Path += ";%USERPROFILE%\.gocmd"
 # optional: force config always
-function gocmd { & "C:\Users\Karam014\.gocmd\gocmd.exe" --config "C:\Users\Karam014\.gocmd\config.yml" @args }
+function gocmd { & "%USERPROFILE%\.gocmd\gocmd.exe" --config "%USERPROFILE%\.gocmd\config.yml" @args }
 	
