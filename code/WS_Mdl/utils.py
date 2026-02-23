@@ -1968,7 +1968,7 @@ class iB_session(Session):
 
 def iB_Upl(
     F: str,
-    S,
+    S=None,
     on_error='warn',
     l_exceptions=['.dvc', '.7z', '.aux', '.xml'],
     overwrite=False,
@@ -1982,6 +1982,16 @@ def iB_Upl(
         for part in parts:
             p = p / part
         return p
+
+    if S is None:
+        try:
+            S = iB_session()  # Try to create a session with default parameters
+            print('🟢 Successfully created iBridges session with default parameters.')
+        except Exception as e:
+            print(
+                f'🔴 Failed to create iBridges session: {e}. You can try to load a session with iB_session(), then provide it as an argument to iB_Dl().'
+            )
+            return
 
     # Normalize user-provided relative path so both "\\" and "/" work.
     F_norm = str(F).replace('\\', '/').strip('/')
@@ -2019,8 +2029,18 @@ def iB_Upl(
             dprint()
 
 
-def iB_Dl(F: str, S, on_error='warn', overwrite=False, subdir='research-ws-imod', decompress: bool = True):
+def iB_Dl(F: str, S=None, on_error='warn', overwrite=False, subdir='research-ws-imod', decompress: bool = True):
     """Downloads an iBridges file/folder."""
+
+    if S is None:
+        try:
+            S = iB_session()  # Try to create a session with default parameters
+            print('🟢 Successfully created iBridges session with default parameters.')
+        except Exception as e:
+            print(
+                f'🔴 Failed to create iBridges session: {e}. You can try to load a session with iB_session(), then provide it as an argument to iB_Dl().'
+            )
+            return
 
     Pa_Rmt = iPa(S, '~') / subdir / F
     Pa_Loc = Path(f'G:/{F}')
