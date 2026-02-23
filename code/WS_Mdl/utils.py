@@ -1976,28 +1976,42 @@ def iB_Upl(
 ):
     """Uploads an iBridges file/folder."""
 
+    def _irods_join(base, parts):
+        """Join iRODS paths component-wise to avoid backslash literal names."""
+        p = base
+        for part in parts:
+            p = p / part
+        return p
+
+    # Normalize user-provided relative path so both "\\" and "/" work.
+    F_norm = str(F).replace('\\', '/').strip('/')
+    if not F_norm:
+        raise ValueError('F cannot be empty.')
+
+    F_parts = [part for part in F_norm.split('/') if part and part != '.']
+
     CWD = iPa(S, '~') / subdir
-    Pa_Loc = Path(f'G:/{F}/')
+    Pa_Loc = Path('G:/').joinpath(*F_parts)
     l_Fi_data = l_Fis_Exc(Pa_Loc, l_exceptions=l_exceptions)
 
     print(f'Uploading from: {Pa_Loc}')
     if Pa_Loc.is_file():
         if l_Fi_data:
-            Target = CWD / F
+            Target = _irods_join(CWD, F_parts)
             print(f'Uploading to:   {Target}')
             if not Target.parent.exists():
                 Target.parent.create_collection()
             print('1/1', Target)
-            Upl(l_Fi_data[0], Target, on_error=on_error)
+            Upl(l_Fi_data[0], Target, on_error=on_error, overwrite=overwrite)
             dprint()
     else:
-        CWD_Fo = CWD / F
+        CWD_Fo = _irods_join(CWD, F_parts)
         print(f'Uploading to:   {CWD_Fo}')
         if not CWD_Fo.exists():
             CWD_Fo.create_collection()
         for i, Pa in enumerate(l_Fi_data, 1):
             Rel = Pa.relative_to(Pa_Loc)
-            Target = CWD_Fo / Rel
+            Target = _irods_join(CWD_Fo, Rel.as_posix().split('/'))
             if not Target.parent.exists():
                 Target.parent.create_collection()
             print(f'{i}/{len(l_Fi_data)}', Target)

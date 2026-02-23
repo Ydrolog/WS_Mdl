@@ -217,6 +217,8 @@ def DA_to_TIF(DA, Pa_Out, d_MtDt, crs=crs, _print=False):
 
     transform = DA.rio.transform()  # Build transform from DA
 
+    os.makedirs(os.path.dirname(Pa_Out), exist_ok=True)  # Ensure output directory exists
+
     with rasterio.open(
         Pa_Out,
         'w',

@@ -312,7 +312,7 @@ def regrid_PRJ(PRJ, MdlN: str = None, x_CeCes=None, y_CeCes=None, method='linear
         dx = x_CeCes[1] - x_CeCes[0] if len(x_CeCes) > 1 else 0
         dy = y_CeCes[1] - y_CeCes[0] if len(y_CeCes) > 1 else 0
 
-    else:  # If MdlN is not provided, use default values
+    else:
         vprint('🔴🔴🔴 - Either MdlN or x_CeCes and y_CeCes must be provided. Cancelling regridding...')
         return  # Stop regridding if no valid grid is provided
 
@@ -342,6 +342,8 @@ def regrid_PRJ(PRJ, MdlN: str = None, x_CeCes=None, y_CeCes=None, method='linear
 def regrid_DA(DA, x_CeCes, y_CeCes, dx, dy, item_name, method='linear'):
     """Handle regridding of individual DA items"""
 
+    item_name_lower = item_name.lower()
+
     # Skip if not xarray or no spatial dimensions
     if not hasattr(DA, 'dims') or not ('x' in DA.dims and 'y' in DA.dims):
         vprint(f'  {item_name}: ⚪️ - No spatial dims - keeping original')
@@ -370,13 +372,13 @@ def regrid_DA(DA, x_CeCes, y_CeCes, dx, dy, item_name, method='linear'):
             return DA
 
     # Handle special DA types
-    if 'ibound' in item_name.lower():
-        # Use nearest neighbor for boundary conditions
-        method = 'nearest'
-    elif any(x in item_name.lower() for x in ['landuse', 'soil_unit', 'zone']):
-        # Use nearest neighbor for categorical DA
-        method = 'nearest'
-    elif 'area' in item_name.lower():
+    if ('riv' in item_name_lower) or ('drn' in item_name_lower):
+        method = 'nearest'  # Sparse BC rasters: preserve support; linear can erode NaN-heavy masks.
+    elif 'ibound' in item_name_lower:
+        method = 'nearest'  # Use nearest neighbor for boundary conditions. They're 1 or 0, so we don't want to be messing with decimals.
+    elif any(x in item_name_lower for x in ['landuse', 'soil_unit', 'zone']):
+        method = 'nearest'  # Use nearest neighbor for categorical DA
+    elif 'area' in item_name_lower:
         # Special handling for area fields - scale by grid ratio
         regridded = DA.interp(x=x_CeCes, y=y_CeCes, method='linear')
         grid_ratio = (len(x_CeCes) * len(y_CeCes)) / (len(DA.x) * len(DA.y))
