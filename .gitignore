@@ -21,6 +21,7 @@
 /models/*/PoP/
 /models/*/PrP/
 /models/*/Sim/
+/models/*/other/
 
 # Imod temp and user files
 **/IMOD_INIT.PRF

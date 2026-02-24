@@ -17,7 +17,7 @@ from os import listdir as LD
 from os.path import basename as PBN
 from os.path import dirname as PDN
 from os.path import join as PJ
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 import numpy as np
 import pandas as pd
@@ -36,7 +36,7 @@ warnings.filterwarnings('ignore', category=UserWarning, module='openpyxl.workshe
 
 # region ----- Basics ----------------------------------------------------------
 pre_Sign = f'{fg(52)}{"-" * 80}{attr("reset")}\n'
-post_Sign = f'{fg(52)}\nend_of_transmission\n{"-" * 80}{attr("reset")}\n'
+post_Sign = pre_Sign
 style_reset = f'{attr("reset")}\033[0m'
 bold = '\033[1m'
 dim = '\033[2m'
@@ -2041,6 +2041,8 @@ def iB_Dl(F: str, S=None, on_error='warn', overwrite=False, subdir='research-ws-
                 f'🔴 Failed to create iBridges session: {e}. You can try to load a session with iB_session(), then provide it as an argument to iB_Dl().'
             )
             return
+
+    F = PurePosixPath(*Path(F).parts).as_posix()  # normalize \ -> / (and clean .., etc.)
 
     Pa_Rmt = iPa(S, '~') / subdir / F
     Pa_Loc = Path(f'G:/{F}')

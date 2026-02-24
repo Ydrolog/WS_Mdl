@@ -7,6 +7,7 @@ import xml.etree.ElementTree as ET
 import zipfile as ZF
 from concurrent.futures import ProcessPoolExecutor as PPE
 from datetime import datetime as DT
+from os import listdir as LD
 from os import makedirs as MDs
 from os.path import basename as PBN
 from os.path import dirname as PDN
@@ -26,6 +27,8 @@ from shapely.geometry import LineString, Point
 from . import utils as U
 from . import utils_imod as UIM
 from .utils import post_Sign, pre_Sign, vprint
+
+sys.excepthook = sys.__excepthook__
 
 crs = 'EPSG:28992'
 
@@ -294,27 +297,30 @@ def Diff_MBTIF(Pa_TIF1, Pa_TIF2, Pa_TIF_Out=None, verbose=True):
     if verbose:
         vprint(f'Calculating difference: {PBN(Pa_TIF1)} - {PBN(Pa_TIF2)}')
 
-    # Open the TIFs
-    da1 = xr.open_dataset(Pa_TIF1, engine='rasterio')['band_data']
-    da2 = xr.open_dataset(Pa_TIF2, engine='rasterio')['band_data']
+    ds1 = xr.open_dataset(Pa_TIF1, engine='rasterio')
+    ds2 = xr.open_dataset(Pa_TIF2, engine='rasterio')
+    try:
+        da1 = ds1['band_data']
+        da2 = ds2['band_data']
 
-    # Check shapes
-    if da1.shape != da2.shape:
-        raise ValueError(f'Shapes do not match: {da1.shape} vs {da2.shape}')
+        if da1.shape != da2.shape:
+            raise ValueError(f'Shapes do not match: {da1.shape} vs {da2.shape}')
 
-    # Calculate difference
-    da_diff = da1 - da2
+        da_diff = da1 - da2
 
-    # Prepare metadata for DA_to_MBTIF
-    d_MtDt = {}
-    for i in range(da_diff.shape[0]):
-        desc = f'Diff_Band_{i + 1}'
-        d_MtDt[desc] = {'description': f'Difference Band {i + 1}'}
+        d_MtDt = {f'Diff_Band_{i + 1}': {'description': f'Difference Band {i + 1}'} for i in range(da_diff.shape[0])}
 
-    DA_to_MBTIF(da_diff, Pa_TIF_Out, d_MtDt, _print=verbose)
+        U.set_verbose(False)
+        try:
+            DA_to_MBTIF(da_diff, Pa_TIF_Out, d_MtDt, _print=verbose)
+        finally:
+            U.set_verbose(True)
 
-    if verbose:
-        vprint(f'🟢 Difference saved to {Pa_TIF_Out}')
+        if verbose:
+            vprint(f'🟢 - Difference saved to {Pa_TIF_Out}')
+    finally:
+        ds1.close()
+        ds2.close()
 
 
 def HD_Bin_GXG_to_MBTIF(MdlN, start_year='from_INI', end_year='from_INI', IDT='from_INI'):
@@ -1182,7 +1188,7 @@ def Up_MM(MdlN, MdlN_MM_B=None):
         zip_ref.extractall(Pa_temp)
 
     Pa_QGS = PJ(
-        Pa_temp, os.listdir(Pa_temp)[0]
+        Pa_temp, LD(Pa_temp)[0]
     )  # Path to the unzipped QGIS project file. This used to be: Pa_QGS = PJ(Pa_temp, PBN(Pa_QGZ).replace('.qgz', '.qgs')), but the extracted file name may vary.
     tree = ET.parse(Pa_QGS)
     root = tree.getroot()
@@ -1233,6 +1239,27 @@ def Up_MM(MdlN, MdlN_MM_B=None):
     sh.rmtree(Pa_temp)  # Remove the temporary folder
     vprint(f'\n🟢🟢🟢 | MM for {MdlN} has been updated.')
     vprint(post_Sign)
+
+
+# endregion
+
+# region PoP -------------------------------------------------------------------
+
+
+def GXG_Diff(MdlN_1, MdlN_2):
+
+    d_Pa = U.get_MdlN_Pa(MdlN_1)
+    Pa_PoP_GXG = PJ(d_Pa['PoP_Out_MdlN'], 'GXG')
+
+    for Fi in [i for i in LD(Pa_PoP_GXG) if i.endswith('.tif')]:
+        Pa_TIF_1 = PJ(Pa_PoP_GXG, Fi)
+        Pa_TIF_2 = PJ(Pa_PoP_GXG, Fi).replace(MdlN_1, MdlN_2)
+        Pa_Out = PJ(Pa_PoP_GXG, Fi.replace(MdlN_1, f'{MdlN_1}m{"".join(i for i in MdlN_2 if i.isdigit())}'))
+
+        try:
+            Diff_MBTIF(Pa_TIF_1, Pa_TIF_2, Pa_Out)
+        except (FileNotFoundError, OSError) as e:
+            print(f'🔴 - Missing/unreadable file(s) for {Fi}: {e}')
 
 
 # endregion
