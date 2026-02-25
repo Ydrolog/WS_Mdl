@@ -1150,6 +1150,7 @@ def SFR_stage_TS(
     load_HD: bool = True,
     load_HD_RIV: bool = True,
     load_P: bool = True,
+    SFR_Out_Col_prefix: str = 'STG_',
 ):
     """
     Generates time series plots of SFR stage data from model output.
@@ -1183,7 +1184,7 @@ def SFR_stage_TS(
     print('🟢')
 
     print(' -- Loading SFR data ... ', end='')
-    DF_ = pd.read_csv(get_SFR_OBS_Out_Pas(MdlN)[0])  # 666 replace 1. This needs to be standardized.
+    DF_ = pd.read_csv(get_SFR_OBS_Out_Pas(MdlN))  # 666 replace 1. This needs to be standardized.
     DF = DF_[[i for i in DF_.columns if i == 'time' or 'L' in i]].copy()
     DF['time'] = pd.to_datetime(SP_date_1st) + pd.to_timedelta(DF['time'] - 1, unit='D')
 
@@ -1331,214 +1332,247 @@ def SFR_stage_TS(
             vprint(' 🟢')
 
         while True:
-            In2 = input(
-                "Provide a cell ID (L R C) (with spaces or commas as separators) or a reach number. If you're providing a reach number, prefix it with 'R' (e.g., R15). Type 'E' to quit:\n"
-            )
+            try:
+                In2 = input(
+                    "Provide a cell ID (L R C) (with spaces or commas as separators) or a reach number. If you're providing a reach number, prefix it with 'R' (e.g., R15). Type 'E' to quit:\n"
+                )
 
-            IL.reload(plot_SFR)
-            # Re-bind the function from the reloaded module
-            plot_SFR_reach_TS = plot_SFR.plot_SFR_reach_TS
+                IL.reload(plot_SFR)
+                # Re-bind the function from the reloaded module
+                plot_SFR_reach_TS = plot_SFR.plot_SFR_reach_TS
 
-            vprint('  - Loading data for specified reach/cell...')
+                vprint('  - Loading data for specified reach/cell...')
 
-            if In2.upper() == 'E':
-                break
+                if In2.upper() == 'E':
+                    break
 
-            elif In2.upper().startswith('R'):
-                reach = int(In2.upper().replace('R', ''))
-                L, R, C = reach_to_cell_id(reach, GDF_SFR)
-            else:
-                parts = re.split(r'[,\s]+', In2.strip())  # Split by commas and/or whitespace
-                L, R, C = [int(j) for j in parts]
-                reach = GDF_SFR.loc[(GDF_SFR.k == L) & (GDF_SFR.i == R) & (GDF_SFR.j == C), 'reach'].values[0]
-            X, Y = reach_to_XY(reach, GDF_SFR)
+                elif In2.upper().startswith('R'):
+                    reach = int(In2.upper().replace('R', ''))
+                    L, R, C = reach_to_cell_id(reach, GDF_SFR)
+                else:
+                    parts = re.split(r'[,\s]+', In2.strip())  # Split by commas and/or whitespace
+                    L, R, C = [int(j) for j in parts]
+                    reach = GDF_SFR.loc[(GDF_SFR.k == L) & (GDF_SFR.i == R) & (GDF_SFR.j == C), 'reach'].values[0]
+                X, Y = reach_to_XY(reach, GDF_SFR)
 
-            if load_P:
-                P_ts = xr_get_value(A_P, X, Y, dx, dy)
+                if load_P:
+                    P_ts = xr_get_value(A_P, X, Y, dx, dy)
 
-            # Extract head time series at this location (compute to load from Dask)
-            if load_HD:
-                try:
-                    HD_ts = xr_get_value(A_HD.sel(time=slice(start_date, end_date)), X, Y, dx, dy, L=L)
-                except Exception as e:
-                    print(
-                        f"L {L} probably contains less than 1% of the SFR reaches, so its HD wasn't loaded.\nAn error occurred while extracting head time series: {e}"
+                # Extract head time series at this location (compute to load from Dask)
+                if load_HD:
+                    try:
+                        HD_ts = xr_get_value(A_HD.sel(time=slice(start_date, end_date)), X, Y, dx, dy, L=L)
+                    except Exception as e:
+                        print(
+                            f"L {L} probably contains less than 1% of the SFR reaches, so its HD wasn't loaded.\nAn error occurred while extracting head time series: {e}"
+                        )
+                        print('Attempting to load full head data for the specified layer...')
+                        A_HD_L = A_HD_.sel(layer=L)
+                        HD_ts = xr_get_value(A_HD_L.sel(time=slice(start_date, end_date)), X, Y, dx, dy)
+                    HD = pd.DataFrame({'time': HD_ts.time.values, 'head': HD_ts.values})
+
+                if load_HD_RIV:
+                    try:
+                        HD_ts_RIV = xr_get_value(A_HD_RIV.sel(time=slice(start_date, end_date)), X, Y, dx, dy, L=L)
+                    except Exception as e:
+                        print(
+                            f"L {L} probably contains less than 1% of the SFR reaches, so its HD wasn't loaded.\nAn error occurred while extracting head time series: {e}"
+                        )
+                        print('Attempting to load full head data for the specified layer...')
+                        A_HD_L_RIV = A_HD_RIV_.sel(layer=L)
+                        HD_ts_RIV = xr_get_value(A_HD_L_RIV.sel(time=slice(start_date, end_date)), X, Y, dx, dy)
+                    HD_RIV = pd.DataFrame({'time': HD_ts_RIV.time.values, 'head': HD_ts_RIV.values})
+
+                    # required keys: plot_type, y. Rest are kwargs for the plot type (e.g., line dict for scatter, marker dict for bar, etc.)
+
+                X_axis = DF_trim['time']
+
+                # region - Design dictionary for plotting. Mandatory keys: plot_type, y. Rest are kwargs for the plot type (e.g., line dict for scatter, marker dict for bar, etc.)
+                d_plot = {}
+
+                load_P and d_plot.update(
+                    {
+                        f'{"Precipitation":<17}': {
+                            'plot_type': go.Bar,
+                            'y': P_ts.values if hasattr(P_ts, 'values') else P_ts,
+                            'kwargs': {
+                                'marker': dict(color='#919cd5', line=dict(color='#919cd5', width=3)),
+                                'hovertemplate': '%{y:8.1f} mm',
+                                'yaxis': 'y2',
+                            },
+                        }
+                    }
+                )
+
+                load_HD and d_plot.update(
+                    {
+                        f'{"Head " + MdlN:<17}': {
+                            'plot_type': go.Scatter,
+                            'y': HD['head'],
+                            'kwargs': {
+                                'mode': 'lines',
+                                'line': dict(color='#b63a3a', width=3),
+                                'hovertemplate': '%{y:3.3f} mNAP',
+                            },
+                        }
+                    }
+                )
+
+                load_HD_RIV and d_plot.update(
+                    {
+                        f'{"Head " + MdlN_RIV:<17}': {
+                            'plot_type': go.Scatter,
+                            'y': HD_RIV['head'],
+                            'kwargs': {
+                                'mode': 'lines',
+                                'line': dict(color='#3a7fb8', width=3),
+                                'hovertemplate': '%{y:3.3f} mNAP',
+                            },
+                        }
+                    }
+                )
+
+                d_plot.update(
+                    {
+                        f'{"SFR stage":<17}': {
+                            'plot_type': go.Scatter,
+                            'y': DF_trim[f'{SFR_Out_Col_prefix}L{L}_R{R}_C{C}'],
+                            'kwargs': {
+                                'mode': 'lines',
+                                'line': dict(color='#ff0000', width=3),
+                                'hovertemplate': '%{y:3.3f} mNAP',
+                                # showlegend=True
+                            },
+                        }
+                    }
+                )
+
+                d_plot.update(
+                    {
+                        f'{"SFR riverbet top":<17}': {
+                            'plot_type': go.Scatter,
+                            'y': [GDF_SFR.loc[GDF_SFR['rno'] == reach, 'rtp'].values[0]] * len(DF_trim),
+                            'kwargs': {
+                                'mode': 'lines',
+                                'line': dict(color='#ff0000', width=2, dash='dash'),
+                                'hovertemplate': '%{y:3.3f} mNAP',
+                            },
+                        }
+                    }
+                )
+
+                d_plot.update(
+                    {
+                        f'{"RIV stage":<17}': {
+                            'plot_type': go.Scatter,
+                            'y': [round(float(xr_get_value(A_RIV_Stg, X, Y, dx, dy)), 3)] * len(DF_trim),
+                            'kwargs': {
+                                'mode': 'lines',
+                                'line': dict(color='#0000ff', width=3),
+                                'hovertemplate': '%{y:3.3f} mNAP',
+                            },
+                        }
+                    }
+                )
+
+                d_plot.update(
+                    {
+                        f'{"RIV bottom":<17}': {
+                            'plot_type': go.Scatter,
+                            'y': [round(float(xr_get_value(A_RIV_Btm, X, Y, dx, dy)), 3)] * len(DF_trim),
+                            'kwargs': {
+                                'mode': 'lines',
+                                'line': dict(color='#0000ff', width=2, dash='dash'),
+                                'hovertemplate': '%{y:3.3f} mNAP',
+                            },
+                        }
+                    }
+                )
+
+                d_plot.update(
+                    {
+                        f'{"DRN elevation":<17}': {
+                            'plot_type': go.Scatter,
+                            'y': [round(float(xr_get_value(A_DRN_Elv, X, Y, dx, dy)), 3)] * len(DF_trim),
+                            'kwargs': {
+                                'mode': 'lines',
+                                'line': dict(color='#d000ff', width=2, dash='dot'),
+                                'hovertemplate': '%{y:3.3f} mNAP',
+                            },
+                        }
+                    }
+                )
+
+                d_plot.update(
+                    {
+                        f'{"top":<17}': {
+                            'plot_type': go.Scatter,
+                            'y': [round(float(xr_get_value(A_TOP, X, Y, dx, dy, L=L)), 3)] * len(DF_trim),
+                            'kwargs': {
+                                'mode': 'lines',
+                                'line': dict(color='#a47300', width=2, dash='dash'),
+                                'hovertemplate': '%{y:3.3f} mNAP',
+                            },
+                        }
+                    }
+                )
+
+                d_plot.update(
+                    {
+                        f'{"bottom":<17}': {
+                            'plot_type': go.Scatter,
+                            'y': [round(float(xr_get_value(A_BOT, X, Y, dx, dy, L=L)), 3)] * len(DF_trim),
+                            'kwargs': {
+                                'mode': 'lines',
+                                'line': dict(color='#a47300', width=2, dash='dash'),
+                                'hovertemplate': '%{y:3.3f} mNAP',
+                            },
+                        }
+                    }
+                )
+                # endregion
+
+                r_info = f'reach: {reach}, L: {L}, R: {R}, C: {C}, X: {X}, Y: {Y}, MdlN: {MdlN}, MdlN_RIV: {MdlN_RIV}'
+
+                vprint('  - Plotting...')
+
+                Pa_Out = PJ(d_Pa['PoP_Out_MdlN'], f'SFR/SFR_stage_TS-reach{reach}.html')
+                os.makedirs(os.path.dirname(Pa_Out), exist_ok=True)
+
+                plot_SFR_reach_TS(sub_title=r_info, X_axis=X_axis, d_plot=d_plot, Pa_Out=Pa_Out)
+                vprint('  🟢🟢 - Success!')
+            except Exception as e:  # probubly redundant to ploy that much
+                err_lines = [f' 🔴🔴 - Error type: {type(e).__name__}', f' - Details: {e}']
+
+                if isinstance(e, KeyError):
+                    missing_key = str(e).strip('\'"')
+                    err_lines.append(f' - Missing key/column: {missing_key}')
+
+                    if re.match(r'^L\d+_R\d+_C\d+$', missing_key):
+                        obs_cols = [
+                            c
+                            for c in DF_trim.columns
+                            if isinstance(c, str) and c.startswith('L') and '_R' in c and '_C' in c
+                        ]
+                        err_lines.append(
+                            ' - This usually means the SFR OBS CSV has no stage column for the selected cell (or a different naming/indexing convention is used).'
+                        )
+                        if len(obs_cols) > 0:
+                            err_lines.append(
+                                f' - Example available SFR columns: {", ".join(obs_cols[:5])}{" ..." if len(obs_cols) > 5 else ""}'
+                            )
+                        if 'reach' in locals():
+                            err_lines.append(
+                                f' - Requested selection resolved to reach {reach} at L{L}_R{R}_C{C}. Verify this cell exists in the OBS output and rerun the model if needed.'
+                            )
+
+                elif isinstance(e, ValueError):
+                    err_lines.append(
+                        " - Input format should be either: 'R<reach>' (e.g., R15) or three integers 'L R C' (e.g., 11 51 50)."
                     )
-                    print('Attempting to load full head data for the specified layer...')
-                    A_HD_L = A_HD_.sel(layer=L)
-                    HD_ts = xr_get_value(A_HD_L.sel(time=slice(start_date, end_date)), X, Y, dx, dy)
-                HD = pd.DataFrame({'time': HD_ts.time.values, 'head': HD_ts.values})
 
-            if load_HD_RIV:
-                try:
-                    HD_ts_RIV = xr_get_value(A_HD_RIV.sel(time=slice(start_date, end_date)), X, Y, dx, dy, L=L)
-                except Exception as e:
-                    print(
-                        f"L {L} probably contains less than 1% of the SFR reaches, so its HD wasn't loaded.\nAn error occurred while extracting head time series: {e}"
-                    )
-                    print('Attempting to load full head data for the specified layer...')
-                    A_HD_L_RIV = A_HD_RIV_.sel(layer=L)
-                    HD_ts_RIV = xr_get_value(A_HD_L_RIV.sel(time=slice(start_date, end_date)), X, Y, dx, dy)
-                HD_RIV = pd.DataFrame({'time': HD_ts_RIV.time.values, 'head': HD_ts_RIV.values})
-
-                # required keys: plot_type, y. Rest are kwargs for the plot type (e.g., line dict for scatter, marker dict for bar, etc.)
-
-            X_axis = DF_trim['time']
-
-            # region - Design dictionary for plotting. Mandatory keys: plot_type, y. Rest are kwargs for the plot type (e.g., line dict for scatter, marker dict for bar, etc.)
-            d_plot = {}
-
-            load_P and d_plot.update(
-                {
-                    f'{"Precipitation":<17}': {
-                        'plot_type': go.Bar,
-                        'y': P_ts.values if hasattr(P_ts, 'values') else P_ts,
-                        'kwargs': {
-                            'marker': dict(color='#919cd5', line=dict(color='#919cd5', width=3)),
-                            'hovertemplate': '%{y:8.1f} mm',
-                            'yaxis': 'y2',
-                        },
-                    }
-                }
-            )
-
-            load_HD and d_plot.update(
-                {
-                    f'{"Head " + MdlN:<17}': {
-                        'plot_type': go.Scatter,
-                        'y': HD['head'],
-                        'kwargs': {
-                            'mode': 'lines',
-                            'line': dict(color='#b63a3a', width=3),
-                            'hovertemplate': '%{y:3.3f} mNAP',
-                        },
-                    }
-                }
-            )
-
-            load_HD_RIV and d_plot.update(
-                {
-                    f'{"Head " + MdlN_RIV:<17}': {
-                        'plot_type': go.Scatter,
-                        'y': HD_RIV['head'],
-                        'kwargs': {
-                            'mode': 'lines',
-                            'line': dict(color='#3a7fb8', width=3),
-                            'hovertemplate': '%{y:3.3f} mNAP',
-                        },
-                    }
-                }
-            )
-
-            d_plot.update(
-                {
-                    f'{"SFR stage":<17}': {
-                        'plot_type': go.Scatter,
-                        'y': DF_trim[f'L{L}_R{R}_C{C}'],
-                        'kwargs': {
-                            'mode': 'lines',
-                            'line': dict(color='#ff0000', width=3),
-                            'hovertemplate': '%{y:3.3f} mNAP',
-                            # showlegend=True
-                        },
-                    }
-                }
-            )
-
-            d_plot.update(
-                {
-                    f'{"SFR riverbet top":<17}': {
-                        'plot_type': go.Scatter,
-                        'y': [GDF_SFR.loc[GDF_SFR['rno'] == reach, 'rtp'].values[0]] * len(DF_trim),
-                        'kwargs': {
-                            'mode': 'lines',
-                            'line': dict(color='#ff0000', width=2, dash='dash'),
-                            'hovertemplate': '%{y:3.3f} mNAP',
-                        },
-                    }
-                }
-            )
-
-            d_plot.update(
-                {
-                    f'{"RIV stage":<17}': {
-                        'plot_type': go.Scatter,
-                        'y': [round(float(xr_get_value(A_RIV_Stg, X, Y, dx, dy)), 3)] * len(DF_trim),
-                        'kwargs': {
-                            'mode': 'lines',
-                            'line': dict(color='#0000ff', width=3),
-                            'hovertemplate': '%{y:3.3f} mNAP',
-                        },
-                    }
-                }
-            )
-
-            d_plot.update(
-                {
-                    f'{"RIV bottom":<17}': {
-                        'plot_type': go.Scatter,
-                        'y': [round(float(xr_get_value(A_RIV_Btm, X, Y, dx, dy)), 3)] * len(DF_trim),
-                        'kwargs': {
-                            'mode': 'lines',
-                            'line': dict(color='#0000ff', width=2, dash='dash'),
-                            'hovertemplate': '%{y:3.3f} mNAP',
-                        },
-                    }
-                }
-            )
-
-            d_plot.update(
-                {
-                    f'{"DRN elevation":<17}': {
-                        'plot_type': go.Scatter,
-                        'y': [round(float(xr_get_value(A_DRN_Elv, X, Y, dx, dy)), 3)] * len(DF_trim),
-                        'kwargs': {
-                            'mode': 'lines',
-                            'line': dict(color='#d000ff', width=2, dash='dash'),
-                            'hovertemplate': '%{y:3.3f} mNAP',
-                        },
-                    }
-                }
-            )
-
-            d_plot.update(
-                {
-                    f'{"top":<17}': {
-                        'plot_type': go.Scatter,
-                        'y': [round(float(xr_get_value(A_TOP, X, Y, dx, dy, L=L)), 3)] * len(DF_trim),
-                        'kwargs': {
-                            'mode': 'lines',
-                            'line': dict(color='#a47300', width=2, dash='dash'),
-                            'hovertemplate': '%{y:3.3f} mNAP',
-                        },
-                    }
-                }
-            )
-
-            d_plot.update(
-                {
-                    f'{"bottom":<17}': {
-                        'plot_type': go.Scatter,
-                        'y': [round(float(xr_get_value(A_BOT, X, Y, dx, dy, L=L)), 3)] * len(DF_trim),
-                        'kwargs': {
-                            'mode': 'lines',
-                            'line': dict(color='#a47300', width=2, dash='dash'),
-                            'hovertemplate': '%{y:3.3f} mNAP',
-                        },
-                    }
-                }
-            )
-            # endregion
-
-            r_info = f'reach: {reach}, L: {L}, R: {R}, C: {C}, X: {X}, Y: {Y}, MdlN: {MdlN}, MdlN_RIV: {MdlN_RIV}'
-
-            vprint('  - Plotting...')
-
-            Pa_Out = PJ(d_Pa['PoP_Out_MdlN'], f'SFR/SFR_stage_TS-reach{reach}.html')
-            os.makedirs(os.path.dirname(Pa_Out), exist_ok=True)
-
-            plot_SFR_reach_TS(sub_title=r_info, X_axis=X_axis, d_plot=d_plot, Pa_Out=Pa_Out)
-            vprint('  🟢🟢 - Success!')
+                print('\n'.join(err_lines))
+                print('Please try again.')
     vprint('🟢🟢🟢 - Finished SFR stage TS plotting.')
 
 
@@ -1609,7 +1643,6 @@ def WB_Diff_to_xlsx(
 
     # Load budget to dataframes. fp.utils.Mf6ListBudget returns a tuple. 1st item is WB for each SP. 2nd item is cumulative.
     DF_1, DF_1_Tot = fp.utils.Mf6ListBudget(d_Pa['LST_Mdl']).get_dataframes()
-    print(DF_1_Tot)
     DF_2, DF_2_Tot = fp.utils.Mf6ListBudget(d_Pa_B['LST_Mdl']).get_dataframes()
 
     start_date = pd.to_datetime(SP_date_1st)

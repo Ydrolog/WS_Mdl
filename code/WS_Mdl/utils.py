@@ -417,9 +417,9 @@ def get_imod_V(MdlN: str):
     Pa_Sim = PJ(Pa_WS, f'models/{Mdl}/Sim/{MdlN}')
 
     try:
-        if 'modflow6' in os.listdir(Pa_Sim):
+        if 'modflow6' in LD(Pa_Sim):
             return 'imod_python'
-        elif 'GWF_1' in os.listdir(Pa_Sim):
+        elif 'GWF_1' in LD(Pa_Sim):
             return 'imod5'
         else:
             print(
@@ -2096,7 +2096,7 @@ def iB_Dl(F: str, S=None, on_error='warn', overwrite=False, subdir='research-ws-
 # region ----- PoP -------------------------------------------------------------
 
 
-def Agg_OBS(MdlN, Pkg):
+def Agg_OBS(MdlN, Pkg, save=True):
 
     set_verbose(False)
     d_Pa = get_MdlN_Pa(MdlN)
@@ -2138,10 +2138,13 @@ def Agg_OBS(MdlN, Pkg):
     DF['SUM'] = DF.sum(axis=1, min_count=1)
     DF = DF.reset_index().rename(columns={'index': 'date'})
     Pa_Out = PJ(Pa_base, f'OBS_Agg/{Pkg}_OBS_Agg_{MdlN}.csv')
-    os.makedirs(PDN(Pa_Out), exist_ok=True)
-    DF.to_csv(Pa_Out, index=False)
+
+    if save:
+        os.makedirs(PDN(Pa_Out), exist_ok=True)
+        DF.to_csv(Pa_Out, index=False)
 
     print(f'🟢🟢 - Successfully aggregated all OBS files for {Pkg} and saved to: {Pa_Out}')
+    return DF
 
 
 # endregion --------------------------------------------------------------------
