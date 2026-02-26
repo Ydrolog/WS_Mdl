@@ -1,10 +1,10 @@
 # ---------- Create Paths ----------
-# I've converted to pathlib as it's more consistent. The only drawback is that it returns "WindowsPath" objects which is long and annoying, but you can use l_Pa to get rid of that problem.
-from pathlib import Path as Pa
+# I've converted to pathlib as it's more consistent. The only drawback is that it returns "WindowsPath" objects which is long and annoying, but you can use Pa_to_str to get rid of that problem.
+from pathlib import Path
 
 from .style import vprint
 
-__all__ = ['Pa_WS', 'Pa_RunLog', 'Pa_log_Out', 'get_MdlN_Pa', 'get_imod_V', 'get_Mdl']
+__all__ = ['get_repo_root', 'Pa_WS', 'Pa_RunLog', 'Pa_log_Out', 'Pa_log_Cfg', 'get_MdlN_Pa', 'get_imod_V', 'get_Mdl']
 
 
 def get_repo_root():  # Determine repository root dynamically at import time.
@@ -13,12 +13,12 @@ def get_repo_root():  # Determine repository root dynamically at import time.
     """
     try:
         # Use absolute() instead of resolve() to preserve subst drive letters (like G:)
-        path = Pa(__file__).absolute()
+        path = Path(__file__).absolute()
         # Assumes structure: <RepoRoot>/code/WS_Mdl/utils.py
         # So we go up 4 levels: path.py -> core -> WS_Mdl -> code -> RepoRoot
         root = path.parents[4 - 1]
         root_str = str(root).replace('\\', '/')
-        return Pa(root_str)
+        return Path(root_str)
     except Exception as e:
         print(f'Error determining repository root: {e}')
         return None
@@ -30,9 +30,9 @@ Pa_log_Out = Pa_WS / 'Mng/log_Out.csv'
 Pa_log_Cfg = Pa_WS / 'Mng/log_Cfg.csv'
 
 
-def l_Pa(l: list[Pa]):
+def Pa_to_str(a_list: list[Path]):
     """Helper function to convert a list of paths to a list of strings (for subprocess calls)."""
-    return [str(p) for p in l]
+    return [str(p) for p in a_list]
 
 
 def get_Mdl(MdlN: str):
@@ -63,7 +63,7 @@ def get_imod_V(MdlN: str):
         return 'imod_python'
 
 
-def get_MdlN_Pa(MdlN: str, MdlN_B=None, iMOD5=None):
+def get_MdlN_Pa(MdlN: str, MdlN_B: str = None, iMOD5: bool = None):
     """
     *** Improved get_MdlN_paths. ***
     - Doesn't read RunLog, unless B is set to True. Thus it's much faster.
