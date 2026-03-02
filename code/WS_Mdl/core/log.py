@@ -2,7 +2,7 @@
 
 import pandas as pd
 
-from .path import Pa_log_Cfg, Pa_log_Out
+from .path import Pa_log_Cfg, Pa_log_Out, Pa_RunLog
 from .style import sprint, warn
 
 
@@ -42,3 +42,7 @@ def last_MdlN(status: str = 'completed'):
     else:
         print(f'🔴 - Invalid status: {status}. Use "completed" or "design".')
         raise ValueError()
+
+
+def r_RunLog():
+    return pd.read_excel(Pa_RunLog, sheet_name='RunLog').dropna(subset='runN')  # Read RunLog
