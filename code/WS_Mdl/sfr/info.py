@@ -1,5 +1,5 @@
 import pandas as pd
-from WS_Mdl.core.path import Calc_DF_XY, Mdl_Dmns_from_INI, get_MdlN_Pa, r_Txt_Lns
+from WS_Mdl.core.path import get_MdlN_Pa
 from WS_Mdl.core.style import vprint
 
 
@@ -91,3 +91,19 @@ def reach_to_cell_id(reach: int, GDF_SFR: pd.DataFrame, MdlN=None, reach_Col='rn
     C = GDF_SFR.loc[GDF_SFR[reach_Col] == reach, C_C].values[0]
 
     return (L, R, C)
+
+
+def reach_to_XY(reach: int, GDF_SFR: pd.DataFrame, MdlN=None, reach_Col='rno', X_C='X', Y_C='Y'):
+    """Returns the X, Y coordinates for a given reach number using the provided SFR GeoDataFrame."""
+    if (GDF_SFR is None) and (MdlN is None):
+        raise ValueError('Either GDF_SFR or MdlN must be provided.')
+    if MdlN:
+        GDF_SFR = SFR_PkgD_to_DF(MdlN)
+
+    if reach not in GDF_SFR[reach_Col].values:
+        raise ValueError(f'Reach number {reach} not found in the model.')
+
+    X = GDF_SFR.loc[GDF_SFR[reach_Col] == reach, X_C].values[0]
+    Y = GDF_SFR.loc[GDF_SFR[reach_Col] == reach, Y_C].values[0]
+
+    return (X, Y)

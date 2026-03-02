@@ -1,5 +1,6 @@
 # ---------- Create Paths ----------
 # I've converted to pathlib as it's more consistent. The only drawback is that it returns "WindowsPath" objects which is long and annoying, but you can use Pa_to_str to get rid of that problem.
+
 from pathlib import Path
 
 from .style import vprint
@@ -36,7 +37,7 @@ def Pa_to_str(a_list: list[Path]):
 
 
 def get_Mdl(MdlN: str):
-    """Returns model alias for a given MdlN."""
+    """Returns model alias (str part) for a given MdlN."""
     return ''.join([i for i in MdlN if i.isalpha()])
 
 
@@ -153,3 +154,29 @@ def get_MdlN_Pa(MdlN: str, MdlN_B: str = None, iMOD5: bool = None):
 
     d_Pa = _MdlN_Pa_maker(MdlN) if MdlN_B is None else _MdlN_Pa_maker(MdlN) | _MdlN_Pa_maker(MdlN_B)
     return d_Pa
+
+
+class MdlN_PaView:
+    """Makes get_MdlN_Pa dict keys accessible through MdlN, e.g. MdlN.Pa.INI instead of MdlN.Pa['INI']."""
+
+    __slots__ = ('_d',)
+
+    def __init__(self, MdlN: str, MdlN_B: str | None = None, iMOD5: bool | None = None):
+        self._d = get_MdlN_Pa(MdlN, MdlN_B=MdlN_B, iMOD5=iMOD5)
+
+    def B(self, MdlN_B: str):
+        # new view with *_B keys present
+        return MdlN_PaView(self._d['MdlN'], MdlN_B=MdlN_B, iMOD5=(self._d['imod_V'] == 'imod5'))
+
+    def __getattr__(self, name: str):
+        # attribute-style access: Pa.INI -> dict["INI"]
+        try:
+            return self._d[name]
+        except KeyError as e:
+            raise AttributeError(name) from e
+
+    def __getitem__(self, key: str):
+        return self._d[key]
+
+    def keys(self):
+        return self._d.keys()

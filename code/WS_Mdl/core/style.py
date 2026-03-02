@@ -1,4 +1,5 @@
-# ---------- Pretty Printing etc. ----------
+# ---------- Printing Section ----------
+
 from colored import attr, fg
 
 __all__ = ['Sep1', 'Sep2', 'style_reset', 'bold', 'dim', 'warn', 'CuCh', 'vprint', 'set_verbose', 'sprint']
@@ -29,12 +30,12 @@ def set_verbose(v: bool):
     VERBOSE = v
 
 
-def vprint(*args, **kwargs):
-    """Prints only if VERBOSE is True."""
+def sprint(indent: int = 0, *args, style: str, set_verbose: bool = None, **kwargs):
+    """
+    Special print function. Allows easy indentation (2 spaces per 1 indent level) and easy styling.
+    Prints only if VERBOSE is True.
+    """
+    if set_verbose is not None:
+        set_verbose(set_verbose)
     if VERBOSE:
-        print(*args, **kwargs)
-
-
-def sprint(indent: int = 0, *args, style: str, **kwargs):
-    """Special print function. Allows easy indentation (2 spaces per 1 indent level) and easy styling."""
-    print(f'{style}{"  " * indent}', *args, f'{style_reset}', **kwargs)
+        print(f'{style}{"  " * indent}', *args, f'{style_reset}', **kwargs)
