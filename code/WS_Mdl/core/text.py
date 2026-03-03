@@ -1,4 +1,4 @@
-import pathlib as Path
+from pathlib import Path
 
 
 def r_Txt_Lns(Pa: Path | str) -> list[str]:

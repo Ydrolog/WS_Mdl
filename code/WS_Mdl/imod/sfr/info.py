@@ -1,6 +1,8 @@
 import pandas as pd
 from WS_Mdl.core.path import get_MdlN_Pa
 from WS_Mdl.core.style import vprint
+from WS_Mdl.io.text import r_Txt_Lns
+from WS_Mdl.mdl import Calc_DF_XY, Mdl_Dmns_from_INI
 
 
 def SFR_PkgD_to_DF(MdlN: str, Pa_SFR: str = None, Calc_Cond=True, iMOD5: bool = None) -> pd.DataFrame:
@@ -16,10 +18,10 @@ def SFR_PkgD_to_DF(MdlN: str, Pa_SFR: str = None, Calc_Cond=True, iMOD5: bool = 
 
     l_Lns = r_Txt_Lns(Pa_SFR)
 
-    PkgDt_start = next(i for i, l in enumerate(l_Lns) if 'BEGIN PACKAGEDATA' in l.upper()) + 2
-    PkgDt_end = next(i for i, l in enumerate(l_Lns) if 'END PACKAGEDATA' in l.upper())
+    PkgDt_start = next(i for i, ln in enumerate(l_Lns) if 'BEGIN PACKAGEDATA' in ln.upper()) + 2
+    PkgDt_end = next(i for i, ln in enumerate(l_Lns) if 'END PACKAGEDATA' in ln.upper())
     PkgDt_Cols = l_Lns[PkgDt_start - 1].replace('#', '').strip().split()
-    PkgDt_data = [l.split() for l in l_Lns[PkgDt_start:PkgDt_end] if l.strip() and not l.strip().startswith('#')]
+    PkgDt_data = [ln.split() for ln in l_Lns[PkgDt_start:PkgDt_end] if ln.strip() and not ln.strip().startswith('#')]
 
     for row in (
         PkgDt_data
@@ -63,10 +65,12 @@ def SFR_ConnD_to_DF(MdlN: str, Pa_SFR: str = None, iMOD5: bool = None) -> pd.Dat
 
     l_Lns = r_Txt_Lns(Pa_SFR)
 
-    Conn_start = next(i for i, l in enumerate(l_Lns) if 'BEGIN CONNECTIONDATA' in l.upper()) + 1
-    Conn_end = next(i for i, l in enumerate(l_Lns) if 'END CONNECTIONDATA' in l.upper())
+    Conn_start = next(i for i, ln in enumerate(l_Lns) if 'BEGIN CONNECTIONDATA' in ln.upper()) + 1
+    Conn_end = next(i for i, ln in enumerate(l_Lns) if 'END CONNECTIONDATA' in ln.upper())
     Conn_data = [
-        (int(parts[0]), [int(x) for x in parts[1:]]) for l in l_Lns[Conn_start:Conn_end] if (parts := l.strip().split())
+        (int(parts[0]), [int(x) for x in parts[1:]])
+        for ln in l_Lns[Conn_start:Conn_end]
+        if (parts := ln.strip().split())
     ]
 
     DF_Conn = pd.DataFrame(Conn_data, columns=['reach_N', 'connections'])

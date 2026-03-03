@@ -3,29 +3,12 @@
 
 from pathlib import Path
 
-from .style import vprint
-
-__all__ = ['get_repo_root', 'Pa_WS', 'Pa_RunLog', 'Pa_log_Out', 'Pa_log_Cfg', 'get_MdlN_Pa', 'get_imod_V', 'get_Mdl']
+__all__ = ['REPO_ROOT', 'Pa_WS', 'Pa_RunLog', 'Pa_log_Out', 'Pa_log_Cfg', 'MdlN_Pa', 'imod_V', 'get_Mdl']
 
 
-def get_repo_root():  # Determine repository root dynamically at import time.
-    """Return the repository root path.
-    Tries to determine it from the file location, preserving subst drives (G:/).
-    """
-    try:
-        # Use absolute() instead of resolve() to preserve subst drive letters (like G:)
-        path = Path(__file__).absolute()
-        # Assumes structure: <RepoRoot>/code/WS_Mdl/utils.py
-        # So we go up 4 levels: path.py -> core -> WS_Mdl -> code -> RepoRoot
-        root = path.parents[4 - 1]
-        root_str = str(root).replace('\\', '/')
-        return Path(root_str)
-    except Exception as e:
-        print(f'Error determining repository root: {e}')
-        return None
+REPO_ROOT = Path(__file__).absolute().parents[3]
 
-
-Pa_WS = get_repo_root()
+Pa_WS = REPO_ROOT
 Pa_RunLog = Pa_WS / 'Mng/RunLog.xlsx'
 Pa_log_Out = Pa_WS / 'Mng/log_Out.csv'
 Pa_log_Cfg = Pa_WS / 'Mng/log_Cfg.csv'
@@ -41,16 +24,17 @@ def get_Mdl(MdlN: str):
     return ''.join([i for i in MdlN if i.isalpha()])
 
 
-def get_imod_V(MdlN: str):
+def imod_V(MdlN: str):
     """Returns the imod version used for a given MdlN."""
 
     Mdl = get_Mdl(MdlN)
     Pa_Sim = Pa_WS / f'models/{Mdl}/Sim/{MdlN}'
 
     try:
-        if 'modflow6' in [p.name for p in Pa_Sim.iterdir() if p.is_dir()]:
+        names = {p.name for p in Pa_Sim.iterdir() if p.is_dir()}
+        if 'modflow6' in names:
             return 'imod_python'
-        elif 'GWF_1' in [p.name for p in Pa_Sim.iterdir() if p.is_dir()]:
+        elif 'GWF_1' in names:
             return 'imod5'
         else:
             print(
@@ -64,7 +48,7 @@ def get_imod_V(MdlN: str):
         return 'imod_python'
 
 
-def get_MdlN_Pa(MdlN: str, MdlN_B: str = None, iMOD5: bool = None):
+def MdlN_Pa(MdlN: str, MdlN_B: str = None, iMOD5: bool = None):
     """
     *** Improved get_MdlN_paths. ***
     - Doesn't read RunLog, unless B is set to True. Thus it's much faster.
@@ -75,15 +59,7 @@ def get_MdlN_Pa(MdlN: str, MdlN_B: str = None, iMOD5: bool = None):
     This function has been modified since NBr32, to support imod python's folder/file structure. If you need to use the old folder structure, set iMOD5=True.
     """
     if iMOD5 is None:
-        if get_imod_V(MdlN) == 'imod5':
-            iMOD5 = True
-        elif get_imod_V(MdlN) == 'imod_python':
-            iMOD5 = False
-        else:
-            iMOD5 = False
-            vprint(
-                f"🔴 - Couldn't determine imod version from Sim/{MdlN} folder. Proceeding assuming it's imod_python. Provide iMOD5=True if you want to proceed with iMOD5's structure instead."
-            )
+        iMOD5 = imod_V(MdlN) == 'imod5'
 
     def _MdlN_Pa_maker(MdlN):
         ## Non paths + General paths
@@ -162,7 +138,7 @@ class MdlN_PaView:
     __slots__ = ('_d',)
 
     def __init__(self, MdlN: str, MdlN_B: str | None = None, iMOD5: bool | None = None):
-        self._d = get_MdlN_Pa(MdlN, MdlN_B=MdlN_B, iMOD5=iMOD5)
+        self._d = MdlN_Pa(MdlN, MdlN_B=MdlN_B, iMOD5=iMOD5)
 
     def B(self, MdlN_B: str):
         # new view with *_B keys present

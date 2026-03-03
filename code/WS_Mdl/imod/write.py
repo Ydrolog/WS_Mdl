@@ -98,9 +98,9 @@ def add_MVR_to_OPTIONS(Pa):
             Lns[i] = '\tMOVER\nEND OPTIONS\n'
             with open(Pa, 'w') as f:
                 f.writelines(Lns)
-            sprint(f'🟢 - Added MOVER option to {PBN(Pa)}')
+            sprint(f'🟢 - Added MOVER option to {Pa.name()}')
         except Exception as e:
-            print(f'🔴 - Error adding MOVER option to {PBN(Pa)}: {e}')
+            print(f'🔴 - Error adding MOVER option to {Pa.name()}: {e}')
 
 
 def add_PKG_to_NAM(MdlN, str_PKG, iMOD5=False):

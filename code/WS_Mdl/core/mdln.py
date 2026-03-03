@@ -7,6 +7,13 @@ _MdlN_pattern = re.compile(r'^(?P<alias>[A-Za-z]+)(?P<N>\d+)$')
 
 @dataclass(frozen=True, slots=True)
 class MdlN:
+    """
+    Class representing a Model Number (MdlN) with an alias and a numeric component. Provides properties to access:
+     - related paths
+     - INI file content
+     - dimensions
+    """
+
     MdlN: str
 
     def __post_init__(self):

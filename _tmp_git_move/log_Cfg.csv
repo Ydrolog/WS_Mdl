@@ -93,15 +93,13 @@ No RIV. Via imod python. PRJ: SS blocks removed, otherwise it wouldn't work with
   3 year Sim as OG B (NBr43). B (NBr49 was needed to get the RIV element arrays to create the OBS for this Sim.","Queued"
 "51","NBr","51","NBr51","50","NBr50","MK","Test","SFRmaker #13; Test - Run on SURF #2
   Added 1ry SFR Nw, replacing main RIV Nw (mostly??? TBD). 1 SP, to test everything can run smoothly on SURF.","Queued"
-"52","NBr","52","NBr52","51","NBr51","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #3p3.
-  1996-2004: for comparison with Perry's TS flows.","Development"
-"53","NBr","53","NBr53","52","NBr52","MK","Test","SFRmaker #14:
-  Added 3ry SFR Nw, replacing detailwatergangen RIV Nw (mostly *). 
-  For 3ry displace rtp based on average rtp-RIV_Stg.","Development"
-"54","NBr","54","NBr54","53","NBr53","MK","Test","SFRmaker #15:
+"52","NBr","52","NBr52","51","NBr51","MK","Test","SFRmaker #14:
+  Added 3ry SFR Nw, replacing detailwatergangen RIV Nw (mostly *). ","Development"
+"53","NBr","53","NBr53","52","NBr52","MK","Test","SFRmaker #15:
   Removed RIV completely.","Development"
-"55","NBr","55","NBr55","54","NBr54","MK","Test","SFRmaker #16:
+"54","NBr","54","NBr54","53","NBr53","MK","Test","SFRmaker #16:
  Greatly increased ponding depth, so water flows to DRN and then SFR.","Development"
+"0","","","","","","","","0",""
 "0","","","","","","","","0",""
 "0","","","","","","","","0",""
 "0","","","","","","","","0",""
