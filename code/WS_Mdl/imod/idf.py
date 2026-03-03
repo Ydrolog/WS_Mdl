@@ -57,3 +57,18 @@ def HD_Out_IDF_to_DF(
     # DF.to_csv(PJ(path, 'contents.csv'), index=False)
 
     return DF
+
+
+def IDFs_to_DF(S_Pa_IDF):
+    """Reads all .IDF Fis listed in a S_Fi_IDF into DF['IDF']. Returns the DF containing Fi_names and the IDF contents.
+    Pa_Fo is the path of the Fo where th files are stored in."""
+
+    DF = pd.DataFrame({'path': S_Pa_IDF, 'IDF': None})
+
+    for i, p in tqdm(DF['path'].items(), desc='Loading .IDF files', total=len(DF['path'])):
+        if p.endswith('.IDF'):  # Ensure only .IDF files are processed
+            try:  # Read the .IDF file into an xA DataA
+                DF.at[i, 'IDF'] = imod.idf.read(p)
+            except Exception as e:
+                print(f'Error reading {p}: {e}')
+    return DF

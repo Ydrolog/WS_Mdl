@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from WS_Mdl.core.path import MdlN_Pa
 from WS_Mdl.core.style import sprint
 
 
@@ -7,7 +8,7 @@ def r_as_d(Pa_INI: Path | str) -> dict:
     """
     Reads INI file (used for preparing the model) and converts it to a dictionary. Keys are converted to upper-case.
     Common use:
-    d_INI = INI_to_d(Pa_INI)
+    d_INI = r_as_d(Pa_INI)
     Xmin, Ymin, Xmax, Ymax = [float(i) for i in d_INI['WINDOW'].split(',')]
     cellsize = float(d_INI['CELLSIZE'])
     N_R, N_C = int( - (Ymin - Ymax) / cellsize ), int( (Xmax - Xmin) / cellsize )
@@ -55,3 +56,15 @@ def Mdl_Dmns_from_INI(Pa_INI):
     N_C = int((Xmax - Xmin) / cellsize)
 
     return Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C
+
+
+def get_CeCes(MdlN: str):
+    """Get centroids of the model grid from the INI file of the model.
+    Returns x_CeCes, y_CeCes."""
+    import numpy as np
+
+    Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = Mdl_Dmns_from_INI(MdlN_Pa(MdlN)['INI'])
+    dx = float(cellsize)
+    dy = -float(cellsize)
+
+    return np.arange(Xmin + dx / 2, Xmax, dx), np.arange(Ymax + dy / 2, Ymin, dy)

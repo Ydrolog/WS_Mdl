@@ -80,7 +80,7 @@ def SFR_ConnD_to_DF(MdlN: str, Pa_SFR: str = None, iMOD5: bool = None) -> pd.Dat
     return DF_Conn
 
 
-def reach_to_cell_id(reach: int, GDF_SFR: pd.DataFrame, MdlN=None, reach_Col='rno', L_C='k', R_C='i', C_C='j'):
+def reach_to_cell_id(reach: int, GDF_SFR: pd.DataFrame, MdlN=None, reach_Col='rno', L_C='k', r_C='i', C_C='j'):
     """Returns the cell_id (L, R, C) tuple for a given reach number using the provided SFR GeoDataFrame."""
     if (GDF_SFR is None) and (MdlN is None):
         raise ValueError('Either GDF_SFR or MdlN must be provided.')
@@ -91,7 +91,7 @@ def reach_to_cell_id(reach: int, GDF_SFR: pd.DataFrame, MdlN=None, reach_Col='rn
         raise ValueError(f'Reach number {reach} not found in the model.')
 
     L = GDF_SFR.loc[GDF_SFR[reach_Col] == reach, L_C].values[0]
-    R = GDF_SFR.loc[GDF_SFR[reach_Col] == reach, R_C].values[0]
+    R = GDF_SFR.loc[GDF_SFR[reach_Col] == reach, r_C].values[0]
     C = GDF_SFR.loc[GDF_SFR[reach_Col] == reach, C_C].values[0]
 
     return (L, R, C)
@@ -111,3 +111,20 @@ def reach_to_XY(reach: int, GDF_SFR: pd.DataFrame, MdlN=None, reach_Col='rno', X
     Y = GDF_SFR.loc[GDF_SFR[reach_Col] == reach, Y_C].values[0]
 
     return (X, Y)
+
+
+def get_SFR_OBS_Out_Pas(MdlN, filetype='.csv'):
+    """
+    Gets the SFR OBS output paths from the model simulation input folder.
+    Returns a list of paths if multiple found, or a single path if only one found.
+    666 need to add argument to select specific OBS file if arg is not None.
+    """
+    d_Pa = get_MdlN_Pa(MdlN)
+    l_Pa = [
+        PJ(d_Pa['Sim_In'], i)
+        for i in os.listdir(d_Pa['Sim_In'])
+        if 'SFR' in i.upper() and 'OBS' in i.upper() and i.lower().endswith(filetype)
+    ]
+    if len(l_Pa) == 1:
+        l_Pa = l_Pa[0]
+    return l_Pa

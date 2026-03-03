@@ -42,3 +42,9 @@ class MdlN:
         from WS_Mdl.io.ini import Mdl_Dmns_from_INI
 
         return Mdl_Dmns_from_INI(self.Pa.P_INI)
+
+    @property
+    def V(self):
+        from WS_Mdl.core.path import imod_V
+
+        return imod_V(self.MdlN)
