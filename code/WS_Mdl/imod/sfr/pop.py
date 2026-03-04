@@ -2,8 +2,6 @@
 import os
 import re
 from datetime import datetime as DT
- import basename as PBN
- import join as PJ
 
 import imod
 import pandas as pd
@@ -79,7 +77,7 @@ def SFR_stage_TS(
         l_N_system_RIV_print.append(f'System {i + 1}:')
         for j in RIV_params:
             if 'path' in PRJ_RIV['(riv)'][j][i]:
-                l_N_system_RIV_print.append(f'\t{j:<20}: {PBN(PRJ_RIV["(riv)"][j][i]["path"])}')
+                l_N_system_RIV_print.append(f'\t{j:<20}: {PRJ_RIV["(riv)"][j][i]["path"].name}')
             elif 'constant' in PRJ_RIV['(riv)'][j][i]:
                 l_N_system_RIV_print.append(f'\t{j:<20}: {PRJ_RIV["(riv)"][j][i]["constant"]}')
             else:
@@ -111,7 +109,7 @@ def SFR_stage_TS(
         if i in PRJ['(drn)'][j]:
             for j in DRN_params:
                 if 'path' in PRJ['(drn)'][j][i]:
-                    l_N_system_DRN_print.append(f'\t{j:<20}: {PBN(PRJ["(drn)"][j][i]["path"])}')
+                    l_N_system_DRN_print.append(f'\t{j:<20}: {PRJ["(drn)"][j][i]["path"].name}')
                 elif 'constant' in PRJ['(drn)'][j][i]:
                     l_N_system_DRN_print.append(f'\t{j:<20}: {PRJ["(drn)"][j][i]["constant"]}')
                 else:
@@ -415,7 +413,7 @@ def SFR_stage_TS(
 
                 sprint('  - Plotting...')
 
-                Pa_Out = PJ(d_Pa['PoP_Out_MdlN'], f'SFR/SFR_stage_TS-reach{reach}.html')
+                Pa_Out = d_Pa['PoP_Out_MdlN'] / f'SFR/SFR_stage_TS-reach{reach}.html'
                 os.makedirs(os.path.dirname(Pa_Out), exist_ok=True)
 
                 plot_SFR_reach_TS(sub_title=r_info, X_axis=X_axis, d_plot=d_plot, Pa_Out=Pa_Out)

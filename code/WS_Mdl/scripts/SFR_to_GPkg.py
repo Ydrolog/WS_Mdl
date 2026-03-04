@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import sys
 
-from WS_Mdl.geo import SFR_to_GPkg  # Adjust import as needed
+from WS_Mdl.imod.sfr.export import SFR_to_GPkg
 
 
 def main():

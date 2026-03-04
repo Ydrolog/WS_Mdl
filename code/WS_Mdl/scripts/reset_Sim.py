@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import sys
-from WS_Mdl.utils import reset_Sim  # Adjust import as needed
+from WS_Mdl.io.sim import reset_Sim
 
 
 def main():

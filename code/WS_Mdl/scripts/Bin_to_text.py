@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import sys
 
-from WS_Mdl.utils import Bin_to_text
+from WS_Mdl.io.convert import Bin_to_text
 
 
 def main():

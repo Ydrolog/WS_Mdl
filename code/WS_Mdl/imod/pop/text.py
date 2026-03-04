@@ -3,7 +3,7 @@ from datetime import datetime as DT
 import pandas as pd
 from WS_Mdl.core.path import MdlN_Pa
 from WS_Mdl.core.style import set_verbose, warn
-from WS_Mdl.io.ini import INI_to_d
+from WS_Mdl.imod.ini import as_d as INI_to_d
 
 
 def Agg_OBS(MdlN, Pkg):

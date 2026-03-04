@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import sys
 
-from WS_Mdl.utils_imod import SFR_stage_TS  # Adjust import as needed
+from WS_Mdl.imod.sfr.pop import SFR_stage_TS
 
 
 def main():

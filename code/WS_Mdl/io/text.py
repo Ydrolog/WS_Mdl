@@ -2,7 +2,6 @@ import subprocess as sp
 
 from WS_Mdl.core.path import MdlN_Pa
 from WS_Mdl.core.style import Sep, sprint
-from WS_Mdl.utils import sprint
 
 
 def o_(key, *l_MdlN, Pa=r'C:\Program Files\Notepad++\notepad++.exe'):

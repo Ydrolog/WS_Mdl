@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import sys
-from WS_Mdl.geo import SFR_Par_to_Rst
+from WS_Mdl.imod.sfr.export import Par_to_Rst as SFR_Par_to_Rst
 
 def main():
     if len(sys.argv) < 3:

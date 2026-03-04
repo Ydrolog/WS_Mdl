@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import sys
-from WS_Mdl.utils import S_from_B_undo
+from WS_Mdl.io.sim import S_from_B_undo
 
 
 def main():

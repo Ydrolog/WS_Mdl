@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import sys
 
-from WS_Mdl.utils import remove_Sim_Out  # Adjust import as needed
+from WS_Mdl.io.sim import remove_Sim_Out
 
 
 def main():

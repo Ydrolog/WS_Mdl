@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import sys
 
-from WS_Mdl.utils import o_NAMs  # Adjust import as needed
+from WS_Mdl.io.text import o_NAMs
 
 
 def main():

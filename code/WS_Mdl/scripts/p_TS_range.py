@@ -5,7 +5,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from WS_Mdl.utils import p_TS_range
+from WS_Mdl.viz.ts import range as p_TS_range
 
 
 def main():

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import sys
-from WS_Mdl.utils import rerun_Sim  # Adjust import as needed
+from WS_Mdl.io.sim import rerun_Sim
 
 
 def main():

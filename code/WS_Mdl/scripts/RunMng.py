@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import sys
-from WS_Mdl.utils import RunMng  # Adjust import as needed
+from WS_Mdl.io.sim import RunMng
 
 
 def main():

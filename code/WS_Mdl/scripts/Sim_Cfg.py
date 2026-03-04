@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import sys
-from WS_Mdl.utils import Sim_Cfg  # Adjust import as needed
+from WS_Mdl.io.text import Sim_Cfg
 
 
 def main():
