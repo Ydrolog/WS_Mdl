@@ -30,7 +30,7 @@ def set_verbose(v: bool):
     VERBOSE = v
 
 
-def sprint(*args, indent: int = 0, style: str, set_verbose: bool = None, **kwargs):
+def sprint(*args, indent: int = 0, style: str = '', set_verbose: bool = None, **kwargs):
     """
     Special print function. Allows easy indentation (2 spaces per 1 indent level) and easy styling.
     Prints only if VERBOSE is True.

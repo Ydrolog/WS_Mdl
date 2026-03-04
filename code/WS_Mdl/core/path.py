@@ -48,7 +48,7 @@ def imod_V(MdlN: str):
         return 'imod_python'
 
 
-def MdlN_Pa(MdlN: str, MdlN_B: str = None, iMOD5: bool = None):
+def MdlN_Pa(MdlN: str, MdlN_B: str | bool | None = None, iMOD5: bool = None):
     """
     *** Improved get_MdlN_paths. ***
     - Doesn't read RunLog, unless B is set to True. Thus it's much faster.
@@ -60,6 +60,15 @@ def MdlN_Pa(MdlN: str, MdlN_B: str = None, iMOD5: bool = None):
     """
     if iMOD5 is None:
         iMOD5 = imod_V(MdlN) == 'imod5'
+
+    def _replace_mdl_name(value, old_mdl: str, new_mdl: str):
+        if value is None:
+            return None
+        if isinstance(value, Path):
+            return Path(str(value).replace(old_mdl, new_mdl))
+        if isinstance(value, str):
+            return value.replace(old_mdl, new_mdl)
+        return value
 
     def _MdlN_Pa_maker(MdlN):
         ## Non paths + General paths
@@ -122,13 +131,24 @@ def MdlN_Pa(MdlN: str, MdlN_B: str = None, iMOD5: bool = None):
         d_Pa['PoP_Out_MdlN'] = d_Pa['PoP'] / 'Out' / MdlN
         d_Pa['MM'] = d_Pa['PoP_Out_MdlN'] / f'MM-{MdlN}.qgz'
 
-        if MdlN_B:  ## B Sim paths
-            for k in list(d_Pa.keys()):
-                if f'{k}_B' not in d_Pa:
-                    d_Pa[f'{k}_B'] = d_Pa[k].replace(MdlN, MdlN_B)
         return d_Pa
 
-    d_Pa = _MdlN_Pa_maker(MdlN) if MdlN_B is None else _MdlN_Pa_maker(MdlN) | _MdlN_Pa_maker(MdlN_B)
+    d_Pa = _MdlN_Pa_maker(MdlN)
+
+    if MdlN_B:
+        if MdlN_B is True:
+            from WS_Mdl.core.log import to_Se
+
+            MdlN_B_str = to_Se(MdlN)['B MdlN']  # Get MdlN_B from RunLog, based on MdlN
+        elif isinstance(MdlN_B, str):
+            MdlN_B_str = MdlN_B
+        else:
+            raise TypeError('MdlN_B should be None, False, True, or a model name string.')
+
+        for k in list(d_Pa.keys()):
+            if f'{k}_B' not in d_Pa:
+                d_Pa[f'{k}_B'] = _replace_mdl_name(d_Pa[k], MdlN, MdlN_B_str)
+
     return d_Pa
 
 

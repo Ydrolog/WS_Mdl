@@ -41,7 +41,7 @@ _EXPORTS_TO_MODULES = {
     'MdlN': 'WS_Mdl.core.mdl',
     # Logging helpers
     'DF_match_MdlN': 'WS_Mdl.core.log',
-    'MdlN_Se_from_RunLog': 'WS_Mdl.core.log',
+    'to_Se': 'WS_Mdl.core.log',
     'last_MdlN': 'WS_Mdl.core.log',
     'r_RunLog': 'WS_Mdl.core.log',
     # Text/IO helpers
@@ -77,7 +77,7 @@ __all__ = [
     'Mdl_N',
     # ----- Log related -----
     'DF_match_MdlN',
-    'MdlN_Se_from_RunLog',
+    'to_Se',
     'last_MdlN',
     'r_RunLog',
     # ----- Text related -----

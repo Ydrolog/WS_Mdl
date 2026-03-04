@@ -14,7 +14,7 @@ def DF_match_MdlN(DF: pd.DataFrame, MdlN: str, Col_name='MdlN', case_insensitive
         return DF[Col_name] == MdlN
 
 
-def MdlN_Se_from_RunLog(MdlN: str):
+def to_Se(MdlN: str):
     """Returns RunLog line that corresponds to MdlN as a S."""
 
     DF = pd.read_csv(Pa_log_Cfg)
