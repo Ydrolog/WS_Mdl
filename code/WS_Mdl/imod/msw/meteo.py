@@ -5,7 +5,7 @@ from tqdm import tqdm
 from WS_Mdl import imod
 
 
-def MSW_meteo_to_XA(DF_meteo, Par, Pa_PRJ, Xmin=None, Ymin=None, Xmax=None, Ymax=None):
+def to_XA(DF_meteo, Par, Pa_PRJ, Xmin=None, Ymin=None, Xmax=None, Ymax=None):
     """
     Reads multiple .asc files listed in one of DF_meteo's columns and combines them into a single xarray DataArray.
     """

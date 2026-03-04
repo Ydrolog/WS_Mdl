@@ -9,10 +9,10 @@ def WB_Diff_to_xlsx(
 
     # Load basics
     set_verbose(False)
-    d_Pa = get_MdlN_Pa(MdlN)
+    d_Pa = MdlN_Pa(MdlN)
     d_INI = INI_to_d(d_Pa['INI'])
     SP_date_1st = DT.strftime(DT.strptime(d_INI['SDATE'], '%Y%m%d'), '%Y-%m-%d')
-    d_Pa_B = get_MdlN_Pa(MdlN_B)
+    d_Pa_B = MdlN_Pa(MdlN_B)
     set_verbose(True)
 
     # Load budget to dataframes. fp.utils.Mf6ListBudget returns a tuple. 1st item is WB for each SP. 2nd item is cumulative.

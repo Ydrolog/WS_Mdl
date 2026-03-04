@@ -33,15 +33,15 @@ class MdlN:
 
     @property
     def INI(self):
-        from WS_Mdl.io.ini import INIView
+        from WS_Mdl.imod.ini import INIView
 
         return INIView(self.Pa.Pa_INI)
 
     @property
     def Dmns(self):
-        from WS_Mdl.io.ini import Mdl_Dmns_from_INI
+        from WS_Mdl.imod.ini import Mdl_Dmns
 
-        return Mdl_Dmns_from_INI(self.Pa.P_INI)
+        return Mdl_Dmns(self.Pa.P_INI)
 
     @property
     def V(self):

@@ -1,4 +1,4 @@
-import importlib as IL
+# import importlib as IL
 import os
 import re
 from datetime import datetime as DT
@@ -8,11 +8,17 @@ from os.path import join as PJ
 import imod
 import pandas as pd
 import plotly.graph_objects as go
+from imod.msw.mete_grid import to_DF
 from tqdm.dask import TqdmCallback
 from WS_Mdl.core import MdlN_Pa
 from WS_Mdl.core.style import Sep, set_verbose, sprint
 from WS_Mdl.imod import ini, prj
-from WS_Mdl.imod.sfr.info import get_SFR_OBS_Out_Pas
+from WS_Mdl.imod.msw.meteo import to_XA
+from WS_Mdl.imod.prj import r_with_OBS
+from WS_Mdl.imod.sfr.info import SFR_PkgD_to_DF, get_SFR_OBS_Out_Pas, reach_to_cell_id, reach_to_XY
+from WS_Mdl.imod.xr import clip_Mdl_Aa
+from WS_Mdl.viz.ts import SFR_reach_TS
+from WS_Mdl.xr.spatial import get_value
 
 
 def SFR_stage_TS(
@@ -41,7 +47,7 @@ def SFR_stage_TS(
     print(' -- Loading PRJ data ... ', end='')
     d_Pa = MdlN_Pa(MdlN)
     d_INI = ini.r_as_d(d_Pa['INI'])
-    Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = ini.Mdl_Dmns_from_INI(d_Pa['INI'])
+    Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = ini.Mdl_Dmns(d_Pa['INI'])
     SP_date_1st = DT.strftime(DT.strptime(d_INI['SDATE'], '%Y%m%d'), '%Y-%m-%d')
     dx = dy = float(d_INI['CELLSIZE'])
 
@@ -50,7 +56,7 @@ def SFR_stage_TS(
     SP_date_1st_RIV = DT.strftime(DT.strptime(d_INI_RIV['SDATE'], '%Y%m%d'), '%Y-%m-%d')
 
     # Check that model dimensions are the same
-    if (Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C) != ini.Mdl_Dmns_from_INI(d_Pa_RIV['INI']):
+    if (Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C) != ini.Mdl_Dmns(d_Pa_RIV['INI']):
         print('Warning: Model dimensions for RIV model differ from main model.')
 
     PRJ, PRJ_OBS = r_with_OBS(d_Pa['PRJ'])
@@ -90,8 +96,8 @@ def SFR_stage_TS(
         print(f'Invalid system number. It should be >= 1 & <= {PRJ_RIV["(riv)"]["n_system"]}.')
         return
 
-    A_RIV_Stg = xr_clip_Mdl_Aa(imod.idf.open(PRJ_RIV['(riv)']['stage'][N_system_RIV - 1]['path']), MdlN=MdlN)
-    A_RIV_Btm = xr_clip_Mdl_Aa(imod.idf.open(PRJ_RIV['(riv)']['bottom_elevation'][N_system_RIV - 1]['path']), MdlN=MdlN)
+    A_RIV_Stg = clip_Mdl_Aa(imod.idf.open(PRJ_RIV['(riv)']['stage'][N_system_RIV - 1]['path']), MdlN=MdlN)
+    A_RIV_Btm = clip_Mdl_Aa(imod.idf.open(PRJ_RIV['(riv)']['bottom_elevation'][N_system_RIV - 1]['path']), MdlN=MdlN)
 
     print('🟢')
     if A_RIV_Btm.notnull().sum().values == (A_RIV_Btm == A_RIV_Stg).sum().values:
@@ -122,16 +128,16 @@ def SFR_stage_TS(
         print(f'Invalid system number. It should be >= 1 & <= {PRJ["(drn)"]["n_system"]}.')
         return
 
-    A_DRN_Elv = xr_clip_Mdl_Aa(imod.idf.open(PRJ['(drn)']['elevation'][N_system_DRN - 1]['path']), MdlN=MdlN)
+    A_DRN_Elv = clip_Mdl_Aa(imod.idf.open(PRJ['(drn)']['elevation'][N_system_DRN - 1]['path']), MdlN=MdlN)
     print('🟢')
 
     print(' -- Loading TOP BOT data...', end='')
     l_Pa_TOP = [i['path'] for i in PRJ['(top)']['top']]
-    A_TOP = xr_clip_Mdl_Aa(
+    A_TOP = clip_Mdl_Aa(
         imod.idf.open(l_Pa_TOP, pattern=r'TOP_L{layer}_{name}'), MdlN=MdlN
     )  # We're just doing this to avoid errors - using {name} to capture the model number part - imod will use it for the DataArray name.
     l_Pa_BOT = [i['path'] for i in PRJ['(bot)']['bottom']]
-    A_BOT = xr_clip_Mdl_Aa(imod.idf.open(l_Pa_BOT, pattern=r'BOT_L{layer}_{name}'), MdlN=MdlN)
+    A_BOT = clip_Mdl_Aa(imod.idf.open(l_Pa_BOT, pattern=r'BOT_L{layer}_{name}'), MdlN=MdlN)
     print('🟢')
 
     # Get layers relevant for SFR (HDS output can be too big to load to memory, and it's also efficient to just save the relevant layers)
@@ -145,7 +151,7 @@ def SFR_stage_TS(
     )
 
     print(' -- Loading precipitation data ... ', end='')
-    DF_meteo = mete_grid_inp_to_DF(PRJ)
+    DF_meteo = to_DF(PRJ)
     print('🟢')
 
     set_verbose(True)
@@ -173,7 +179,7 @@ def SFR_stage_TS(
         except Exception as e:
             print(f'🔴🔴🔴 - An error occurred while loading HD data: {e}')
     print('🟢')
-    dprint()
+    sprint()
     # endregion ---------- Load data ----------
 
     while True:
@@ -195,7 +201,7 @@ def SFR_stage_TS(
 
         if load_P:
             DF_meteo_DT_trim = DF_meteo.loc[(DF_meteo['DT'] >= start_date) & (DF_meteo['DT'] <= end_date)].copy()
-            A_P = MSW_meteo_to_XA(DF_meteo_DT_trim, 'P', d_Pa['PRJ'], Xmin, Ymin, Xmax, Ymax)
+            A_P = to_XA(DF_meteo_DT_trim, 'P', d_Pa['PRJ'], Xmin, Ymin, Xmax, Ymax)
 
         with TqdmCallback(desc=' -- Loading HD data for SFR-relevant layers and specified time range ...'):
             if load_HD:
@@ -210,9 +216,9 @@ def SFR_stage_TS(
                     "Provide a cell ID (L R C) (with spaces or commas as separators) or a reach number. If you're providing a reach number, prefix it with 'R' (e.g., R15). Type 'E' to quit:\n"
                 )
 
-                IL.reload(plot_SFR)
+                # IL.reload(plot_SFR) # Relic. For development so it doesn't need to reload big files.
                 # Re-bind the function from the reloaded module
-                plot_SFR_reach_TS = plot_SFR.plot_SFR_reach_TS
+                plot_SFR_reach_TS = SFR_reach_TS
 
                 sprint('  - Loading data for specified reach/cell...')
 
@@ -229,31 +235,31 @@ def SFR_stage_TS(
                 X, Y = reach_to_XY(reach, GDF_SFR)
 
                 if load_P:
-                    P_ts = xr_get_value(A_P, X, Y, dx, dy)
+                    P_ts = get_value(A_P, X, Y, dx, dy)
 
                 # Extract head time series at this location (compute to load from Dask)
                 if load_HD:
                     try:
-                        HD_ts = xr_get_value(A_HD.sel(time=slice(start_date, end_date)), X, Y, dx, dy, L=L)
+                        HD_ts = get_value(A_HD.sel(time=slice(start_date, end_date)), X, Y, dx, dy, L=L)
                     except Exception as e:
                         print(
                             f"L {L} probably contains less than 1% of the SFR reaches, so its HD wasn't loaded.\nAn error occurred while extracting head time series: {e}"
                         )
                         print('Attempting to load full head data for the specified layer...')
                         A_HD_L = A_HD_.sel(layer=L)
-                        HD_ts = xr_get_value(A_HD_L.sel(time=slice(start_date, end_date)), X, Y, dx, dy)
+                        HD_ts = get_value(A_HD_L.sel(time=slice(start_date, end_date)), X, Y, dx, dy)
                     HD = pd.DataFrame({'time': HD_ts.time.values, 'head': HD_ts.values})
 
                 if load_HD_RIV:
                     try:
-                        HD_ts_RIV = xr_get_value(A_HD_RIV.sel(time=slice(start_date, end_date)), X, Y, dx, dy, L=L)
+                        HD_ts_RIV = get_value(A_HD_RIV.sel(time=slice(start_date, end_date)), X, Y, dx, dy, L=L)
                     except Exception as e:
                         print(
                             f"L {L} probably contains less than 1% of the SFR reaches, so its HD wasn't loaded.\nAn error occurred while extracting head time series: {e}"
                         )
                         print('Attempting to load full head data for the specified layer...')
                         A_HD_L_RIV = A_HD_RIV_.sel(layer=L)
-                        HD_ts_RIV = xr_get_value(A_HD_L_RIV.sel(time=slice(start_date, end_date)), X, Y, dx, dy)
+                        HD_ts_RIV = get_value(A_HD_L_RIV.sel(time=slice(start_date, end_date)), X, Y, dx, dy)
                     HD_RIV = pd.DataFrame({'time': HD_ts_RIV.time.values, 'head': HD_ts_RIV.values})
 
                     # required keys: plot_type, y. Rest are kwargs for the plot type (e.g., line dict for scatter, marker dict for bar, etc.)
@@ -338,7 +344,7 @@ def SFR_stage_TS(
                     {
                         f'{"RIV stage":<17}': {
                             'plot_type': go.Scatter,
-                            'y': [round(float(xr_get_value(A_RIV_Stg, X, Y, dx, dy)), 3)] * len(DF_trim),
+                            'y': [round(float(get_value(A_RIV_Stg, X, Y, dx, dy)), 3)] * len(DF_trim),
                             'kwargs': {
                                 'mode': 'lines',
                                 'line': dict(color='#0000ff', width=3),
@@ -352,7 +358,7 @@ def SFR_stage_TS(
                     {
                         f'{"RIV bottom":<17}': {
                             'plot_type': go.Scatter,
-                            'y': [round(float(xr_get_value(A_RIV_Btm, X, Y, dx, dy)), 3)] * len(DF_trim),
+                            'y': [round(float(get_value(A_RIV_Btm, X, Y, dx, dy)), 3)] * len(DF_trim),
                             'kwargs': {
                                 'mode': 'lines',
                                 'line': dict(color='#0000ff', width=2, dash='dash'),
@@ -366,7 +372,7 @@ def SFR_stage_TS(
                     {
                         f'{"DRN elevation":<17}': {
                             'plot_type': go.Scatter,
-                            'y': [round(float(xr_get_value(A_DRN_Elv, X, Y, dx, dy)), 3)] * len(DF_trim),
+                            'y': [round(float(get_value(A_DRN_Elv, X, Y, dx, dy)), 3)] * len(DF_trim),
                             'kwargs': {
                                 'mode': 'lines',
                                 'line': dict(color='#d000ff', width=2, dash='dot'),
@@ -380,7 +386,7 @@ def SFR_stage_TS(
                     {
                         f'{"top":<17}': {
                             'plot_type': go.Scatter,
-                            'y': [round(float(xr_get_value(A_TOP, X, Y, dx, dy, L=L)), 3)] * len(DF_trim),
+                            'y': [round(float(get_value(A_TOP, X, Y, dx, dy, L=L)), 3)] * len(DF_trim),
                             'kwargs': {
                                 'mode': 'lines',
                                 'line': dict(color='#a47300', width=2, dash='dash'),
@@ -394,7 +400,7 @@ def SFR_stage_TS(
                     {
                         f'{"bottom":<17}': {
                             'plot_type': go.Scatter,
-                            'y': [round(float(xr_get_value(A_BOT, X, Y, dx, dy, L=L)), 3)] * len(DF_trim),
+                            'y': [round(float(get_value(A_BOT, X, Y, dx, dy, L=L)), 3)] * len(DF_trim),
                             'kwargs': {
                                 'mode': 'lines',
                                 'line': dict(color='#a47300', width=2, dash='dash'),

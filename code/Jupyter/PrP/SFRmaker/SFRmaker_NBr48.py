@@ -48,11 +48,11 @@ Pa_RIV_OBS = r'g:\models\NBr\In\OBS\RIV\NBr45\NBr45.RIV.OBS6'
 
 U.set_verbose(False)
 
-d_Pa = U.get_MdlN_Pa(MdlN)
+d_Pa = U.MdlN_Pa(MdlN)
 Pa_PRJ = d_Pa['PRJ']
 Dir_PRJ = PDN(Pa_PRJ)
 d_INI = U.INI_to_d(d_Pa['INI'])
-Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = U.Mdl_Dmns_from_INI(d_Pa['INI'])
+Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = U.Mdl_Dmns(d_Pa['INI'])
 SP_date_1st, SP_date_last = [DT.strftime(DT.strptime(d_INI[f'{i}'], '%Y%m%d'), '%Y-%m-%d') for i in ['SDATE', 'EDATE']]
 dx = dy = float(d_INI['CELLSIZE'])
 
@@ -78,7 +78,7 @@ print('🟢 - PRJ loaded successfully!')
 # ## 1.1. Load DIS and limit to Mdl Aa
 
 # %%
-PRJ_regrid = UIM.regrid_PRJ(PRJ, MdlN)
+PRJ_regrid = UIM.regrid(PRJ, MdlN)
 BND = PRJ_regrid['bnd']['ibound']
 
 # %%

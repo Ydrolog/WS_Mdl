@@ -1,20 +1,19 @@
 import pandas as pd
-from WS_Mdl.core.path import get_MdlN_Pa
-from WS_Mdl.core.style import vprint
+from WS_Mdl.core.mdln import Calc_DF_XY, MdlN
+from WS_Mdl.core.style import sprint
 from WS_Mdl.io.text import r_Txt_Lns
-from WS_Mdl.mdl import Calc_DF_XY, Mdl_Dmns_from_INI
 
 
-def SFR_PkgD_to_DF(MdlN: str, Pa_SFR: str = None, Calc_Cond=True, iMOD5: bool = None) -> pd.DataFrame:
+def SFR_PkgD_to_DF(MdlN_1: str, Pa_SFR: str = None, Calc_Cond=True, iMOD5: bool = None) -> pd.DataFrame:
     """
     Reads SFR6 PACKAGE DATA block from a .SFR6 file, from MdlN folder, and returns it as a pandas DataFrame.
-    Pa_SFR: Path to the SFR6 file. If None, it will be determined using get_MdlN_Pa().
+    Pa_SFR: Path to the SFR6 file. If None, it will be determined using MdlN_Pa().
     iMOD5: Boolean indicating whether to use the imod5 folder structure. If None, it will be determined automatically.
     """
-    d_Pa = get_MdlN_Pa(MdlN, iMOD5=iMOD5)
+    M = MdlN(MdlN_1)
 
     if Pa_SFR is None:
-        Pa_SFR = d_Pa['SFR']
+        Pa_SFR = M.Pa.SFR
 
     l_Lns = r_Txt_Lns(Pa_SFR)
 
@@ -40,8 +39,8 @@ def SFR_PkgD_to_DF(MdlN: str, Pa_SFR: str = None, Calc_Cond=True, iMOD5: bool = 
     DF = DF.convert_dtypes()  # 3. optional: get nullable ints/floats
 
     if ('X' not in PkgDt_Cols) or ('Y' not in PkgDt_Cols):
-        vprint('🟡 - Coordinates (X, Y columns) not found in PACKAGEDATA. Calculating coordinates from INI file info.')
-        Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = Mdl_Dmns_from_INI(d_Pa['INI'])
+        sprint('🟡 - Coordinates (X, Y columns) not found in PACKAGEDATA. Calculating coordinates from INI file info.')
+        Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = M.Dmns(M.Pa.INI)
         DF = Calc_DF_XY(DF, Xmin, Ymax, cellsize)
 
     if Calc_Cond:
@@ -54,14 +53,14 @@ def SFR_PkgD_to_DF(MdlN: str, Pa_SFR: str = None, Calc_Cond=True, iMOD5: bool = 
     return DF
 
 
-def SFR_ConnD_to_DF(MdlN: str, Pa_SFR: str = None, iMOD5: bool = None) -> pd.DataFrame:
+def SFR_ConnD_to_DF(MdlN_1: str, Pa_SFR: str = None, iMOD5: bool = None) -> pd.DataFrame:
     """
     Reads SFR6 connection data from a .SFR6 file and returns it as a pandas DataFrame.
     """
-    d_Pa = get_MdlN_Pa(MdlN, iMOD5=iMOD5)
+    M = MdlN(MdlN_1)
 
     if Pa_SFR is None:
-        Pa_SFR = d_Pa['SFR']
+        Pa_SFR = M.Pa.SFR
 
     l_Lns = r_Txt_Lns(Pa_SFR)
 
@@ -119,11 +118,11 @@ def get_SFR_OBS_Out_Pas(MdlN, filetype='.csv'):
     Returns a list of paths if multiple found, or a single path if only one found.
     666 need to add argument to select specific OBS file if arg is not None.
     """
-    d_Pa = get_MdlN_Pa(MdlN)
+    M = MdlN(MdlN)
     l_Pa = [
-        PJ(d_Pa['Sim_In'], i)
-        for i in os.listdir(d_Pa['Sim_In'])
-        if 'SFR' in i.upper() and 'OBS' in i.upper() and i.lower().endswith(filetype)
+        M.Pa.Sim_In / i
+        for i in M.Pa.Sim_In.iterdir()
+        if 'SFR' in i.name.upper() and 'OBS' in i.name.upper() and i.name.lower().endswith(filetype)
     ]
     if len(l_Pa) == 1:
         l_Pa = l_Pa[0]

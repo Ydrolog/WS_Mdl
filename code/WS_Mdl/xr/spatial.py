@@ -1,4 +1,4 @@
-def xr_get_value(A, X, Y, dx, dy, L=None, method='nearest', validate=True):
+def get_value(A, X, Y, dx, dy, L=None, method='nearest', validate=True):
     """
     - Gets value from xarray DataArray A at coordinates X, Y, L (if provided).
     - If validate is True, checks if value coordinates are within the same cell.

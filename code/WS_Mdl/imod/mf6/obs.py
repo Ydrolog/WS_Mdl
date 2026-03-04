@@ -2,12 +2,12 @@ def add(MdlN: str, Opt: str = 'BEGIN OPTIONS\nEND OPTIONS', iMOD5=False):
     """
     Adds OBS file(s) from PRJ file OBS block to Mdl Sim (which iMOD can't do). Thus the OBS file needs to be written, and then a link to the OBS file needs to be created within the NAM file.
     Assumes OBS IPF file contains the following parameters/columns: 'Id', 'L', 'X', 'Y'
-    for iMOD5 option check WS_Mdl.utils.get_MdlN_Pa() description.
+    for iMOD5 option check WS_Mdl.utils.MdlN_Pa() description.
     """
 
-    vprint(pre_Sign)
-    vprint('Running add_OBS ...')
-    d_Pa = get_MdlN_Pa(MdlN, iMOD5=iMOD5)  # Get default directories
+    sprint(pre_Sign)
+    sprint('Running add_OBS ...')
+    d_Pa = MdlN_Pa(MdlN, iMOD5=iMOD5)  # Get default directories
     Pa_MdlN, Pa_INI, Pa_PRJ = (
         d_Pa[k] for k in ['Pa_MdlN', 'INI', 'PRJ']
     )  # and pass them to objects that will be used in the function
@@ -54,7 +54,7 @@ def add(MdlN: str, Opt: str = 'BEGIN OPTIONS\nEND OPTIONS', iMOD5=False):
         )  # Let's sort the DF by L, R, C
 
         with open(Pa_OBS, 'w') as f:  # write OBS file(s)
-            # vprint(Pa_MdlN, path, Pa_OBS_IPF, sep='\n')
+            # sprint(Pa_MdlN, path, Pa_OBS_IPF, sep='\n')
             f.write(f'# created from {Pa_OBS_IPF}\n')
             f.write(Opt.encode().decode('unicode_escape'))  # write optional block
             f.write(f'\n\nBEGIN CONTINUOUS FILEOUT OBS_{OBS_IPF_Fi.split(".")[0]}.csv\n')
@@ -79,5 +79,5 @@ def add(MdlN: str, Opt: str = 'BEGIN OPTIONS\nEND OPTIONS', iMOD5=False):
             f.flush()
             os.fsync(f.fileno())  # ensure it’s on disk
             # lock is released automatically when the with-block closes
-        vprint(f'🟢 - {Pa_OBS} has been added successfully!')
-    vprint(post_Sign)
+        sprint(f'🟢 - {Pa_OBS} has been added successfully!')
+    sprint(post_Sign)

@@ -1,3 +1,17 @@
+import os
+import subprocess as sp
+from datetime import datetime as DT
+
+import pandas as pd
+import primod
+from imod import mf6, msw
+from WS_Mdl.core.path import MdlN_Pa
+from WS_Mdl.core.style import set_verbose, sprint
+from WS_Mdl.imod import ini, prj
+from WS_Mdl.imod.mf6.solution import moderate_settings
+from WS_Mdl.imod.msw import Cvt_to_AbsPa
+
+
 def Mdl_Prep(MdlN: str, Pa_MF6_DLL: str = None, Pa_MSW_DLL: str = None, verbose=False):
     """
     Prepares Sim Fis from In Fis.
@@ -7,10 +21,10 @@ def Mdl_Prep(MdlN: str, Pa_MF6_DLL: str = None, Pa_MSW_DLL: str = None, verbose=
     set_verbose(verbose)
 
     # Load paths and variables from PRJ & INI
-    d_Pa = get_MdlN_Pa(MdlN)
+    d_Pa = MdlN_Pa(MdlN)
     Pa_PRJ = d_Pa['PRJ']
     # Dir_PRJ = PDN(Pa_PRJ)
-    d_INI = INI_to_d(d_Pa['INI'])
+    d_INI = ini.r_as_d(d_Pa['INI'])
     Xmin, Ymin, Xmax, Ymax = [float(i) for i in d_INI['WINDOW'].split(',')]
     SP_date_1st, SP_date_last = [
         DT.strftime(DT.strptime(d_INI[f'{i}'], '%Y%m%d'), '%Y-%m-%d') for i in ['SDATE', 'EDATE']
@@ -23,9 +37,9 @@ def Mdl_Prep(MdlN: str, Pa_MF6_DLL: str = None, Pa_MSW_DLL: str = None, verbose=
         Pa_MSW_DLL = d_Pa['MSW_DLL']
 
     # Load PRJ & regrid it to Mdl Aa
-    PRJ_, _ = o_PRJ_with_OBS(Pa_PRJ)
+    PRJ_, _ = prj.o_with_OBS(Pa_PRJ)
     PRJ, period_data = PRJ_[0], PRJ_[1]
-    PRJ_regrid = regrid_PRJ(
+    PRJ_regrid = prj.regrid(
         PRJ, MdlN
     )  # Using original PRJ to load MF6 Mdl gives warnings (and it's very slow). Regridding works much better though.
 
@@ -33,29 +47,29 @@ def Mdl_Prep(MdlN: str, Pa_MF6_DLL: str = None, Pa_MSW_DLL: str = None, verbose=
     BND = PRJ_regrid['bnd']['ibound']
     BND.loc[:, [BND.y[0], BND.y[-1]], :] = -1  # Top and bottom rows
     BND.loc[:, :, [BND.x[0], BND.x[-1]]] = -1  # Left and right columns
-    vprint('🟢 - Boundary conditions set successfully!')
+    sprint('🟢 - Boundary conditions set successfully!')
 
     # Load MF6 Simulation
     times = pd.date_range(SP_date_1st, SP_date_last, freq='D')
     Sim_MF6 = mf6.Modflow6Simulation.from_imod5_data(
         PRJ_regrid, period_data, times
     )  # It can be further sped up by multi-processing, but this is not implemented yet.
-    vprint('🟢 - MF6 Simulation loaded successfully!')
+    sprint('🟢 - MF6 Simulation loaded successfully!')
     # Sim_MF6[f'{MdlN}'] = Sim_MF6.pop('imported_model')  # Rename imported_model to MdlN.
 
     # Pass the Sim components to objects.
     MF6_Mdl = Sim_MF6['imported_model']
     MF6_Mdl['oc'] = mf6.OutputControl(save_head='last', save_budget='last')
-    Sim_MF6['ims'] = mf6_solution_moderate_settings()  # Mimic iMOD5's "Moderate" settings.
+    Sim_MF6['ims'] = moderate_settings()  # Mimic iMOD5's "Moderate" settings.
     MF6_DIS = MF6_Mdl['dis']
 
     # Load MSW
     PRJ_MSW = {'cap': PRJ_regrid.copy()['cap'], 'extra': PRJ_regrid.copy()['extra']}  # Isolate MSW keys from PRJ.
-    PRJ_MSW['extra']['paths'][2][0] = mete_grid_Cvt_to_AbsPa(
+    PRJ_MSW['extra']['paths'][2][0] = Cvt_to_AbsPa(
         Pa_PRJ, PRJ
     )  ## Fix mete_grid.inp relative paths. Replace the mete_grid.inp path in the PRJ_MSW dictionary
     MSW_Mdl = msw.MetaSwapModel.from_imod5_data(PRJ_MSW, MF6_DIS, times)  # Load MSW model from PRJ
-    vprint('🟢 - MSW Simulation loaded successfully!')
+    sprint('🟢 - MSW Simulation loaded successfully!')
 
     # Clip models
     Sim_MF6_AoI = Sim_MF6.clip_box(x_min=Xmin, x_max=Xmax, y_min=Ymin, y_max=Ymax)
@@ -105,7 +119,7 @@ def Mdl_Prep(MdlN: str, Pa_MF6_DLL: str = None, Pa_MSW_DLL: str = None, verbose=
         directory=d_Pa['Pa_MdlN'],
         modflow6_dll=Pa_MF6_DLL,
         metaswap_dll=Pa_MSW_DLL,
-        metaswap_dll_dependency=PDN(Pa_MF6_DLL),
+        metaswap_dll_dependency=Pa_MF6_DLL.parent,
     )
 
     # # Review execution times per cell

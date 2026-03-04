@@ -1,7 +1,7 @@
 from datetime import datetime as DT
 
 import pandas as pd
-from WS_Mdl.core.path import get_MdlN_Pa
+from WS_Mdl.core.path import MdlN_Pa
 from WS_Mdl.core.style import set_verbose, warn
 from WS_Mdl.io.ini import INI_to_d
 
@@ -9,7 +9,7 @@ from WS_Mdl.io.ini import INI_to_d
 def Agg_OBS(MdlN, Pkg):
 
     set_verbose(False)
-    d_Pa = get_MdlN_Pa(MdlN)
+    d_Pa = MdlN_Pa(MdlN)
     start_date = INI_to_d(d_Pa['INI'])['SDATE']
     l_Pa_OBS = [i for i in d_Pa['Pa_MdlN'].iterdir() if f'{Pkg}_OBS' in i]
     set_verbose(True)

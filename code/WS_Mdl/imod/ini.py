@@ -47,7 +47,7 @@ class INIView:
         return self._d.keys()
 
 
-def Mdl_Dmns_from_INI(Pa_INI):
+def Mdl_Dmns(Pa_INI):
     d = r_as_d(Pa_INI)
 
     Xmin, Ymin, Xmax, Ymax = map(float, d['WINDOW'].split(','))
@@ -58,12 +58,12 @@ def Mdl_Dmns_from_INI(Pa_INI):
     return Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C
 
 
-def get_CeCes(MdlN: str):
+def CeCes(MdlN: str):
     """Get centroids of the model grid from the INI file of the model.
     Returns x_CeCes, y_CeCes."""
     import numpy as np
 
-    Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = Mdl_Dmns_from_INI(MdlN_Pa(MdlN)['INI'])
+    Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = Mdl_Dmns(MdlN_Pa(MdlN)['INI'])
     dx = float(cellsize)
     dy = -float(cellsize)
 

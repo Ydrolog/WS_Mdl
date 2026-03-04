@@ -43,7 +43,7 @@ U.set_verbose(False)
 
 # %%
 # Load paths and variables from PRJ & INI
-d_Pa = U.get_MdlN_Pa(MdlN)
+d_Pa = U.MdlN_Pa(MdlN)
 Pa_PRJ = d_Pa['PRJ']
 Dir_PRJ = PDN(Pa_PRJ)
 d_INI = U.INI_to_d(d_Pa['INI'])

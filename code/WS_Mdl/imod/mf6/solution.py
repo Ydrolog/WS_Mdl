@@ -1,7 +1,7 @@
 from imod import mf6
 
 
-def mf6_solution_moderate_settings(
+def moderate_settings(
     modelnames: list[str] = ['imported_model'],
     print_option: str = 'summary',
     outer_csvfile: str | None = None,

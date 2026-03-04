@@ -53,7 +53,7 @@ def MdlN_Pa(MdlN: str, MdlN_B: str = None, iMOD5: bool = None):
     *** Improved get_MdlN_paths. ***
     - Doesn't read RunLog, unless B is set to True. Thus it's much faster.
     - Returns a dictionary of useful objects (mainly paths, but also Mdl, MdlN) for a given MdlN. Those need to then be passed to arguments, e.g.:
-        d_Pa = get_MdlN_Pa(MdlN)
+        d_Pa = MdlN_Pa(MdlN)
         Pa_INI = d_Pa['Pa_INI'].
 
     This function has been modified since NBr32, to support imod python's folder/file structure. If you need to use the old folder structure, set iMOD5=True.
@@ -133,7 +133,7 @@ def MdlN_Pa(MdlN: str, MdlN_B: str = None, iMOD5: bool = None):
 
 
 class MdlN_PaView:
-    """Makes get_MdlN_Pa dict keys accessible through MdlN, e.g. MdlN.Pa.INI instead of MdlN.Pa['INI']."""
+    """Makes MdlN_Pa dict keys accessible through MdlN, e.g. MdlN.Pa.INI instead of MdlN.Pa['INI']."""
 
     __slots__ = ('_d',)
 

@@ -12,7 +12,7 @@ from colored import attr, fg
 from filelock import FileLock as FL
 from send2trash import send2trash
 from WS_Mdl.core.log import DF_match_MdlN, r_RunLog
-from WS_Mdl.core.path import Pa_log_Cfg, Pa_log_Out, Pa_WS, get_Mdl, get_MdlN_Pa
+from WS_Mdl.core.path import MdlN_Pa, Pa_log_Cfg, Pa_log_Out, Pa_WS, get_Mdl
 from WS_Mdl.core.style import Sep, bold, dim, set_verbose, sprint, style_reset, warn
 
 
@@ -20,7 +20,7 @@ def S_from_B(MdlN: str, iMOD5=False):
     """Copies files that contain Sim options from the B Sim, renames them for the S Sim, and opens them in the default file editor. Assumes default WS_Mdl folder structure (as described in READ_ME.MD)."""
 
     sprint(Sep)
-    d_Pa = get_MdlN_Pa(MdlN, MdlN_B=True, iMOD5=iMOD5)  # Get default directories
+    d_Pa = MdlN_Pa(MdlN, MdlN_B=True, iMOD5=iMOD5)  # Get default directories
     MdlN_B, Pa_INI_B, Pa_INI, Pa_BAT_B, Pa_BAT, Pa_Smk, Pa_Smk_B, Pa_PRJ_B, Pa_PRJ = (
         d_Pa[k] for k in ['MdlN_B', 'INI_B', 'INI', 'BAT_B', 'BAT', 'Smk', 'Smk_B', 'PRJ_B', 'PRJ']
     )  # and pass them to objects that will be used in the function
@@ -68,7 +68,7 @@ def S_from_B_undo(MdlN: str):
     sprint(Sep)
 
     set_verbose(False)  # Suppress sprint from get_MdlN_paths
-    d_Pa = get_MdlN_Pa(MdlN)  # Get default directories
+    d_Pa = MdlN_Pa(MdlN)  # Get default directories
     set_verbose(True)  # Re-enable sprint
 
     MdlN_B, Pa_INI_B, Pa_INI, Pa_BAT_B, Pa_BAT, Pa_Smk, Pa_Smk_B, Pa_PRJ_B, Pa_PRJ = (
@@ -253,7 +253,7 @@ def reset_Sim(MdlN: str, ask_permission: bool = True, Pa_log_Out=Pa_log_Out, per
         permission = 'y'
 
     if permission == 'y':
-        d_Pa = get_MdlN_Pa(MdlN)  # Get default directories
+        d_Pa = MdlN_Pa(MdlN)  # Get default directories
         Pa_MdlN = os.path.normpath(d_Pa['Pa_MdlN'])
         d_Pa['PoP_Out_MdlN'] = os.path.normpath(d_Pa['PoP_Out_MdlN'])
         DF = pd.read_csv(Pa_log_Out)  # Read the log file
@@ -406,7 +406,7 @@ def remove_Sim_Out(
 
     # ---------- Remove + Update log ----------
     if permission == 'y':
-        d_Pa = get_MdlN_Pa(MdlN)  # Get default directories
+        d_Pa = MdlN_Pa(MdlN)  # Get default directories
         Pa_MdlN = d_Pa['Pa_MdlN']
         DF = pd.read_csv(Pa_log)  # Read the log file
 

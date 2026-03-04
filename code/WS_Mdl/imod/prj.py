@@ -1,4 +1,16 @@
+# import importlib as IL
+import math
+import os
+import tempfile
+from os.path import join as PJ
+from pathlib import Path
+
 import imod
+import numpy as np
+import pandas as pd
+from WS_Mdl.core.path import MdlN_Pa, Pa_WS
+from WS_Mdl.core.style import sprint
+from WS_Mdl.imod.ini import CeCes
 
 
 def r_with_OBS(
@@ -11,6 +23,7 @@ def r_with_OBS(
     remove_SS: if True, removes any steady state periods from the PRJ file. This is useful when working with transient models only, as steady state periods can cause issues with some packages (e.g. RIV, DRN) when using imod python.
     season_to_DT: CAUTION!!! this can be set to True so that imod.formats.prj.read_projectfile() doesn't fail when it encounters season names (winter, summer) in the PRJ blocks, but it won't apply them properly (as iMOD5 would do). This function would need to be upgraded for that to happen.
     """
+    Pa_PRJ = Path(Pa_PRJ)  # Convert to Path object for easier manipulation
     with open(Pa_PRJ, 'r') as f:
         lines = f.readlines()
 
@@ -75,7 +88,7 @@ def r_with_OBS(
     # Write to a temporary file
     l_filtered_Lns = l_filtered_Lns2
     # Create the temp file in the same directory as the original PRJ so relative paths resolve correctly
-    with tempfile.NamedTemporaryFile(delete=False, mode='w', dir=PDN(Pa_PRJ), suffix='.prj') as temp_file:
+    with tempfile.NamedTemporaryFile(delete=False, mode='w', dir=Pa_PRJ.parent, suffix='.prj') as temp_file:
         temp_file.writelines(l_filtered_Lns)
         Pa_PRJ_temp = temp_file.name
 
@@ -93,16 +106,16 @@ def PRJ_to_DF(MdlN):
     """Leverages r_PRJ_with_OBS to produce a DF with the PRJ data.
     Could have been included in utils.py based on dependencies, but utils_imod.py fits it better as it's almost always used after r_PRJ_with_OBS (so the libs will be already loaded)."""
 
-    d_Pa = get_MdlN_Pa(MdlN)
+    d_Pa = MdlN_Pa(MdlN)
 
     Mdl = ''.join([c for c in MdlN if not c.isdigit()])
     Pa_AppData = os.path.normpath(PJ(os.getenv('APPDATA'), '../'))
     t_Pa_replace = (
         Pa_AppData,
-        PJ(Pa_WS, 'models', Mdl),
+        Pa_WS / 'models' / Mdl,
     )  # For some reason imod.idf.read reads the path incorrectly, so I have to replace the incorrect part.
 
-    d_PRJ, OBS = r_PRJ_with_OBS(d_Pa['PRJ'])
+    d_PRJ, OBS = r_with_OBS(d_Pa['PRJ'])
 
     columns = [
         'package',
@@ -213,7 +226,7 @@ def o_with_OBS(Pa_PRJ):
     return PRJ, l_OBS_Lns
 
 
-def regrid_PRJ(PRJ, MdlN: str = None, x_CeCes=None, y_CeCes=None, method='linear'):
+def regrid(PRJ, MdlN: str = None, x_CeCes=None, y_CeCes=None, method='linear'):
     """
     Regrid all spatial data in PRJ to target discretization.
     If x_CeCes and y_CeCes are provided, they will be used as the target grid.
@@ -225,23 +238,23 @@ def regrid_PRJ(PRJ, MdlN: str = None, x_CeCes=None, y_CeCes=None, method='linear
         dy = y_CeCes[1] - y_CeCes[0] if len(y_CeCes) > 1 else 0
 
     elif MdlN:  # If MdlN is provided, get the model's spatial dimensions from INI file
-        x_CeCes, y_CeCes = get_CeCes_from_INI(MdlN)
+        x_CeCes, y_CeCes = CeCes(MdlN)
         dx = x_CeCes[1] - x_CeCes[0] if len(x_CeCes) > 1 else 0
         dy = y_CeCes[1] - y_CeCes[0] if len(y_CeCes) > 1 else 0
 
     else:
-        vprint('🔴🔴🔴 - Either MdlN or x_CeCes and y_CeCes must be provided. Cancelling regridding...')
+        sprint('🔴🔴🔴 - Either MdlN or x_CeCes and y_CeCes must be provided. Cancelling regridding...')
         return  # Stop regridding if no valid grid is provided
 
-    vprint(f'\nTarget grid: {len(x_CeCes)}x{len(y_CeCes)} cells at {dx:.1f}x{dy:.1f} m resolution')
-    vprint(
+    sprint(f'\nTarget grid: {len(x_CeCes)}x{len(y_CeCes)} cells at {dx:.1f}x{dy:.1f} m resolution')
+    sprint(
         f'\nTarget extents: X=[{x_CeCes.min():.1f}, {x_CeCes.max():.1f}], Y=[{y_CeCes.min():.1f}, {y_CeCes.max():.1f}]'
     )
 
     PRJ_regridded = {}
 
     for key, data in PRJ.items():
-        vprint(f'Processing {key}...')
+        sprint(f'Processing {key}...')
 
         if isinstance(data, dict):
             # Handle nested dictionaries (like 'cap', 'bnd')
@@ -252,7 +265,7 @@ def regrid_PRJ(PRJ, MdlN: str = None, x_CeCes=None, y_CeCes=None, method='linear
             # Handle top-level data
             PRJ_regridded[key] = regrid_DA(data, x_CeCes, y_CeCes, dx, dy, key, method)
 
-    vprint('🟢🟢🟢 - PRJ has been regridded successfully!')
+    sprint('🟢🟢🟢 - PRJ has been regridded successfully!')
     return PRJ_regridded
 
 
@@ -263,7 +276,7 @@ def regrid_DA(DA, x_CeCes, y_CeCes, dx, dy, item_name, method='linear'):
 
     # Skip if not xarray or no spatial dimensions
     if not hasattr(DA, 'dims') or not ('x' in DA.dims and 'y' in DA.dims):
-        vprint(f'  {item_name}: ⚪️ - No spatial dims - keeping original')
+        sprint(f'  {item_name}: ⚪️ - No spatial dims - keeping original')
         return DA
 
     # Check if DA is already on target grid before doing anything
@@ -285,7 +298,7 @@ def regrid_DA(DA, x_CeCes, y_CeCes, dx, dy, item_name, method='linear'):
                 coords_match = False
 
         if same_resolution and same_size and coords_match:
-            vprint(f'  {item_name}: ⚫️ - Already on target grid')
+            sprint(f'  {item_name}: ⚫️ - Already on target grid')
             return DA
 
     # Handle special DA types
@@ -303,7 +316,7 @@ def regrid_DA(DA, x_CeCes, y_CeCes, dx, dy, item_name, method='linear'):
 
         # Attach dx and dy attributes to the regridded DataArray
         regridded = regridded.assign_coords(dx=dx, dy=dy)
-        vprint(f'  {item_name}: 🟢 - Area field regridded with grid ratio scaling')
+        sprint(f'  {item_name}: 🟢 - Area field regridded with grid ratio scaling')
         return regridded
 
     # Option A: Interpolate first, then clip to target bounds
@@ -313,8 +326,8 @@ def regrid_DA(DA, x_CeCes, y_CeCes, dx, dy, item_name, method='linear'):
 
         # Attach dx and dy attributes to the regridded DataArray
         regridded = regridded.assign_coords(dx=dx, dy=dy)
-        vprint(f'  {item_name}: 🟢 - {DA.sizes} -> {regridded.sizes}. Method: {method}.')
+        sprint(f'  {item_name}: 🟢 - {DA.sizes} -> {regridded.sizes}. Method: {method}.')
         return regridded
     except Exception as e:
-        vprint(f'  {item_name}: 🔴 - Regridding failed ({e}) - keeping original')
+        sprint(f'  {item_name}: 🔴 - Regridding failed ({e}) - keeping original')
         return DA

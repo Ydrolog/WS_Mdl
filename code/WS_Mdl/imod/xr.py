@@ -1,4 +1,10 @@
-def xr_clip_Mdl_Aa(
+import xarray as xr
+from WS_Mdl.core.path import MdlN_Pa
+from WS_Mdl.core.style import sprint
+from WS_Mdl.imod.ini import Mdl_Dmns
+
+
+def clip_Mdl_Aa(
     xr_data: xr.DataArray | xr.Dataset,
     MdlN: str = None,
     Pa_INI: str = None,
@@ -17,7 +23,7 @@ def xr_clip_Mdl_Aa(
     xr_data : xr.DataArray or xr.Dataset
         The xarray data to clip
     MdlN : str, optional
-        Model name to automatically get INI path via get_MdlN_Pa
+        Model name to automatically get INI path via MdlN_Pa
     Pa_INI : str, optional
         Direct path to INI file (alternative to MdlN)
     l_L : list-like, optional
@@ -48,11 +54,11 @@ def xr_clip_Mdl_Aa(
     if Pa_INI is None:
         if MdlN is None:
             raise ValueError('Either MdlN or Pa_INI must be provided')
-        d_Pa = get_MdlN_Pa(MdlN)
+        d_Pa = MdlN_Pa(MdlN)
         Pa_INI = d_Pa['INI']
 
     # Get model dimensions from INI file
-    Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = Mdl_Dmns_from_INI(Pa_INI)
+    Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = Mdl_Dmns(Pa_INI)
 
     # Check if required dimensions exist
     if x_dim not in xr_data.coords:
