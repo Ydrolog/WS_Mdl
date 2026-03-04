@@ -24,7 +24,7 @@ def Mdl_Prep(MdlN: str, Pa_MF6_DLL: str = None, Pa_MSW_DLL: str = None, verbose=
     d_Pa = MdlN_Pa(MdlN)
     Pa_PRJ = d_Pa['PRJ']
     # Dir_PRJ = PDN(Pa_PRJ)
-    d_INI = ini.r_as_d(d_Pa['INI'])
+    d_INI = ini.as_d(d_Pa['INI'])
     Xmin, Ymin, Xmax, Ymax = [float(i) for i in d_INI['WINDOW'].split(',')]
     SP_date_1st, SP_date_last = [
         DT.strftime(DT.strptime(d_INI[f'{i}'], '%Y%m%d'), '%Y-%m-%d') for i in ['SDATE', 'EDATE']

@@ -1,9 +1,8 @@
 import numpy as np
 import pandas as pd
-import xarray as xr
 
 
-def _describe_da(da: xr.DataArray, da_name: str):
+def _describe_da(da: xra.DataArray, da_name: str):
     """Helper function to describe a single DataArray."""
     print(f'--- Statistics for: {da_name} ---')
 
@@ -60,8 +59,8 @@ def _describe_da(da: xr.DataArray, da_name: str):
 
 
 def _compare_dataarrays(
-    array1: xr.DataArray,
-    array2: xr.DataArray,
+    array1: xra.DataArray,
+    array2: xra.DataArray,
     name1: str = 'Array 1',
     name2: str = 'Array 2',
     x_dim: str = 'x',
@@ -167,20 +166,20 @@ def _compare_dataarrays(
     return results
 
 
-@xr.register_dataarray_accessor('ws')
+@xra.register_dataarray_accessor('ws')
 class DataArrayAccessor:
     """Custom xarray DataArray accessor for WS diagnostics."""
 
-    def __init__(self, xarray_obj: xr.DataArray):
+    def __init__(self, xarray_obj: xra.DataArray):
         self._obj = xarray_obj
 
     def describe(self, name: str = None):
         """Describe the DataArray, including values and coordinate summary."""
         _describe_da(self._obj, name or self._obj.name or 'DataArray')
 
-    def compare_As(
+    def compare(
         self,
-        other: xr.DataArray,
+        other: xra.DataArray,
         name1: str = 'Array 1',
         name2: str = 'Array 2',
         x_dim: str = 'x',
@@ -201,11 +200,11 @@ class DataArrayAccessor:
         )
 
 
-@xr.register_dataset_accessor('ws')
+@xra.register_dataset_accessor('ws')
 class DatasetAccessor:
     """Custom xarray Dataset accessor for WS diagnostics."""
 
-    def __init__(self, xarray_obj: xr.Dataset):
+    def __init__(self, xarray_obj: xra.Dataset):
         self._obj = xarray_obj
 
     def describe(self, name: str = None):

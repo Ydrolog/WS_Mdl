@@ -29,14 +29,12 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
-import xarray as xr
+import xarray as xra
 
 try:
     from scipy.spatial import cKDTree as KDTree
 except ImportError:  # pragma: no cover
-    raise ImportError(
-        'SciPy is required for KD-tree functionality — install it via `pip install scipy`.'
-    )
+    raise ImportError('SciPy is required for KD-tree functionality — install it via `pip install scipy`.')
 
 __all__ = [
     'match_cells_to_SFR',
@@ -45,7 +43,7 @@ __all__ = [
 ]
 
 
-def _as_index_array(mask_da: xr.DataArray) -> np.ndarray:
+def _as_index_array(mask_da: xra.DataArray) -> np.ndarray:
     """Return an (N, 3) array of integer cell indices for *True* (SFR active) cells."""
     # Ensure we have 3 dimensions to cover (L, R, C)
     ndim = mask_da.ndim
@@ -56,7 +54,7 @@ def _as_index_array(mask_da: xr.DataArray) -> np.ndarray:
     return coords.astype(int)
 
 
-def _build_SFR_tree(A_SFR_Atv: xr.DataArray) -> tuple[KDTree, np.ndarray]:
+def _build_SFR_tree(A_SFR_Atv: xra.DataArray) -> tuple[KDTree, np.ndarray]:
     """Return KDTree built on indices of SFR-active cells."""
     SFR_i = _as_index_array(A_SFR_Atv.astype(bool))
     if SFR_i.size == 0:
@@ -66,8 +64,8 @@ def _build_SFR_tree(A_SFR_Atv: xr.DataArray) -> tuple[KDTree, np.ndarray]:
 
 
 def match_cells_to_SFR(
-    A_SFR_Atv: xr.DataArray,
-    A_DRN_Atv: xr.DataArray | None = None,
+    A_SFR_Atv: xra.DataArray,
+    A_DRN_Atv: xra.DataArray | None = None,
     *,
     return_DF: bool = True,
 ):
@@ -88,13 +86,13 @@ def match_cells_to_SFR(
 
     Returns
     -------
-    pandas.DataFrame | xr.DataArray
+    pandas.DataFrame | xra.DataArray
         Mapping of target cells to nearest SFR cells.
     """
     tree, SFR_i = _build_SFR_tree(A_SFR_Atv)  # Build KD-tree from SFR-active cells
 
     Tgt_mask = (
-        A_DRN_Atv.astype(bool) if A_DRN_Atv is not None else xr.ones_like(A_SFR_Atv, dtype=bool)
+        A_DRN_Atv.astype(bool) if A_DRN_Atv is not None else xra.ones_like(A_SFR_Atv, dtype=bool)
     )  # Create target mask
     Tgt_i = _as_index_array(Tgt_mask)  #
 
@@ -127,7 +125,7 @@ def match_cells_to_SFR(
     for t, s in zip(Tgt_i, nearest_i, strict=True):
         matched[tuple(t[1:])] = tuple(s)  # ignore L in target index for 2‑D grids
 
-    DA = xr.DataArray(
+    DA = xra.DataArray(
         matched,
         dims=A_SFR_Atv.dims,
         coords=A_SFR_Atv.coords,
@@ -139,12 +137,12 @@ def match_cells_to_SFR(
 if __name__ == '__main__':  # pragma: no cover
     # Very small self-test
     nz, ny, nx = 1, 5, 5
-    A_SFR_Atv = xr.DataArray(
+    A_SFR_Atv = xra.DataArray(
         np.random.randint(0, 2, size=(ny, nx)),
         dims=('R', 'C'),
     )
 
-    A_DRN_Atv = xr.DataArray(
+    A_DRN_Atv = xra.DataArray(
         np.random.randint(0, 2, size=(ny, nx)),
         dims=('R', 'C'),
     )

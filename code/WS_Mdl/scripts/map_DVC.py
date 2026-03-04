@@ -1,50 +1,45 @@
 #!/usr/bin/env python
 
-import os
-from os import listdir as LD, makedirs as MDs
-from os.path import join as PJ, basename as PBN, dirname as PDN, exists as PE
+from pathlib import Path
+
 import yaml
 
 
 def main():
+    base = Path('.')
     paths = set()
 
-    for root, dirs, files in os.walk('.', topdown=True):
-        for file in files:
-            if file.endswith('.dvc'):
-                with open(PJ(root, file), 'r') as f:
-                    meta = yaml.safe_load(f)
-                    for out in meta.get('outs', []):
-                        full_path = os.path.normpath(PJ(root, out['path']))
-                        rel_path = os.path.relpath(full_path, start='.')
-                        paths.add(rel_path)
+    for dvc_file in base.rglob('*.dvc'):
+        with dvc_file.open('r') as f:
+            meta = yaml.safe_load(f)
+            for out in meta.get('outs', []):
+                rel_path = (dvc_file.parent / out['path']).resolve(strict=False).relative_to(base.resolve())
+                paths.add(rel_path)
 
-    for root, dirs, files in os.walk('.', topdown=True):
-        if 'dvc.yaml' in files:
-            with open(PJ(root, 'dvc.yaml')) as f:
-                meta = yaml.safe_load(f)
-                for stage in meta.get('stages', {}).values():
-                    for out in stage.get('outs', []):
-                        if isinstance(out, dict):
-                            full_path = os.path.normpath(PJ(root, out['path']))
-                            rel_path = os.path.relpath(full_path, start='.')
-                            paths.add(rel_path)
-                        else:
-                            paths.add(out)
+    for dvc_yaml in base.rglob('dvc.yaml'):
+        with dvc_yaml.open() as f:
+            meta = yaml.safe_load(f)
+            for stage in meta.get('stages', {}).values():
+                for out in stage.get('outs', []):
+                    if isinstance(out, dict):
+                        rel_path = (dvc_yaml.parent / out['path']).resolve(strict=False).relative_to(base.resolve())
+                        paths.add(rel_path)
+                    else:
+                        paths.add(Path(out))
 
     collapsed = set()
     for path in paths:
-        parts = os.path.normpath(path).split(os.sep)
+        parts = path.parts
 
-        if os.path.isfile(path) or '.' in parts[-1]:  # likely a file
+        if path.is_file() or '.' in path.name:  # likely a file
             collapsed.add(path)
         elif len(parts) >= 2:
-            collapsed.add(PJ(parts[0], parts[1]))
+            collapsed.add(Path(parts[0]) / parts[1])
         elif parts:
-            collapsed.add(parts[0])
+            collapsed.add(Path(parts[0]))
 
-    for path in sorted(collapsed):
-        print(path.replace(os.sep, '/'))
+    for path in sorted(collapsed, key=lambda p: p.as_posix()):
+        print(path.as_posix())
 
 
 if __name__ == '__main__':

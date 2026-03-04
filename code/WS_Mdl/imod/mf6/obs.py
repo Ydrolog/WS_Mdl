@@ -5,7 +5,7 @@ def add(MdlN: str, Opt: str = 'BEGIN OPTIONS\nEND OPTIONS', iMOD5=False):
     for iMOD5 option check WS_Mdl.utils.MdlN_Pa() description.
     """
 
-    sprint(pre_Sign)
+    sprint(Sep)
     sprint('Running add_OBS ...')
     d_Pa = MdlN_Pa(MdlN, iMOD5=iMOD5)  # Get default directories
     Pa_MdlN, Pa_INI, Pa_PRJ = (
@@ -80,4 +80,4 @@ def add(MdlN: str, Opt: str = 'BEGIN OPTIONS\nEND OPTIONS', iMOD5=False):
             os.fsync(f.fileno())  # ensure it’s on disk
             # lock is released automatically when the with-block closes
         sprint(f'🟢 - {Pa_OBS} has been added successfully!')
-    sprint(post_Sign)
+    sprint(Sep)

@@ -6,9 +6,11 @@ _MdlN_pattern = re.compile(r'^(?P<alias>[A-Za-z]+)(?P<N>\d+)$')
 
 
 @dataclass(frozen=True, slots=True)
-class MdlN:
+class Mdl_N:
     """
-    Class representing a Model Number (MdlN) with an alias and a numeric component. Provides properties to access:
+    Class representing a Model Number (MdlN) with an alias and a numeric component.
+    It's spelled as Mdl_N to avoid confict with MdlN argument used in most other functions.
+    Provides properties to access:
      - related paths
      - INI file content
      - dimensions
@@ -27,24 +29,28 @@ class MdlN:
 
     @property
     def Pa(self):
+        """Returns a dictionary of paths related to the model number. But also makes them accessible as attributes."""
         from WS_Mdl.core.path import MdlN_PaView
 
         return MdlN_PaView(self.MdlN)
 
     @property
     def INI(self):
+        """Returns the content of the INI file as a dictionary."""
         from WS_Mdl.imod.ini import INIView
 
         return INIView(self.Pa.Pa_INI)
 
     @property
     def Dmns(self):
+        """Returns the model dimensions as a tuple (Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C)."""
         from WS_Mdl.imod.ini import Mdl_Dmns
 
         return Mdl_Dmns(self.Pa.P_INI)
 
     @property
     def V(self):
+        """Returns the iMOD version of the model."""
         from WS_Mdl.core.path import imod_V
 
         return imod_V(self.MdlN)

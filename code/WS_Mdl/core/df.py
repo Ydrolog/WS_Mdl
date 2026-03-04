@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 from WS_Mdl.core.style import set_verbose, sprint
-from WS_Mdl.io.ini import Mdl_Dmns
+from WS_Mdl.imod.ini import Mdl_Dmns
 
 
 @pd.api.extensions.register_dataframe_accessor('ws')

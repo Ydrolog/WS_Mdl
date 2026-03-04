@@ -154,5 +154,23 @@ class MdlN_PaView:
     def __getitem__(self, key: str):
         return self._d[key]
 
+    def get(self, key: str, default=None):
+        return self._d.get(key, default)
+
     def keys(self):
         return self._d.keys()
+
+    def items(self):
+        return self._d.items()
+
+    def values(self):
+        return self._d.values()
+
+    def __iter__(self):
+        return iter(self._d)
+
+    def __len__(self):
+        return len(self._d)
+
+    def __contains__(self, key: str):
+        return key in self._d

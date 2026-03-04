@@ -1,6 +1,6 @@
 import WS_Mdl.utils as U
 
-print(U.pre_Sign)
+print(U.Sep)
 
 l_F = ['software/iMOD5']
 
@@ -11,4 +11,4 @@ S = U.iB_session()
 for f in l_F:
     U.iB_Upl(f, S)  # , overwrite=False)
 
-print(U.post_Sign)
+print(U.Sep)

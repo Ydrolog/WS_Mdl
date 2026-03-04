@@ -2,8 +2,8 @@
 import os
 import re
 from datetime import datetime as DT
-from os.path import basename as PBN
-from os.path import join as PJ
+ import basename as PBN
+ import join as PJ
 
 import imod
 import pandas as pd
@@ -46,13 +46,13 @@ def SFR_stage_TS(
 
     print(' -- Loading PRJ data ... ', end='')
     d_Pa = MdlN_Pa(MdlN)
-    d_INI = ini.r_as_d(d_Pa['INI'])
+    d_INI = ini.as_d(d_Pa['INI'])
     Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = ini.Mdl_Dmns(d_Pa['INI'])
     SP_date_1st = DT.strftime(DT.strptime(d_INI['SDATE'], '%Y%m%d'), '%Y-%m-%d')
     dx = dy = float(d_INI['CELLSIZE'])
 
     d_Pa_RIV = MdlN_Pa(MdlN_RIV)
-    d_INI_RIV = ini.r_as_d(d_Pa_RIV['INI'])
+    d_INI_RIV = ini.as_d(d_Pa_RIV['INI'])
     SP_date_1st_RIV = DT.strftime(DT.strptime(d_INI_RIV['SDATE'], '%Y%m%d'), '%Y-%m-%d')
 
     # Check that model dimensions are the same

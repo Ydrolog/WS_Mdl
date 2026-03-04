@@ -1,11 +1,11 @@
-import xarray as xr
+import xarray as xra
 from WS_Mdl.core.path import MdlN_Pa
 from WS_Mdl.core.style import sprint
 from WS_Mdl.imod.ini import Mdl_Dmns
 
 
 def clip_Mdl_Aa(
-    xr_data: xr.DataArray | xr.Dataset,
+    xr_data: xra.DataArray | xra.Dataset,
     MdlN: str = None,
     Pa_INI: str = None,
     l_L=None,
@@ -14,7 +14,7 @@ def clip_Mdl_Aa(
     x_dim: str = 'x',
     y_dim: str = 'y',
     L_dim: str = 'layer',
-) -> xr.DataArray | xr.Dataset:
+) -> xra.DataArray | xra.Dataset:
     """
     Clips an xarray DataArray or Dataset to the model area defined in an INI file, with optional layer subsetting.
 

@@ -2,7 +2,7 @@ import os
 
 import WS_Mdl.utils as U
 
-print(U.pre_Sign)
+print(U.Sep)
 
 Mdl = 'NBr'
 
@@ -43,4 +43,4 @@ S = U.iB_session()
 for f in l_Fo:
     U.iB_Upl(f, S)  # , overwrite=False)
 
-print(U.post_Sign)
+print(U.Sep)

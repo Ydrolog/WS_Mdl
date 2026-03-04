@@ -4,11 +4,11 @@ from WS_Mdl.core.path import MdlN_Pa
 from WS_Mdl.core.style import sprint
 
 
-def r_as_d(Pa_INI: Path | str) -> dict:
+def as_d(Pa_INI: Path | str) -> dict:
     """
     Reads INI file (used for preparing the model) and converts it to a dictionary. Keys are converted to upper-case.
     Common use:
-    d_INI = r_as_d(Pa_INI)
+    d_INI = as_d(Pa_INI)
     Xmin, Ymin, Xmax, Ymax = [float(i) for i in d_INI['WINDOW'].split(',')]
     cellsize = float(d_INI['CELLSIZE'])
     N_R, N_C = int( - (Ymin - Ymax) / cellsize ), int( (Xmax - Xmin) / cellsize )
@@ -32,7 +32,7 @@ class INIView:
 
     def __init__(self, Pa_INI):
         self._path = Path(Pa_INI)
-        self._d = r_as_d(self._path)
+        self._d = as_d(self._path)
 
     def __getattr__(self, name: str):
         try:
@@ -48,7 +48,7 @@ class INIView:
 
 
 def Mdl_Dmns(Pa_INI):
-    d = r_as_d(Pa_INI)
+    d = as_d(Pa_INI)
 
     Xmin, Ymin, Xmax, Ymax = map(float, d['WINDOW'].split(','))
     cellsize = float(d['CELLSIZE'])

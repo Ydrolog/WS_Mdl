@@ -1,11 +1,5 @@
-# ***** Calculations *****
 import numpy as np
 from sklearn.metrics import mean_squared_error
-
-
-def c_Dist(x1, y1, x2, y2):
-    """Calculate the Euclidean distance between two points."""
-    return np.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
 
 class Vld_Mtc:
@@ -16,11 +10,13 @@ class Vld_Mtc:
         'Correlation': lambda obs, sim: np.corrcoef(obs, sim)[0, 1],  # Pearson correlation coefficient
         'Bias Ratio': lambda obs, sim: np.mean(sim) / np.mean(obs),  # β = mean(sim) / mean(obs)
         'Variability Ratio': lambda obs, sim: (np.std(sim) / np.mean(sim)) / (np.std(obs) / np.mean(obs)),  # γ'
-        'KGE': lambda obs, sim: 1
-        - np.sqrt(
-            (np.corrcoef(obs, sim)[0, 1] - 1) ** 2
-            + (np.mean(sim) / np.mean(obs) - 1) ** 2
-            + ((np.std(sim) / np.mean(sim)) / (np.std(obs) / np.mean(obs)) - 1) ** 2
+        'KGE': lambda obs, sim: (
+            1
+            - np.sqrt(
+                (np.corrcoef(obs, sim)[0, 1] - 1) ** 2
+                + (np.mean(sim) / np.mean(obs) - 1) ** 2
+                + ((np.std(sim) / np.mean(sim)) / (np.std(obs) / np.mean(obs)) - 1) ** 2
+            )
         ),  # Kling-Gupta Efficiency (KGE')
     }
 

@@ -1,6 +1,5 @@
 from pathlib import Path
 
-import xarray as xr
 from tqdm import tqdm
 from WS_Mdl import imod
 
@@ -35,7 +34,7 @@ def to_XA(DF_meteo, Par, Pa_PRJ, Xmin=None, Ymin=None, Xmax=None, Ymax=None):
         # This keeps 'time' as a single dimension instead of MultiIndex (year, day)
         # We use 'DT' column which we prepared earlier
         times = DF_meteo['DT'].values
-        A_P = xr.concat(l_da, dim='time')
+        A_P = xra.concat(l_da, dim='time')
         A_P = A_P.assign_coords(time=times)
     else:
         print('No data loaded.')

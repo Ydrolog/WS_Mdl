@@ -1,16 +1,20 @@
-# import importlib as IL
 import math
 import os
+import re
 import tempfile
-from os.path import join as PJ
 from pathlib import Path
 
+import geopandas as gpd
 import imod
 import numpy as np
 import pandas as pd
+from WS_Mdl.core.defaults import crs
 from WS_Mdl.core.path import MdlN_Pa, Pa_WS
-from WS_Mdl.core.style import sprint
-from WS_Mdl.imod.ini import CeCes
+from WS_Mdl.core.style import Sep, sprint
+from WS_Mdl.imod.ini import CeCes, Mdl_Dmns
+from WS_Mdl.xr.convert import to_MBTIF, to_TIF
+
+# import importlib as IL
 
 
 def r_with_OBS(
@@ -109,7 +113,7 @@ def PRJ_to_DF(MdlN):
     d_Pa = MdlN_Pa(MdlN)
 
     Mdl = ''.join([c for c in MdlN if not c.isdigit()])
-    Pa_AppData = os.path.normpath(PJ(os.getenv('APPDATA'), '../'))
+    Pa_AppData = os.path.normpath(Path(os.getenv('APPDATA')) / '../')
     t_Pa_replace = (
         Pa_AppData,
         Pa_WS / 'models' / Mdl,
@@ -331,3 +335,272 @@ def regrid_DA(DA, x_CeCes, y_CeCes, dx, dy, item_name, method='linear'):
     except Exception as e:
         sprint(f'  {item_name}: 🔴 - Regridding failed ({e}) - keeping original')
         return DA
+
+
+def PRJ_to_TIF(MdlN, iMOD5=False):
+    """Converts PRJ file to TIF (multiband if necessary) files by package (only time independent packages).
+    The function uses a DF produced by PRJ_to_DF. It needs to follow a specific format.
+    Also creates a .csv file with the TIF file paths to be replaced in the QGIS project."""
+
+    # -------------------- Initiate ----------------------------------------------
+    d_Pa = MdlN_Pa(MdlN, iMOD5=iMOD5)  # Get paths
+    Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = Mdl_Dmns(d_Pa['INI'])  # Get dimensions
+
+    DF = PRJ_to_DF(MdlN)  # Read PRJ file to DF
+
+    # -------------------- Process time-indepenent packages (most) ---------------
+    sprint('\n --- Converting time-independant package IDF files to TIF ---')
+    DF_Rgu = DF[
+        (DF['time'].isna())  # Only keep regular (time independent) packages
+        & (DF['path'].notna())
+        & (DF['suffix'] == '.idf')
+    ]  # Non time packages have NaN in 'time' Fld. Failed packages have '-', so they'll also be excluded.
+
+    for i, Par in enumerate(DF_Rgu['parameter'].unique()[:]):  # Iterate over parameters
+        sprint(f'\t{i:<2}, {Par:<30} ... ', end='')
+
+        try:
+            DF_Par = DF_Rgu[DF_Rgu['parameter'] == Par]  # Slice DF_Rgu for current parameter.
+            DF_Par = DF_Par.drop_duplicates(
+                subset='path', keep='first'
+            )  # Drop duplicates, keep the first one. imod.formats.idf.open will do that with the list of paths anyway, so the only way to match the paths to the correct metadata is to have only one path per metadata.
+            if DF_Par['package'].nunique() > 1:
+                sprint('There are multiple packages for the same parameter. Check DF_Rg')
+                break
+            else:
+                Pkg = DF_Par['package'].iloc[0]  # Get the package name
+
+            ## Prepare directoreis and filenames
+            Mdl = ''.join([c for c in MdlN if not c.isdigit()])
+            Pkg_MdlN = Mdl + str(DF_Par['MdlN'].str.extract(r'(\d+)').astype(int).max().values[0])
+            Pa_TIF = (
+                d_Pa['Pa_Mdl'] / 'PoP' / 'In' / Pkg / Pkg_MdlN / f'{Pkg}_{Par}_{Pkg_MdlN}.tif'
+            )  # Full path to TIF file
+
+            ## Build a dictionary mapping each band’s name to its row’s metadata. We're assuming that the order the paths are read into DA is the same as the order in DF_Par.
+            d_MtDt = {}
+
+            if os.path.exists(Pa_TIF):
+                sprint(f'🔴 - {Pa_TIF.name} already exists. Skipping.')
+                continue
+            else:
+                Pa_TIF.parent.mkdir(parents=True, exist_ok=True)  # Make sure the directory exists
+
+                ## Read files-paths to xarray Data Array (DA), then write them to TIF file(s).
+                if DF_Par.shape[0] > 1:  # If there are multiple paths for the same parameter
+                    for i, R in DF_Par.iterrows():
+                        d_MtDt[f'{R["parameter"]}_L{R["layer"]}_{R["MdlN"]}'] = {
+                            ('origin_path' if col == 'path' else col): str(val) for col, val in R.items()
+                        }
+                    DA = imod.formats.idf.open(list(DF_Par['path']), pattern='{name}_L{layer}_').sel(
+                        x=slice(Xmin, Xmax), y=slice(Ymax, Ymin)
+                    )
+                    to_MBTIF(DA, Pa_TIF, d_MtDt)
+                    sprint('🟢 - multi-band')
+                else:
+                    try:
+                        DA = imod.formats.idf.open(list(DF_Par['path']), pattern='{name}_L{layer}_').sel(
+                            x=slice(Xmin, Xmax), y=slice(Ymax, Ymin)
+                        )
+                        d_MtDt[
+                            f'{DF_Par["parameter"].values[0]}_L{DF_Par["layer"].values[0]}_{DF_Par["MdlN"].values[0]}'
+                        ] = {('origin_path' if col == 'path' else col): str(val) for col, val in R.items()}
+                        to_TIF(
+                            DA.squeeze(drop=True), Pa_TIF, d_MtDt
+                        )  # .squeeze cause 2D arrays have extra dimension with size 1 sometimes.
+                        sprint('🟢 - single-band with L attribute')
+                    except:
+                        DA = imod.formats.idf.open(list(DF_Par['path']), pattern='{name}_').sel(
+                            x=slice(Xmin, Xmax), y=slice(Ymax, Ymin)
+                        )
+                        d_MtDt[f'{DF_Par["parameter"].values[0]}_{DF_Par["MdlN"].values[0]}'] = {
+                            ('origin_path' if col == 'path' else col): str(val) for col, val in R.items()
+                        }
+                        to_TIF(
+                            DA.squeeze(drop=True), Pa_TIF, d_MtDt
+                        )  # .squeeze cause 2D arrays have extra dimension with size 1 sometimes.
+                        sprint('🟢 - single-band without L attribute')
+        except Exception as e:
+            print(f'🔴 - Error: {e}')
+
+    # ------------- Process time-dependent packages (RIV, DRN, WEL) ---------------------
+    ## RIV & DRN
+    sprint('\n --- Converting time dependant packages ---')
+    DF_time = DF[
+        (DF['time'].notna()) & (DF['time'] != '-') & (DF['path'].notna())
+    ]  # Non time packages have NaN in 'time' Fld. Failed packages have '-', so they'll also be excluded.
+
+    for i, R in DF_time[DF_time['package'].isin(('DRN', 'RIV'))].iterrows():
+        sprint(f'\t{f"{R['package']}_{R['parameter']}":<30} ... ', end='')
+
+        Pa_TIF = (
+            d_Pa['Pa_Mdl']
+            / 'PoP'
+            / 'In'
+            / R['package']
+            / R['MdlN']
+            / re.sub(r'\.idf$', '.tif', R['path'], flags=re.IGNORECASE).name
+        )  # Full path to TIF file
+
+        if os.path.exists(Pa_TIF):
+            print(f'🔴 - {Pa_TIF.name} already exists. Skipping.')
+            continue
+        else:
+            try:
+                Pa_TIF.parent.mkdir(parents=True, exist_ok=True)  # Make sure the directory exists
+
+                ## Build a dictionary mapping each band’s name to its row’s metadata.
+                d_MtDt = {
+                    f'{R["parameter"]}_L{R["layer"]}_{R["MdlN"]}': {
+                        ('origin_path' if col == 'path' else col): str(val) for col, val in R.items()
+                    }
+                }
+
+                DA = imod.formats.idf.open(R['path'], pattern=f'{{name}}_{Mdl}').sel(
+                    x=slice(Xmin, Xmax), y=slice(Ymax, Ymin)
+                )
+                to_TIF(
+                    DA.squeeze(drop=True), Pa_TIF, d_MtDt
+                )  # .squeeze cause 2D arrays have extra dimension with size 1 sometimes.
+                sprint('🟢 - IDF converted to TIF - single-band without L attribute')
+            except Exception as e:
+                print(f'🔴 - Error: {e}')
+
+    ## WEL
+    DF_WEL = DF.loc[DF['package'] == 'WEL']
+
+    for i, R in DF_WEL.iloc[3:6].iterrows():
+        sprint(f'\t{R["path"].name:<30} ... ', end='')
+
+        Pa_GPKG = (
+            d_Pa['Pa_Mdl']
+            / 'PoP'
+            / 'In'
+            / R['package']
+            / R['MdlN']
+            / re.sub(r'\.ipf$', '.gpkg', R['path'], flags=re.IGNORECASE).name
+        )  # Full path to TIF file
+
+        if os.path.exists(Pa_GPKG):
+            print(f'🔴 - file {Pa_GPKG.name} exists. Skipping.')
+            continue
+        else:
+            try:
+                DF_IPF = imod.formats.ipf.read(R['path'])
+                DF_IPF = DF_IPF.loc[
+                    ((DF_IPF['x'] > Xmin) & (DF_IPF['x'] < Xmax)) & ((DF_IPF['y'] > Ymin) & (DF_IPF['y'] < Ymax))
+                ].copy()  # Slice to OBS within the Mdl Aa
+
+                if ('q_m3' in DF_IPF.columns) and ('id' not in DF_IPF.columns):
+                    DF_IPF.rename(
+                        columns={'q_m3': 'id'}, inplace=True
+                    )  # One of the IPF files has q_m3 instead of id in it's fields. Don't ask me why, but it has to be dealt with.
+
+                # 666 I'll only save the average flow now
+                DF_IPF_AVG = DF_IPF.groupby('id')[DF_IPF.select_dtypes(include=np.number).columns].agg(np.mean)
+                _GDF_AVG = gpd.GeoDataFrame(
+                    DF_IPF_AVG, geometry=gpd.points_from_xy(DF_IPF_AVG['x'], DF_IPF_AVG['y'])
+                ).set_crs(crs=crs)
+
+                Pa_GPKG.parent.mkdir(parents=True, exist_ok=True)  # Make sure the directory exists
+                _GDF_AVG.to_file(Pa_GPKG, driver='GPKG')  # , layer=PBN(Pa_GPKG))
+                sprint('🟢 - IPF average values (per id) converted to GPKG')
+            except:
+                sprint('🔴')
+    # -------------------- Process derived packages/parameters (Thk, T) -----------------
+    d_Clc_In = {}  # Dictionary to store calculated inputs.
+
+    ## Thk. TOP and BOT files have been QA'd in C:\OD\WS_Mdl\code\PrP\Mdl_In_to_MM\Mdl_In_to_MM.ipynb
+    sprint(' --- Converting calculated inputs to TIF ---')
+
+    toP = imod.formats.idf.open(list(DF_Rgu[DF_Rgu['parameter'] == 'top']['path']), pattern='{name}_L{layer}_').sel(
+        x=slice(Xmin, Xmax), y=slice(Ymax, Ymin)
+    )
+    DA_BOT = imod.formats.idf.open(
+        list(DF_Rgu[DF_Rgu['parameter'] == 'bottom']['path']), pattern='{name}_L{layer}_'
+    ).sel(x=slice(Xmin, Xmax), y=slice(Ymax, Ymin))
+    DA_Kh = imod.formats.idf.open(list(DF_Rgu[DF_Rgu['parameter'] == 'kh']['path']), pattern='{name}_L{layer}_').sel(
+        x=slice(Xmin, Xmax), y=slice(Ymax, Ymin)
+    )
+
+    DA_Thk = (toP - DA_BOT).squeeze(drop=True)  # Let's make a dictionary to store Info about each parameter
+    MdlN_Pkg = Mdl + str(
+        max(DF_Rgu.loc[DF_Rgu['package'].isin(['TOP', 'BOT']), 'MdlN'].str.extract(r'(\d+)')[0])
+    )  # 666 the largest number from the TOP and BOT MdlNs
+    d_Clc_In['Thk'] = {
+        'Par': 'thickness',
+        'DA': DA_Thk,
+        'MdlN_Pkg': MdlN_Pkg,
+        'MtDt': {
+            **{
+                f'thickness_L{i + 1}_{MdlN_Pkg}': {'layer': f'L{i + 1}'} for i in range(DA_Thk.shape[0])
+            },  # Per-layer metadata
+            'all': {
+                'description': "Layer thickness calculated as 'top - bottom' per layer.",
+                'source_files': f"""{'-' * 200}\nTOP: {' ' * 30} {' | | '.join(DF_Rgu.loc[DF_Rgu['package'] == 'TOP', 'path'])}        {'-' * 200}\nBOT: {' ' * 30} {' | | '.join(DF_Rgu.loc[DF_Rgu['package'] == 'BOT', 'path'])} """,
+            },
+        },
+    }
+    ## T
+    DA_T = DA_Thk * DA_Kh
+    MdlN_Pkg = Mdl + str(
+        max(DF_Rgu.loc[DF_Rgu['package'].isin(['TOP', 'BOT', 'NPF']), 'MdlN'].str.extract(r'(\d+)')[0])
+    )  # the largest number from the TOP and BOT MdlNs
+    d_Clc_In['T'] = {
+        'Par': 'transmissivity',
+        'DA': DA_T,
+        'MdlN_Pkg': MdlN_Pkg,
+        'MtDt': {
+            **{
+                f'transmissivity_L{i + 1}_{MdlN_Pkg}': {'layer': f'L{i + 1}'} for i in range(DA_Thk.shape[0])
+            },  # Per-layer metadata
+            'all': {
+                'description': "Layer transmissivity (horizontal) calculated as '(top - bottom)*Kh' per layer.",
+                'source_files': f"""{'-' * 200}TOP: {' ' * 30} {' | | '.join(DF_Rgu.loc[DF_Rgu['package'] == 'TOP', 'path'])} 
+                    {'-' * 200}BOT: {' ' * 30} {' | | '.join(DF_Rgu.loc[DF_Rgu['package'] == 'BOT', 'path'])}
+                    {'-' * 200}NPF: {' ' * 30} {' | | '.join(DF_Rgu.loc[DF_Rgu['package'] == 'NPF', 'path'])}""",
+            },
+        },
+    }
+
+    for i, Par in enumerate(d_Clc_In.keys()):
+        sprint(f'\t{d_Clc_In[Par]["Par"]:<30} ... ', end='')
+
+        Pa_TIF = (
+            d_Pa['Pa_Mdl']
+            / 'PoP'
+            / 'Clc_In'
+            / Par
+            / d_Clc_In[Par]['MdlN_Pkg']
+            / f'{Par}_{d_Clc_In[Par]["MdlN_Pkg"]}.tif'
+        )  # Full path to TIF file #666 need to think which MdlN to use. It's hard to do the same as with the other packages.
+
+        if Pa_TIF.exists():
+            print(f'🔴 - {Pa_TIF.name} already exists. Skipping.')
+            continue
+        else:
+            try:
+                Pa_TIF.parent.mkdir(parents=True, exist_ok=True)  # Make sure the directory exists
+
+                ## Write DAs to TIF files.
+                DA = d_Clc_In[Par]['DA'].squeeze(drop=True)
+                d_MtDt = d_Clc_In[Par]['MtDt']
+
+                if not DA.rio.crs:  # Ensure DA_Thk has a CRS (if missing, set it)
+                    DA.rio.write_crs(crs, inplace=True)  # Replace with correct CRS
+
+                match len(DA.shape):
+                    case 3:
+                        to_MBTIF(DA, Pa_TIF, d_MtDt)  # If there are multiple paths for the same parameter
+                        sprint('🟢 - multi-band')
+                    case 2:
+                        to_TIF(
+                            DA.squeeze(drop=True), Pa_TIF, d_MtDt
+                        )  # .squeeze cause 2D arrays have extra dimension with size 1 sometimes.
+                        sprint('🟢 - single-band')
+                    case _:
+                        raise ValueError(f'Unexpected array rank: {DA.ndim}')
+
+            except Exception as e:
+                print(f'🔴 - Error: {e}')
+    sprint(Sep)

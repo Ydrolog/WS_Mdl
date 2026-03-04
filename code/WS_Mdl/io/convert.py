@@ -3,6 +3,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from WS_Mdl.core.style import Sep, sprint
 
 
 def Bin_to_text(bin_path):
@@ -112,3 +113,87 @@ def Bin_to_text(bin_path):
         print(f'   Error reading Fortran format: {e}')
 
     print('\n🔴🔴🔴 - Failed to automatically convert. The file format might differ from (L,R,C,Stage,Cond,Rbot).')
+
+
+def Vtr_to_TIF(Pa_Vtr, Fld, Pa_TIF, MdlN=None, crs=None, SigDig=4):
+    """
+    Converts a vector file to a single-band TIF file.
+    - MdlN: Model number (e.g. 'NBr13').
+    - Pa_Vtr: Path to the vector file.
+    - Pa_TIF: Path to the output TIF file.
+    - crs: Coordinate Reference System for the output TIF.
+    - SigDig: Number of significant digits to round to (default 4).
+    """
+    sprint(Sep)
+
+    # importing here to keep Bin_to_text (only other function in this module ATM) lightweight.
+    import geopandas as gpd
+    import imod
+    import xarray as xra
+    from WS_Mdl.core.df import round_Cols
+    from WS_Mdl.core.path import MdlN_Pa
+    from WS_Mdl.imod.ini import Mdl_Dmns
+    from WS_Mdl.xr.convert import to_TIF
+
+    if crs is None:
+        from WS_Mdl.core.defaults import crs
+
+    if not MdlN:
+        try:
+            MdlN = Path(Pa_Vtr).stem.split('_')[-1]
+        except Exception as e:
+            raise ValueError(f'🔴 - Could not determine MdlN from Pa_Vtr ({e}). Provide MdlN explicitly.')
+    sprint(f'*** {MdlN} *** - Vtr_to_TIF\n')
+
+    # Load V file
+    GDF = gpd.read_file(Pa_Vtr, columns=[Fld])
+    sprint(f'🟢 - Loaded vector file from {Pa_Vtr.name}')
+
+    # Prepare metadata
+    d_MtDt = {
+        f'V_{MdlN}': {
+            'AVG': float(GDF[Fld].mean()),
+            'variable': f'{Fld}',
+            'details': f'{MdlN} vector file converted to TIF via Vtr_to_TIF function.',
+        }
+    }
+
+    # Rasterize
+    try:
+        # Get dimensions from INI
+        d_Pa = MdlN_Pa(MdlN)
+        Pa_INI = d_Pa['INI']
+        Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = Mdl_Dmns(Pa_INI)
+
+        x = np.arange(Xmin + cellsize / 2, Xmax, cellsize)
+        y = np.arange(Ymax - cellsize / 2, Ymin, -cellsize)
+
+        like = xra.DataArray(data=np.nan, coords={'y': y, 'x': x}, dims=('y', 'x'))
+        sprint(f'🟢 - Created template grid from {Pa_INI.name} with dimensions: {like.shape}')
+    except Exception as e:
+        raise ValueError(f'🔴 - Could not create grid from INI ({e}). Ensure MdlN is correct and INI file exists.')
+
+    GDF = round_Cols(GDF)
+    DA = imod.prepare.rasterize(GDF, like=like, column=Fld)
+
+    if SigDig:
+        sprint(f'🟢 - Rounding to {SigDig} significant digits.')
+        if not np.issubdtype(DA.dtype, np.floating):
+            DA = DA.astype(float)
+
+        vals = DA.values
+        valid = (vals != 0) & np.isfinite(vals)
+        if valid.any():
+            v = vals[valid]
+            magnitude = np.floor(np.log10(np.abs(v)))
+            factor = 10.0 ** (SigDig - magnitude - 1)
+            vals[valid] = np.rint(v * factor) / factor
+            DA.values = vals
+
+    # Cast to float32 to reduce file size and precision artifacts
+    DA = DA.astype('float32')
+
+    # Write to TIF
+    to_TIF(DA, Pa_TIF, d_MtDt, crs=crs)
+    sprint(f'🟢🟢🟢 - Saved vector to TIF at {Pa_TIF.name}')
+    sprint(Sep)

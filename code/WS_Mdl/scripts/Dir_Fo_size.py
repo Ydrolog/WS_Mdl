@@ -1,16 +1,27 @@
 #!/usr/bin/env python
-import os
-from os.path import join as PJ
+from pathlib import Path
 
 
 def get_folder_size(path):
     total = 0
-    for dirpath, _, filenames in os.walk(path):
-        for f in filenames:
+    stack = [Path(path)]
+
+    while stack:
+        current = stack.pop()
+        try:
+            entries = list(current.iterdir())
+        except (OSError, FileNotFoundError):
+            continue
+
+        for entry in entries:
             try:
-                total += os.path.getsize(PJ(dirpath, f))
+                if entry.is_dir() and not entry.is_symlink():
+                    stack.append(entry)
+                elif entry.is_file():
+                    total += entry.stat().st_size
             except (OSError, FileNotFoundError):
                 pass
+
     return total
 
 
@@ -21,12 +32,14 @@ def main(Dir=None, sort_by='size'):
             'Provide the directory for which to print all folder sizes. If you want the current directory, simply press Enter.\n'
         )
     if Dir == '':
-        Dir = os.getcwd()
+        Dir = Path.cwd()
+    else:
+        Dir = Path(Dir)
 
     sizes = {}
-    for entry in os.scandir(Dir):
+    for entry in Dir.iterdir():
         if entry.is_dir():
-            sizes[entry.name] = get_folder_size(entry.path)
+            sizes[entry.name] = get_folder_size(entry)
         elif entry.is_file():
             try:
                 sizes[entry.name] = entry.stat().st_size
