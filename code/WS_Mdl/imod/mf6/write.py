@@ -1,5 +1,8 @@
+from pathlib import Path
+
 from filelock import FileLock as FL
-from WS_Mdl.core.path import MdlN_Pa
+from WS_Mdl.core.mdl import Mdl_N
+from WS_Mdl.core.path import MdlN_PaView
 from WS_Mdl.core.style import sprint
 
 
@@ -12,6 +15,7 @@ def add_MVR_to_OPTIONS(Pa):
     Pa : str
         Path to the MODFLOW 6 input file
     """
+    Pa = Path(Pa)
     lock = FL(f'{Pa}.lock')
 
     with lock:  # Acquire lock before editing file
@@ -22,9 +26,9 @@ def add_MVR_to_OPTIONS(Pa):
             Lns[i] = '\tMOVER\nEND OPTIONS\n'
             with open(Pa, 'w') as f:
                 f.writelines(Lns)
-            sprint(f'🟢 - Added MOVER option to {Pa.name()}')
+            sprint(f'🟢 - Added MOVER option to {Pa.name}')
         except Exception as e:
-            print(f'🔴 - Error adding MOVER option to {Pa.name()}: {e}')
+            print(f'🔴 - Error adding MOVER option to {Pa.name}: {e}')
 
 
 def add_OBS_to_MF_In(str_OBS, PKG=None, MdlN=None, Pa=None, iMOD5=False):
@@ -33,10 +37,11 @@ def add_OBS_to_MF_In(str_OBS, PKG=None, MdlN=None, Pa=None, iMOD5=False):
     """
 
     if Pa is not None:
-        Pa = Pa
+        Pa = Path(Pa)
     elif (MdlN is not None) and (PKG is not None):
-        d_Pa = MdlN_Pa(MdlN, iMOD5=iMOD5)
-        Pa = d_Pa['Sim_In'] / f'{MdlN}.{PKG}6'
+        M = Mdl_N(MdlN)
+        Pa_view = M.Pa if iMOD5 == (M.V == 'imod5') else MdlN_PaView(MdlN, iMOD5=iMOD5)
+        Pa = Pa_view.Sim_In / f'{MdlN}.{PKG}6'
     else:
         raise ValueError('Either Pa or both MdlN and PKG must be provided.')
 

@@ -1,5 +1,5 @@
 import xarray as xra
-from WS_Mdl.core.path import MdlN_Pa
+from WS_Mdl.core.mdl import Mdl_N
 from WS_Mdl.core.style import sprint
 from WS_Mdl.imod.ini import Mdl_Dmns
 
@@ -54,8 +54,8 @@ def clip_Mdl_Aa(
     if Pa_INI is None:
         if MdlN is None:
             raise ValueError('Either MdlN or Pa_INI must be provided')
-        d_Pa = MdlN_Pa(MdlN)
-        Pa_INI = d_Pa['INI']
+        M = Mdl_N(MdlN)
+        Pa_INI = M.Pa.INI
 
     # Get model dimensions from INI file
     Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = Mdl_Dmns(Pa_INI)

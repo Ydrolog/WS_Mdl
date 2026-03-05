@@ -131,7 +131,7 @@ def Vtr_to_TIF(Pa_Vtr, Fld, Pa_TIF, MdlN=None, crs=None, SigDig=4):
     import imod
     import xarray as xra
     from WS_Mdl.core.df import round_Cols
-    from WS_Mdl.core.path import MdlN_Pa
+    from WS_Mdl.core.mdl import Mdl_N
     from WS_Mdl.imod.ini import Mdl_Dmns
     from WS_Mdl.xr.convert import to_TIF
 
@@ -161,8 +161,8 @@ def Vtr_to_TIF(Pa_Vtr, Fld, Pa_TIF, MdlN=None, crs=None, SigDig=4):
     # Rasterize
     try:
         # Get dimensions from INI
-        d_Pa = MdlN_Pa(MdlN)
-        Pa_INI = d_Pa['INI']
+        M = Mdl_N(MdlN)
+        Pa_INI = M.Pa.INI
         Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = Mdl_Dmns(Pa_INI)
 
         x = np.arange(Xmin + cellsize / 2, Xmax, cellsize)

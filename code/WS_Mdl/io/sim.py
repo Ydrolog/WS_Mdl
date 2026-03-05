@@ -11,19 +11,28 @@ import pandas as pd
 from colored import attr, fg
 from filelock import FileLock as FL
 from send2trash import send2trash
-from WS_Mdl.core.log import DF_match_MdlN, r_RunLog
-from WS_Mdl.core.path import MdlN_Pa, Pa_log_Cfg, Pa_log_Out, Pa_WS, get_Mdl
-from WS_Mdl.core.style import Sep, bold, dim, set_verbose, sprint, style_reset, warn
+from WS_Mdl.core.log import DF_match_MdlN, r_RunLog, to_Se
+from WS_Mdl.core.mdl import Mdl_N
+from WS_Mdl.core.path import MdlN_PaView, Pa_log_Cfg, Pa_log_Out, Pa_WS
+from WS_Mdl.core.style import Sep, bold, dim, sprint, style_reset, warn
 
 
 def S_from_B(MdlN: str, iMOD5=False):
     """Copies files that contain Sim options from the B Sim, renames them for the S Sim, and opens them in the default file editor. Assumes default WS_Mdl folder structure (as described in READ_ME.MD)."""
 
     sprint(Sep)
-    d_Pa = MdlN_Pa(MdlN, MdlN_B=True, iMOD5=iMOD5)  # Get default directories
-    MdlN_B, Pa_INI_B, Pa_INI, Pa_BAT_B, Pa_BAT, Pa_Smk, Pa_Smk_B, Pa_PRJ_B, Pa_PRJ = (
-        d_Pa[k] for k in ['MdlN_B', 'INI_B', 'INI', 'BAT_B', 'BAT', 'Smk', 'Smk_B', 'PRJ_B', 'PRJ']
-    )  # and pass them to objects that will be used in the function
+    M = Mdl_N(MdlN)
+    MdlN_B = to_Se(MdlN)['B MdlN']
+    M_B = Mdl_N(MdlN_B)
+
+    # Keep explicit iMOD5 override behavior while defaulting to model-native paths.
+    Pa = M.Pa if iMOD5 == (M.V == 'imod5') else MdlN_PaView(MdlN, iMOD5=iMOD5)
+    Pa_B = M_B.Pa if iMOD5 == (M_B.V == 'imod5') else MdlN_PaView(MdlN_B, iMOD5=iMOD5)
+
+    Pa_INI_B, Pa_INI = Pa_B.INI, Pa.INI
+    Pa_BAT_B, Pa_BAT = Pa_B.BAT, Pa.BAT
+    Pa_Smk_B, Pa_Smk = Pa_B.Smk, Pa.Smk
+    Pa_PRJ_B, Pa_PRJ = Pa_B.PRJ, Pa.PRJ
 
     # Copy .INI, .bat, .prj and make default (those apply to every Sim) modifications
     for Pa_B, Pa_S in zip([Pa_Smk_B, Pa_BAT_B, Pa_INI_B], [Pa_Smk, Pa_BAT, Pa_INI]):
@@ -34,28 +43,26 @@ def S_from_B(MdlN: str, iMOD5=False):
                     contents = f1.read()
                 with open(Pa_S, 'w') as f2:
                     f2.write(contents.replace(MdlN_B, MdlN))
-                if '.bat' not in Pa_B.lower():
+                if Pa_B.suffix.lower() != '.bat':
                     os.startfile(
                         Pa_S
                     )  # Then we'll open it to make any other changes we want to make. Except if it's the BAT file
-                sprint(f'🟢 - {Pa_S.split("/")[-1]} created successfully! {dim}(copy of {Pa_B}){style_reset}')
+                sprint(f'🟢 - {Pa_S.name} created successfully! {dim}(copy of {Pa_B}){style_reset}')
             else:
                 print(
-                    f'🟡 - {Pa_S.split("/")[-1]} already exists. If you want it to be replaced, you have to delete it manually before running this command.'
+                    f'🟡 - {Pa_S.name} already exists. If you want it to be replaced, you have to delete it manually before running this command.'
                 )
         except Exception as e:
             print(f'🔴 - Error copying {Pa_B} to {Pa_S}: {e}')
 
     try:
-        if not os.path.exists(
-            Pa_PRJ
-        ):  # For the PRJ file, there is no default text replacement to be performed, so we'll just copy.
+        if not Pa_PRJ.exists():  # For the PRJ file, there is no default text replacement to be performed.
             sh.copy2(Pa_PRJ_B, Pa_PRJ)
             os.startfile(Pa_PRJ)  # Then we'll open it to make any other changes we want to make.
-            sprint(f'🟢 - {Pa_PRJ.split("/")[-1]} created successfully! (from {Pa_PRJ_B})')
+            sprint(f'🟢 - {Pa_PRJ.name} created successfully! (from {Pa_PRJ_B})')
         else:
             print(
-                f'🟡 - {Pa_PRJ.split("/")[-1]} already exists. If you want it to be replaced, you have to delete it manually before running this command.'
+                f'🟡 - {Pa_PRJ.name} already exists. If you want it to be replaced, you have to delete it manually before running this command.'
             )
     except Exception as e:
         print(f'🔴 - Error copying {Pa_PRJ_B} to {Pa_PRJ}: {e}')
@@ -66,14 +73,8 @@ def S_from_B(MdlN: str, iMOD5=False):
 def S_from_B_undo(MdlN: str):
     """Will undo S_from_B by deletting S files"""
     sprint(Sep)
-
-    set_verbose(False)  # Suppress sprint from get_MdlN_paths
-    d_Pa = MdlN_Pa(MdlN)  # Get default directories
-    set_verbose(True)  # Re-enable sprint
-
-    MdlN_B, Pa_INI_B, Pa_INI, Pa_BAT_B, Pa_BAT, Pa_Smk, Pa_Smk_B, Pa_PRJ_B, Pa_PRJ = (
-        d_Pa[k] for k in ['MdlN_B', 'INI_B', 'INI', 'BAT_B', 'BAT', 'Smk', 'Smk_B', 'PRJ_B', 'PRJ']
-    )  # and pass them to objects that will be used in the function
+    M = Mdl_N(MdlN)
+    Pa_Smk, Pa_BAT, Pa_INI, Pa_PRJ = M.Pa.Smk, M.Pa.BAT, M.Pa.INI, M.Pa.PRJ
 
     confirm = (
         input(f'Are you sure you want to delete the Cfg files (.smk, .ini, .bat, .prj) for {MdlN}? (y/n): ')
@@ -82,15 +83,16 @@ def S_from_B_undo(MdlN: str):
     )
     if confirm == 'y':
         for Pa_S in [Pa_Smk, Pa_BAT, Pa_INI, Pa_PRJ]:
-            os.remove(Pa_S)  # Delete the S files
-            sprint(f'🟢 - {Pa_S.split("/")[-1]} deleted successfully!')
+            Pa_S.unlink()  # Delete the S files
+            sprint(f'🟢 - {Pa_S.name} deleted successfully!')
 
     sprint(Sep)
 
 
 def Up_log(MdlN: str, d_Up: dict, Pa_log_Out=Pa_log_Out):  # Pa_log_Out=PJ(Pa_WS, 'Mng/log.csv')):
     """Update log.csv based on MdlN and key of `updates`."""
-    Pa_lock = Pa_log_Out + '.lock'  # Create a lock file to prevent concurrent access
+    Pa_log_Out = Path(Pa_log_Out)
+    Pa_lock = Pa_log_Out.with_name(f'{Pa_log_Out.name}.lock')  # Create a lock file to prevent concurrent access
     lock = FL(Pa_lock)
 
     with lock:  # Acquire the lock to prevent concurrent access
@@ -253,23 +255,19 @@ def reset_Sim(MdlN: str, ask_permission: bool = True, Pa_log_Out=Pa_log_Out, per
         permission = 'y'
 
     if permission == 'y':
-        d_Pa = MdlN_Pa(MdlN)  # Get default directories
-        Pa_MdlN = os.path.normpath(d_Pa['Pa_MdlN'])
-        d_Pa['PoP_Out_MdlN'] = os.path.normpath(d_Pa['PoP_Out_MdlN'])
+        M = Mdl_N(MdlN)
+        Pa_MdlN = M.Pa.Pa_MdlN
         DF = pd.read_csv(Pa_log_Out)  # Read the log file
-        Pa_Smk_temp = os.path.normpath(d_Pa['Smk_temp'])
-        l_temp = [i for i in Pa_Smk_temp.iterdir() if MdlN.lower() in i.lower()]
+        Pa_Smk_temp = M.Pa.Smk_temp
+        l_temp = [p for p in Pa_Smk_temp.iterdir() if MdlN.lower() in p.name.lower()]
 
         if (
-            os.path.exists(Pa_MdlN)
-            or (MdlN.lower() in DF['MdlN'].str.lower().values)
-            or l_temp
-            or os.path.exists(d_Pa['PoP_Out_MdlN'])
+            Pa_MdlN.exists() or (MdlN.lower() in DF['MdlN'].str.lower().values) or l_temp or M.Pa.PoP_Out_MdlN.exists()
         ):  # Check if the Sim folder exists or if the MdlN is in the log file
             i = 0
 
             try:  # --- Remove Sim folder ---
-                if not os.path.exists(Pa_MdlN):
+                if not Pa_MdlN.exists():
                     raise FileNotFoundError(f'{Pa_MdlN} does not exist.')
                 if permanent_delete:
                     sp.run(f'rmdir /S /Q "{Pa_MdlN}"', shell=True)  # Permanently delete the entire Sim folder
@@ -293,11 +291,11 @@ def reset_Sim(MdlN: str, ask_permission: bool = True, Pa_log_Out=Pa_log_Out, per
 
             try:  # --- Remove temp Smk files ---
                 if l_temp:
-                    for j in l_temp:
+                    for Pa_temp in l_temp:
                         if permanent_delete:
-                            os.remove(Pa_Smk_temp / j)  # Permanently delete temp files
+                            Pa_temp.unlink()  # Permanently delete temp files
                         else:
-                            send2trash(Pa_Smk_temp / j)  # Move temp files to recycling bin
+                            send2trash(Pa_temp)  # Move temp files to recycling bin
                     action = 'permanently deleted' if permanent_delete else 'moved to recycling bin'
                     sprint(f'🟢 - Smk temp files {action} successfully.')
                     i += 1
@@ -308,15 +306,13 @@ def reset_Sim(MdlN: str, ask_permission: bool = True, Pa_log_Out=Pa_log_Out, per
                 sprint(f'🔴 - failed to {action} Smk temp files: {e}')
 
             try:  # --- Remove PoP folder ---
-                if not os.path.exists(d_Pa['PoP_Out_MdlN']):
-                    raise FileNotFoundError(f'{d_Pa["PoP_Out_MdlN"]} does not exist.')
+                if not M.Pa.PoP_Out_MdlN.exists():
+                    raise FileNotFoundError(f'{M.Pa.PoP_Out_MdlN} does not exist.')
                 if permanent_delete:
-                    sp.run(
-                        f'rmdir /S /Q "{d_Pa["PoP_Out_MdlN"]}"', shell=True
-                    )  # Permanently delete the entire PoP folder
+                    sp.run(f'rmdir /S /Q "{M.Pa.PoP_Out_MdlN}"', shell=True)  # Permanently delete the PoP folder
                     sprint('🟢 - PoP Out folder permanently deleted successfully.')
                 else:
-                    send2trash(d_Pa['PoP_Out_MdlN'])  # Move the entire PoP folder to recycling bin
+                    send2trash(M.Pa.PoP_Out_MdlN)  # Move the entire PoP folder to recycling bin
                     sprint('🟢 - PoP Out folder moved to recycling bin successfully.')
                 i += 1
             except Exception as e:
@@ -370,7 +366,7 @@ def remove_Sim_Out(
         """
         # Is the error an access error?
         if issubclass(exc_info[0], PermissionError):
-            os.chmod(path, stat.S_IWRITE)
+            path.chmod(stat.S_IWRITE)
             try:
                 func(path)
             except Exception:
@@ -393,10 +389,11 @@ def remove_Sim_Out(
 
     # ---------- Permission ----------
     action = 'permanently delete' if permanent_delete else 'recycle'
+    M = Mdl_N(MdlN)
     if ask_permission:
         permission = (
             input(
-                f'{warn}This will {action} files in {Pa_WS}/models/{get_Mdl(MdlN)}/Sim/{MdlN} folder, and change the status of the corresponding line of log.csv.\n{Del_text}\nAre you sure you want to proceed? (y/n):\n{style_reset}'
+                f'{warn}This will {action} files in {Pa_WS}/models/{M.alias}/Sim/{MdlN} folder, and change the status of the corresponding line of log.csv.\n{Del_text}\nAre you sure you want to proceed? (y/n):\n{style_reset}'
             )
             .strip()
             .lower()
@@ -406,15 +403,15 @@ def remove_Sim_Out(
 
     # ---------- Remove + Update log ----------
     if permission == 'y':
-        d_Pa = MdlN_Pa(MdlN)  # Get default directories
-        Pa_MdlN = d_Pa['Pa_MdlN']
+        Pa = M.Pa
+        Pa_MdlN = Pa.Pa_MdlN
         DF = pd.read_csv(Pa_log)  # Read the log file
 
-        if os.path.exists(Pa_MdlN):
+        if Pa_MdlN.exists():
             i = 0
             if Del_all:
                 try:  # --- Remove whole Sim folder ---
-                    if not os.path.exists(Pa_MdlN):
+                    if not Pa_MdlN.exists():
                         raise FileNotFoundError(f'{Pa_MdlN} does not exist.')
                     if permanent_delete:
                         sp.run(f'rmdir /S /Q "{Pa_MdlN}"', shell=True)  # Permanently delete the entire Sim folder
@@ -426,21 +423,21 @@ def remove_Sim_Out(
                     sprint(f'🔴 - failed to {action} Sim folder: {e}')
             else:
                 try:  # --- Remove large output files only ---
-                    if d_Pa['imod_V'] == 'imod5':
-                        Path(d_Pa['Sim_In'] / f'{MdlN}.DIS6.grb').unlink(
+                    if Pa.imod_V == 'imod5':
+                        (Pa.Sim_In / f'{MdlN}.DIS6.grb').unlink(
                             missing_ok=True
                         )  # .grb is usually big and we don't need it.
-                        sh.rmtree(d_Pa['Sim_Out'], onexc=_on_rm_error)  # Remove folder containing HD and CBC
-                        for item in Path(d_Pa['MSW']).iterdir():  # Remove MSW out folders
+                        sh.rmtree(Pa.Sim_Out, onexc=_on_rm_error)  # Remove folder containing HD and CBC
+                        for item in Pa.MSW.iterdir():  # Remove MSW out folders
                             if item.is_dir():
                                 sh.rmtree(item, onexc=_on_rm_error)
-                    elif d_Pa['imod_V'] == 'imod_python':
-                        sim_in_path = Path(d_Pa['Sim_In'])
+                    elif Pa.imod_V == 'imod_python':
+                        sim_in_path = Pa.Sim_In
                         if sim_in_path.exists():  # large modflow files
                             for item in sim_in_path.iterdir():
                                 if item.suffix in ['.hds', '.cbc', '.grb']:
                                     item.unlink(missing_ok=True)
-                        for item in Path(d_Pa['MSW']).iterdir():  # Remove MSW out folders
+                        for item in Pa.MSW.iterdir():  # Remove MSW out folders
                             if item.is_dir():
                                 sh.rmtree(item, onexc=_on_rm_error)
                     sprint(f'🟢 - Sim folder {action} successfully.')

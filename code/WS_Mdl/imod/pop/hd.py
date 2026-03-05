@@ -5,7 +5,7 @@ from pathlib import Path
 
 import imod
 from WS_Mdl.core.defaults import crs
-from WS_Mdl.core.path import MdlN_Pa
+from WS_Mdl.core.mdl import Mdl_N
 from WS_Mdl.core.style import Sep, sprint
 from WS_Mdl.imod.idf import HD_Out_to_DF
 from WS_Mdl.xr.convert import DA_to_TIF
@@ -77,8 +77,8 @@ def HD_IDF_Agg_to_TIF(
     sprint(f'*** {MdlN} *** - HD_IDF_Agg_to_TIF\n')
 
     # 1. Get paths
-    d_Pa = MdlN_Pa(MdlN)
-    Pa_PoP, Pa_HD = [d_Pa[v] for v in ['PoP', 'Out_HD']]
+    M = Mdl_N(MdlN)
+    Pa_PoP, Pa_HD = M.Pa.PoP, M.Pa.Out_HD
 
     # 2. Read the IDF files to DF. Add extracols. Apply rules. Group.
     DF = HD_Out_to_DF(Pa_HD)

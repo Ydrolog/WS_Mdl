@@ -1,11 +1,10 @@
-import os
 import subprocess as sp
 from datetime import datetime as DT
 
 import pandas as pd
 import primod
 from imod import mf6, msw
-from WS_Mdl.core.path import MdlN_Pa
+from WS_Mdl.core.mdl import Mdl_N
 from WS_Mdl.core.style import set_verbose, sprint
 from WS_Mdl.imod import ini, prj
 from WS_Mdl.imod.mf6.solution import moderate_settings
@@ -21,10 +20,11 @@ def Mdl_Prep(MdlN: str, Pa_MF6_DLL: str = None, Pa_MSW_DLL: str = None, verbose=
     set_verbose(verbose)
 
     # Load paths and variables from PRJ & INI
-    d_Pa = MdlN_Pa(MdlN)
-    Pa_PRJ = d_Pa['PRJ']
+    M = Mdl_N(MdlN)
+    Pa = M.Pa
+    Pa_PRJ = Pa.PRJ
     # Dir_PRJ = PDN(Pa_PRJ)
-    d_INI = ini.as_d(d_Pa['INI'])
+    d_INI = ini.as_d(Pa.INI)
     Xmin, Ymin, Xmax, Ymax = [float(i) for i in d_INI['WINDOW'].split(',')]
     SP_date_1st, SP_date_last = [
         DT.strftime(DT.strptime(d_INI[f'{i}'], '%Y%m%d'), '%Y-%m-%d') for i in ['SDATE', 'EDATE']
@@ -32,9 +32,9 @@ def Mdl_Prep(MdlN: str, Pa_MF6_DLL: str = None, Pa_MSW_DLL: str = None, verbose=
     # dx = dy = float(d_INI['CELLSIZE'])
 
     if not Pa_MF6_DLL:  # If not specified, the default location will be used.
-        Pa_MF6_DLL = d_Pa['MF6_DLL']
+        Pa_MF6_DLL = Pa.MF6_DLL
     if not Pa_MSW_DLL:
-        Pa_MSW_DLL = d_Pa['MSW_DLL']
+        Pa_MSW_DLL = Pa.MSW_DLL
 
     # Load PRJ & regrid it to Mdl Aa
     PRJ_, _ = prj.o_with_OBS(Pa_PRJ)
@@ -112,11 +112,11 @@ def Mdl_Prep(MdlN: str, Pa_MF6_DLL: str = None, Pa_MSW_DLL: str = None, verbose=
         mf6_model='imported_model', mf6_recharge_package='msw-rch', mf6_wel_package='msw-sprinkling'
     )
     metamod = primod.MetaMod(MSW_Mdl_AoI, Sim_MF6_AoI, coupling_list=[metamod_coupling])
-    os.makedirs(d_Pa['Pa_MdlN'], exist_ok=True)  # Create simulation directory if it doesn't exist
+    Pa.Pa_MdlN.mkdir(parents=True, exist_ok=True)  # Create simulation directory if it doesn't exist
 
     # Write Mdl Files
     metamod.write(
-        directory=d_Pa['Pa_MdlN'],
+        directory=Pa.Pa_MdlN,
         modflow6_dll=Pa_MF6_DLL,
         metaswap_dll=Pa_MSW_DLL,
         metaswap_dll_dependency=Pa_MF6_DLL.parent,
@@ -125,7 +125,7 @@ def Mdl_Prep(MdlN: str, Pa_MF6_DLL: str = None, Pa_MSW_DLL: str = None, verbose=
     # # Review execution times per cell
     try:
         result = sp.run(
-            [d_Pa['coupler_Exe'], d_Pa['TOML']], cwd=d_Pa['Pa_MdlN'], capture_output=True, text=True, timeout=3600
+            [Pa.coupler_Exe, Pa.TOML], cwd=Pa.Pa_MdlN, capture_output=True, text=True, timeout=3600
         )  # 1 hour timeout
 
         print(f'Return code: {result.returncode}')

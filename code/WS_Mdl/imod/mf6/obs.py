@@ -5,12 +5,16 @@ def add(MdlN: str, Opt: str = 'BEGIN OPTIONS\nEND OPTIONS', iMOD5=False):
     for iMOD5 option check WS_Mdl.utils.MdlN_Pa() description.
     """
 
+    from pathlib import Path
+
+    from WS_Mdl.core.mdl import Mdl_N
+    from WS_Mdl.core.path import MdlN_PaView
+
     sprint(Sep)
     sprint('Running add_OBS ...')
-    d_Pa = MdlN_Pa(MdlN, iMOD5=iMOD5)  # Get default directories
-    Pa_MdlN, Pa_INI, Pa_PRJ = (
-        d_Pa[k] for k in ['Pa_MdlN', 'INI', 'PRJ']
-    )  # and pass them to objects that will be used in the function
+    M = Mdl_N(MdlN)
+    Pa = M.Pa if iMOD5 == (M.V == 'imod5') else MdlN_PaView(MdlN, iMOD5=iMOD5)
+    Pa_MdlN, Pa_INI, Pa_PRJ = Pa.Pa_MdlN, Pa.INI, Pa.PRJ
 
     # Extract info from INI file.
     d_INI = INI_to_d(Pa_INI)
@@ -27,12 +31,12 @@ def add(MdlN: str, Opt: str = 'BEGIN OPTIONS\nEND OPTIONS', iMOD5=False):
 
     # Iterate through OBS files of OBS blocks and add them to the Sim
     for i, path in enumerate(l_IPF):
-        Pa_OBS_IPF = os.path.abspath(PJ(Pa_MdlN, path))  # path of IPF file. To be read.
-        OBS_IPF_Fi = PBN(Pa_OBS_IPF)  # Filename of OBS file to be added to Sim (to be added without ending)
+        Pa_OBS_IPF = (Pa_MdlN / path).resolve()  # path of IPF file. To be read.
+        OBS_IPF_Fi = Pa_OBS_IPF.name  # Filename of OBS file to be added to Sim (to be added without ending)
         if i == 0:
-            Pa_OBS = PJ(Pa_MdlN, f'GWF_1/MODELINPUT/{MdlN}.OBS6')  # path of OBS file. To be written.
+            Pa_OBS = Pa_MdlN / f'GWF_1/MODELINPUT/{MdlN}.OBS6'  # path of OBS file. To be written.
         else:
-            Pa_OBS = PJ(Pa_MdlN, f'GWF_1/MODELINPUT/{MdlN}_N{i}.OBS6')  # path of OBS file. To be written.
+            Pa_OBS = Pa_MdlN / f'GWF_1/MODELINPUT/{MdlN}_N{i}.OBS6'  # path of OBS file. To be written.
 
         DF_OBS_IPF = r_IPF_Spa(
             Pa_OBS_IPF
@@ -65,12 +69,12 @@ def add(MdlN: str, Opt: str = 'BEGIN OPTIONS\nEND OPTIONS', iMOD5=False):
             f.write('END CONTINUOUS\n')
 
         # Open NAM file and add OBS file to it
-        lock = FL(d_Pa['NAM_Mdl'] + '.lock')  # Create a file lock to prevent concurrent writes
-        with lock, open(d_Pa['NAM_Mdl'], 'r+') as f:
+        lock = FL(f'{Pa.NAM_Mdl}.lock')  # Create a file lock to prevent concurrent writes
+        with lock, open(Pa.NAM_Mdl, 'r+') as f:
             l_NAM = f.read().split('END PACKAGES')
             f.seek(0)
             f.truncate()  # overwrite in-place
-            Pa_OBS_Rel = os.path.relpath(Pa_OBS, Pa_MdlN)
+            Pa_OBS_Rel = Path(Pa_OBS).relative_to(Pa_MdlN)
 
             f.write(l_NAM[0])
             f.write(rf' OBS6 .\{Pa_OBS_Rel} OBS_{OBS_IPF_Fi.split(".")[0]}')

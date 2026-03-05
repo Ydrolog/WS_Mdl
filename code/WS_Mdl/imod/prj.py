@@ -9,7 +9,8 @@ import imod
 import numpy as np
 import pandas as pd
 from WS_Mdl.core.defaults import crs
-from WS_Mdl.core.path import MdlN_Pa, Pa_WS
+from WS_Mdl.core.mdl import Mdl_N
+from WS_Mdl.core.path import MdlN_PaView, Pa_WS
 from WS_Mdl.core.style import Sep, sprint
 from WS_Mdl.imod.ini import CeCes, Mdl_Dmns
 from WS_Mdl.xr.convert import to_MBTIF, to_TIF
@@ -101,7 +102,7 @@ def r_with_OBS(
     except Exception as e:
         print(f'Error reading PRJ file: {e}')
         PRJ = None
-    os.remove(Pa_PRJ_temp)  # Delete temp PRJ file as it's not needed anymore.
+    Path(Pa_PRJ_temp).unlink()  # Delete temp PRJ file as it's not needed anymore.
 
     return PRJ, l_OBS_Lns
 
@@ -110,16 +111,16 @@ def PRJ_to_DF(MdlN):
     """Leverages r_PRJ_with_OBS to produce a DF with the PRJ data.
     Could have been included in utils.py based on dependencies, but utils_imod.py fits it better as it's almost always used after r_PRJ_with_OBS (so the libs will be already loaded)."""
 
-    d_Pa = MdlN_Pa(MdlN)
+    M = Mdl_N(MdlN)
+    Pa = M.Pa
 
-    Mdl = ''.join([c for c in MdlN if not c.isdigit()])
-    Pa_AppData = os.path.normpath(Path(os.getenv('APPDATA')) / '../')
+    Pa_AppData = Path(os.getenv('APPDATA')).parent
     t_Pa_replace = (
-        Pa_AppData,
-        Pa_WS / 'models' / Mdl,
+        str(Pa_AppData),
+        str(Pa_WS / 'models' / M.alias),
     )  # For some reason imod.idf.read reads the path incorrectly, so I have to replace the incorrect part.
 
-    d_PRJ, OBS = r_with_OBS(d_Pa['PRJ'])
+    d_PRJ, OBS = r_with_OBS(Pa.PRJ)
 
     columns = [
         'package',
@@ -199,7 +200,7 @@ def o_with_OBS(Pa_PRJ):
     ATM this is safer, as it can deal with both PRJ files with and without OBS blocks.
     """
 
-    Dir_PRJ = os.path.dirname(Pa_PRJ)  # Directory of the PRJ file
+    Dir_PRJ = Path(Pa_PRJ).parent  # Directory of the PRJ file
 
     with open(Pa_PRJ, 'r') as f:
         lines = f.readlines()
@@ -224,7 +225,7 @@ def o_with_OBS(Pa_PRJ):
         Pa_PRJ_temp = temp_file.name
 
     PRJ = imod.prj.open_projectfile_data(Pa_PRJ_temp)  # Load the PRJ file without OBS
-    os.remove(Pa_PRJ_temp)  # Delete temp PRJ file as it's not needed anymore.
+    Path(Pa_PRJ_temp).unlink()  # Delete temp PRJ file as it's not needed anymore.
 
     sprint(f'🟢🟢 - PRJ loaded from {Pa_PRJ}')
     return PRJ, l_OBS_Lns
@@ -343,8 +344,10 @@ def PRJ_to_TIF(MdlN, iMOD5=False):
     Also creates a .csv file with the TIF file paths to be replaced in the QGIS project."""
 
     # -------------------- Initiate ----------------------------------------------
-    d_Pa = MdlN_Pa(MdlN, iMOD5=iMOD5)  # Get paths
-    Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = Mdl_Dmns(d_Pa['INI'])  # Get dimensions
+    M = Mdl_N(MdlN)
+    Pa = M.Pa if iMOD5 == (M.V == 'imod5') else MdlN_PaView(MdlN, iMOD5=iMOD5)
+    M_alias = M.alias
+    Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = Mdl_Dmns(Pa.INI)  # Get dimensions
 
     DF = PRJ_to_DF(MdlN)  # Read PRJ file to DF
 
@@ -371,16 +374,13 @@ def PRJ_to_TIF(MdlN, iMOD5=False):
                 Pkg = DF_Par['package'].iloc[0]  # Get the package name
 
             ## Prepare directoreis and filenames
-            Mdl = ''.join([c for c in MdlN if not c.isdigit()])
-            Pkg_MdlN = Mdl + str(DF_Par['MdlN'].str.extract(r'(\d+)').astype(int).max().values[0])
-            Pa_TIF = (
-                d_Pa['Pa_Mdl'] / 'PoP' / 'In' / Pkg / Pkg_MdlN / f'{Pkg}_{Par}_{Pkg_MdlN}.tif'
-            )  # Full path to TIF file
+            Pkg_MdlN = M_alias + str(DF_Par['MdlN'].str.extract(r'(\d+)').astype(int).max().values[0])
+            Pa_TIF = Pa.Pa_Mdl / 'PoP' / 'In' / Pkg / Pkg_MdlN / f'{Pkg}_{Par}_{Pkg_MdlN}.tif'  # Full path to TIF file
 
             ## Build a dictionary mapping each band’s name to its row’s metadata. We're assuming that the order the paths are read into DA is the same as the order in DF_Par.
             d_MtDt = {}
 
-            if os.path.exists(Pa_TIF):
+            if Pa_TIF.exists():
                 sprint(f'🔴 - {Pa_TIF.name} already exists. Skipping.')
                 continue
             else:
@@ -434,7 +434,7 @@ def PRJ_to_TIF(MdlN, iMOD5=False):
         sprint(f'\t{f"{R['package']}_{R['parameter']}":<30} ... ', end='')
 
         Pa_TIF = (
-            d_Pa['Pa_Mdl']
+            Pa.Pa_Mdl
             / 'PoP'
             / 'In'
             / R['package']
@@ -442,7 +442,7 @@ def PRJ_to_TIF(MdlN, iMOD5=False):
             / re.sub(r'\.idf$', '.tif', R['path'], flags=re.IGNORECASE).name
         )  # Full path to TIF file
 
-        if os.path.exists(Pa_TIF):
+        if Pa_TIF.exists():
             print(f'🔴 - {Pa_TIF.name} already exists. Skipping.')
             continue
         else:
@@ -456,7 +456,7 @@ def PRJ_to_TIF(MdlN, iMOD5=False):
                     }
                 }
 
-                DA = imod.formats.idf.open(R['path'], pattern=f'{{name}}_{Mdl}').sel(
+                DA = imod.formats.idf.open(R['path'], pattern=f'{{name}}_{M_alias}').sel(
                     x=slice(Xmin, Xmax), y=slice(Ymax, Ymin)
                 )
                 to_TIF(
@@ -473,7 +473,7 @@ def PRJ_to_TIF(MdlN, iMOD5=False):
         sprint(f'\t{R["path"].name:<30} ... ', end='')
 
         Pa_GPKG = (
-            d_Pa['Pa_Mdl']
+            Pa.Pa_Mdl
             / 'PoP'
             / 'In'
             / R['package']
@@ -481,7 +481,7 @@ def PRJ_to_TIF(MdlN, iMOD5=False):
             / re.sub(r'\.ipf$', '.gpkg', R['path'], flags=re.IGNORECASE).name
         )  # Full path to TIF file
 
-        if os.path.exists(Pa_GPKG):
+        if Pa_GPKG.exists():
             print(f'🔴 - file {Pa_GPKG.name} exists. Skipping.')
             continue
         else:

@@ -1,6 +1,6 @@
 # ---------- Model Number related Functions ----------
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 _MdlN_pattern = re.compile(r'^(?P<alias>[A-Za-z]+)(?P<N>\d+)$')
 
@@ -17,6 +17,8 @@ class Mdl_N:
     """
 
     MdlN: str
+    alias: str = field(init=False)
+    N: int = field(init=False)
 
     def __post_init__(self):
         m = _MdlN_pattern.match(self.MdlN)
@@ -46,7 +48,7 @@ class Mdl_N:
         """Returns the model dimensions as a tuple (Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C)."""
         from WS_Mdl.imod.ini import Mdl_Dmns
 
-        return Mdl_Dmns(self.Pa.P_INI)
+        return Mdl_Dmns(self.Pa.Pa_INI)
 
     @property
     def V(self):

@@ -1,5 +1,4 @@
 # import importlib as IL
-import os
 import re
 from datetime import datetime as DT
 
@@ -8,7 +7,7 @@ import pandas as pd
 import plotly.graph_objects as go
 from imod.msw.mete_grid import to_DF
 from tqdm.dask import TqdmCallback
-from WS_Mdl.core import MdlN_Pa
+from WS_Mdl.core.mdl import Mdl_N
 from WS_Mdl.core.style import Sep, set_verbose, sprint
 from WS_Mdl.imod import ini, prj
 from WS_Mdl.imod.msw.meteo import to_XA
@@ -43,21 +42,24 @@ def SFR_stage_TS(
     print('--- Loading data ... ')
 
     print(' -- Loading PRJ data ... ', end='')
-    d_Pa = MdlN_Pa(MdlN)
-    d_INI = ini.as_d(d_Pa['INI'])
-    Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = ini.Mdl_Dmns(d_Pa['INI'])
+    M = Mdl_N(MdlN)
+    M_RIV = Mdl_N(MdlN_RIV)
+    Pa = M.Pa
+    Pa_RIV = M_RIV.Pa
+
+    d_INI = ini.as_d(Pa.INI)
+    Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = ini.Mdl_Dmns(Pa.INI)
     SP_date_1st = DT.strftime(DT.strptime(d_INI['SDATE'], '%Y%m%d'), '%Y-%m-%d')
     dx = dy = float(d_INI['CELLSIZE'])
 
-    d_Pa_RIV = MdlN_Pa(MdlN_RIV)
-    d_INI_RIV = ini.as_d(d_Pa_RIV['INI'])
+    d_INI_RIV = ini.as_d(Pa_RIV.INI)
     SP_date_1st_RIV = DT.strftime(DT.strptime(d_INI_RIV['SDATE'], '%Y%m%d'), '%Y-%m-%d')
 
     # Check that model dimensions are the same
-    if (Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C) != ini.Mdl_Dmns(d_Pa_RIV['INI']):
+    if (Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C) != ini.Mdl_Dmns(Pa_RIV.INI):
         print('Warning: Model dimensions for RIV model differ from main model.')
 
-    PRJ, PRJ_OBS = r_with_OBS(d_Pa['PRJ'])
+    PRJ, PRJ_OBS = r_with_OBS(Pa.PRJ)
     print('🟢')
 
     print(' -- Loading SFR data ... ', end='')
@@ -70,7 +72,7 @@ def SFR_stage_TS(
 
     print(' -- Loading RIV data...', end='')
     RIV_params = ['conductance', 'stage', 'bottom_elevation', 'infiltration_factor']
-    PRJ_RIV, PRJ_OBS_RIV = prj.r_with_OBS(d_Pa_RIV['PRJ'])
+    PRJ_RIV, PRJ_OBS_RIV = prj.r_with_OBS(Pa_RIV.PRJ)
 
     l_N_system_RIV_print = []
     for i in range(PRJ_RIV['(riv)']['n_system']):
@@ -158,8 +160,8 @@ def SFR_stage_TS(
     if load_HD:
         try:
             A_HD_ = imod.mf6.open_hds(
-                hds_path=d_Pa['Out_HD_Bin'],
-                grb_path=d_Pa['DIS_GRB'],
+                hds_path=Pa.Out_HD_Bin,
+                grb_path=Pa.DIS_GRB,
                 simulation_start_time=pd.to_datetime(SP_date_1st),
                 time_unit='d',
             ).astype('float32')
@@ -169,8 +171,8 @@ def SFR_stage_TS(
     if load_HD_RIV:
         try:
             A_HD_RIV_ = imod.mf6.open_hds(
-                hds_path=d_Pa_RIV['Out_HD_Bin'],
-                grb_path=d_Pa_RIV['DIS_GRB'],
+                hds_path=Pa_RIV.Out_HD_Bin,
+                grb_path=Pa_RIV.DIS_GRB,
                 simulation_start_time=pd.to_datetime(SP_date_1st_RIV),
                 time_unit='d',
             ).astype('float32')
@@ -199,7 +201,7 @@ def SFR_stage_TS(
 
         if load_P:
             DF_meteo_DT_trim = DF_meteo.loc[(DF_meteo['DT'] >= start_date) & (DF_meteo['DT'] <= end_date)].copy()
-            A_P = to_XA(DF_meteo_DT_trim, 'P', d_Pa['PRJ'], Xmin, Ymin, Xmax, Ymax)
+            A_P = to_XA(DF_meteo_DT_trim, 'P', Pa.PRJ, Xmin, Ymin, Xmax, Ymax)
 
         with TqdmCallback(desc=' -- Loading HD data for SFR-relevant layers and specified time range ...'):
             if load_HD:
@@ -413,8 +415,8 @@ def SFR_stage_TS(
 
                 sprint('  - Plotting...')
 
-                Pa_Out = d_Pa['PoP_Out_MdlN'] / f'SFR/SFR_stage_TS-reach{reach}.html'
-                os.makedirs(os.path.dirname(Pa_Out), exist_ok=True)
+                Pa_Out = Pa.PoP_Out_MdlN / f'SFR/SFR_stage_TS-reach{reach}.html'
+                Pa_Out.parent.mkdir(parents=True, exist_ok=True)
 
                 plot_SFR_reach_TS(sub_title=r_info, X_axis=X_axis, d_plot=d_plot, Pa_Out=Pa_Out)
                 sprint('  🟢🟢 - Success!')
