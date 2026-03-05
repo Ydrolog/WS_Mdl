@@ -100,7 +100,7 @@ def r_with_OBS(
     try:
         PRJ = imod.formats.prj.read_projectfile(Pa_PRJ_temp)  # Load the PRJ file without OBS
     except Exception as e:
-        print(f'Error reading PRJ file: {e}')
+        sprint(f'Error reading PRJ file: {e}')
         PRJ = None
     Path(Pa_PRJ_temp).unlink()  # Delete temp PRJ file as it's not needed anymore.
 
@@ -421,7 +421,7 @@ def PRJ_to_TIF(MdlN, iMOD5=False):
                         )  # .squeeze cause 2D arrays have extra dimension with size 1 sometimes.
                         sprint('🟢 - single-band without L attribute')
         except Exception as e:
-            print(f'🔴 - Error: {e}')
+            sprint(f'🔴 - Error: {e}')
 
     # ------------- Process time-dependent packages (RIV, DRN, WEL) ---------------------
     ## RIV & DRN
@@ -443,7 +443,7 @@ def PRJ_to_TIF(MdlN, iMOD5=False):
         )  # Full path to TIF file
 
         if Pa_TIF.exists():
-            print(f'🔴 - {Pa_TIF.name} already exists. Skipping.')
+            sprint(f'🔴 - {Pa_TIF.name} already exists. Skipping.')
             continue
         else:
             try:
@@ -464,7 +464,7 @@ def PRJ_to_TIF(MdlN, iMOD5=False):
                 )  # .squeeze cause 2D arrays have extra dimension with size 1 sometimes.
                 sprint('🟢 - IDF converted to TIF - single-band without L attribute')
             except Exception as e:
-                print(f'🔴 - Error: {e}')
+                sprint(f'🔴 - Error: {e}')
 
     ## WEL
     DF_WEL = DF.loc[DF['package'] == 'WEL']
@@ -482,7 +482,7 @@ def PRJ_to_TIF(MdlN, iMOD5=False):
         )  # Full path to TIF file
 
         if Pa_GPKG.exists():
-            print(f'🔴 - file {Pa_GPKG.name} exists. Skipping.')
+            sprint(f'🔴 - file {Pa_GPKG.name} exists. Skipping.')
             continue
         else:
             try:
@@ -576,7 +576,7 @@ def PRJ_to_TIF(MdlN, iMOD5=False):
         )  # Full path to TIF file #666 need to think which MdlN to use. It's hard to do the same as with the other packages.
 
         if Pa_TIF.exists():
-            print(f'🔴 - {Pa_TIF.name} already exists. Skipping.')
+            sprint(f'🔴 - {Pa_TIF.name} already exists. Skipping.')
             continue
         else:
             try:
@@ -602,5 +602,5 @@ def PRJ_to_TIF(MdlN, iMOD5=False):
                         raise ValueError(f'Unexpected array rank: {DA.ndim}')
 
             except Exception as e:
-                print(f'🔴 - Error: {e}')
+                sprint(f'🔴 - Error: {e}')
     sprint(Sep)

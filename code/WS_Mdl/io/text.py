@@ -45,7 +45,7 @@ def o_VS(key, *l_MdlN, Pa='code'):
 
 
 def Sim_Cfg(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
-    sprint()
+    sprint(Sep)
     sprint(
         f"Opening all configuration files for specified runs with the default program.\nIt's assumed that Notepad++ is installed in: {Pa_NP}.\nIf that's not True, provide the correct path to Notepad++ (or another text editor) as the last argument to this function.\n"
     )
@@ -56,10 +56,11 @@ def Sim_Cfg(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
     sp.Popen([Pa_NP] + l_files)
     for f in l_files:
         sprint(f'🟢 - {f}')
+    sprint(Sep)
 
 
 def o_LSTs(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
-    sprint()
+    sprint(Sep)
     sprint('Opening LST files (Mdl+Sim) for specified runs with the default program.\n')
     sprint(
         f"It's assumed that Notepad++ is installed in: {Pa_NP}.\nIf that's not True, provide the correct path to Notepad++ (or another text editor) as the last argument to this function.\n"
@@ -72,10 +73,11 @@ def o_LSTs(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
     for f in l_files:
         sp.Popen([Pa_NP] + [f])
         sprint(f'🟢 - {f}')
+    sprint(Sep)
 
 
 def o_NAMs(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
-    sprint()
+    sprint(Sep)
     sprint('Opening NAM files (Mdl+Sim) for specified runs with the default program.\n')
     sprint(
         f"It's assumed that Notepad++ is installed in: {Pa_NP}.\nIf that's not True, provide the correct path to Notepad++ (or another text editor) as the last argument to this function.\n"
@@ -88,3 +90,4 @@ def o_NAMs(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
     for f in l_files:
         sp.Popen([Pa_NP] + [f])
         sprint(f'🟢 - {f}')
+    sprint(Sep)

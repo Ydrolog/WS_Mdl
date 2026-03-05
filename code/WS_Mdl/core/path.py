@@ -1,7 +1,8 @@
 # ---------- Create Paths ----------
 # I've converted to pathlib as it's more consistent. The only drawback is that it returns "WindowsPath" objects which is long and annoying, but you can use Pa_to_str to get rid of that problem.
-
 from pathlib import Path
+
+from .style import sprint
 
 __all__ = ['REPO_ROOT', 'Pa_WS', 'Pa_RunLog', 'Pa_log_Out', 'Pa_log_Cfg', 'MdlN_Pa', 'imod_V', 'get_Mdl']
 
@@ -37,13 +38,13 @@ def imod_V(MdlN: str):
         elif 'GWF_1' in names:
             return 'imod5'
         else:
-            print(
-                f"Could not determine imod version Sim/{MdlN} folder doesn't exist, or it's structure has been modified.\n Proceeding with the assumption that it's imod_python."
+            sprint(
+                f"Could not determine imod version from Sim/{MdlN} folder.\nProceeding with the assumption it's imod_python."
             )
             return 'imod_python'
     except FileNotFoundError:
         print(
-            f"Could not determine imod version Sim/{MdlN} folder doesn't exist, or it's structure has been modified.\n Proceeding with the assumption that it's imod_python."
+            f"Could not determine imod version from Sim/{MdlN} folder.\nProceeding with the assumption that it's imod_python."
         )
         return 'imod_python'
 

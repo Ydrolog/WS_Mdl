@@ -47,25 +47,25 @@ def S_from_B(MdlN: str, iMOD5=False):
                     os.startfile(
                         Pa_S
                     )  # Then we'll open it to make any other changes we want to make. Except if it's the BAT file
-                sprint(f'🟢 - {Pa_S.name} created successfully! {dim}(copy of {Pa_B}){style_reset}')
+                sprint(f'🟢 - {Pa_S.name:20} created successfully! {dim}(copy of {Pa_B}){style_reset}')
             else:
-                print(
-                    f'🟡 - {Pa_S.name} already exists. If you want it to be replaced, you have to delete it manually before running this command.'
+                sprint(
+                    f'🟡 - {Pa_S.name:20} already exists. If you want it to be replaced, you have to delete it manually before running this command.'
                 )
         except Exception as e:
-            print(f'🔴 - Error copying {Pa_B} to {Pa_S}: {e}')
+            sprint(f'🔴 - Error copying {Pa_B} to {Pa_S}: {e}')
 
     try:
         if not Pa_PRJ.exists():  # For the PRJ file, there is no default text replacement to be performed.
             sh.copy2(Pa_PRJ_B, Pa_PRJ)
             os.startfile(Pa_PRJ)  # Then we'll open it to make any other changes we want to make.
-            sprint(f'🟢 - {Pa_PRJ.name} created successfully! (from {Pa_PRJ_B})')
+            sprint(f'🟢 - {Pa_PRJ.name:20} created successfully! {dim}(copy of {Pa_PRJ_B}){style_reset}')
         else:
-            print(
-                f'🟡 - {Pa_PRJ.name} already exists. If you want it to be replaced, you have to delete it manually before running this command.'
+            sprint(
+                f'🟡 - {Pa_PRJ.name:20} already exists. If you want it to be replaced, you have to delete it manually before running this command.'
             )
     except Exception as e:
-        print(f'🔴 - Error copying {Pa_PRJ_B} to {Pa_PRJ}: {e}')
+        sprint(f'🔴 - Error copying {Pa_PRJ_B} to {Pa_PRJ}: {e}')
 
     sprint(Sep)
 
@@ -74,17 +74,19 @@ def S_from_B_undo(MdlN: str):
     """Will undo S_from_B by deletting S files"""
     sprint(Sep)
     M = Mdl_N(MdlN)
-    Pa_Smk, Pa_BAT, Pa_INI, Pa_PRJ = M.Pa.Smk, M.Pa.BAT, M.Pa.INI, M.Pa.PRJ
+    Pa = M.Pa
+    Pa_Smk, Pa_BAT, Pa_INI, Pa_PRJ = Pa.Smk, Pa.BAT, Pa.INI, Pa.PRJ
 
-    confirm = (
-        input(f'Are you sure you want to delete the Cfg files (.smk, .ini, .bat, .prj) for {MdlN}? (y/n): ')
-        .strip()
-        .lower()
+    sprint(
+        f'Are you sure you want to delete the Cfg files (.smk, .ini, .bat, .prj) for {MdlN}? (y/n):',
+        style=warn,
     )
+    confirm = input().strip().lower()
     if confirm == 'y':
+        print()
         for Pa_S in [Pa_Smk, Pa_BAT, Pa_INI, Pa_PRJ]:
             Pa_S.unlink()  # Delete the S files
-            sprint(f'🟢 - {Pa_S.name} deleted successfully!')
+            sprint(f'🟢 - {Pa_S.name:20} deleted successfully!')
 
     sprint(Sep)
 
@@ -197,7 +199,7 @@ def RunMng(cores=None, DAG: bool = True, Cct_Sims=None, no_temp: bool = True):
     )
 
     if DF_q.empty:
-        print('\n🟡🟡🟡 - No queued runs found in the RunLog.')
+        sprint('\n🟡🟡🟡 - No queued runs found in the RunLog.')
     else:
         # Prepare arguments for multiprocessing
         args = [(i, row, cores_per_Sim, DAG, no_temp) for i, row in DF_q.iterrows()]
@@ -213,10 +215,10 @@ def RunMng(cores=None, DAG: bool = True, Cct_Sims=None, no_temp: bool = True):
                 if success:
                     sprint(f'🟢🟢 Model {model_id} completed successfully')
                 else:
-                    print(f'🔴🔴 Model {model_id} failed')
+                    sprint(f'🔴🔴 Model {model_id} failed')
             else:
                 model_id, success, error = result
-                print(f'🔴🔴 Model {model_id} failed: {error}')
+                sprint(f'🔴🔴 Model {model_id} failed: {error}')
 
     sprint(Sep)
 
@@ -325,11 +327,11 @@ def reset_Sim(MdlN: str, ask_permission: bool = True, Pa_log_Out=Pa_log_Out, per
             else:
                 sprint(f'🟡🟡🟡 - {i}/4 sub-processes finished successfully.')
         else:
-            print(
+            sprint(
                 '🔴🔴🔴 - Items do not exist (Sim folder, log entry, Smk log files, PoP Out folder). No need to reset.'
             )
     else:
-        print('🔴🔴🔴 - Reset cancelled by user (you).')
+        sprint('🔴🔴🔴 - Reset cancelled by user (you).')
     sprint(Sep)
 
 
@@ -445,7 +447,7 @@ def remove_Sim_Out(
                 except Exception as e:
                     sprint(f'🔴 - failed to {action} large output files: {e}')
         else:
-            print(f'🔴 - {Pa_MdlN} does not exist.')
+            sprint(f'🔴 - {Pa_MdlN} does not exist.')
 
         if MdlN.lower() in DF['MdlN'].str.lower().values:
             if i == 1:
@@ -461,9 +463,9 @@ def remove_Sim_Out(
             if i == 2:
                 sprint(f'\n🟢🟢🟢 - ALL files were successfully {action}d.')
         else:
-            print(f'🔴 - {MdlN} not found in log.')
+            sprint(f'🔴 - {MdlN} not found in log.')
     else:
-        print('🔴🔴🔴 - Reset cancelled by user (you).')
+        sprint('🔴🔴🔴 - Reset cancelled by user (you).')
     sprint(Sep)
 
 
@@ -487,7 +489,7 @@ def rerun_Sim(MdlN: str, cores=None, DAG: bool = True):
     DF = r_RunLog()
 
     if MdlN not in DF['MdlN'].values:
-        print(f'🔴🔴🔴 - {MdlN} not found in the RunLog. Cannot rerun.')
+        sprint(f'🔴🔴🔴 - {MdlN} not found in the RunLog. Cannot rerun.')
         return
     else:
         Se_Ln = DF.loc[DF_match_MdlN(DF, MdlN)].squeeze()  # Get the row for the MdlN
@@ -507,10 +509,10 @@ def rerun_Sim(MdlN: str, cores=None, DAG: bool = True):
                 if success:
                     sprint(f'🟢🟢 Model {model_id} completed successfully')
                 else:
-                    print(f'🔴🔴 Model {model_id} failed')
+                    sprint(f'🔴🔴 Model {model_id} failed')
             else:
                 model_id, success, error = result
-                print(f'🔴🔴 Model {model_id} failed: {error}')
+                sprint(f'🔴🔴 Model {model_id} failed: {error}')
 
     sprint(Sep)
 
@@ -544,21 +546,21 @@ def freeze_pixi_env(MdlN: str):
     try:
         # Ensure we are in repo root
         Pa_repo = run_cmd(['git', 'rev-parse', '--show-toplevel'], capture=True).stdout.strip()
-        print(f'Repo root: {Pa_repo}')
+        sprint(f'Repo root: {Pa_repo}')
 
         # Check for changes in the relevant files
         diff_cmd = ['git', 'status', '--porcelain'] + l_Fi_to_track
         changes = run_cmd(diff_cmd, capture=True).stdout.strip()
 
         if not changes:
-            print('⚪️⚪️⚪️ No changes to tracked env/code files. Nothing to commit.')
+            sprint('⚪️⚪️⚪️ No changes to tracked env/code files. Nothing to commit.')
             return None, None
 
-        print('🟢 Changes detected:\n' + changes)
+        sprint('🟢 Changes detected:\n' + changes)
 
         # Stage changes
         run_cmd(['git', 'add'] + l_Fi_to_track)
-        print('🟢 Staged changes.')
+        sprint('🟢 Staged changes.')
 
         # Commit with timestamp
         now = DT.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -567,18 +569,18 @@ def freeze_pixi_env(MdlN: str):
 
         # Get the commit hash of the just-created commit
         commit_hash = run_cmd(['git', 'rev-parse', 'HEAD'], capture=True).stdout.strip()
-        print(f'🟢 Commit hash: {commit_hash}')
+        sprint(f'🟢 Commit hash: {commit_hash}')
 
         # Get the tag of the latest commit (if any)
         try:
             tag_result = run_cmd(['git', 'describe', '--tags', '--always', 'HEAD'], capture=True)
             tag = tag_result.stdout.strip()
-            print(f'🟢 Tag: {tag}')
+            sprint(f'🟢 Tag: {tag}')
         except sp.CalledProcessError:
             tag = '-'
-            print('⚪️ No tag found for this commit. Only the hash will be recorded.')
+            sprint('⚪️ No tag found for this commit. Only the hash will be recorded.')
 
-        print(f"🟢🟢🟢 Committed changes with message: '{commit_msg}'")
+        sprint(f"🟢🟢🟢 Committed changes with message: '{commit_msg}'")
 
         return commit_hash, tag
 
