@@ -1,5 +1,6 @@
 # ---------- Create Paths ----------
 # I've converted to pathlib as it's more consistent. The only drawback is that it returns "WindowsPath" objects which is long and annoying, but you can use Pa_to_str to get rid of that problem.
+import sys
 from pathlib import Path
 
 from .style import sprint
@@ -39,12 +40,14 @@ def imod_V(MdlN: str):
             return 'imod5'
         else:
             sprint(
-                f"Could not determine imod version from Sim/{MdlN} folder.\nProceeding with the assumption it's imod_python."
+                f"Could not determine imod version from Sim/{MdlN} folder.\nProceeding with the assumption it's imod_python.",
+                file=sys.stderr,
             )
             return 'imod_python'
     except FileNotFoundError:
-        print(
-            f"Could not determine imod version from Sim/{MdlN} folder.\nProceeding with the assumption that it's imod_python."
+        sprint(
+            f"Could not determine imod version from Sim/{MdlN} folder.\nProceeding with the assumption that it's imod_python.",
+            file=sys.stderr,
         )
         return 'imod_python'
 
@@ -77,12 +80,11 @@ def MdlN_Pa(MdlN: str, MdlN_B: str | bool | None = None, iMOD5: bool = None):
 
         d_Pa = {}
         d_Pa['imod_V'] = 'imod5' if iMOD5 else 'imod_python'
-        d_Pa['Mdl'] = Mdl
-        d_Pa['MdlN'] = MdlN
-        d_Pa['Pa_Mdl'] = Pa_WS / f'models/{Mdl}'
-        d_Pa['Smk_temp'] = d_Pa['Pa_Mdl'] / 'code/snakemake/temp'
-        d_Pa['In'] = d_Pa['Pa_Mdl'] / 'In'
-        d_Pa['PoP'] = d_Pa['Pa_Mdl'] / 'PoP'
+        d_Pa['WS'] = Pa_WS
+        d_Pa['Mdl'] = Pa_WS / f'models/{Mdl}'
+        d_Pa['Smk_temp'] = d_Pa['Mdl'] / 'code/snakemake/temp'
+        d_Pa['In'] = d_Pa['Mdl'] / 'In'
+        d_Pa['PoP'] = d_Pa['Mdl'] / 'PoP'
 
         d_Pa['code'] = Pa_WS / 'code'
         d_Pa['pixi'] = Pa_WS / 'pixi.toml'
@@ -93,41 +95,39 @@ def MdlN_Pa(MdlN: str, MdlN_B: str | bool | None = None, iMOD5: bool = None):
 
         ## S Sim paths (grouped based on: pre-Sim, run, post-Sim)
         # Pre-Sim
-        d_Pa['INI'] = d_Pa['Pa_Mdl'] / f'code/Mdl_Prep/Mdl_Prep_{MdlN}.ini'
-        d_Pa['BAT'] = d_Pa['Pa_Mdl'] / f'code/Mdl_Prep/Mdl_Prep_{MdlN}.bat'
-        d_Pa['PRJ'] = d_Pa['Pa_Mdl'] / f'In/PRJ/{MdlN}.prj'
-        d_Pa['Smk'] = d_Pa['Pa_Mdl'] / f'code/snakemake/{MdlN}.smk'
+        d_Pa['INI'] = d_Pa['Mdl'] / f'code/Mdl_Prep/Mdl_Prep_{MdlN}.ini'
+        d_Pa['BAT'] = d_Pa['Mdl'] / f'code/Mdl_Prep/Mdl_Prep_{MdlN}.bat'
+        d_Pa['PRJ'] = d_Pa['Mdl'] / f'In/PRJ/{MdlN}.prj'
+        d_Pa['Smk'] = d_Pa['Mdl'] / f'code/snakemake/{MdlN}.smk'
 
         # Sim
-        d_Pa['Sim'] = d_Pa['Pa_Mdl'] / 'Sim'  # Sim folder
-        d_Pa['Pa_MdlN'] = d_Pa['Pa_Mdl'] / f'Sim/{MdlN}'
-        d_Pa['MF6'] = d_Pa['Pa_MdlN'] / 'modflow6' if not iMOD5 else d_Pa['Pa_MdlN'] / 'GWF_1'
-        d_Pa['MSW'] = d_Pa['Pa_MdlN'] / 'metaswap' if not iMOD5 else d_Pa['Pa_MdlN'] / 'GWF_1/MSWAPINPUT'
-        d_Pa['TOML'] = d_Pa['Pa_MdlN'] / 'imod_coupler.toml'
-        d_Pa['TOML_iMOD5'] = d_Pa['Pa_MdlN'] / f'{MdlN}.toml'
-        d_Pa['Sim_In'] = (
-            d_Pa['Pa_MdlN'] / 'modflow6/imported_model' if not iMOD5 else d_Pa['Pa_MdlN'] / 'GWF_1/MODELINPUT'
-        )
-        d_Pa['LST_Sim'] = d_Pa['Pa_MdlN'] / 'mfsim.lst'  # Sim LST file
+        d_Pa['Sim'] = d_Pa['Mdl'] / 'Sim'  # Sim folder
+        d_Pa['MdlN'] = d_Pa['Mdl'] / f'Sim/{MdlN}'
+        d_Pa['MF6'] = d_Pa['MdlN'] / 'modflow6' if not iMOD5 else d_Pa['MdlN'] / 'GWF_1'
+        d_Pa['MSW'] = d_Pa['MdlN'] / 'metaswap' if not iMOD5 else d_Pa['MdlN'] / 'GWF_1/MSWAPINPUT'
+        d_Pa['TOML'] = d_Pa['MdlN'] / 'imod_coupler.toml'
+        d_Pa['TOML_iMOD5'] = d_Pa['MdlN'] / f'{MdlN}.toml'
+        d_Pa['Sim_In'] = d_Pa['MdlN'] / 'modflow6/imported_model' if not iMOD5 else d_Pa['MdlN'] / 'GWF_1/MODELINPUT'
+        d_Pa['LST_Sim'] = d_Pa['MdlN'] / 'mfsim.lst'  # Sim LST file
         d_Pa['LST_Mdl'] = (
-            d_Pa['Sim_In'] / 'imported_model.lst' if not iMOD5 else d_Pa['Pa_MdlN'] / f'GWF_1/{MdlN}.lst'
+            d_Pa['Sim_In'] / 'imported_model.lst' if not iMOD5 else d_Pa['MdlN'] / f'GWF_1/{MdlN}.lst'
         )  # Mdl LST file
-        d_Pa['NAM_Sim'] = d_Pa['Pa_MdlN'] / 'MFSIM.NAM'
+        d_Pa['NAM_Sim'] = d_Pa['MdlN'] / 'MFSIM.NAM'
         d_Pa['NAM_Mdl'] = (
-            d_Pa['Pa_MdlN'] / 'modflow6/imported_model/imported_model.NAM'
+            d_Pa['MdlN'] / 'modflow6/imported_model/imported_model.NAM'
             if not iMOD5
-            else d_Pa['Pa_MdlN'] / f'GWF_1/{MdlN}.NAM'
+            else d_Pa['MdlN'] / f'GWF_1/{MdlN}.NAM'
         )
-        d_Pa['Sim_Out'] = None if not iMOD5 else d_Pa['Pa_MdlN'] / 'GWF_1/MODELOUTPUT'
+        d_Pa['Sim_Out'] = None if not iMOD5 else d_Pa['MdlN'] / 'GWF_1/MODELOUTPUT'
         d_Pa['SFR'] = (
-            d_Pa['Pa_MdlN'] / f'modflow6/imported_model/{MdlN}.SFR6'
+            d_Pa['MdlN'] / f'modflow6/imported_model/{MdlN}.SFR6'
             if not iMOD5
-            else d_Pa['Pa_MdlN'] / f'GWF_1/MODELINPUT/{MdlN}.SFR6'
+            else d_Pa['MdlN'] / f'GWF_1/MODELINPUT/{MdlN}.SFR6'
         )
 
         # Post-run
-        d_Pa['Out_HD'] = d_Pa['Pa_MdlN'] / 'GWF_1/MODELOUTPUT/HEAD'
-        d_Pa['Out_HD_Bin'] = d_Pa['Sim_In'] / 'imported_model.hds' if not iMOD5 else d_Pa['Out_HD'] / 'HEAD.HED'
+        d_Pa['HD_Out_IDF'] = d_Pa['MdlN'] / 'GWF_1/MODELOUTPUT/HEAD'
+        d_Pa['HD_Out_Bin'] = d_Pa['Sim_In'] / 'imported_model.hds' if not iMOD5 else d_Pa['HD_Out_IDF'] / 'HEAD.HED'
         d_Pa['DIS_GRB'] = d_Pa['Sim_In'] / f'{MdlN.upper()}.DIS6.grb' if iMOD5 else d_Pa['Sim_In'] / 'dis.dis.grb'
         d_Pa['PoP_Out_MdlN'] = d_Pa['PoP'] / 'Out' / MdlN
         d_Pa['MM'] = d_Pa['PoP_Out_MdlN'] / f'MM-{MdlN}.qgz'
@@ -174,6 +174,16 @@ class MdlN_PaView:
 
     def __getitem__(self, key: str):
         return self._d[key]
+
+    def __repr__(self):
+        # Show the underlying mapping directly so notebook print/display is readable.
+        return repr(self._d)
+
+    __str__ = __repr__
+
+    def as_dict(self):
+        """Returns a shallow copy as a plain dict."""
+        return dict(self._d)
 
     def get(self, key: str, default=None):
         return self._d.get(key, default)

@@ -1,3 +1,13 @@
+from datetime import datetime as DT
+from pathlib import Path
+
+import flopy as fp
+import numpy as np
+import pandas as pd
+from WS_Mdl.core.mdl import Mdl_N
+from WS_Mdl.core.style import set_verbose, sprint
+
+
 def WB_Diff_to_xlsx(
     MdlN: str, MdlN_B: str, date: str, sum_Pkg: bool = False, Pa_Out: str | None = None
 ):  # 666 add option to do cumulative of just for that SP
@@ -7,15 +17,11 @@ def WB_Diff_to_xlsx(
     - sum_Pkg: if True, sum rows where the first 3 index characters match
     """
 
-    from pathlib import Path
-
-    from WS_Mdl.core.mdl import Mdl_N
-
     # Load basics
     set_verbose(False)
     M = Mdl_N(MdlN)
     M_B = Mdl_N(MdlN_B)
-    d_INI = INI_to_d(M.Pa.INI)
+    d_INI = M.Pa.INI
     SP_date_1st = DT.strftime(DT.strptime(d_INI['SDATE'], '%Y%m%d'), '%Y-%m-%d')
     set_verbose(True)
 

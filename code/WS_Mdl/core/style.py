@@ -8,7 +8,8 @@ style_reset = f'{attr("reset")}\033[0m'
 bold = '\033[1m'
 dim = '\033[2m'
 warn = f'\033[1m{fg("indian_red_1c")}'
-MdlN_style = f'{bold}{fg("blue")}'
+green = f'{bold}{fg("green")}'
+blue = f'{bold}{fg("blue")}'
 Sep_N = 100  # Number of characters in a separator line.
 Sep = f'{fg(52)}{"-" * Sep_N}{attr("reset")}\n'  # Main separator - for script start and end.
 Sep_2 = f'{dim}{"-" * Sep_N}{attr("reset")}\n'  # Secondary separator - for sections within a script.
@@ -44,7 +45,7 @@ def _is_Mdl_N(value):
 def _fmt_arg(value, base_style: str = ''):
     """Formats args for sprint/sinput, highlighting MdlNs"""
     if _is_Mdl_N(value):
-        return f'{MdlN_style}{value.MdlN}{style_reset}{base_style}'
+        return f'{blue}{value.MdlN}{style_reset}{base_style}'
 
     if isinstance(value, list):
         return '[' + ', '.join(str(_fmt_arg(v, base_style=base_style)) for v in value) + ']'
@@ -69,15 +70,16 @@ def _fmt_arg(value, base_style: str = ''):
     return value
 
 
-def sprint(*args, indent: int = 0, style: str = '', set_verbose: bool = None, **kwargs):
+def sprint(*args, indent: int = 0, style: str = '', verbose_In: bool = None, verbose_Out: bool = None, **kwargs):
     """
     Special print function. Allows easy indentation (2 spaces per 1 indent level) and easy styling.
-    Prints only if VERBOSE is True.
+    Allows for setting VERBOSE prior and after printing, so set_verbose doesn't have to be used all the time separately.
     """
-    if set_verbose is not None:
-        globals()['set_verbose'](set_verbose)
+    if verbose_In is not None:
+        globals()['set_verbose'](verbose_In)
+
     if VERBOSE:
-        args_fmt = tuple(_fmt_arg(arg, base_style=style) for arg in args)
+        args_fmt = tuple(_fmt_arg(arg, base_style=style) for arg in args)  # Highligts Mdl_N instances.
         prefix = f'{style}{"  " * indent}'
 
         if args_fmt:
@@ -87,6 +89,9 @@ def sprint(*args, indent: int = 0, style: str = '', set_verbose: bool = None, **
             print(*args_out, **kwargs)
         else:
             print(f'{prefix}{style_reset}', **kwargs)
+
+    if verbose_Out is not None:
+        globals()['set_verbose'](verbose_Out)
 
 
 def sinput(*args, indent: int = 0, style: str = '', sep: str = ' '):

@@ -6,7 +6,7 @@ import pandas as pd
 from WS_Mdl.core.style import sprint
 
 
-def as_dF(Pa_IPF: Path | str) -> pd.DataFrame:
+def as_DF(Pa_IPF: Path | str) -> pd.DataFrame:
     """
     Reads IPF file without temporal component - i.e. no linked TS text files. Returns a DF created from just the IPF file.
     """

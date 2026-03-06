@@ -19,6 +19,8 @@ class Mdl_N:
     MdlN: str
     alias: str = field(init=False)
     N: int = field(init=False)
+    _pa_cache: object = field(init=False, repr=False, compare=False, default=None)
+    _ini_cache: object = field(init=False, repr=False, compare=False, default=None)
 
     def __post_init__(self):
         m = _MdlN_pattern.match(self.MdlN)
@@ -28,27 +30,39 @@ class Mdl_N:
             )
         object.__setattr__(self, 'alias', m.group('alias'))
         object.__setattr__(self, 'N', int(m.group('N')))
+        object.__setattr__(self, '_pa_cache', None)
+        object.__setattr__(self, '_ini_cache', None)
 
     @property
     def Pa(self):
         """Returns a dictionary of paths related to the model number. But also makes them accessible as attributes."""
-        from WS_Mdl.core.path import MdlN_PaView
+        cached = self._pa_cache
+        if cached is None:
+            from WS_Mdl.core.path import MdlN_PaView
 
-        return MdlN_PaView(self.MdlN)
+            cached = MdlN_PaView(self.MdlN)
+            object.__setattr__(self, '_pa_cache', cached)
+
+        return cached
 
     @property
     def INI(self):
         """Returns the content of the INI file as a dictionary."""
-        from WS_Mdl.imod.ini import INIView
+        cached = self._ini_cache
+        if cached is None:
+            from WS_Mdl.imod.ini import INIView
 
-        return INIView(self.Pa.Pa_INI)
+            cached = INIView(self.Pa.INI)
+            object.__setattr__(self, '_ini_cache', cached)
+
+        return cached
 
     @property
     def Dmns(self):
         """Returns the model dimensions as a tuple (Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C)."""
         from WS_Mdl.imod.ini import Mdl_Dmns
 
-        return Mdl_Dmns(self.Pa.Pa_INI)
+        return Mdl_Dmns(self.Pa.INI)
 
     @property
     def V(self):
@@ -56,3 +70,17 @@ class Mdl_N:
         from WS_Mdl.core.path import imod_V
 
         return imod_V(self.MdlN)
+
+    @property
+    def B(self):
+        """Returns the Baseline Sim."""
+        from WS_Mdl.core.log import get_B
+
+        return get_B(self.MdlN)
+
+    @property
+    def Pa_B(self):
+        """Returns the paths of the Baseline Sim."""
+        from WS_Mdl.core.path import MdlN_PaView
+
+        return MdlN_PaView(self.MdlN).B(self.B)

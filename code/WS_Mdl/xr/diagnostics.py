@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import xarray as xra
 
 
 def _describe_da(da: xra.DataArray, da_name: str):

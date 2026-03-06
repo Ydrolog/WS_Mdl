@@ -13,7 +13,8 @@ from WS_Mdl.core.mdl import Mdl_N
 from WS_Mdl.core.path import MdlN_PaView, Pa_WS
 from WS_Mdl.core.style import Sep, sprint
 from WS_Mdl.imod.ini import CeCes, Mdl_Dmns
-from WS_Mdl.xr.convert import to_MBTIF, to_TIF
+from WS_Mdl.xr.convert import to_MBTIF as xr_to_MBTIF
+from WS_Mdl.xr.convert import to_TIF as xr_to_TIF
 
 # import importlib as IL
 
@@ -107,7 +108,7 @@ def r_with_OBS(
     return PRJ, l_OBS_Lns
 
 
-def PRJ_to_DF(MdlN):
+def to_DF(MdlN):
     """Leverages r_PRJ_with_OBS to produce a DF with the PRJ data.
     Could have been included in utils.py based on dependencies, but utils_imod.py fits it better as it's almost always used after r_PRJ_with_OBS (so the libs will be already loaded)."""
 
@@ -338,7 +339,7 @@ def regrid_DA(DA, x_CeCes, y_CeCes, dx, dy, item_name, method='linear'):
         return DA
 
 
-def PRJ_to_TIF(MdlN, iMOD5=False):
+def to_TIF(MdlN, iMOD5=False):
     """Converts PRJ file to TIF (multiband if necessary) files by package (only time independent packages).
     The function uses a DF produced by PRJ_to_DF. It needs to follow a specific format.
     Also creates a .csv file with the TIF file paths to be replaced in the QGIS project."""
@@ -349,7 +350,7 @@ def PRJ_to_TIF(MdlN, iMOD5=False):
     M_alias = M.alias
     Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = Mdl_Dmns(Pa.INI)  # Get dimensions
 
-    DF = PRJ_to_DF(MdlN)  # Read PRJ file to DF
+    DF = to_DF(MdlN)  # Read PRJ file to DF
 
     # -------------------- Process time-indepenent packages (most) ---------------
     sprint('\n --- Converting time-independant package IDF files to TIF ---')
@@ -395,7 +396,7 @@ def PRJ_to_TIF(MdlN, iMOD5=False):
                     DA = imod.formats.idf.open(list(DF_Par['path']), pattern='{name}_L{layer}_').sel(
                         x=slice(Xmin, Xmax), y=slice(Ymax, Ymin)
                     )
-                    to_MBTIF(DA, Pa_TIF, d_MtDt)
+                    xr_to_MBTIF(DA, Pa_TIF, d_MtDt)
                     sprint('🟢 - multi-band')
                 else:
                     try:
@@ -405,18 +406,18 @@ def PRJ_to_TIF(MdlN, iMOD5=False):
                         d_MtDt[
                             f'{DF_Par["parameter"].values[0]}_L{DF_Par["layer"].values[0]}_{DF_Par["MdlN"].values[0]}'
                         ] = {('origin_path' if col == 'path' else col): str(val) for col, val in R.items()}
-                        to_TIF(
+                        xr_to_TIF(
                             DA.squeeze(drop=True), Pa_TIF, d_MtDt
                         )  # .squeeze cause 2D arrays have extra dimension with size 1 sometimes.
                         sprint('🟢 - single-band with L attribute')
-                    except:
+                    except Exception:
                         DA = imod.formats.idf.open(list(DF_Par['path']), pattern='{name}_').sel(
                             x=slice(Xmin, Xmax), y=slice(Ymax, Ymin)
                         )
                         d_MtDt[f'{DF_Par["parameter"].values[0]}_{DF_Par["MdlN"].values[0]}'] = {
                             ('origin_path' if col == 'path' else col): str(val) for col, val in R.items()
                         }
-                        to_TIF(
+                        xr_to_TIF(
                             DA.squeeze(drop=True), Pa_TIF, d_MtDt
                         )  # .squeeze cause 2D arrays have extra dimension with size 1 sometimes.
                         sprint('🟢 - single-band without L attribute')
@@ -459,7 +460,7 @@ def PRJ_to_TIF(MdlN, iMOD5=False):
                 DA = imod.formats.idf.open(R['path'], pattern=f'{{name}}_{M_alias}').sel(
                     x=slice(Xmin, Xmax), y=slice(Ymax, Ymin)
                 )
-                to_TIF(
+                xr_to_TIF(
                     DA.squeeze(drop=True), Pa_TIF, d_MtDt
                 )  # .squeeze cause 2D arrays have extra dimension with size 1 sometimes.
                 sprint('🟢 - IDF converted to TIF - single-band without L attribute')
@@ -505,8 +506,8 @@ def PRJ_to_TIF(MdlN, iMOD5=False):
                 Pa_GPKG.parent.mkdir(parents=True, exist_ok=True)  # Make sure the directory exists
                 _GDF_AVG.to_file(Pa_GPKG, driver='GPKG')  # , layer=PBN(Pa_GPKG))
                 sprint('🟢 - IPF average values (per id) converted to GPKG')
-            except:
-                sprint('🔴')
+            except Exception as e:
+                sprint(f'🔴 - Error: {e}')
     # -------------------- Process derived packages/parameters (Thk, T) -----------------
     d_Clc_In = {}  # Dictionary to store calculated inputs.
 
@@ -524,7 +525,7 @@ def PRJ_to_TIF(MdlN, iMOD5=False):
     )
 
     DA_Thk = (toP - DA_BOT).squeeze(drop=True)  # Let's make a dictionary to store Info about each parameter
-    MdlN_Pkg = Mdl + str(
+    MdlN_Pkg = M.alias + str(
         max(DF_Rgu.loc[DF_Rgu['package'].isin(['TOP', 'BOT']), 'MdlN'].str.extract(r'(\d+)')[0])
     )  # 666 the largest number from the TOP and BOT MdlNs
     d_Clc_In['Thk'] = {
@@ -543,7 +544,7 @@ def PRJ_to_TIF(MdlN, iMOD5=False):
     }
     ## T
     DA_T = DA_Thk * DA_Kh
-    MdlN_Pkg = Mdl + str(
+    MdlN_Pkg = M.alias + str(
         max(DF_Rgu.loc[DF_Rgu['package'].isin(['TOP', 'BOT', 'NPF']), 'MdlN'].str.extract(r'(\d+)')[0])
     )  # the largest number from the TOP and BOT MdlNs
     d_Clc_In['T'] = {
@@ -567,12 +568,7 @@ def PRJ_to_TIF(MdlN, iMOD5=False):
         sprint(f'\t{d_Clc_In[Par]["Par"]:<30} ... ', end='')
 
         Pa_TIF = (
-            d_Pa['Pa_Mdl']
-            / 'PoP'
-            / 'Clc_In'
-            / Par
-            / d_Clc_In[Par]['MdlN_Pkg']
-            / f'{Par}_{d_Clc_In[Par]["MdlN_Pkg"]}.tif'
+            M.Pa.Pa_Mdl / 'PoP' / 'Clc_In' / Par / d_Clc_In[Par]['MdlN_Pkg'] / f'{Par}_{d_Clc_In[Par]["MdlN_Pkg"]}.tif'
         )  # Full path to TIF file #666 need to think which MdlN to use. It's hard to do the same as with the other packages.
 
         if Pa_TIF.exists():
@@ -591,10 +587,10 @@ def PRJ_to_TIF(MdlN, iMOD5=False):
 
                 match len(DA.shape):
                     case 3:
-                        to_MBTIF(DA, Pa_TIF, d_MtDt)  # If there are multiple paths for the same parameter
+                        xr_to_MBTIF(DA, Pa_TIF, d_MtDt)  # If there are multiple paths for the same parameter
                         sprint('🟢 - multi-band')
                     case 2:
-                        to_TIF(
+                        xr_to_TIF(
                             DA.squeeze(drop=True), Pa_TIF, d_MtDt
                         )  # .squeeze cause 2D arrays have extra dimension with size 1 sometimes.
                         sprint('🟢 - single-band')

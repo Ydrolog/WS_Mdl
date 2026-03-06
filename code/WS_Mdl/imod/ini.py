@@ -25,26 +25,35 @@ def as_d(Pa_INI: Path | str) -> dict:
     return d_INI
 
 
-class INIView:
-    """MdlN accessor/view."""
+class INIView(dict):
+    """Dictionary of INI values with attribute-style key access."""
 
-    __slots__ = ('_d', '_path')
+    __slots__ = ('_path',)
 
-    def __init__(self, Pa_INI):
+    def __init__(self, Pa_INI: Path | str):
         self._path = Path(Pa_INI)
-        self._d = as_d(self._path)
+        super().__init__(as_d(self._path))
 
     def __getattr__(self, name: str):
         try:
-            return self._d[name.upper()]
+            return self[name]
         except KeyError as e:
             raise AttributeError(name) from e
 
-    def __getitem__(self, key: str):
-        return self._d[key.upper()]
+    def __getitem__(self, key):
+        if isinstance(key, str):
+            key = key.upper()
+        return super().__getitem__(key)
 
-    def keys(self):
-        return self._d.keys()
+    def get(self, key, default=None):
+        if isinstance(key, str):
+            key = key.upper()
+        return super().get(key, default)
+
+    def __contains__(self, key):
+        if isinstance(key, str):
+            key = key.upper()
+        return super().__contains__(key)
 
 
 def Mdl_Dmns(Pa_INI):

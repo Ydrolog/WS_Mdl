@@ -5,11 +5,9 @@ import subprocess as sp
 import sys
 from datetime import datetime as DT
 from multiprocessing import Pool, cpu_count
-from pathlib import Path
 
 import pandas as pd
 from colored import attr, fg
-from filelock import FileLock as FL
 from send2trash import send2trash
 from WS_Mdl.core.log import DF_match_MdlN, r_RunLog, to_Se
 from WS_Mdl.core.mdl import Mdl_N
@@ -89,26 +87,6 @@ def S_from_B_undo(MdlN: str):
             sprint(f'🟢 - {Pa_S.name:20} deleted successfully!')
 
     sprint(Sep)
-
-
-def Up_log(MdlN: str, d_Up: dict, Pa_log_Out=Pa_log_Out):  # Pa_log_Out=PJ(Pa_WS, 'Mng/log.csv')):
-    """Update log.csv based on MdlN and key of `updates`."""
-    Pa_log_Out = Path(Pa_log_Out)
-    Pa_lock = Pa_log_Out.with_name(f'{Pa_log_Out.name}.lock')  # Create a lock file to prevent concurrent access
-    lock = FL(Pa_lock)
-
-    with lock:  # Acquire the lock to prevent concurrent access
-        DF = pd.read_csv(Pa_log_Out, index_col=0)  # Assumes log.csv exists.
-
-        for key, value in d_Up.items():  # Update the relevant cells
-            DF.at[MdlN, key] = value
-
-        while True:  # Wait for file to be closed if it's open
-            try:
-                DF.to_csv(Pa_log_Out, date_format='%Y-%m-%d %H:%M')  # Save back to CSV
-                break  # Break if successful
-            except PermissionError:
-                input('log.csv is open. Press Enter after closing the file...')  # Wait for user input
 
 
 def RunSim(args):

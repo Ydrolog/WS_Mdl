@@ -1,4 +1,5 @@
 # ---------- RunLog related functions ----------
+from pathlib import Path
 
 import pandas as pd
 
@@ -46,3 +47,31 @@ def last_MdlN(status: str = 'completed'):
 
 def r_RunLog():
     return pd.read_excel(Pa_RunLog, sheet_name='RunLog').dropna(subset='runN')  # Read RunLog
+
+
+def update_log(MdlN: str, d_Up: dict, Pa_log_Out=Pa_log_Out):  # Pa_log_Out=PJ(Pa_WS, 'Mng/log.csv')):
+    """Update log.csv based on MdlN and key of `updates`."""
+    import filelock as FL
+
+    Pa_log_Out = Path(Pa_log_Out)
+    Pa_lock = Pa_log_Out.with_name(f'{Pa_log_Out.name}.lock')  # Create a lock file to prevent concurrent access
+    lock = FL(Pa_lock)
+
+    with lock:  # Acquire the lock to prevent concurrent access
+        DF = pd.read_csv(Pa_log_Out, index_col=0)  # Assumes log.csv exists.
+
+        for key, value in d_Up.items():  # Update the relevant cells
+            DF.at[MdlN, key] = value
+
+        while True:  # Wait for file to be closed if it's open
+            try:
+                DF.to_csv(Pa_log_Out, date_format='%Y-%m-%d %H:%M')  # Save back to CSV
+                break  # Break if successful
+            except PermissionError:
+                input('log.csv is open. Press Enter after closing the file...')  # Wait for user input
+
+
+def get_B(MdlN):
+    """Returns the Baseline Sim for a given MdlN, based on the RunLog."""
+    S = to_Se(MdlN)
+    return S['B MdlN']

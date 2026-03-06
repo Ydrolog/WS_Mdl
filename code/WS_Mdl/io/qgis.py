@@ -16,7 +16,7 @@ from WS_Mdl.core.style import Sep, sprint
 sys.excepthook = sys.__excepthook__
 
 
-def Up_MM(MdlN, MdlN_MM_B=None):
+def update_MM(MdlN, MdlN_MM_B=None):
     """Updates the MM (QGIS projct containing model data)."""
 
     sprint(Sep)
