@@ -160,7 +160,7 @@ def SFR_stage_TS(
     if load_HD:
         try:
             A_HD_ = imod.mf6.open_hds(
-                hds_path=Pa.Out_HD_Bin,
+                hds_path=Pa.HD_Out_Bin,
                 grb_path=Pa.DIS_GRB,
                 simulation_start_time=pd.to_datetime(SP_date_1st),
                 time_unit='d',
@@ -171,7 +171,7 @@ def SFR_stage_TS(
     if load_HD_RIV:
         try:
             A_HD_RIV_ = imod.mf6.open_hds(
-                hds_path=Pa_RIV.Out_HD_Bin,
+                hds_path=Pa_RIV.HD_Out_Bin,
                 grb_path=Pa_RIV.DIS_GRB,
                 simulation_start_time=pd.to_datetime(SP_date_1st_RIV),
                 time_unit='d',

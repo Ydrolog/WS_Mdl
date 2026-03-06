@@ -50,7 +50,7 @@ def r_RunLog():
 
 
 def update_log(MdlN: str, d_Up: dict, Pa_log_Out=Pa_log_Out):  # Pa_log_Out=PJ(Pa_WS, 'Mng/log.csv')):
-    """Update log.csv based on MdlN and key of `updates`."""
+    """Update log_Out.csv based on MdlN and key of `updates`."""
     from filelock import FileLock as FL
 
     Pa_log_Out = Path(Pa_log_Out)
@@ -58,7 +58,7 @@ def update_log(MdlN: str, d_Up: dict, Pa_log_Out=Pa_log_Out):  # Pa_log_Out=PJ(P
     lock = FL(Pa_lock)
 
     with lock:  # Acquire the lock to prevent concurrent access
-        DF = pd.read_csv(Pa_log_Out, index_col=0)  # Assumes log.csv exists.
+        DF = pd.read_csv(Pa_log_Out, index_col=0)  # Assumes log_Out.csv exists.
 
         for key, value in d_Up.items():  # Update the relevant cells
             DF.at[MdlN, key] = value

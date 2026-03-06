@@ -13,3 +13,11 @@ def timed_import(module):
 
     print(f'{module} imported in {end - start:.3f}s')
     return mod
+
+
+def timed_execution(func, *args, **kwargs):
+    start = time.perf_counter()
+    result = func(*args, **kwargs)
+    end = time.perf_counter()
+    print(f'{func.__name__} executed in {end - start:.3f}s')
+    return result

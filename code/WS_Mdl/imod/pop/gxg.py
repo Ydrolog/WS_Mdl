@@ -35,11 +35,11 @@ def HD_Bin_GXG_to_MBTIF(MdlN, start_year='from_INI', end_year='from_INI', IDT='f
     set_verbose(True)
 
     # 1. Load & trim Bin HD file
-    DA_HD = imod.mf6.open_hds(hds_path=d_Pa['Out_HD_Bin'], grb_path=d_Pa['DIS_GRB'])
+    DA_HD = imod.mf6.open_hds(hds_path=d_Pa['HD_Out_Bin'], grb_path=d_Pa['DIS_GRB'])
     dates = pd.date_range(start=str(start_year), periods=DA_HD.time.size, freq=f'{IDT}D')
     DA_HD = DA_HD.assign_coords(time=dates)  # Assign to DA_HD
     DA_HD = DA_HD.where(DA_HD.time.dt.year.isin(l_years), drop=True).sel(layer=l_Ls)  # Select specific years and layers
-    sprint(f'🟢 - Loaded HD file from {d_Pa["Out_HD_Bin"]}')
+    sprint(f'🟢 - Loaded HD file from {d_Pa["HD_Out_Bin"]}')
 
     # 2. GXG
     ##  Calculate GXG
@@ -83,7 +83,7 @@ def HD_Bin_GXG_to_MBTIF(MdlN, start_year='from_INI', end_year='from_INI', IDT='f
                 'coordinates': GXG.coords,
                 'N_years': N_years_GVG if K == 'GVG' else N_years_GXG,
                 'variable': Pa_Out.name[0],
-                'details': f'{MdlN} {K} calculated from (path: {d_Pa["Out_HD_Bin"]}), via function described in: https://deltares.github.io/imod-python/api/generated/evaluate/imod.evaluate.calculate_gxg.html',
+                'details': f'{MdlN} {K} calculated from (path: {d_Pa["HD_Out_Bin"]}), via function described in: https://deltares.github.io/imod-python/api/generated/evaluate/imod.evaluate.calculate_gxg.html',
             }
         }
 

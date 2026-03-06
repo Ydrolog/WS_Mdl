@@ -99,4 +99,4 @@ class Mdl_N:
         """Returns the paths of the Baseline Sim."""
         from WS_Mdl.core.path import MdlN_PaView
 
-        return MdlN_PaView(self.MdlN, iMOD5=(self.V == 'imod5')).B(self.B)
+        return MdlN_PaView(self.B, iMOD5=(self.V == 'imod5'))

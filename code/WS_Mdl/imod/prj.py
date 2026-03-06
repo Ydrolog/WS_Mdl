@@ -1,6 +1,5 @@
 import math
 import os
-import re
 import tempfile
 from pathlib import Path
 
@@ -435,12 +434,7 @@ def to_TIF(MdlN, iMOD5=False):
         sprint(f'\t{f"{R['package']}_{R['parameter']}":<30} ... ', end='')
 
         Pa_TIF = (
-            Pa.Pa_Mdl
-            / 'PoP'
-            / 'In'
-            / R['package']
-            / R['MdlN']
-            / re.sub(r'\.idf$', '.tif', R['path'], flags=re.IGNORECASE).name
+            Pa.Pa_Mdl / 'PoP' / 'In' / R['package'] / R['MdlN'] / Path(R['path']).with_suffix('.tif').name
         )  # Full path to TIF file
 
         if Pa_TIF.exists():
@@ -474,12 +468,7 @@ def to_TIF(MdlN, iMOD5=False):
         sprint(f'\t{R["path"].name:<30} ... ', end='')
 
         Pa_GPKG = (
-            Pa.Pa_Mdl
-            / 'PoP'
-            / 'In'
-            / R['package']
-            / R['MdlN']
-            / re.sub(r'\.ipf$', '.gpkg', R['path'], flags=re.IGNORECASE).name
+            Pa.Pa_Mdl / 'PoP' / 'In' / R['package'] / R['MdlN'] / Path(R['path']).with_suffix('.gpkg').name
         )  # Full path to TIF file
 
         if Pa_GPKG.exists():

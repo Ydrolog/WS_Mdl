@@ -166,15 +166,25 @@ class MdlN_PaView:
         MdlN = self._d['MdlN'].name if isinstance(self._d['MdlN'], Path) else self._d['MdlN']
         return MdlN_PaView(MdlN, MdlN_B=MdlN_B, iMOD5=(self._d['imod_V'] == 'imod5'))
 
+    def _resolve_key(self, key: str) -> str:
+        """Resolve legacy Pa_* keys to the current canonical key names."""
+        if key in self._d:
+            return key
+        if key.startswith('Pa_'):
+            key_no_prefix = key[3:]
+            if key_no_prefix in self._d:
+                return key_no_prefix
+        raise KeyError(key)
+
     def __getattr__(self, name: str):
         # attribute-style access: Pa.INI -> dict["INI"]
         try:
-            return self._d[name]
+            return self._d[self._resolve_key(name)]
         except KeyError as e:
             raise AttributeError(name) from e
 
     def __getitem__(self, key: str):
-        return self._d[key]
+        return self._d[self._resolve_key(key)]
 
     def __repr__(self):
         # Show the underlying mapping directly so notebook print/display is readable.
@@ -187,7 +197,10 @@ class MdlN_PaView:
         return dict(self._d)
 
     def get(self, key: str, default=None):
-        return self._d.get(key, default)
+        try:
+            return self._d[self._resolve_key(key)]
+        except KeyError:
+            return default
 
     def keys(self):
         return self._d.keys()
@@ -205,4 +218,8 @@ class MdlN_PaView:
         return len(self._d)
 
     def __contains__(self, key: str):
-        return key in self._d
+        if key in self._d:
+            return True
+        if isinstance(key, str) and key.startswith('Pa_'):
+            return key[3:] in self._d
+        return False
