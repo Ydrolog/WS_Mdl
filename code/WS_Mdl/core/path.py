@@ -163,7 +163,8 @@ class MdlN_PaView:
 
     def B(self, MdlN_B: str):
         # new view with *_B keys present
-        return MdlN_PaView(self._d['MdlN'], MdlN_B=MdlN_B, iMOD5=(self._d['imod_V'] == 'imod5'))
+        MdlN = self._d['MdlN'].name if isinstance(self._d['MdlN'], Path) else self._d['MdlN']
+        return MdlN_PaView(MdlN, MdlN_B=MdlN_B, iMOD5=(self._d['imod_V'] == 'imod5'))
 
     def __getattr__(self, name: str):
         # attribute-style access: Pa.INI -> dict["INI"]

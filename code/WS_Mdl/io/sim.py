@@ -236,7 +236,7 @@ def reset_Sim(MdlN: str, ask_permission: bool = True, Pa_log_Out=Pa_log_Out, per
 
     if permission == 'y':
         M = Mdl_N(MdlN)
-        Pa_MdlN = M.Pa.Pa_MdlN
+        Pa_MdlN = M.Pa.MdlN
         DF = pd.read_csv(Pa_log_Out)  # Read the log file
         Pa_Smk_temp = M.Pa.Smk_temp
         l_temp = [p for p in Pa_Smk_temp.iterdir() if MdlN.lower() in p.name.lower()]

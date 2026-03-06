@@ -11,7 +11,7 @@ def Agg_OBS(MdlN, Pkg):
     set_verbose(False)
     M = Mdl_N(MdlN)
     start_date = INI_to_d(M.Pa.INI)['SDATE']
-    l_Pa_OBS = [p for p in M.Pa.Pa_MdlN.iterdir() if f'{Pkg}_OBS' in p.name]
+    l_Pa_OBS = [p for p in M.Pa.MdlN.iterdir() if f'{Pkg}_OBS' in p.name]
     set_verbose(True)
 
     l_DF = []
@@ -40,7 +40,7 @@ def Agg_OBS(MdlN, Pkg):
     DF = pd.concat(l_DF, axis=1).sort_index()
     DF['SUM'] = DF.sum(axis=1, min_count=1)
     DF = DF.reset_index().rename(columns={'index': 'date'})
-    Pa_Out = M.Pa.Pa_MdlN / f'OBS_Agg/{Pkg}_OBS_Agg_{MdlN}.csv'
+    Pa_Out = M.Pa.MdlN / f'OBS_Agg/{Pkg}_OBS_Agg_{MdlN}.csv'
     Pa_Out.parent.mkdir(parents=True, exist_ok=True)
     DF.to_csv(Pa_Out, index=False)
 

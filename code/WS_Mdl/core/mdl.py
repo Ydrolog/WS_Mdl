@@ -17,10 +17,12 @@ class Mdl_N:
     """
 
     MdlN: str
+    iMOD5: bool | None = field(default=None, repr=False, compare=False)
     alias: str = field(init=False)
     N: int = field(init=False)
     _pa_cache: object = field(init=False, repr=False, compare=False, default=None)
     _ini_cache: object = field(init=False, repr=False, compare=False, default=None)
+    _v_cache: str | None = field(init=False, repr=False, compare=False, default=None)
 
     def __post_init__(self):
         m = _MdlN_pattern.match(self.MdlN)
@@ -28,10 +30,18 @@ class Mdl_N:
             raise ValueError(
                 f"Invalid MdlN format: {self.MdlN}. Expected format: Alias followed by number, e.g., 'Mdl123'."
             )
+        if self.iMOD5 is not None and not isinstance(self.iMOD5, bool):
+            raise TypeError('iMOD5 should be None, True, or False.')
+
         object.__setattr__(self, 'alias', m.group('alias'))
         object.__setattr__(self, 'N', int(m.group('N')))
         object.__setattr__(self, '_pa_cache', None)
         object.__setattr__(self, '_ini_cache', None)
+        object.__setattr__(
+            self,
+            '_v_cache',
+            'imod5' if self.iMOD5 is True else ('imod_python' if self.iMOD5 is False else None),
+        )
 
     @property
     def Pa(self):
@@ -40,7 +50,7 @@ class Mdl_N:
         if cached is None:
             from WS_Mdl.core.path import MdlN_PaView
 
-            cached = MdlN_PaView(self.MdlN)
+            cached = MdlN_PaView(self.MdlN, iMOD5=(self.V == 'imod5'))
             object.__setattr__(self, '_pa_cache', cached)
 
         return cached
@@ -67,9 +77,15 @@ class Mdl_N:
     @property
     def V(self):
         """Returns the iMOD version of the model."""
+        cached = self._v_cache
+        if cached is not None:
+            return cached
+
         from WS_Mdl.core.path import imod_V
 
-        return imod_V(self.MdlN)
+        cached = imod_V(self.MdlN)
+        object.__setattr__(self, '_v_cache', cached)
+        return cached
 
     @property
     def B(self):
@@ -83,4 +99,4 @@ class Mdl_N:
         """Returns the paths of the Baseline Sim."""
         from WS_Mdl.core.path import MdlN_PaView
 
-        return MdlN_PaView(self.MdlN).B(self.B)
+        return MdlN_PaView(self.MdlN, iMOD5=(self.V == 'imod5')).B(self.B)
