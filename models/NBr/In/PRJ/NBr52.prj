@@ -237,44 +237,44 @@
 
 0001,(SHD),1, Starting Heads
 001,037
- 1,2, 001,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr39\SHD_19930101_L1_NBr39.idf' >>> (shd) starting heads (idf) <<<
- 1,2, 002,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr39\SHD_19930101_L1_NBr39.idf' >>> (shd) starting heads (idf) <<<
- 1,2, 003,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr39\SHD_19930101_L2_NBr39.idf' >>> (shd) starting heads (idf) <<<
- 1,2, 004,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr39\SHD_19930101_L2_NBr39.idf' >>> (shd) starting heads (idf) <<<
- 1,2, 005,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr39\SHD_19930101_L3_NBr39.idf' >>> (shd) starting heads (idf) <<<
- 1,2, 006,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr39\SHD_19930101_L3_NBr39.idf' >>> (shd) starting heads (idf) <<<
- 1,2, 007,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr39\SHD_19930101_L4_NBr39.idf' >>> (shd) starting heads (idf) <<<
- 1,2, 008,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr39\SHD_19930101_L4_NBr39.idf' >>> (shd) starting heads (idf) <<<
- 1,2, 009,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr39\SHD_19930101_L5_NBr39.idf' >>> (shd) starting heads (idf) <<<
- 1,2, 010,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr39\SHD_19930101_L5_NBr39.idf' >>> (shd) starting heads (idf) <<<
- 1,2, 011,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr39\SHD_19930101_L6_NBr39.idf' >>> (shd) starting heads (idf) <<<
- 1,2, 012,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr39\SHD_19930101_L6_NBr39.idf' >>> (shd) starting heads (idf) <<<
- 1,2, 013,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr39\SHD_19930101_L7_NBr39.idf' >>> (shd) starting heads (idf) <<<
- 1,2, 014,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr39\SHD_19930101_L7_NBr39.idf' >>> (shd) starting heads (idf) <<<
- 1,2, 015,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr39\SHD_19930101_L8_NBr39.idf' >>> (shd) starting heads (idf) <<<
- 1,2, 016,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr39\SHD_19930101_L8_NBr39.idf' >>> (shd) starting heads (idf) <<<
- 1,2, 017,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr39\SHD_19930101_L9_NBr39.idf' >>> (shd) starting heads (idf) <<<
- 1,2, 018,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr39\SHD_19930101_L9_NBr39.idf' >>> (shd) starting heads (idf) <<<
- 1,2, 019,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr39\SHD_19930101_L10_NBr39.idf' >>> (shd) starting heads (idf) <<<
- 1,2, 020,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr39\SHD_19930101_L10_NBr39.idf' >>> (shd) starting heads (idf) <<<
- 1,2, 021,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr39\SHD_19930101_L11_NBr39.idf' >>> (shd) starting heads (idf) <<<
- 1,2, 022,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr39\SHD_19930101_L11_NBr39.idf' >>> (shd) starting heads (idf) <<<
- 1,2, 023,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr39\SHD_19930101_L12_NBr39.idf' >>> (shd) starting heads (idf) <<<
- 1,2, 024,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr39\SHD_19930101_L12_NBr39.idf' >>> (shd) starting heads (idf) <<<
- 1,2, 025,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr39\SHD_19930101_L13_NBr39.idf' >>> (shd) starting heads (idf) <<<
- 1,2, 026,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr39\SHD_19930101_L13_NBr39.idf' >>> (shd) starting heads (idf) <<<
- 1,2, 027,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr39\SHD_19930101_L14_NBr39.idf' >>> (shd) starting heads (idf) <<<
- 1,2, 028,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr39\SHD_19930101_L14_NBr39.idf' >>> (shd) starting heads (idf) <<<
- 1,2, 029,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr39\SHD_19930101_L15_NBr39.idf' >>> (shd) starting heads (idf) <<<
- 1,2, 030,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr39\SHD_19930101_L15_NBr39.idf' >>> (shd) starting heads (idf) <<<
- 1,2, 031,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr39\SHD_19930101_L16_NBr39.idf' >>> (shd) starting heads (idf) <<<
- 1,2, 032,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr39\SHD_19930101_L16_NBr39.idf' >>> (shd) starting heads (idf) <<<
- 1,2, 033,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr39\SHD_19930101_L17_NBr39.idf' >>> (shd) starting heads (idf) <<<
- 1,2, 034,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr39\SHD_19930101_L17_NBr39.idf' >>> (shd) starting heads (idf) <<<
- 1,2, 035,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr39\SHD_19930101_L18_NBr39.idf' >>> (shd) starting heads (idf) <<<
- 1,2, 036,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr39\SHD_19930101_L18_NBr39.idf' >>> (shd) starting heads (idf) <<<
- 1,2, 037,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr39\SHD_19930101_L19_NBr39.idf' >>> (shd) starting heads (idf) <<<
-
+ 1,2, 001,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr52\SHD_19960101_L1_NBr52.idf' >>> (shd) starting heads (idf) <<<
+ 1,2, 002,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr52\SHD_19960101_L2_NBr52.idf' >>> (shd) starting heads (idf) <<<
+ 1,2, 003,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr52\SHD_19960101_L3_NBr52.idf' >>> (shd) starting heads (idf) <<<
+ 1,2, 004,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr52\SHD_19960101_L4_NBr52.idf' >>> (shd) starting heads (idf) <<<
+ 1,2, 005,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr52\SHD_19960101_L5_NBr52.idf' >>> (shd) starting heads (idf) <<<
+ 1,2, 006,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr52\SHD_19960101_L6_NBr52.idf' >>> (shd) starting heads (idf) <<<
+ 1,2, 007,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr52\SHD_19960101_L7_NBr52.idf' >>> (shd) starting heads (idf) <<<
+ 1,2, 008,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr52\SHD_19960101_L8_NBr52.idf' >>> (shd) starting heads (idf) <<<
+ 1,2, 009,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr52\SHD_19960101_L9_NBr52.idf' >>> (shd) starting heads (idf) <<<
+ 1,2, 010,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr52\SHD_19960101_L10_NBr52.idf' >>> (shd) starting heads (idf) <<<
+ 1,2, 011,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr52\SHD_19960101_L11_NBr52.idf' >>> (shd) starting heads (idf) <<<
+ 1,2, 012,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr52\SHD_19960101_L12_NBr52.idf' >>> (shd) starting heads (idf) <<<
+ 1,2, 013,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr52\SHD_19960101_L13_NBr52.idf' >>> (shd) starting heads (idf) <<<
+ 1,2, 014,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr52\SHD_19960101_L14_NBr52.idf' >>> (shd) starting heads (idf) <<<
+ 1,2, 015,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr52\SHD_19960101_L15_NBr52.idf' >>> (shd) starting heads (idf) <<<
+ 1,2, 016,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr52\SHD_19960101_L16_NBr52.idf' >>> (shd) starting heads (idf) <<<
+ 1,2, 017,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr52\SHD_19960101_L17_NBr52.idf' >>> (shd) starting heads (idf) <<<
+ 1,2, 018,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr52\SHD_19960101_L18_NBr52.idf' >>> (shd) starting heads (idf) <<<
+ 1,2, 019,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr52\SHD_19960101_L19_NBr52.idf' >>> (shd) starting heads (idf) <<<
+ 1,2, 020,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr52\SHD_19960101_L20_NBr52.idf' >>> (shd) starting heads (idf) <<<
+ 1,2, 021,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr52\SHD_19960101_L21_NBr52.idf' >>> (shd) starting heads (idf) <<<
+ 1,2, 022,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr52\SHD_19960101_L22_NBr52.idf' >>> (shd) starting heads (idf) <<<
+ 1,2, 023,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr52\SHD_19960101_L23_NBr52.idf' >>> (shd) starting heads (idf) <<<
+ 1,2, 024,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr52\SHD_19960101_L24_NBr52.idf' >>> (shd) starting heads (idf) <<<
+ 1,2, 025,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr52\SHD_19960101_L25_NBr52.idf' >>> (shd) starting heads (idf) <<<
+ 1,2, 026,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr52\SHD_19960101_L26_NBr52.idf' >>> (shd) starting heads (idf) <<<
+ 1,2, 027,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr52\SHD_19960101_L27_NBr52.idf' >>> (shd) starting heads (idf) <<<
+ 1,2, 028,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr52\SHD_19960101_L28_NBr52.idf' >>> (shd) starting heads (idf) <<<
+ 1,2, 029,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr52\SHD_19960101_L29_NBr52.idf' >>> (shd) starting heads (idf) <<<
+ 1,2, 030,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr52\SHD_19960101_L30_NBr52.idf' >>> (shd) starting heads (idf) <<<
+ 1,2, 031,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr52\SHD_19960101_L31_NBr52.idf' >>> (shd) starting heads (idf) <<<
+ 1,2, 032,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr52\SHD_19960101_L32_NBr52.idf' >>> (shd) starting heads (idf) <<<
+ 1,2, 033,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr52\SHD_19960101_L33_NBr52.idf' >>> (shd) starting heads (idf) <<<
+ 1,2, 034,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr52\SHD_19960101_L34_NBr52.idf' >>> (shd) starting heads (idf) <<<
+ 1,2, 035,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr52\SHD_19960101_L35_NBr52.idf' >>> (shd) starting heads (idf) <<<
+ 1,2, 036,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr52\SHD_19960101_L36_NBr52.idf' >>> (shd) starting heads (idf) <<<
+ 1,2, 037,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr52\SHD_19960101_L37_NBr52.idf' >>> (shd) starting heads (idf) <<<
+ 
 0001,(STO),1, Confined Storage Coefficient
 001,037
  1,1, 001,   1.000000    ,   0.000000    ,  0.2000000    ,''
