@@ -51,7 +51,7 @@ def r_RunLog():
 
 def update_log(MdlN: str, d_Up: dict, Pa_log_Out=Pa_log_Out):  # Pa_log_Out=PJ(Pa_WS, 'Mng/log.csv')):
     """Update log.csv based on MdlN and key of `updates`."""
-    import filelock as FL
+    from filelock import Filelock as FL
 
     Pa_log_Out = Path(Pa_log_Out)
     Pa_lock = Pa_log_Out.with_name(f'{Pa_log_Out.name}.lock')  # Create a lock file to prevent concurrent access
