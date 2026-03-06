@@ -63,8 +63,9 @@ def update_MM(MdlN, MdlN_MM_B=None):
         if Mdl in path:
             matches = re.findall(rf'{re.escape(Mdl)}(\d+)', path)
             if len(set(matches)) > 1:
-                sprint(f'🔴 ERROR: multiple non-identical {Mdl}Ns found in path: {matches}')
-                sys.exit('Fix the path containing non-identical MdlNs, then re-run me.')
+                sprint(f'🔴 ERROR: multiple non-identical {Mdl}Ns found in path: {path}\nmatches: {matches}')
+                # sys.exit('Fix the path containing non-identical MdlNs, then re-run me.')
+                continue
             else:
                 MdlX = f'{Mdl}{matches[0]}'
 
@@ -82,9 +83,9 @@ def update_MM(MdlN, MdlN_MM_B=None):
     tree.write(Pa_QGS, encoding='utf-8', xml_declaration=True)  # Save the modified .qgs file
 
     with ZF.ZipFile(Pa_QGZ, 'w', ZF.ZIP_DEFLATED) as zipf:  # Zip back into .qgz
-        for foldername, _, filenames in Pa_temp.rglob():
-            for filename in filenames:
-                filepath = (foldername / filename).absolute()
+        # Mirror the old os.walk behavior: include every file under temp with relative arcname.
+        for filepath in Pa_temp.rglob('*'):
+            if filepath.is_file():
                 arcname = filepath.relative_to(Pa_temp)
                 zipf.write(filepath, arcname)
 
