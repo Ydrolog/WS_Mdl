@@ -75,7 +75,7 @@ No RIV. Via imod python. PRJ: SS blocks removed, otherwise it wouldn't work with
 "42","NBr","42","NBr42","40","NBr40","MK","Test","SFRmaker #8:
  0.5*B_SFR_Cond","Queued","Completed"
 "43","NBr","43","NBr43","39","NBr39","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #3.
- 2 year Sim. HD out enabled.","Queued","Completed"
+ 2 year Sim. HD out enabled.","Queued","Removed Output"
 "44","NBr","44","NBr44","40","NBr40","MK","Test","SFRmaker #9:
  SFR for segments of the GPkg + RIV for the RIV cells (in NBr43) that aren't represented with GPkg","Queued","Completed"
 "45","NBr","45","NBr45","44","NBr44","MK","Test","SFRmaker #10:
@@ -90,7 +90,7 @@ No RIV. Via imod python. PRJ: SS blocks removed, otherwise it wouldn't work with
 "49","NBr","49","NBr49","43","NBr43","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #3p1.
  Replaced RIV summer and winter stage files with correct ones. 1 day Sim - I just need the RIV output, so I can prepare RIV OBS for p2.","Queued","Completed"
 "50","NBr","50","NBr50","49","NBr49","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #3p2.
-  3 year Sim as OG B (NBr43). B (NBr49 was needed to get the RIV element arrays to create the OBS for this Sim.","Queued","Completed"
+  3 year Sim as OG B (NBr43). B (NBr49 was needed to get the RIV element arrays to create the OBS for this Sim.","Queued","Removed Output"
 "51","NBr","51","NBr51","50","NBr50","MK","Test","SFRmaker #13; Test - Run on SURF #2
   Added 1ry SFR Nw, replacing main RIV Nw (mostly??? TBD).","Queued","Completed"
 "52","NBr","52","NBr52","50","NBr50","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #3p3.

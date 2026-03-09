@@ -133,7 +133,7 @@ class DFAccessor:
         )
         return result
 
-    def Calc_xy(self, Xmin: float, Ymax: float, cellsize: float) -> pd.DataFrame:
+    def Calc_XY(self, Xmin: float, Ymax: float, cellsize: float) -> pd.DataFrame:
         """
         Calculates X,Y coordinates for row/column indices and returns a new DataFrame.
         Supports 3 naming conventions:
@@ -156,7 +156,7 @@ class DFAccessor:
             return self._df
         return df
 
-    def Calc_xy_start_end_from_Geom(self) -> pd.DataFrame:
+    def Calc_XY_start_end_from_Geom(self) -> pd.DataFrame:
         """
         Calculates start and end X,Y coordinates from geometry column.
         Assumes there is a geometry column of type shapely.geometry.
@@ -172,7 +172,7 @@ class DFAccessor:
 
         return self
 
-    def to_MF_block(DF, Min_width=4, indent: int = 2, Max_decimals=4):
+    def to_MF_block(self, DF=None, Min_width=4, indent: int = 2, Max_decimals=4):
         """
         Convert DataFrame to formatted MODFLOW input block.
 
@@ -181,8 +181,8 @@ class DFAccessor:
 
         Parameters
         ----------
-        DF : pandas.DataFrame
-            DataFrame to format
+        DF : pandas.DataFrame, optional
+            DataFrame to format. If omitted, uses the accessor DataFrame.
         Min_width : int, default=4
             Minimum width for each column
         indent : str, default='    '
@@ -195,8 +195,15 @@ class DFAccessor:
         str
             Formatted text block with right-aligned columns and consistent formatting
         """
-        DF = DF.rename(columns={DF.columns[0]: '#' + DF.columns[0]})  # comment out header, so that MF6 doesn't read it.
-        DF_str = DF.copy().astype(str)
+        df_src = self._df if DF is None else DF
+        if not isinstance(df_src, pd.DataFrame):
+            raise TypeError('DF must be a pandas DataFrame when provided.')
+        if len(df_src.columns) == 0:
+            raise ValueError('Cannot format an empty DataFrame with no columns.')
+
+        # Comment out the first header, so that MF6 does not read it.
+        DF_fmt = df_src.rename(columns={df_src.columns[0]: '#' + df_src.columns[0]})
+        DF_str = DF_fmt.copy().astype(str)
 
         # Detect columns with floats or decimals
         decimal_cols = []
