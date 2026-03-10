@@ -115,13 +115,13 @@ def Bin_to_text(bin_path):
     print('\n🔴🔴🔴 - Failed to automatically convert. The file format might differ from (L,R,C,Stage,Cond,Rbot).')
 
 
-def Vtr_to_TIF(Pa_Vtr, Fld, Pa_TIF, MdlN=None, crs=None, SigDig=4):
+def Vtr_to_TIF(Pa_Vtr, Fld, Pa_TIF, MdlN=None, CRS=None, SigDig=4):
     """
     Converts a vector file to a single-band TIF file.
     - MdlN: Model number (e.g. 'NBr13').
     - Pa_Vtr: Path to the vector file.
     - Pa_TIF: Path to the output TIF file.
-    - crs: Coordinate Reference System for the output TIF.
+    - CRS: Coordinate Reference System for the output TIF.
     - SigDig: Number of significant digits to round to (default 4).
     """
     sprint(Sep)
@@ -135,8 +135,8 @@ def Vtr_to_TIF(Pa_Vtr, Fld, Pa_TIF, MdlN=None, crs=None, SigDig=4):
     from WS_Mdl.imod.ini import Mdl_Dmns
     from WS_Mdl.xr.convert import to_TIF
 
-    if crs is None:
-        from WS_Mdl.core.defaults import crs
+    if CRS is None:
+        from WS_Mdl.core.defaults import CRS
 
     if not MdlN:
         try:
@@ -194,6 +194,6 @@ def Vtr_to_TIF(Pa_Vtr, Fld, Pa_TIF, MdlN=None, crs=None, SigDig=4):
     DA = DA.astype('float32')
 
     # Write to TIF
-    to_TIF(DA, Pa_TIF, d_MtDt, crs=crs)
+    to_TIF(DA, Pa_TIF, d_MtDt, CRS=CRS)
     sprint(f'🟢🟢🟢 - Saved vector to TIF at {Pa_TIF.name}')
     sprint(Sep)

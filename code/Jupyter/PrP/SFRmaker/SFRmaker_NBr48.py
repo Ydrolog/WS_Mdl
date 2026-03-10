@@ -442,7 +442,7 @@ lines = sfr.Lines.from_dataframe(
     name_column='CODE',
     width_units='m',
     height_units='m',
-    crs=GDF.crs,
+    CRS=GDF.CRS,
     #    shapefile=Pa_GPkg_1ry_SHP_SFR,
 )
 
@@ -517,7 +517,7 @@ for k in GDF_grid['k'].unique():
     GDF_grid.loc[GDF_grid['k'] == k, 'geometry'] = L0_geom
 
 # %%
-GDF_grid = GDF_grid.set_geometry('geometry', crs=DS.rio.crs)
+GDF_grid = GDF_grid.set_geometry('geometry', CRS=DS.rio.CRS)
 
 # %% [markdown]
 # ### 3.0.2 Identify deepest SFR layer
@@ -538,11 +538,11 @@ for L in range(BOTs.shape[0]):
 
 # %%
 SFR_grid = sfr.StructuredGrid(
-    GDF_grid.loc[GDF_grid['k'] <= SFR_deepest_L - 1], crs=G.crs
+    GDF_grid.loc[GDF_grid['k'] <= SFR_deepest_L - 1], CRS=G.CRS
 )  # -1 cause grid k starts at 0, L at 1
 
 # %%
-SFR_grid_L1 = sfr.StructuredGrid(GDF_grid.loc[GDF_grid['k'] == 0], crs=G.crs)  # Extract layer 1 (k=0)
+SFR_grid_L1 = sfr.StructuredGrid(GDF_grid.loc[GDF_grid['k'] == 0], CRS=G.CRS)  # Extract layer 1 (k=0)
 
 # %%
 # Check what type of object and its basic info without triggering full repr
@@ -590,7 +590,7 @@ lines = sfr.Lines.from_dataframe(
     name_column='CODE',
     width_units='m',
     height_units='m',
-    crs=GDF.crs,
+    CRS=GDF.CRS,
     #    shapefile=Pa_GPkg_1ry_SHP_SFR,
 )
 

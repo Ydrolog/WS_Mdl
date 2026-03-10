@@ -9,6 +9,6 @@ print(f'Uploading:\n{"\n".join([f"{i:2}/{len(l_F)} - {j}" for i, j in enumerate(
 S = U.iB_session()
 
 for f in l_F:
-    U.iB_Upl(f, S)  # , overwrite=False)
+    U.Upl(f, S)  # , overwrite=False)
 
 print(U.Sep)

@@ -3,17 +3,17 @@ from pathlib import Path
 import numpy as np
 import rasterio
 
-from WS_Mdl.core.defaults import crs
+from WS_Mdl.core.defaults import CRS
 from WS_Mdl.core.style import sprint
 
 
-def to_TIF(DA, Pa_Out, d_MtDt, crs=crs, _print=False):
+def to_TIF(DA, Pa_Out, d_MtDt, CRS=CRS, _print=False):
     """Write a 2D xarray.DataArray (shape = [y, x]) to a single-band GeoTIFF.
     - DA: 2D xarray.DataArray with shape [y, x]
     - Pa_Out: Path to the output GeoTIFF file.
     - d_MtDt: Dictionary with metadata for this single band.
       Must contain exactly 1 item: {band_description: band_metadata_dict}
-    - crs: Coordinate Reference System (optional)."""
+    - CRS: Coordinate Reference System (optional)."""
 
     Pa_Out = Path(Pa_Out)  # Ensure Pa_Out is a Path object for consistent handling
 
@@ -34,7 +34,7 @@ def to_TIF(DA, Pa_Out, d_MtDt, crs=crs, _print=False):
         width=DA.shape[1],
         count=1,  # single band
         dtype=str(DA.dtype),
-        crs=crs,
+        CRS=CRS,
         transform=transform,
     ) as Dst:
         Dst.write(DA.values, 1)  # Write the 2D data as band 1
@@ -44,12 +44,12 @@ def to_TIF(DA, Pa_Out, d_MtDt, crs=crs, _print=False):
         sprint(f'🟢 - DA_to_TIF finished successfully for: {Pa_Out}')
 
 
-def to_MBTIF(DA, Pa_Out, d_MtDt, crs=crs, _print=False, decimals=3):
+def to_MBTIF(DA, Pa_Out, d_MtDt, CRS=CRS, _print=False, decimals=3):
     """Write a 3D xarray.DataArray (shape = [n_bands, y, x]) to a GeoTIFF. This bypasses rioxarray.to_raster() entirely, letting us set per-band descriptions and metadata in a single pass.
     - DA: 3D xarray.DataArray with shape [n_bands, y, x]
     - Pa_Out: Path to the output GeoTIFF file.
     - d_MtDt: Dictionary with metadata to be written to the GeoTIFF file. Each key is a band index (1-based) and each value is a dictionary of metadata tags.
-    - crs: Coordinate Reference System (optional).
+    - CRS: Coordinate Reference System (optional).
     - decimals: Number of decimal places to round array values to (default: 3)."""
 
     # Separate band metadata from global metadata
@@ -69,7 +69,7 @@ def to_MBTIF(DA, Pa_Out, d_MtDt, crs=crs, _print=False, decimals=3):
         width=DA.shape[2],
         count=n_bands,
         dtype=str(DA.dtype),
-        crs=crs,
+        CRS=CRS,
         transform=transform,
         photometric='MINISBLACK',
     ) as Dst:

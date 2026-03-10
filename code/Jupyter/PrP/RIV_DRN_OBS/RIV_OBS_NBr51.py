@@ -135,7 +135,7 @@ DF_RIV_['Y'] = Ymax - DF_RIV_['R'] * dy + dy / 2
 Pa_CB = PJ(U.Pa_WS, r'models\NBr\PoP\common\Pgn\Chaamse_beek\catchment_chaamsebeek_ulvenhout.shp')  # CB: Chaamse Beek
 GDF_CB = gpd.read_file(Pa_CB)
 print(f'Loaded shapefile with {len(GDF_CB)} features')
-print(f'CRS: {GDF_CB.crs}')
+print(f'CRS: {GDF_CB.CRS}')
 print(f'Bounds: {GDF_CB.bounds}')
 
 # %%
@@ -144,7 +144,7 @@ from shapely.geometry import Point
 # %%
 # Create geometry for RIV points
 DF_RIV_['geometry'] = DF_RIV_.apply(lambda row: Point(row['X'], row['Y']), axis=1)
-GDF_RIV = gpd.GeoDataFrame(DF_RIV_, crs=GDF_CB.crs)
+GDF_RIV = gpd.GeoDataFrame(DF_RIV_, CRS=GDF_CB.CRS)
 
 print(f'Created GeoDataFrame for RIV with {len(GDF_RIV)} points')
 print(

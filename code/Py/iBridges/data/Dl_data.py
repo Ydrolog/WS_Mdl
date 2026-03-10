@@ -11,6 +11,6 @@ S = U.iB_session()
 S.info()
 
 for F in l_F:
-    U.iB_Dl(F, S)  # , overwrite=False)
+    U.Dl(F, S)  # , overwrite=False)
 
 print(U.Sep)

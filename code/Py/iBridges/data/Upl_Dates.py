@@ -8,6 +8,6 @@ print(f'Uploading "{l_F}" folder to iBridges...\n')
 S = U.iB_session()
 
 for F in l_F:
-    U.iB_Upl(F, S)  # , overwrite=False)
+    U.Upl(F, S)  # , overwrite=False)
 
 print(U.Sep)

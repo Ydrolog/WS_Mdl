@@ -76,7 +76,11 @@ class Mdl_N:
 
     @property
     def V(self):
-        """Returns the iMOD version of the model."""
+        """
+        Returns the iMOD version of the model:
+        - 'imod5' for iMOD 5 models
+        - 'imod_python' for iMOD Python models
+        """
         cached = self._v_cache
         if cached is not None:
             return cached

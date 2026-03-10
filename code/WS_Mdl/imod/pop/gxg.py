@@ -108,10 +108,10 @@ def GXG_Diff(MdlN_1, MdlN_2):
             print(f'🔴 - Missing/unreadable file(s) for {Fi}: {e}')
 
 
-def HD_IDF_GXG_to_TIF(MdlN: str, N_cores: int = None, crs: str = None, rules: str = None, iMOD5=False):
+def HD_IDF_GXG_to_TIF(MdlN: str, N_cores: int = None, CRS: str = None, rules: str = None, iMOD5=False):
     """Reads Sim Out IDF files from the model directory and calculates GXG for each L. Saves them as MultiBand TIF files - each band representing one of the GXG params for a L."""
 
-    def _HD_IDF_GXG_to_TIF_per_L(DF, L, MdlN, Pa_PoP, Pa_HD, crs):
+    def _HD_IDF_GXG_to_TIF_per_L(DF, L, MdlN, Pa_PoP, Pa_HD, CRS):
         """Only for use within HD_IDF_GXG_to_TIF - to utilize multiprocessing."""
 
         # Load HD files corresponding to the L to an XA
@@ -150,15 +150,15 @@ def HD_IDF_GXG_to_TIF(MdlN: str, N_cores: int = None, crs: str = None, rules: st
             }
 
             DA = GXG[V]
-            to_TIF(DA, Pa_Out, d_MtDt, crs=crs, _print=False)
+            to_TIF(DA, Pa_Out, d_MtDt, CRS=CRS, _print=False)
 
         return f'L{L} 🟢'
 
     sprint(Sep)
     sprint(f'*** {MdlN} *** - HD_IDF_GXG_to_TIF\n')
 
-    if crs is None:
-        from WS_Mdl.core.defaults import crs
+    if CRS is None:
+        from WS_Mdl.core.defaults import CRS
 
     # Get paths
     M = Mdl_N(MdlN)
@@ -174,7 +174,7 @@ def HD_IDF_GXG_to_TIF(MdlN: str, N_cores: int = None, crs: str = None, rules: st
     start = DT.now()  # Start time
 
     with PPE(max_workers=N_cores) as E:
-        futures = [E.submit(_HD_IDF_GXG_to_TIF_per_L, DF, L, MdlN, Pa_PoP, Pa_HD, crs) for L in DF['L'].unique()]
+        futures = [E.submit(_HD_IDF_GXG_to_TIF_per_L, DF, L, MdlN, Pa_PoP, Pa_HD, CRS) for L in DF['L'].unique()]
         for f in futures:
             sprint('\t', f.result(), '- Elapsed time (from start):', DT.now() - start)
 

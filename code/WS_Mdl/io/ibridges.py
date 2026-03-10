@@ -33,7 +33,7 @@ def l_Fis_Exc(Pa: Path | str, l_exceptions=['.7z', '.aux', '.xml']):
     return l_
 
 
-def iB_get_Pw(Dir_irods=rf'C:\Users\{os.getlogin()}\.irods', Pw_txt: str = 'Pw.txt', inverse: bool = True):
+def Pw(Dir_irods=rf'C:\Users\{os.getlogin()}\.irods', Pw_txt: str = 'Pw.txt', inverse: bool = True):
     """Reads iRODS password from Pw.txt file."""
     Pw = open(Path(Dir_irods) / Pw_txt, 'r', encoding='utf-8-sig').read().strip()  # Read password from Pw.txt.
     return Pw[::-1] if inverse else Pw
@@ -43,7 +43,7 @@ class iB_session(Session):
     def __init__(self, Dir_irods=rf'C:\Users\{os.getlogin()}\.irods', PW_txt: str = 'Pw.txt'):
         """Loads an iBridges iRODS session using the irods_environment.json file and password from PW_txt."""
         dir_irods = Path(Dir_irods)
-        Pw = iB_get_Pw(Dir_irods, Pw_txt=PW_txt)
+        Pw = Pw(Dir_irods, Pw_txt=PW_txt)
         super().__init__(irods_env=dir_irods / 'irods_environment.json', password=Pw)
 
     def info(self):
@@ -58,7 +58,7 @@ class iB_session(Session):
         sprint(Sep_2, indent=1)
 
 
-def iB_Upl(
+def Upl(
     F: str,
     S,
     on_error='warn',
@@ -97,7 +97,7 @@ def iB_Upl(
             sprint(Sep_2, indent=1)
 
 
-def iB_Dl(F: str, S, on_error='warn', overwrite=False, subdir='research-ws-imod', decompress: bool = True):
+def Dl(F: str, S, on_error='warn', overwrite=False, subdir='research-ws-imod', decompress: bool = True):
     """Downloads an iBridges file/folder."""
 
     Pa_Rmt = iPa(S, '~') / subdir / F

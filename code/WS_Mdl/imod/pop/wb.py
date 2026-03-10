@@ -1,4 +1,3 @@
-from datetime import datetime as DT
 from pathlib import Path
 
 import flopy as fp
@@ -8,8 +7,8 @@ from WS_Mdl.core.mdl import Mdl_N
 from WS_Mdl.core.style import set_verbose, sprint
 
 
-def WB_Diff_to_xlsx(
-    MdlN: str, MdlN_B: str, date: str, sum_Pkg: bool = False, Pa_Out: str | None = None
+def Diff_to_xlsx(
+    MdlN: str, MdlN_B: str, date: str, sum_Pkg: bool = True, Pa_Out: str | None = None
 ):  # 666 add option to do cumulative of just for that SP
     """
     Compares the water budget of two models (MdlN and MdlN_B) for a specific date and saves the differences to an Excel file.
@@ -21,15 +20,14 @@ def WB_Diff_to_xlsx(
     set_verbose(False)
     M = Mdl_N(MdlN)
     M_B = Mdl_N(MdlN_B)
-    d_INI = M.Pa.INI
-    SP_date_1st = DT.strftime(DT.strptime(d_INI['SDATE'], '%Y%m%d'), '%Y-%m-%d')
+
+    start_date = pd.to_datetime(str(M.INI.SDATE), format='%Y%m%d')
     set_verbose(True)
 
     # Load budget to dataframes. fp.utils.Mf6ListBudget returns a tuple. 1st item is WB for each SP. 2nd item is cumulative.
     DF_1, DF_1_Tot = fp.utils.Mf6ListBudget(M.Pa.LST_Mdl).get_dataframes()
     DF_2, DF_2_Tot = fp.utils.Mf6ListBudget(M_B.Pa.LST_Mdl).get_dataframes()
 
-    start_date = pd.to_datetime(SP_date_1st)
     for DF in [DF_1, DF_1_Tot, DF_2, DF_2_Tot]:
         DF.index = pd.date_range(start=start_date, periods=len(DF), freq='D')
     S_1 = DF_1_Tot.loc[DF_1_Tot.index == date]
@@ -42,12 +40,6 @@ def WB_Diff_to_xlsx(
             | S_idx_upper.str.contains('PERCENT_DISCREPANCY', regex=False)
         )
     ]
-    sorted_i = (
-        [col for col in DF.index if '_IN' in col]
-        + [col for col in DF.index if '_OUT' in col]
-        + [col for col in DF.index if '_OUT' not in col and '_IN' not in col]
-    )
-    DF = DF.reindex(index=sorted_i)
 
     if sum_Pkg:
         S_idx = DF.index.to_series().astype(str)
@@ -58,6 +50,26 @@ def WB_Diff_to_xlsx(
         )
         S_grp = S_idx.str[:3] + S_suffix
         DF = DF.groupby(S_grp, sort=False).sum(min_count=1)
+
+    # Add NET rows per parameter: NET = IN - OUT
+    S_idx = DF.index.to_series().astype(str)
+    DF_IN = DF.loc[S_idx.str.endswith('_IN')].copy()
+    DF_OUT = DF.loc[S_idx.str.endswith('_OUT')].copy()
+    if not DF_IN.empty or not DF_OUT.empty:
+        DF_IN.index = DF_IN.index.to_series().str.replace('_IN$', '', regex=True)
+        DF_OUT.index = DF_OUT.index.to_series().str.replace('_OUT$', '', regex=True)
+        idx = DF_IN.index.union(DF_OUT.index)
+        DF_NET = DF_IN.reindex(idx, fill_value=0).sub(DF_OUT.reindex(idx, fill_value=0), fill_value=0)
+        DF_NET.index = DF_NET.index + '_NET'
+        DF = pd.concat([DF, DF_NET], axis=0)
+
+    sorted_i = (
+        [col for col in DF.index if str(col).endswith('_IN')]
+        + [col for col in DF.index if str(col).endswith('_OUT')]
+        + [col for col in DF.index if str(col).endswith('_NET')]
+        + [col for col in DF.index if not str(col).endswith(('_IN', '_OUT', '_NET'))]
+    )
+    DF = DF.reindex(index=sorted_i)
 
     DF['Diff'] = DF[MdlN] - DF[MdlN_B]
     DF = DF.replace([np.inf, -np.inf], np.nan).round(0).astype('Int64')

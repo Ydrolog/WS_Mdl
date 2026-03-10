@@ -70,13 +70,13 @@ def _fmt_arg(value, base_style: str = ''):
     return value
 
 
-def sprint(*args, indent: int = 0, style: str = '', verbose_In: bool = None, verbose_Out: bool = None, **kwargs):
+def sprint(*args, indent: int = 0, style: str = '', verbose_in: bool = None, verbose_out: bool = None, **kwargs):
     """
     Special print function. Allows easy indentation (2 spaces per 1 indent level) and easy styling.
     Allows for setting VERBOSE prior and after printing, so set_verbose doesn't have to be used all the time separately.
     """
-    if verbose_In is not None:
-        globals()['set_verbose'](verbose_In)
+    if verbose_in is not None:
+        globals()['set_verbose'](verbose_in)
 
     if VERBOSE:
         args_fmt = tuple(_fmt_arg(arg, base_style=style) for arg in args)  # Highligts Mdl_N instances.
@@ -90,8 +90,8 @@ def sprint(*args, indent: int = 0, style: str = '', verbose_In: bool = None, ver
         else:
             print(f'{prefix}{style_reset}', **kwargs)
 
-    if verbose_Out is not None:
-        globals()['set_verbose'](verbose_Out)
+    if verbose_out is not None:
+        globals()['set_verbose'](verbose_out)
 
 
 def sinput(*args, indent: int = 0, style: str = '', sep: str = ' '):

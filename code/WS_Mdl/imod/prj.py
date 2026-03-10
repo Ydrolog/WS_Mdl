@@ -7,7 +7,7 @@ import geopandas as gpd
 import imod
 import numpy as np
 import pandas as pd
-from WS_Mdl.core.defaults import crs
+from WS_Mdl.core.defaults import CRS
 from WS_Mdl.core.mdl import Mdl_N
 from WS_Mdl.core.path import MdlN_PaView, Pa_WS
 from WS_Mdl.core.style import Sep, sprint
@@ -490,7 +490,7 @@ def to_TIF(MdlN, iMOD5=False):
                 DF_IPF_AVG = DF_IPF.groupby('id')[DF_IPF.select_dtypes(include=np.number).columns].agg(np.mean)
                 _GDF_AVG = gpd.GeoDataFrame(
                     DF_IPF_AVG, geometry=gpd.points_from_xy(DF_IPF_AVG['x'], DF_IPF_AVG['y'])
-                ).set_crs(crs=crs)
+                ).set_CRS(CRS=CRS)
 
                 Pa_GPKG.parent.mkdir(parents=True, exist_ok=True)  # Make sure the directory exists
                 _GDF_AVG.to_file(Pa_GPKG, driver='GPKG')  # , layer=PBN(Pa_GPKG))
@@ -571,8 +571,8 @@ def to_TIF(MdlN, iMOD5=False):
                 DA = d_Clc_In[Par]['DA'].squeeze(drop=True)
                 d_MtDt = d_Clc_In[Par]['MtDt']
 
-                if not DA.rio.crs:  # Ensure DA_Thk has a CRS (if missing, set it)
-                    DA.rio.write_crs(crs, inplace=True)  # Replace with correct CRS
+                if not DA.rio.CRS:  # Ensure DA_Thk has a CRS (if missing, set it)
+                    DA.rio.write_CRS(CRS, inplace=True)  # Replace with correct CRS
 
                 match len(DA.shape):
                     case 3:

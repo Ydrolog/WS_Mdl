@@ -15,7 +15,7 @@ def from_HD_Out(MdlN: str, date_B_YMD: str, MdlN_B: bool | str = True):
     - date_B_YMD: Date of the HD Out to use, in YMD format (e.g. '20100113'). SHD date will be the next one.
     - MdlN_B: B Sim (as per RunLog) will be used by default. If you want to use a different Sim as B, pass it as an argument.
     """
-    sprint(Sep, verbose_Out=False)
+    sprint(Sep, verbose_out=False)
 
     M = Mdl_N(MdlN)
 
@@ -36,7 +36,7 @@ def from_HD_Out(MdlN: str, date_B_YMD: str, MdlN_B: bool | str = True):
     imod.idf.save(Pa_Out, HDs, pattern=f'SHD_{date_S_YMD}_L{{layer}}_{MdlN}.idf')
 
     # 2. Write SHD block # For now it's just printed so you can copy it to PRJ. In the future, we can automate the addition to PRJ as well.
-    sprint('The SHD block for your PRJ file has been copied to your clipboard!\n', style=style.blue, verbose_In=True)
+    sprint('The SHD block for your PRJ file has been copied to your clipboard!\n', style=style.blue, verbose_in=True)
 
     l_text = ['0001,(SHD),1, Starting Heads', f'001,{str(HDs.layer.data.shape[0]).zfill(3)}']
     for i in range(HDs.layer.data.shape[0]):

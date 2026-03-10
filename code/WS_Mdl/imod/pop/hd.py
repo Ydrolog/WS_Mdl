@@ -4,7 +4,7 @@ from datetime import datetime as DT
 from pathlib import Path
 
 import imod
-from WS_Mdl.core.defaults import crs
+from WS_Mdl.core.defaults import CRS
 from WS_Mdl.core.mdl import Mdl_N
 from WS_Mdl.core.style import Sep, sprint
 from WS_Mdl.imod.idf import HD_Out_to_DF
@@ -15,7 +15,7 @@ def HD_IDF_Agg_to_TIF(
     MdlN: str,
     rules=None,
     N_cores: int = None,
-    crs: str = crs,
+    CRS: str = CRS,
     Gp: list[str] = ['year', 'month'],
     Agg_F: str = 'mean',
 ):
@@ -35,8 +35,8 @@ def HD_IDF_Agg_to_TIF(
         A pandas-query string to subset/filter the IDF-DF before Gp (e.g. "(L == 1)").
     N_cores : int or None
         Number of worker processes for parallel execution. By default: None → use (cpu_count() - 2).
-    crs : str
-        Coordinate reference system for the output TIFs. By default: G.crs.
+    CRS : str
+        Coordinate reference system for the output TIFs. By default: G.CRS.
     Gp : list of str
         Which DataFrame columns to group by. Common examples:
         - ['year','month']        → monthly aggregates
@@ -48,7 +48,7 @@ def HD_IDF_Agg_to_TIF(
         This must exactly match a DataArray method (e.g. XA.mean(dim='time')).
     """
 
-    def _HD_IDF_Agg_to_TIF_process(paths, Agg_F, Pa_Out, crs, params):
+    def _HD_IDF_Agg_to_TIF_process(paths, Agg_F, Pa_Out, CRS, params):
         """
         Only for use within HD_IDF_Mo_Avg_to_MBTIF - to utilize multiprocessing.
         Reads IDFs, aggregates along time, writes each layer as a single-band TIF.
@@ -70,7 +70,7 @@ def HD_IDF_Agg_to_TIF(
                 }
             }
 
-            DA_to_TIF(DA, Out, d_MtDt, crs=crs)
+            DA_to_TIF(DA, Out, d_MtDt, CRS=CRS)
         return f'{base.name} 🟢 '
 
     sprint(Sep)
@@ -111,7 +111,7 @@ def HD_IDF_Agg_to_TIF(
             params = {
                 'MdlN': str(MdlN),
                 'N_cores': str(N_cores),
-                'crs': str(crs),
+                'CRS': str(CRS),
                 'rules': str(rules),
             }
 
@@ -121,7 +121,7 @@ def HD_IDF_Agg_to_TIF(
                     paths=list(paths),
                     Agg_F=Agg_F,
                     Pa_Out=Pa_Out,
-                    crs=crs,
+                    CRS=CRS,
                     params=params,
                 )
             )

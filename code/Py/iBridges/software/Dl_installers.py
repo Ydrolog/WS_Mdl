@@ -9,6 +9,6 @@ print(f'Downloading "{l_F}" to from iBridges...\n')
 S = U.iB_session()
 
 for F in l_F:
-    U.iB_Dl(F, S)  # , overwrite=False)
+    U.Dl(F, S)  # , overwrite=False)
 
 print(U.Sep)

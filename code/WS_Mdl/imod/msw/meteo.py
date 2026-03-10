@@ -1,7 +1,8 @@
 from pathlib import Path
 
+import imod
+import xarray as xra
 from tqdm import tqdm
-from WS_Mdl import imod
 
 
 def to_XA(DF_meteo, Par, Pa_PRJ, Xmin=None, Ymin=None, Xmax=None, Ymax=None):

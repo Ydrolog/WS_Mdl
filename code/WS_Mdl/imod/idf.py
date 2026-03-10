@@ -11,7 +11,7 @@ import rasterio
 import xarray as xra
 from rasterio.transform import from_bounds
 from tqdm import tqdm
-from WS_Mdl.core.defaults import crs
+from WS_Mdl.core.defaults import CRS
 from WS_Mdl.core.style import Sep, sprint
 from WS_Mdl.xr import convert as xr_convert
 
@@ -87,10 +87,10 @@ def stack_to_DF(S_Pa_IDF):
     return DF
 
 
-def to_TIF(Pa_IDF: str, Pa_TIF: Optional[str] = None, MtDt: Optional[Dict] = None, crs=crs):
+def to_TIF(Pa_IDF: str, Pa_TIF: Optional[str] = None, MtDt: Optional[Dict] = None, CRS=CRS):
     """Converts IDF file to TIF file.
     If Pa_TIF is not provided, it'll be the same as Pa_IDF, except for the file type ending.
-    crs (coordinate reference system) is set to the Amerfoot crs by default, but can be changed for other projects."""
+    CRS (coordinate reference system) is set to the Amerfoot CRS by default, but can be changed for other projects."""
     sprint(Sep)
     try:
         A, MtDt = imod.idf.read(Pa_IDF)
@@ -116,7 +116,7 @@ def to_TIF(Pa_IDF: str, Pa_TIF: Optional[str] = None, MtDt: Optional[Dict] = Non
             'width': N_C,
             'count': 1,
             'dtype': str(A.dtype),
-            'crs': crs,
+            'CRS': CRS,
             'transform': transform,
         }
 
@@ -145,7 +145,7 @@ def to_TIF(Pa_IDF: str, Pa_TIF: Optional[str] = None, MtDt: Optional[Dict] = Non
     sprint(Sep)
 
 
-def to_MBTIF(l_IDF, Pa_TIF: Optional[str] = None, MtDt: Optional[Dict] = None, crs=crs):
+def to_MBTIF(l_IDF, Pa_TIF: Optional[str] = None, MtDt: Optional[Dict] = None, CRS=CRS):
     """
     Converts multiple IDF files to a single multi-band TIF file with proper layer ordering.
 
@@ -153,7 +153,7 @@ def to_MBTIF(l_IDF, Pa_TIF: Optional[str] = None, MtDt: Optional[Dict] = None, c
     - l_IDF: List of IDF file paths OR glob pattern string (e.g., "HEAD_19930101_L*_NBr1.IDF")
     - Pa_TIF: Output TIF file path (optional, defaults to first IDF name with .tif extension)
     - MtDt: Additional metadata dictionary (optional)
-    - crs: Coordinate reference system (default: 'EPSG:28992')
+    - CRS: Coordinate reference system (default: 'EPSG:28992')
     """
 
     sprint(Sep)
@@ -220,14 +220,14 @@ def to_MBTIF(l_IDF, Pa_TIF: Optional[str] = None, MtDt: Optional[Dict] = None, c
             da_list.append(da_single)
 
         # Concatenate all layers and set CRS
-        DA = xra.concat(da_list, dim='layer').rio.write_crs(crs)
+        DA = xra.concat(da_list, dim='layer').rio.write_CRS(CRS)
 
         # Add global metadata if provided
         if MtDt:
             d_MtDt['all'] = MtDt
 
         # Write multi-band TIF
-        xr_convert.to_MBTIF(DA, Pa_TIF, d_MtDt, crs=crs, _print=True)
+        xr_convert.to_MBTIF(DA, Pa_TIF, d_MtDt, CRS=CRS, _print=True)
         sprint(f'🟢 {Pa_TIF} has been saved as multi-band GeoTIFF with {len(idf_files)} bands.')
 
     except Exception as e:

@@ -18,7 +18,7 @@ from WS_Mdl.viz.ts import SFR_reach_TS
 from WS_Mdl.xr.spatial import get_value
 
 
-def SFR_stage_TS(
+def stage_TS(
     MdlN: str,
     MdlN_RIV: str,
     N_system_RIV: int = None,
@@ -415,7 +415,7 @@ def SFR_stage_TS(
 
                 sprint('  - Plotting...')
 
-                Pa_Out = Pa.PoP_Out_MdlN / f'SFR/SFR_stage_TS-reach{reach}.html'
+                Pa_Out = Pa.PoP_Out_MdlN / f'SFR/stage_TS-reach{reach}.html'
                 Pa_Out.parent.mkdir(parents=True, exist_ok=True)
 
                 plot_SFR_reach_TS(sub_title=r_info, X_axis=X_axis, d_plot=d_plot, Pa_Out=Pa_Out)
