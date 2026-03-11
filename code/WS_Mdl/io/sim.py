@@ -204,7 +204,7 @@ def RunMng(cores=None, DAG: bool = True, Cct_Sims=None, no_temp: bool = True):
 def reset_Sim(MdlN: str, ask_permission: bool = True, Pa_log_Out=Pa_log_Out, permanent_delete: bool = False):
     """
     Resets the simulation (like if it never happened, but with the files to recreate it still there.) by:
-        1. Moving all files in the MldN folder in the Sim folder to recycling bin (or permanently deleting if permanent_delete=True).
+        1. Moving all files in the MldN folder (in the Sim folder) to recycling bin (or permanently deleting if permanent_delete=True).
         2. Clearing log.csv.
         3. Moving Smk temp files for MdlN to recycling bin (or permanently deleting if permanent_delete=True).
         4. Moving PoP folder for MdlN to recycling bin (or permanently deleting if permanent_delete=True).

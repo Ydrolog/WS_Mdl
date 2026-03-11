@@ -3,7 +3,7 @@ import time
 
 
 def timed_import(module):
-
+    """e.g. from WS_Mdl import core as C; C.timed_import('imod')"""
     if not isinstance(module, str):
         module = module.__name__
 
@@ -16,6 +16,7 @@ def timed_import(module):
 
 
 def timed_execution(func, *args, **kwargs):
+    """e.g. from WS_Mdl import core as C; C.timed_execution(C.get_Mdl, MdlN)"""
     start = time.perf_counter()
     result = func(*args, **kwargs)
     end = time.perf_counter()

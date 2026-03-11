@@ -9,7 +9,7 @@ from WS_Mdl.imod.ini import Mdl_Dmns
 class DFAccessor:
     """Custom pandas DataFrame accessor providing WS_Mdl utility methods.
 
-    Usage: import WS_Mdl.core.df  # registers the accessor
+    Usage: import WS_Mdl.core.df  # registers the accessor. import WS_Mdl.core does that too, as it's defined in __init__.py
            df.ws.info()
            df.ws.memory()
            df.ws.round_Cols()
@@ -22,9 +22,9 @@ class DFAccessor:
     def info(self):
         """Prints basic info about the DataFrame."""
         print('dataframe info:')
-        print(f'Shape: {self._df.shape}')
-        print(f'Data types:\n{self._df.dtypes}')
-        print('\nBasic statistics for numeric columns:')
+        print(f'\n - Shape: {self._df.shape}')
+        print(f'\n - Data types:\n{self._df.dtypes}')
+        print('\n - Basic statistics for numeric columns:')
         print(self._df.describe())
 
     def memory(self) -> str:

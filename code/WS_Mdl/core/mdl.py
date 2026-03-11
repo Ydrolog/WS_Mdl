@@ -2,6 +2,8 @@
 import re
 from dataclasses import dataclass, field
 
+from .style import set_verbose
+
 _MdlN_pattern = re.compile(r'^(?P<alias>[A-Za-z]+)(?P<N>\d+)$')
 
 
@@ -58,19 +60,23 @@ class Mdl_N:
     @property
     def INI(self):
         """Returns the content of the INI file as a dictionary."""
+        set_verbose(False)  # Suppress verbose output from INI parsing
         cached = self._ini_cache
         if cached is None:
             from WS_Mdl.imod.ini import INIView
 
             cached = INIView(self.Pa.INI)
             object.__setattr__(self, '_ini_cache', cached)
-
+        set_verbose(True)  # Restore verbose setting
         return cached
 
     @property
     def Dmns(self):
         """Returns the model dimensions as a tuple (Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C)."""
+        set_verbose(False)  # Suppress verbose output from dimension retrieval
         from WS_Mdl.imod.ini import Mdl_Dmns
+
+        set_verbose(True)  # Restore verbose setting
 
         return Mdl_Dmns(self.Pa.INI)
 

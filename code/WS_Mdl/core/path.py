@@ -11,14 +11,9 @@ __all__ = ['REPO_ROOT', 'Pa_WS', 'Pa_RunLog', 'Pa_log_Out', 'Pa_log_Cfg', 'MdlN_
 REPO_ROOT = Path(__file__).absolute().parents[3]
 
 Pa_WS = REPO_ROOT
-Pa_RunLog = Pa_WS / 'Mng/RunLog.xlsx'
+Pa_RunLog = Pa_WS / 'Mng/RunLog.xlsm'
 Pa_log_Out = Pa_WS / 'Mng/log_Out.csv'
 Pa_log_Cfg = Pa_WS / 'Mng/log_Cfg.csv'
-
-
-def Pa_to_str(a_list: list[Path]):
-    """Helper function to convert a list of paths to a list of strings (for subprocess calls)."""
-    return [str(p) for p in a_list]
 
 
 def get_Mdl(MdlN: str):
@@ -54,14 +49,15 @@ def imod_V(MdlN: str):
 
 def MdlN_Pa(MdlN: str, MdlN_B: str | bool | None = None, iMOD5: bool = None):
     """
-    *** Improved get_MdlN_paths. ***
-    - Doesn't read RunLog, unless B is set to True. Thus it's much faster.
-    - Returns a dictionary of useful objects (mainly paths, but also Mdl, MdlN) for a given MdlN. Those need to then be passed to arguments, e.g.:
-        d_Pa = MdlN_Pa(MdlN)
-        Pa_INI = d_Pa['Pa_INI'].
-
-    This function has been modified since NBr32, to support imod python's folder/file structure. If you need to use the old folder structure, set iMOD5=True.
+    Returns a dictionary of paths related to the model number.
+    - MdlN: model name string, e.g. 'NBr50'
+    - MdlN_B: if provided, also include paths for the Baseline Sim of this model. Can be:
+        - None or False (default): no Baseline Sim paths included.
+        - True: automatically determine MdlN_B from RunLog based on MdlN.
+        - str: use this string as MdlN_B directly.
+    - iMOD5: if provided, forces the iMOD version. If None (default), it will be determined automatically based on folder structure.
     """
+    # 666 If load time of MdlN_B is minimal, it should be don by default.
     if iMOD5 is None:
         iMOD5 = imod_V(MdlN) == 'imod5'
 
@@ -156,15 +152,20 @@ def MdlN_Pa(MdlN: str, MdlN_B: str | bool | None = None, iMOD5: bool = None):
 class MdlN_PaView:
     """Makes MdlN_Pa dict keys accessible through MdlN, e.g. MdlN.Pa.INI instead of MdlN.Pa['INI']."""
 
-    __slots__ = ('_d',)
+    __slots__ = ('_d', '_MdlN')
 
     def __init__(self, MdlN: str, MdlN_B: str | None = None, iMOD5: bool | None = None):
+        self._MdlN = MdlN
         self._d = MdlN_Pa(MdlN, MdlN_B=MdlN_B, iMOD5=iMOD5)
 
-    def B(self, MdlN_B: str):
-        # new view with *_B keys present
-        MdlN = self._d['MdlN'].name if isinstance(self._d['MdlN'], Path) else self._d['MdlN']
-        return MdlN_PaView(MdlN, MdlN_B=MdlN_B, iMOD5=(self._d['imod_V'] == 'imod5'))
+    @property
+    def B(self):
+        """Returns paths dictionary for the baseline simulation of this model."""
+        from .log import get_B
+
+        MdlN_B = get_B(self._MdlN)
+
+        return MdlN_Pa(MdlN_B, iMOD5=(self._d['imod_V'] == 'imod5'))
 
     def _resolve_key(self, key: str) -> str:
         """Resolve legacy Pa_* keys to the current canonical key names."""
