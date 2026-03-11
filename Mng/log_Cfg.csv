@@ -97,12 +97,12 @@ No RIV. Via imod python. PRJ: SS blocks removed, otherwise it wouldn't work with
   1996-2004: for comparison with Perry's TS flows.
   Made SHD from NBr50 HD Out (last SP)","Queued","PoPed"
 "53","NBr","53","NBr53","51","NBr51","MK","Test","SFRmaker #14:
-  Added 3ry SFR Nw, replacing detailwatergangen RIV Nw (mostly *). 
+  Added 3ry SFR Nw, replacing detailwatergangen RIV Nw (completelly). 
   For 3ry displace rtp based on average rtp-RIV_Stg.","Development",""
-"54","NBr","54","NBr54","53","NBr53","MK","Test","SFRmaker #15:
-  Removed RIV completely.","Development",""
-"55","NBr","55","NBr55","54","NBr54","MK","Test","SFRmaker #16:
- Greatly increased ponding depth, so water flows to DRN and then SFR.","Development",""
+"54","NBr","54","NBr54","50","NBr50","MK","Test","SFRmaker #2.0: SFR for main SW in Chaamse Beek
+  To produce AVG summer and winter RIV stages for NBr55. Read NBr55 description for more.","Development",""
+"55","NBr","55","NBr55","54","NBr54","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #4
+  Main RIV Stg set to SFR AVG summer and winter stage from NBr54. This is to isolate the effects of the difference in data between NBr50 and NBr55. Then NBr54 Vs NBr55 isolates the Diff the method (SFR vs RIV) have on the system.","Development",""
 "0","","","","","","","","0","",""
 "0","","","","","","","","0","",""
 "0","","","","","","","","0","",""
