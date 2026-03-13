@@ -55,6 +55,7 @@ _EXPORTS_TO_MODULES = {
     # Timing utilities
     'timed_import': ('WS_Mdl.core.runtime', 'timed_import'),
     'timed_execution': ('WS_Mdl.core.runtime', 'timed_execution'),
+    'timed_class_init': ('WS_Mdl.core.runtime', 'timed_class_init'),
 }
 
 # Public names exported by "from WS_Mdl.core import *".
