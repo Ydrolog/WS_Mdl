@@ -20,7 +20,7 @@ $fellBack = $false
 
 try {
     if (-not $primaryManifest) { throw "No pixi.toml found in current path." }
-    Invoke-Expression (pixi shell-hook -s powershell --manifest-path $primaryManifest | Out-String)
+    Invoke-Expression (pixi shell-hook -s powershell --as-is --manifest-path $primaryManifest | Out-String)
     $usedManifest = $primaryManifest
 }
 catch {
@@ -29,7 +29,7 @@ catch {
         Write-Host "PIXI ACTIVATION FAILED: no local pixi.toml, and fallback missing: $fallbackManifest" -ForegroundColor White -BackgroundColor DarkRed
         throw
     }
-    Invoke-Expression (pixi shell-hook -s powershell --manifest-path $fallbackManifest | Out-String)
+    Invoke-Expression (pixi shell-hook -s powershell --as-is --manifest-path $fallbackManifest | Out-String)
     $usedManifest = $fallbackManifest
 }
 
