@@ -103,12 +103,12 @@ def MdlN_Pa(MdlN: str, MdlN_B: str | bool | None = None, iMOD5: bool = None):
         d_Pa['MSW'] = d_Pa['MdlN'] / 'metaswap' if not iMOD5 else d_Pa['MdlN'] / 'GWF_1/MSWAPINPUT'
         d_Pa['TOML'] = d_Pa['MdlN'] / 'imod_coupler.toml'
         d_Pa['TOML_iMOD5'] = d_Pa['MdlN'] / f'{MdlN}.toml'
-        d_Pa['Sim_In'] = d_Pa['MF6'] / '/imported_model' if not iMOD5 else d_Pa['MdlN'] / 'GWF_1/MODELINPUT'
+        d_Pa['Sim_In'] = d_Pa['MF6'] / 'imported_model' if not iMOD5 else d_Pa['MdlN'] / 'GWF_1/MODELINPUT'
         d_Pa['LST_Sim'] = d_Pa['MF6'] / 'mfsim.lst' if not iMOD5 else d_Pa['MdlN'] / 'mfsim.lst'  # Sim LST file
         d_Pa['LST_Mdl'] = (
             d_Pa['Sim_In'] / 'imported_model.lst' if not iMOD5 else d_Pa['MdlN'] / f'GWF_1/{MdlN}.lst'
         )  # Mdl LST file
-        d_Pa['NAM_Sim'] = d_Pa['MdlN'] / 'MFSIM.NAM'
+        d_Pa['NAM_Sim'] = d_Pa['MF6'] / 'mfsim.nam' if not iMOD5 else d_Pa['MdlN'] / 'MFSIM.NAM'  # Sim NAM file
         d_Pa['NAM_Mdl'] = d_Pa['Sim_In'] / 'imported_model.NAM' if not iMOD5 else d_Pa['MdlN'] / f'GWF_1/{MdlN}.NAM'
         d_Pa['Sim_Out'] = None if not iMOD5 else d_Pa['MdlN'] / 'GWF_1/MODELOUTPUT'
         d_Pa['SFR'] = d_Pa['Sim_In'] / f'{MdlN}.SFR6' if not iMOD5 else d_Pa['MdlN'] / f'GWF_1/MODELINPUT/{MdlN}.SFR6'

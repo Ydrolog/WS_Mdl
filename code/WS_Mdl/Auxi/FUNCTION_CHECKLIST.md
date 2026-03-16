@@ -271,15 +271,9 @@ How to use:
 - [ ] FILE scripts/map_gitignore.py <!-- id:file:scripts/map_gitignore.py -->
 - [x] FILE scripts/o_.py <!-- id:file:scripts/o_.py -->
 - [x] FILE scripts/o_LST.py <!-- id:file:scripts/o_LST.py -->
-- [ ] FILE scripts/o_LSTs.py <!-- id:file:scripts/o_LSTs.py -->
-
-## scripts/o_NAMs.py
-- [ ] FILE scripts/o_NAMs.py <!-- id:file:scripts/o_NAMs.py -->
-  - [ ] FUNCTION main (L7) <!-- id:func:scripts/o_NAMs.py:main -->
-
-## scripts/o_VS.py
-- [ ] FILE scripts/o_VS.py <!-- id:file:scripts/o_VS.py -->
-  - [ ] FUNCTION main (L10) <!-- id:func:scripts/o_VS.py:main -->
+- [x] FILE scripts/o_LSTs.py <!-- id:file:scripts/o_LSTs.py -->
+- [x] FILE scripts/o_NAMs.py <!-- id:file:scripts/o_NAMs.py -->
+- [x] FILE scripts/o_VS.py <!-- id:file:scripts/o_VS.py -->
 
 ## scripts/p_TS_range.py
 - [ ] FILE scripts/p_TS_range.py <!-- id:file:scripts/p_TS_range.py -->
