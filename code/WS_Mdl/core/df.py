@@ -93,7 +93,7 @@ class DFAccessor:
 
         return df_r
 
-    def Clip_Mdl_area(self, Pa_INI) -> pd.DataFrame:
+    def clip_Mdl_area(self, Pa_INI) -> pd.DataFrame:
         """Limits the DataFrame to the model area defined in the INI file."""
         set_verbose(False)  # Suppress sprint from Mdl_Dmns
         Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = Mdl_Dmns(Pa_INI)

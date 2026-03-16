@@ -81,7 +81,7 @@ No RIV. Via imod python. PRJ: SS blocks removed, otherwise it wouldn't work with
 "45","NBr","45","NBr45","44","NBr44","MK","Test","SFRmaker #10:
  Noticed that RIV elements where missing from the OBS. Made sure they're all included this time.","Queued","Completed"
 "46","NBr","46","NBr46","45","NBr45","MK","Test","SFRmaker #11:
- Changing the input .gpkg to the Jupyter notebook. For some reason the flow was far too big in NBr46
+ Changing the input .gpkg in the Jupyter notebook. For some reason the flow was far too big in NBr46
  That was the cause.","Queued","Completed"
 "47","NBr","47","NBr47","46","NBr46","MK","Test","SFRmaker #12:
  SFR Cond now taken from Detailwatergangen whenever possible. Also, reduced default k value, where there is no RIV_Cond available, to 0.1m/d (from 1m/d). 1 was probably too high.
@@ -98,7 +98,7 @@ No RIV. Via imod python. PRJ: SS blocks removed, otherwise it wouldn't work with
   Made SHD from NBr50 HD Out (last SP)","Queued","PoPed"
 "53","NBr","53","NBr53","51","NBr51","MK","Test","SFRmaker #14:
   Added 3ry SFR Nw, replacing detailwatergangen RIV Nw (completelly). 
-  For 3ry displace rtp based on average rtp-RIV_Stg.","Development",""
+  For 3ry displace rtp based on average rtp-RIV_Stg.","Queued","Completed"
 "54","NBr","54","NBr54","50","NBr50","MK","Test","SFRmaker #2.0: SFR for main SW in Chaamse Beek
   To produce AVG summer and winter RIV stages for NBr55. Read NBr55 description for more.","Development",""
 "55","NBr","55","NBr55","54","NBr54","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #4

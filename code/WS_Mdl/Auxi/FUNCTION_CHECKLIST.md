@@ -222,7 +222,7 @@ How to use:
 
 ## io/convert.py
 - [ ] FILE io/convert.py <!-- id:file:io/convert.py -->
-  - [ ] FUNCTION Bin_to_text (L9) <!-- id:func:io/convert.py:Bin_to_text -->
+  - [x] FUNCTION Bin_to_text (L9) <!-- id:func:io/convert.py:Bin_to_text -->
   - [ ] FUNCTION Vtr_to_TIF (L118) <!-- id:func:io/convert.py:Vtr_to_TIF -->
 
 ## io/ibridges.py
@@ -260,62 +260,18 @@ How to use:
   - [ ] FUNCTION o_LSTs (L62) <!-- id:func:io/text.py:o_LSTs -->
   - [ ] FUNCTION o_NAMs (L79) <!-- id:func:io/text.py:o_NAMs -->
 
-## scripts/Bin_to_text.py
-- [ ] FILE scripts/Bin_to_text.py <!-- id:file:scripts/Bin_to_text.py -->
-  - [ ] FUNCTION main (L7) <!-- id:func:scripts/Bin_to_text.py:main -->
-
-## scripts/Dir_Fo_size.py
-- [ ] FILE scripts/Dir_Fo_size.py <!-- id:file:scripts/Dir_Fo_size.py -->
-  - [ ] FUNCTION get_folder_size (L5) <!-- id:func:scripts/Dir_Fo_size.py:get_folder_size -->
-  - [ ] FUNCTION main (L28) <!-- id:func:scripts/Dir_Fo_size.py:main -->
-
-## scripts/DVC_add_pattern.py
+## scripts/*
+- [x] FILE scripts/Bin_to_text.py <!-- id:file:scripts/Bin_to_text.py -->
+- [x] FILE scripts/Dir_Fo_size.py <!-- id:file:scripts/Dir_Fo_size.py -->
 - [ ] FILE scripts/DVC_add_pattern.py <!-- id:file:scripts/DVC_add_pattern.py -->
-  - [ ] FUNCTION main (L8) <!-- id:func:scripts/DVC_add_pattern.py:main -->
-
-## scripts/DVC_add_pattern_deep.py
 - [ ] FILE scripts/DVC_add_pattern_deep.py <!-- id:file:scripts/DVC_add_pattern_deep.py -->
-  - [ ] FUNCTION main (L8) <!-- id:func:scripts/DVC_add_pattern_deep.py:main -->
-
-## scripts/gen_function_checklist.py
-- [ ] FILE scripts/gen_function_checklist.py <!-- id:file:scripts/gen_function_checklist.py -->
-  - [ ] FUNCTION _iter_python_files (L37) <!-- id:func:scripts/gen_function_checklist.py:_iter_python_files -->
-  - [ ] FUNCTION _collect_module_info (L48) <!-- id:func:scripts/gen_function_checklist.py:_collect_module_info -->
-  - [ ] FUNCTION _load_checked_ids (L80) <!-- id:func:scripts/gen_function_checklist.py:_load_checked_ids -->
-  - [ ] FUNCTION _checkbox (L95) <!-- id:func:scripts/gen_function_checklist.py:_checkbox -->
-  - [ ] FUNCTION _append_item (L99) <!-- id:func:scripts/gen_function_checklist.py:_append_item -->
-  - [ ] FUNCTION _render_markdown (L105) <!-- id:func:scripts/gen_function_checklist.py:_render_markdown -->
-  - [ ] FUNCTION build_checklist (L152) <!-- id:func:scripts/gen_function_checklist.py:build_checklist -->
-  - [ ] FUNCTION main (L175) <!-- id:func:scripts/gen_function_checklist.py:main -->
-  - [ ] CLASS ClassInfo (L24) <!-- id:class:scripts/gen_function_checklist.py:ClassInfo -->
-  - [ ] CLASS ModuleInfo (L31) <!-- id:class:scripts/gen_function_checklist.py:ModuleInfo -->
-
-## scripts/IDF_to_TIF.py
+- [x] FILE scripts/gen_function_checklist.py <!-- id:file:scripts/gen_function_checklist.py -->
 - [ ] FILE scripts/IDF_to_TIF.py <!-- id:file:scripts/IDF_to_TIF.py -->
-  - [ ] FUNCTION main (L6) <!-- id:func:scripts/IDF_to_TIF.py:main -->
-
-## scripts/map_DVC.py
 - [ ] FILE scripts/map_DVC.py <!-- id:file:scripts/map_DVC.py -->
-  - [ ] FUNCTION main (L8) <!-- id:func:scripts/map_DVC.py:main -->
-
-## scripts/map_gitignore.py
 - [ ] FILE scripts/map_gitignore.py <!-- id:file:scripts/map_gitignore.py -->
-  - [ ] FUNCTION main (L32) <!-- id:func:scripts/map_gitignore.py:main -->
-  - [ ] CLASS TrieNode (L16) <!-- id:class:scripts/map_gitignore.py:TrieNode -->
-    - [ ] METHOD TrieNode.__init__ (L17) <!-- id:method:scripts/map_gitignore.py:TrieNode.__init__ -->
-    - [ ] METHOD TrieNode.insert (L21) <!-- id:method:scripts/map_gitignore.py:TrieNode.insert -->
-
-## scripts/o_.py
-- [ ] FILE scripts/o_.py <!-- id:file:scripts/o_.py -->
-  - [ ] FUNCTION main (L10) <!-- id:func:scripts/o_.py:main -->
-
-## scripts/o_LST.py
-- [ ] FILE scripts/o_LST.py <!-- id:file:scripts/o_LST.py -->
-  - [ ] FUNCTION main (L9) <!-- id:func:scripts/o_LST.py:main -->
-
-## scripts/o_LSTs.py
+- [x] FILE scripts/o_.py <!-- id:file:scripts/o_.py -->
+- [x] FILE scripts/o_LST.py <!-- id:file:scripts/o_LST.py -->
 - [ ] FILE scripts/o_LSTs.py <!-- id:file:scripts/o_LSTs.py -->
-  - [ ] FUNCTION main (L7) <!-- id:func:scripts/o_LSTs.py:main -->
 
 ## scripts/o_NAMs.py
 - [ ] FILE scripts/o_NAMs.py <!-- id:file:scripts/o_NAMs.py -->
