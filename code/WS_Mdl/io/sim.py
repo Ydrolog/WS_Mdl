@@ -92,23 +92,15 @@ def S_from_B_undo(MdlN: str):
 def RunSim(args):
     """Helper function that runs a single model's snakemake workflow."""
     _, Se_Ln, cores_per_Sim, generate_dag, no_temp = args
-    Pa_Smk = Pa_WS / f'models/{Se_Ln["model alias"]}/code/snakemake/{Se_Ln["MdlN"]}.smk'
-    Pa_Smk_log = (
-        Pa_WS
-        / f'models/{Se_Ln["model alias"]}/code/snakemake/log/{Se_Ln["MdlN"]}_{DT.now().strftime("%Y%m%d_%H%M%S")}.log'
-    )
-    Pa_DAG = Pa_WS / f'models/{Se_Ln["model alias"]}/code/snakemake/DAG/DAG_{Se_Ln["MdlN"]}.png'
-    Pa_Mdl_Dir = Pa_WS / f'models/{Se_Ln["model alias"]}'
-    sprint(f'{fg("cyan")}{Pa_Smk.name}{attr("reset")}\n')
-
-    # add once near your other paths
-    Pa_pixi = Pa_WS / 'pixi.toml'  # <-- path to the manifest file
+    M = Mdl_N(Se_Ln['MdlN'])
+    Pa_Smk_log = M.Pa.Mdl / f'code/snakemake/log/{Se_Ln["MdlN"]}_{DT.now().strftime("%Y%m%d_%H%M%S")}.log'
+    sprint(f'{fg("cyan")}{M.Pa.Smk.name}{attr("reset")}\n')
 
     try:
         if generate_dag:  # DAG parameter passed from RunMng
             cmd = (
-                f'pixi run --manifest-path "{Pa_pixi}" snakemake --directory "{Pa_Mdl_Dir}" --dag -s "{Pa_Smk}" --cores {cores_per_Sim} '
-                f'| pixi run --manifest-path "{Pa_pixi}" dot -Tpng -o "{Pa_DAG}"'
+                f'pixi run --manifest-path "{M.Pa.pixi}" snakemake --directory "{M.Pa.Mdl}" --dag -s "{M.Pa.Smk}" --cores {cores_per_Sim} '
+                f'| pixi run --manifest-path "{M.Pa.pixi}" dot -Tpng -o "{M.Pa.DAG}"'
             )
             sp.run(cmd, shell=True, check=True)
 
@@ -117,13 +109,13 @@ def RunSim(args):
                 'pixi',
                 'run',
                 '--manifest-path',
-                Pa_pixi,
+                M.Pa.pixi,
                 'snakemake',
                 '--directory',
-                Pa_Mdl_Dir,
+                M.Pa.Mdl,
                 '-p',
                 '-s',
-                Pa_Smk,
+                M.Pa.Smk,
                 '--cores',
                 str(cores_per_Sim),
             ]
@@ -470,7 +462,7 @@ def rerun_Sim(MdlN: str, cores=None, DAG: bool = True):
         sprint(f'🔴🔴🔴 - {MdlN} not found in the RunLog. Cannot rerun.')
         return
     else:
-        Se_Ln = DF.loc[DF_match_MdlN(DF, MdlN)].squeeze()  # Get the row for the MdlN
+        Se_Ln = to_Se(MdlN)  # Get the row for the MdlN
 
         # Prepare arguments for multiprocessing
 

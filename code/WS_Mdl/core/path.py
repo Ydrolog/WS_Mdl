@@ -95,6 +95,7 @@ def MdlN_Pa(MdlN: str, MdlN_B: str | bool | None = None, iMOD5: bool = None):
         d_Pa['BAT'] = d_Pa['Mdl'] / f'code/Mdl_Prep/Mdl_Prep_{MdlN}.bat'
         d_Pa['PRJ'] = d_Pa['Mdl'] / f'In/PRJ/{MdlN}.prj'
         d_Pa['Smk'] = d_Pa['Mdl'] / f'code/snakemake/{MdlN}.smk'
+        d_Pa['Smk_DAG'] = d_Pa['Mdl'] / f'code/snakemake/DAG/DAG_{MdlN}.png'
 
         # Sim
         d_Pa['Sim'] = d_Pa['Mdl'] / 'Sim'  # Sim folder

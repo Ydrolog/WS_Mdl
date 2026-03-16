@@ -118,9 +118,9 @@ rule freeze_pixi_env:
 rule Mdl_Prep: # Prepares Sim Ins (from Ins) via BAT file.
     input:
         log_Init,
-        BAT = f"code/Mdl_Prep/Mdl_Prep_{MdlN}.bat",
-        INI = f"code/Mdl_Prep/Mdl_Prep_{MdlN}.ini",
-        PRJ = f"In/PRJ/{MdlN}.prj"
+        BAT = M.Pa.BAT,
+        INI = M.Pa.INI,
+        PRJ = M.Pa.PRJ
     output:
         d_Pa.NAM_Sim
     run:
