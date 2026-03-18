@@ -1,0 +1,15 @@
+l_MSW_Par = [
+    'bdgdecStot',
+    'bdgETact',
+    'bdgPm',
+    'bdgPsgw',
+    'bdgPssw',
+    'bdgqrun',
+    'msw',
+    'msw_Ebs',
+    'msw_qinf',
+    'msw_S01',
+    'msw_Tact',
+    'post',
+    'transol',
+]

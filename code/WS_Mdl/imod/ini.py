@@ -67,6 +67,16 @@ def Mdl_Dmns(Pa_INI):
     return Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C
 
 
+def Mdl_Aa(Pa_INI):
+    """Returns the (total) area of the model grid from the INI file of the model."""
+
+    d = as_d(Pa_INI)
+
+    Xmin, Ymin, Xmax, Ymax = map(float, d['WINDOW'].split(','))
+
+    return (Xmax - Xmin) * (Ymax - Ymin)
+
+
 def CeCes(MdlN: str):
     """Get centroids of the model grid from the INI file of the model.
     Returns x_CeCes, y_CeCes."""

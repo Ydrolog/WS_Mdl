@@ -2,7 +2,20 @@
 
 from colored import attr, fg
 
-__all__ = ['Sep', 'Sep_2', 'style_reset', 'bold', 'dim', 'warn', 'CuCh', 'set_verbose', 'sprint', 'sinput']
+__all__ = [
+    'Sep',
+    'Sep_2',
+    'style_reset',
+    'bold',
+    'dim',
+    'warn',
+    'CuCh',
+    'set_verbose',
+    'sprint',
+    'sinput',
+    'green',
+    'blue',
+]
 
 style_reset = f'{attr("reset")}\033[0m'
 bold = '\033[1m'

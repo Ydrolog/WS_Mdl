@@ -1,7 +1,7 @@
 # ---------- Model Number related Functions ----------
 import re
 
-from WS_Mdl.imod.ini import INIView, Mdl_Dmns
+from WS_Mdl.imod.ini import INIView, Mdl_Aa, Mdl_Dmns
 
 from .log import get_B
 from .path import MdlN_PaView, imod_V
@@ -20,7 +20,7 @@ class Mdl_N:
      - dimensions
     """
 
-    __slots__ = ('MdlN', 'alias', 'N', 'iMOD5', 'V', 'Pa', 'INI', 'Dmns', 'B', 'Pa_B')
+    __slots__ = ('MdlN', 'alias', 'N', 'iMOD5', 'V', 'Pa', 'INI', 'Dmns', 'Mdl_Aa', 'B', 'Pa_B')
 
     def __init__(self, MdlN: str, iMOD5: bool | None = None):
         # MdlN format validation and extraction of alias and number using regex
@@ -43,6 +43,7 @@ class Mdl_N:
         set_verbose(False)
         self.INI = INIView(self.Pa.INI)
         self.Dmns = Mdl_Dmns(self.Pa.INI)
+        self.Mdl_Aa = Mdl_Aa(self.Pa.INI)
         set_verbose(True)
 
         self.B = get_B(MdlN)

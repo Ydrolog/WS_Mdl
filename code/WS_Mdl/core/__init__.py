@@ -30,6 +30,8 @@ _EXPORTS_TO_MODULES = {
     'warn': (_MOD_STYLE, 'warn'),
     'CuCh': (_MOD_STYLE, 'CuCh'),
     'set_verbose': (_MOD_STYLE, 'set_verbose'),
+    'green': (_MOD_STYLE, 'green'),
+    'blue': (_MOD_STYLE, 'blue'),
     # Path/model-location utilities
     'REPO_ROOT': (_MOD_PATH, 'REPO_ROOT'),
     'Pa_WS': (_MOD_PATH, 'Pa_WS'),

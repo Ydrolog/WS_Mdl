@@ -1,3 +1,6 @@
+from WS_Mdl.core.mdl import Mdl_N
+
+
 def get_value(A, X, Y, dx, dy, L=None, method='nearest', validate=True):
     """
     - Gets value from xarray DataArray A at coordinates X, Y, L (if provided).
@@ -18,3 +21,15 @@ def get_value(A, X, Y, dx, dy, L=None, method='nearest', validate=True):
             )
 
     return value
+
+
+def clip_Mdl_area(A, MdlN):
+    """
+    - Clips xarray DataArray A to the model area defined by MdlN's INI.window.
+    - Returns the clipped DataArray.
+    """
+
+    M = Mdl_N(MdlN)
+    Xmin, Ymin, Xmax, Ymax = (float(i) for i in M.INI.window.split(','))
+    A_clipped = A.sel(x=slice(Xmin, Xmax), y=slice(Ymin, Ymax))
+    return A_clipped

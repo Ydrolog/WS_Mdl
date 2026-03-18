@@ -5,6 +5,18 @@ from WS_Mdl.imod.prj import o_with_OBS
 
 
 def to_DF(PRJ):
+    """
+    Reads the mete_grid.inp file specified in the PRJ and returns it as a DataFrame with an additional 'DT' column for datetime.
+
+    Example usage:
+    from WS_Mdl.imod.msw.mete_grid import to_DF
+    from WS_Mdl.imod.msw.meteo import to_XA
+    from WS_Mdl.imod.prj import r_with_OBS
+
+    PRJ = r_with_OBS(M.Pa.PRJ)[0] # [0], cause [1] is the OBS
+    DF_P = to_DF(PRJ)
+    A_P = to_XA(DF_P, 'P', MdlN)
+    """
     DF_meteo = pd.read_csv(PRJ['extra']['paths'][2][0], names=['day', 'year', 'P', 'PET'])
     DF_meteo['DT'] = pd.to_datetime(
         DF_meteo['year'].astype(int).astype(str) + '-' + (DF_meteo['day'].astype(int) + 1).astype(str), format='%Y-%j'

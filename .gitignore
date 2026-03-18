@@ -41,7 +41,7 @@
 # Those are created by QGIS, but they're auxilary, so there is no reason to track them
 **.aux.xml
 # No need to track temp files either.
-**/*.tmp
+**/*.tmp*
 
 # All Ss folders will be ignored. This is placed at the bottom to overwrite anything else.
 **/Ss/
