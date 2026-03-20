@@ -49,7 +49,7 @@ def SFR_Mdl(
 
     # %% Connect SFR Lines to MF6 (writes files and connects them to NAM)
     sprint(' -- SFRmaker - Connecting SFR lines to MF6.', verbose_in=True, verbose_out=verbose)
-    M.SFR_OBS_In = M.Pa.In / 'OBS/SFR/NBr40/NBr40_SFR_OBS_Pnt.csv'
+    M.Pa_SFR_OBS_In = M.Pa.In / 'OBS/SFR/NBr40/NBr40_SFR_OBS_Pnt.csv'
     M.Pa_Cond_A = Path(Pa_Cond_A)
     M.Pa_Cond_B = Path(Pa_Cond_A) if Pa_Cond_B is None else Path(Pa_Cond_B)
     timed_Exe(
@@ -60,7 +60,8 @@ def SFR_Mdl(
 
     # %% Connect DRN to SFR via MVR
     sprint(' -- SFRmaker - Connecting DRN to SFR via MVR.', verbose_in=True, verbose_out=verbose)
-    timed_Exe(
-        DRN_to_SFR_via_MVR,
-        M,
-    )
+    if add_DRN_to_SFR:
+        timed_Exe(
+            DRN_to_SFR_via_MVR,
+            M,
+        )

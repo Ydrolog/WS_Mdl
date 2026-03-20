@@ -1,11 +1,15 @@
 import os
 import re
+from pathlib import Path
 
 import numpy as np
+import pandas as pd
+import WS_Mdl.core.df  # noqa: F401
 from filelock import FileLock as FL
+from shapely.geometry import Point
+from WS_Mdl.core.defaults import CRS
+from WS_Mdl.core.mdl import Mdl_N
 from WS_Mdl.core.style import Sep, sprint
-from WS_Mdl.imod.ipf import as_DF
-from WS_Mdl.imod.prj import r_with_OBS
 
 
 def add(MdlN: str, Opt: str = 'BEGIN OPTIONS\nEND OPTIONS', iMOD5=False):
@@ -14,11 +18,9 @@ def add(MdlN: str, Opt: str = 'BEGIN OPTIONS\nEND OPTIONS', iMOD5=False):
     Assumes OBS IPF file contains the following parameters/columns: 'Id', 'L', 'X', 'Y'
     for iMOD5 option check WS_Mdl.utils.MdlN_Pa() description.
     """
-
-    from pathlib import Path
-
-    from WS_Mdl.core.mdl import Mdl_N
     from WS_Mdl.core.path import MdlN_PaView
+    from WS_Mdl.imod.ipf import as_DF
+    from WS_Mdl.imod.prj import r_with_OBS
 
     sprint(Sep)
     sprint('Running add_OBS ...')
@@ -94,3 +96,76 @@ def add(MdlN: str, Opt: str = 'BEGIN OPTIONS\nEND OPTIONS', iMOD5=False):
             # lock is released automatically when the with-block closes
         sprint(f'🟢 - {Pa_OBS} has been added successfully!')
     sprint(Sep)
+
+
+def add_within_catchment(
+    Pa_Shp: str | Path,
+    MdlN: str,
+    Pkg: str,
+    Opt="""BEGIN OPTIONS
+        DIGITS 4
+        PRINT_INPUT
+    END OPTIONS\n
+    """,
+):
+    """Adds all Pkg elements within a polygon (shapefile) as OBS to the Sim in the steps below:
+    -"""
+    # Init
+    sprint(Sep, verbose_out=False)
+    import geopandas as gpd
+    from WS_Mdl.imod.mf6.bin import to_DF
+    from WS_Mdl.imod.mf6.write import add_OBS_to_MF_In
+
+    M = Mdl_N(MdlN)
+
+    # if MdlN_B is True:
+    #     MdlN_B = M.B
+    # M_B = Mdl_N(MdlN_B)
+
+    Xmin, Ymin, Xmax, Ymax = [float(i) for i in M.INI['WINDOW'].split(',')]
+    cellsize = float(M.INI.CELLSIZE)
+
+    # Load Shp
+    if Pa_Shp is not None:
+        GDF_Shp = gpd.read_file(Pa_Shp)
+        print(f'Loaded shapefile with {len(GDF_Shp)} features')
+        print(f'CRS: {GDF_Shp.crs}')
+        print(f'Bounds: {GDF_Shp.bounds}')
+        GDF_Shp.crs = CRS
+
+    # Load DF
+    d = {f.parent.stem: {'path': f, 'DF': to_DF(f, Pkg)} for f in M.Pa.Sim_In.rglob(f'{Pkg.lower()}*.bin')}
+
+    for S in d:
+        d[S]['DF']['N'] = d[S]['DF']['i'].index + 1
+        Sys = S.split('-')[-1]
+        d[S]['DF'] = d[S]['DF'].ws.Calc_XY(Xmin=Xmin, Ymax=Ymax, cellsize=cellsize)
+
+        # Create geometry for DRN points
+        d[S]['DF']['geometry'] = d[S]['DF'].apply(lambda row: Point(row['X'], row['Y']), axis=1)
+        GDF = gpd.GeoDataFrame(d[S]['DF'], crs=CRS)
+
+        # Store init counts before filtering
+        N_init = len(d[S]['DF'])
+
+        # Clip to shapefile
+        GDF = gpd.sjoin(GDF, GDF_Shp, how='inner', predicate='within')
+
+        if not GDF.empty:
+            # Write
+            DF_w = pd.DataFrame()
+            DF_w['obsname'] = GDF.apply(lambda row: f'{Pkg}_L{int(row["k"])}_R{int(row["i"])}_C{int(row["j"])}', axis=1)
+            DF_w['obstype'] = Pkg
+            DF_w['id'] = GDF.apply(lambda row: f'{int(row["k"])} {int(row["i"])} {int(row["j"])}', axis=1)
+
+            Fi = f'{MdlN}.{S}.OBS6'
+            with open(M.Pa.Sim_In / Fi, 'w') as f:
+                f.write(Opt)
+                f.write(f'BEGIN CONTINUOUS FILEOUT {Pkg}_OBS_Sys_{Sys}.CSV\n')
+                f.write(DF_w.ws.to_MF_block())
+                f.write('END CONTINUOUS FILEOUT\n')
+
+            # Add to MF_In
+            add_OBS_to_MF_In(
+                str_OBS=f' OBS6 FILEIN ./imported_model/{Fi}', Pa=M.Pa.Sim_In / f'{S}.{Pkg.lower()}', iMOD5=False
+            )

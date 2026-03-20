@@ -49,7 +49,7 @@ def r_RunLog():
     return pd.read_excel(Pa_RunLog, sheet_name='RunLog').dropna(subset='runN')  # Read RunLog
 
 
-def update_log(MdlN: str, d_Up: dict, Pa_log_Out=Pa_log_Out):  # Pa_log_Out=PJ(Pa_WS, 'Mng/log.csv')):
+def Up_log(MdlN: str, d_Up: dict, Pa_log_Out=Pa_log_Out):  # Pa_log_Out=PJ(Pa_WS, 'Mng/log.csv')):
     """Update log_Out.csv based on MdlN and key of `updates`."""
     from filelock import FileLock as FL
 

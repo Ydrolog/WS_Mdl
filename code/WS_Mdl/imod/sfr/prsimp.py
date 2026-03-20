@@ -250,7 +250,7 @@ def connect_SFR_lines_to_MF6(M: Mdl_N, debug_sfr: bool = True):
     - Pa_Cond_A: Path to primary conductance IDF file.
     - Pa_Cond_B: Path to secondary conductance IDF file. Used wherever primary Cond file has not values.
     - Xmin, Xmax, Ymin, Ymax: model domain extents, used for subsetting the Cond IDF files.
-    - SFR_OBS_In: Path to SFR OBS csv file, used for adding SFR OBS to the model.
+    - Pa_SFR_OBS_In: Path to SFR OBS csv file, used for adding SFR OBS to the model.
     -
     """  # 666 fill with more info
 
@@ -494,8 +494,7 @@ def connect_SFR_lines_to_MF6(M: Mdl_N, debug_sfr: bool = True):
     # - the widths seem to be the ones read from the shapefile - **OK**
     # %% Add SFR OBS
     # %% Calibration points
-    Pa_SFR_OBS_In = M.Pa.SFR_OBS_In
-    DF_SFR_OBS = pd.read_csv(Pa_SFR_OBS_In)
+    DF_SFR_OBS = pd.read_csv(M.Pa_SFR_OBS_In)
     for (
         i,
         row,
@@ -551,17 +550,7 @@ def DRN_to_SFR_via_MVR(M: Mdl_N):  # 666 needs a lot of cleanup and streamlingin
     import re
 
     # %% Get paths
-    folders = [
-        f
-        for f in M.Pa.Sim_In.iterdir()
-        if ('drn' in str(f).lower()) and '.' not in str(f) and (M.Pa.Sim_In / f).is_dir()
-    ]
-    l_DRN_Pa = [
-        M.Pa.Sim_In / folder / fname
-        for folder in folders
-        for fname in (M.Pa.Sim_In / folder).iterdir()
-        if (M.Pa.Sim_In / folder / fname).is_file()
-    ]
+    l_DRN_Pa = [i for i in M.Pa.Sim_In.rglob('*.drn')]
 
     # %% Prepare DF from DFN Bin files
     def read_mf6_drn_bin(filepath: str | Path) -> pd.DataFrame:

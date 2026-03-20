@@ -47,7 +47,7 @@ How to use:
   - [x] FUNCTION to_Se (L18) <!-- id:func:core/log.py:to_Se -->
   - [z] FUNCTION last_MdlN (L32) <!-- id:func:core/log.py:last_MdlN -->
   - [x] FUNCTION r_RunLog (L48) <!-- id:func:core/log.py:r_RunLog -->
-  - [ ] FUNCTION update_log (L52) <!-- id:func:core/log.py:update_log -->
+  - [ ] FUNCTION Up_log (L52) <!-- id:func:core/log.py:Up_log -->
   - [x] FUNCTION get_B (L74) <!-- id:func:core/log.py:get_B -->
 
 ## core/mdl.py

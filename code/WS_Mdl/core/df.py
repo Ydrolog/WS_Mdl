@@ -9,7 +9,8 @@ from WS_Mdl.imod.ini import Mdl_Dmns
 class DFAccessor:
     """Custom pandas DataFrame accessor providing WS_Mdl utility methods.
 
-    Usage: import WS_Mdl.core.df  # registers the accessor. import WS_Mdl.core does that too, as it's defined in __init__.py
+    Usage: import WS_Mdl.core.df # noqa: F401
+    # registers the accessor. import WS_Mdl.core does that too, as it's defined in __init__.py # noqa: F401 blocks pyllance from removing the import upon saving (casue it's not used anywhere iself).
            df.ws.info()
            df.ws.memory()
            df.ws.round_Cols()
