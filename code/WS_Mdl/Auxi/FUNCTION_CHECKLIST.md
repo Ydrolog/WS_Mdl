@@ -91,7 +91,7 @@ How to use:
 ## core/runtime.py
 - [x] FILE core/runtime.py <!-- id:file:core/runtime.py -->
   - [x] FUNCTION timed_import (L5) <!-- id:func:core/runtime.py:timed_import -->
-  - [x] FUNCTION timed_execution (L18) <!-- id:func:core/runtime.py:timed_execution -->
+  - [x] FUNCTION timed_Exe (L18) <!-- id:func:core/runtime.py:timed_Exe -->
 
 ## core/spatial.py
 - [ ] FILE core/spatial.py <!-- id:file:core/spatial.py -->

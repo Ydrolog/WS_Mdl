@@ -1,6 +1,11 @@
 # ---------- Printing Section ----------
 
+import re
+import time
+
 from colored import attr, fg
+
+from .path import Pa_WS
 
 __all__ = [
     'Sep',
@@ -37,6 +42,7 @@ CuCh = {  # Stands for Custom Characters.
 }
 
 VERBOSE = True  # Use set_verbose to change this to False and get no information printed to the console.
+START_TIME = 0.0
 
 
 def set_verbose(v: bool):
@@ -45,63 +51,53 @@ def set_verbose(v: bool):
     VERBOSE = v
 
 
-def _is_Mdl_N(value):
-    """Checks whether value is a WS_Mdl.core.mdl.Mdl_N instance."""
-    try:
-        from WS_Mdl.core.mdl import Mdl_N
-
-        return isinstance(value, Mdl_N)
-    except Exception:
-        return value.__class__.__name__ == 'Mdl_N' and hasattr(value, 'MdlN')
+l_Mdl = [i.name for i in (Pa_WS / 'models').iterdir()]
 
 
-def _fmt_arg(value, base_style: str = ''):
-    """Formats args for sprint/sinput, highlighting MdlNs"""
-    if _is_Mdl_N(value):
-        return f'{blue}{value.MdlN}{style_reset}{base_style}'
-
-    if isinstance(value, list):
-        return '[' + ', '.join(str(_fmt_arg(v, base_style=base_style)) for v in value) + ']'
-
-    if isinstance(value, tuple):
-        items = ', '.join(str(_fmt_arg(v, base_style=base_style)) for v in value)
-        if len(value) == 1:
-            items += ','
-        return f'({items})'
-
-    if isinstance(value, set):
-        if not value:
-            return 'set()'
-        return '{' + ', '.join(str(_fmt_arg(v, base_style=base_style)) for v in value) + '}'
-
-    if isinstance(value, dict):
-        items = []
-        for k, v in value.items():
-            items.append(f'{_fmt_arg(k, base_style=base_style)}: {_fmt_arg(v, base_style=base_style)}')
-        return '{' + ', '.join(items) + '}'
-
-    return value
+def _highlight_MdlN(text: str, style_In: str) -> str:
+    patterns_re = '|'.join(re.escape(p) for p in sorted(l_Mdl, key=len, reverse=True))
+    return re.sub(rf'({patterns_re})(\d+)', lambda m: f'{blue}{m.group(0)}{style_reset}{style_In}', text)
 
 
-def sprint(*args, indent: int = 0, style: str = '', verbose_in: bool = None, verbose_out: bool = None, **kwargs):
+def sprint(
+    *args,
+    indent: int = 0,
+    style: str = '',
+    verbose_in: bool = None,
+    verbose_out: bool = None,
+    set_time: bool = False,
+    print_time: bool = False,
+    **kwargs,
+):
     """
     Special print function. Allows easy indentation (2 spaces per 1 indent level) and easy styling.
     Allows for setting VERBOSE prior and after printing, so set_verbose doesn't have to be used all the time separately.
+    Can also track and print elapsed time using set_time and print_time.
     """
+    global START_TIME
+
     if verbose_in is not None:
         globals()['set_verbose'](verbose_in)
 
+    time_str = ''
+    if print_time:
+        elapsed = time.time() - START_TIME
+        time_str = f' [{elapsed:.1f} s]'
+
+    if set_time:
+        START_TIME = time.time()
+
     if VERBOSE:
-        args_fmt = tuple(_fmt_arg(arg, base_style=style) for arg in args)  # Highligts Mdl_N instances.
+        args_fmt = tuple(_highlight_MdlN(str(arg), style) for arg in args)  # Highlights Mdl_N instances.
         prefix = f'{style}{"  " * indent}'
 
         if args_fmt:
             args_out = list(args_fmt)
             args_out[0] = f'{prefix}{args_out[0]}'
-            args_out[-1] = f'{args_out[-1]}{style_reset}'
+            args_out[-1] = f'{args_out[-1]}{time_str}{style_reset}'
             print(*args_out, **kwargs)
         else:
-            print(f'{prefix}{style_reset}', **kwargs)
+            print(f'{prefix}{time_str}{style_reset}', **kwargs)
 
     if verbose_out is not None:
         globals()['set_verbose'](verbose_out)
@@ -112,6 +108,6 @@ def sinput(*args, indent: int = 0, style: str = '', sep: str = ' '):
     Special input function. Allows easy indentation and easy styling.
     Always prompts, regardless of VERBOSE.
     """
-    args_fmt = (_fmt_arg(arg, base_style=style) for arg in args)
+    args_fmt = (_highlight_MdlN(str(arg), style) for arg in args)
     prompt = f'{style}{"  " * indent}{sep.join(str(arg) for arg in args_fmt)}{style_reset}'
     return input(prompt)

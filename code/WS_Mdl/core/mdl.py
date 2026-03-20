@@ -12,15 +12,23 @@ _MdlN_pattern = re.compile(r'^(?P<alias>[A-Za-z]+)(?P<N>\d+)$')
 
 class Mdl_N:
     """
-    Class representing a Model Number (MdlN) with an alias and a numeric component.
-    Spelled as Mdl_N to avoid confict with MdlN argument used in most other functions.
-    Provides attributes to access:
-     - related paths
-     - INI file content
-     - dimensions
+    Class representing a Model Number (MdlN). Spelled as Mdl_N to avoid confict with MdlN argument used in most other functions.
     """
 
-    __slots__ = ('MdlN', 'alias', 'N', 'iMOD5', 'V', 'Pa', 'INI', 'Dmns', 'Mdl_Aa', 'B', 'Pa_B')
+    __slots__ = {
+        'MdlN': 'str: Model Number (e.g., "NBr21")',
+        'alias': 'str: Alias part of the Model Number (e.g., "NBr")',
+        'N': 'int: Numeric part of the Model Number (e.g., 21)',
+        'iMOD5': 'bool: Indicates if the model is an iMOD5 model',
+        'V': 'str: Model version string ("imod5"/"imod_python")',
+        'Pa': 'Paths view for the model',
+        'INI': 'INI file content view',
+        'Dmns': 'tuple: Xmin, Ymin, Xmax, Ymax, dx, dy (Model dimensions)',
+        'Mdl_Aa': 'float: Model Area',
+        'B': 'str: Baseline Model Number (e.g., "NBr18")',
+        'Pa_B': 'Paths view for the Baseline Model',
+        '__dict__': 'Allow dynamic attributes',
+    }
 
     def __init__(self, MdlN: str, iMOD5: bool | None = None):
         # MdlN format validation and extraction of alias and number using regex

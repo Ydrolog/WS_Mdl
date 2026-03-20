@@ -56,7 +56,7 @@ _EXPORTS_TO_MODULES = {
     'DFAccessor': ('WS_Mdl.core.df', 'DFAccessor'),
     # Timing utilities
     'timed_import': ('WS_Mdl.core.runtime', 'timed_import'),
-    'timed_execution': ('WS_Mdl.core.runtime', 'timed_execution'),
+    'timed_Exe': ('WS_Mdl.core.runtime', 'timed_Exe'),
     'timed_class_init': ('WS_Mdl.core.runtime', 'timed_class_init'),
 }
 

@@ -1,147 +1,66 @@
-import subprocess as sp
 from datetime import datetime as DT
+from pathlib import Path
 
-import pandas as pd
-import primod
-from imod import mf6, msw
-from WS_Mdl.core.mdl import Mdl_N
-from WS_Mdl.core.style import set_verbose, sprint
-from WS_Mdl.imod import ini, prj
-from WS_Mdl.imod.mf6.solution import moderate_settings
-from WS_Mdl.imod.msw import Cvt_to_AbsPa
+from WS_Mdl.core import Mdl_N, Sep, bold, sprint
+from WS_Mdl.core.runtime import timed_Exe
+from WS_Mdl.imod.prj import PrSimP
+from WS_Mdl.imod.sfr.prsimp import DRN_to_SFR_via_MVR, connect_SFR_lines_to_MF6, create_SFR_lines
 
 
-def Mdl_Prep(MdlN: str, Pa_MF6_DLL: str = None, Pa_MSW_DLL: str = None, verbose=False):
+def SFR_Mdl(
+    MdlN: str,
+    Pa_Cond_A: str | Path,
+    Pa_Cond_B: str | Path = None,
+    Pa_MF6_DLL: str = None,
+    Pa_MSW_DLL: str = None,
+    SFR_OBS_In: str | Path = None,
+    verbose=False,
+    add_DRN_to_SFR=True,
+):
     """
     Prepares Sim Fis from In Fis.
     Ins need to be read and processed, then MF6 and MSW need to be coupled. Then Sim Ins can be written.
     """
+    sprint(Sep)
+    sprint(f'----- Mdl_Prep: {MdlN} -----', style=bold, verbose_out=verbose)
 
-    set_verbose(verbose)
-
-    # Load paths and variables from PRJ & INI
+    # Create Mdl_N instance and enchance with params needed in following functions.
+    sprint(' -- Loading MdlN parameters.', end='', verbose_in=True, verbose_out=verbose)
     M = Mdl_N(MdlN)
-    Pa = M.Pa
-    Pa_PRJ = Pa.PRJ
     # Dir_PRJ = PDN(Pa_PRJ)
-    d_INI = ini.as_d(Pa.INI)
-    Xmin, Ymin, Xmax, Ymax = [float(i) for i in d_INI['WINDOW'].split(',')]
-    SP_date_1st, SP_date_last = [
-        DT.strftime(DT.strptime(d_INI[f'{i}'], '%Y%m%d'), '%Y-%m-%d') for i in ['SDATE', 'EDATE']
-    ]
+    d_INI = M.INI
+    M.Xmin, M.Ymin, M.Xmax, M.Ymax = [float(i) for i in d_INI['WINDOW'].split(',')]
+    M.SP_1st, M.SP_last = [DT.strftime(DT.strptime(d_INI[f'{i}'], '%Y%m%d'), '%Y-%m-%d') for i in ['SDATE', 'EDATE']]
     # dx = dy = float(d_INI['CELLSIZE'])
+    M.Pa.MF6_DLL = Pa_MF6_DLL if Pa_MF6_DLL else M.Pa.MF6_DLL  # If not specified, the default location will be used.
+    M.Pa.MSW_DLL = Pa_MSW_DLL if Pa_MSW_DLL else M.Pa.MSW_DLL
+    M.verbose = verbose
+    sprint('🟢', verbose_in=True, verbose_out=verbose)
 
-    if not Pa_MF6_DLL:  # If not specified, the default location will be used.
-        Pa_MF6_DLL = Pa.MF6_DLL
-    if not Pa_MSW_DLL:
-        Pa_MSW_DLL = Pa.MSW_DLL
+    # %% Load PRJ & regrid it to Mdl Aa
+    sprint(' -- imod PrSimP from PRJ file.', verbose_in=True, verbose_out=verbose)
+    M.Sim_MF6 = timed_Exe(PrSimP, M)
 
-    # Load PRJ & regrid it to Mdl Aa
-    PRJ_, _ = prj.o_with_OBS(Pa_PRJ)
-    PRJ, period_data = PRJ_[0], PRJ_[1]
-    PRJ_regrid = prj.regrid(
-        PRJ, MdlN
-    )  # Using original PRJ to load MF6 Mdl gives warnings (and it's very slow). Regridding works much better though.
-
-    # Set outer boundaries to -1. Otherwise CHD won't be loaded properly.
-    BND = PRJ_regrid['bnd']['ibound']
-    BND.loc[:, [BND.y[0], BND.y[-1]], :] = -1  # Top and bottom rows
-    BND.loc[:, :, [BND.x[0], BND.x[-1]]] = -1  # Left and right columns
-    sprint('🟢 - Boundary conditions set successfully!')
-
-    # Load MF6 Simulation
-    times = pd.date_range(SP_date_1st, SP_date_last, freq='D')
-    Sim_MF6 = mf6.Modflow6Simulation.from_imod5_data(
-        PRJ_regrid, period_data, times
-    )  # It can be further sped up by multi-processing, but this is not implemented yet.
-    sprint('🟢 - MF6 Simulation loaded successfully!')
-    # Sim_MF6[f'{MdlN}'] = Sim_MF6.pop('imported_model')  # Rename imported_model to MdlN.
-
-    # Pass the Sim components to objects.
-    MF6_Mdl = Sim_MF6['imported_model']
-    MF6_Mdl['oc'] = mf6.OutputControl(save_head='last', save_budget='last')
-    Sim_MF6['ims'] = moderate_settings()  # Mimic iMOD5's "Moderate" settings.
-    MF6_DIS = MF6_Mdl['dis']
-
-    # Load MSW
-    PRJ_MSW = {'cap': PRJ_regrid.copy()['cap'], 'extra': PRJ_regrid.copy()['extra']}  # Isolate MSW keys from PRJ.
-    PRJ_MSW['extra']['paths'][2][0] = Cvt_to_AbsPa(
-        Pa_PRJ, PRJ
-    )  ## Fix mete_grid.inp relative paths. Replace the mete_grid.inp path in the PRJ_MSW dictionary
-    MSW_Mdl = msw.MetaSwapModel.from_imod5_data(PRJ_MSW, MF6_DIS, times)  # Load MSW model from PRJ
-    sprint('🟢 - MSW Simulation loaded successfully!')
-
-    # Clip models
-    Sim_MF6_AoI = Sim_MF6.clip_box(x_min=Xmin, x_max=Xmax, y_min=Ymin, y_max=Ymax)
-    MF6_Mdl_AoI = Sim_MF6_AoI['imported_model']
-    MSW_Mdl_AoI = MSW_Mdl.clip_box(
-        x_min=Xmin, x_max=Xmax, y_min=Ymin, y_max=Ymax
-    )  # clip_box doesn't clip the packages I clipped beforehand, but it clips non raster-like packages like WEL and removes packages that are not in the AoI.
-    print(f'MF6 Model AoI DIS shape: {MF6_Mdl_AoI["dis"].dataset.sizes}')
-    print(f'MSW Model AoI grid shape: {MSW_Mdl_AoI["grid"].dataset.sizes}')
-    print('🟢 Both models successfully clipped to Area of Interest with compatible discretization!')
-
-    ## I've sense checked that the AoI models are correct. Check imod_python_init_NBr32.ipynb for more info.
-
-    # Load models into memory
-    for pkg in MF6_Mdl_AoI.values():
-        pkg.dataset.load()
-
-    for pkg in MSW_Mdl_AoI.values():
-        pkg.dataset.load()
-
-    # Create mask from current regridded model (not the old one)
-    mask = (
-        MF6_Mdl_AoI.domain
-    )  # 666 mask needs to be checked and potentially updated with -1 values at the edge of the Mdl Aa.
-    Sim_MF6_AoI.mask_all_models(mask)
-    DIS_AoI = MF6_Mdl_AoI['dis']
-
-    ### MF6 cleanup
-    try:
-        for Pkg in [i for i in MF6_Mdl_AoI.keys() if ('riv' in i.lower()) or ('drn' in i.lower())]:
-            MF6_Mdl_AoI[Pkg].cleanup(DIS_AoI)
-    except Exception:
-        print('Failed to cleanup packages. Proceeding without cleanup. Fingers crossed!')
-
-    # MetaSWAP cleanup
-    MSW_Mdl_AoI['grid'].dataset['rootzone_depth'] = MSW_Mdl_AoI['grid'].dataset['rootzone_depth'].fillna(1.0)
-
-    # Coupling
-    metamod_coupling = primod.MetaModDriverCoupling(
-        mf6_model='imported_model', mf6_recharge_package='msw-rch', mf6_wel_package='msw-sprinkling'
-    )
-    metamod = primod.MetaMod(MSW_Mdl_AoI, Sim_MF6_AoI, coupling_list=[metamod_coupling])
-    Pa.Pa_MdlN.mkdir(parents=True, exist_ok=True)  # Create simulation directory if it doesn't exist
-
-    # Write Mdl Files
-    metamod.write(
-        directory=Pa.Pa_MdlN,
-        modflow6_dll=Pa_MF6_DLL,
-        metaswap_dll=Pa_MSW_DLL,
-        metaswap_dll_dependency=Pa_MF6_DLL.parent,
+    # %% Create SFR Lines
+    sprint(' -- SFRmaker - Creating SFR lines.', verbose_in=True, verbose_out=verbose)
+    M.lines = timed_Exe(
+        create_SFR_lines, Pa_GPkg=f'G:/models/NBr/In/SFR/{MdlN}/WBD_1ry_SW_NW_cleaned_{MdlN}.gpkg', verbose=M.verbose
     )
 
-    # # Review execution times per cell
-    try:
-        result = sp.run(
-            [Pa.coupler_Exe, Pa.TOML], cwd=Pa.Pa_MdlN, capture_output=True, text=True, timeout=3600
-        )  # 1 hour timeout
+    # %% Connect SFR Lines to MF6 (writes files and connects them to NAM)
+    sprint(' -- SFRmaker - Connecting SFR lines to MF6.', verbose_in=True, verbose_out=verbose)
+    M.SFR_OBS_In = M.Pa.In / 'OBS/SFR/NBr40/NBr40_SFR_OBS_Pnt.csv'
+    M.Pa_Cond_A = Path(Pa_Cond_A)
+    M.Pa_Cond_B = Path(Pa_Cond_A) if Pa_Cond_B is None else Path(Pa_Cond_B)
+    timed_Exe(
+        connect_SFR_lines_to_MF6,
+        M,
+        debug_sfr=True,
+    )
 
-        print(f'Return code: {result.returncode}')
-        if result.stdout:
-            print('STDOUT:')
-            print(result.stdout)
-        if result.stderr:
-            print('STDERR:')
-            print(result.stderr)
-
-        if result.returncode == 0:
-            print('✅ Model execution completed successfully!')
-        else:
-            print(f'❌ Model execution failed with return code {result.returncode}')
-
-    except sp.TimeoutExpired:
-        print('⏰ Model execution timed out after 1 hour')
-    except Exception as e:
-        print(f'❌ Error executing model: {e}')
+    # %% Connect DRN to SFR via MVR
+    sprint(' -- SFRmaker - Connecting DRN to SFR via MVR.', verbose_in=True, verbose_out=verbose)
+    timed_Exe(
+        DRN_to_SFR_via_MVR,
+        M,
+    )

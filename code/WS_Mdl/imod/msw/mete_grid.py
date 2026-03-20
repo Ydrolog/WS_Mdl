@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import pandas as pd
-from WS_Mdl.imod.prj import o_with_OBS
+from WS_Mdl.core import sprint
 
 
 def to_DF(PRJ):
@@ -49,6 +49,8 @@ def Cvt_to_AbsPa(Pa_PRJ: Path | str, PRJ: dict = None):
     - PRJ is optional, if not provided, it will be loaded from Pa_PRJ.
     Returns Pa of mete_grid.inp with absolute paths.
     """
+    from WS_Mdl.imod.prj import o_with_OBS
+
     Pa_PRJ = Path(Pa_PRJ)
     Dir_PRJ = Pa_PRJ.parent
 
@@ -84,6 +86,6 @@ def Cvt_to_AbsPa(Pa_PRJ: Path | str, PRJ: dict = None):
             else:
                 f.write(line + '\n')
 
-    print(f'Created corrected mete_grid.inp: {Pa_mete_grid_AbsPa}')
+    sprint(f'Created corrected mete_grid.inp: {Pa_mete_grid_AbsPa}')
 
     return Pa_mete_grid_AbsPa

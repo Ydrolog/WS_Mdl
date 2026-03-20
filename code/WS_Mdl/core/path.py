@@ -3,8 +3,6 @@
 import sys
 from pathlib import Path
 
-from .style import sprint
-
 __all__ = ['REPO_ROOT', 'Pa_WS', 'Pa_RunLog', 'Pa_log_Out', 'Pa_log_Cfg', 'MdlN_Pa', 'imod_V', 'get_Mdl']
 
 
@@ -34,13 +32,13 @@ def imod_V(MdlN: str):
         elif 'GWF_1' in names:
             return 'imod5'
         else:
-            sprint(
+            print(
                 f"Could not determine imod version from Sim/{MdlN} folder.\nProceeding with the assumption it's imod_python.",
                 file=sys.stderr,
             )
             return 'imod_python'
     except FileNotFoundError:
-        sprint(
+        print(
             f"Could not determine imod version from Sim/{MdlN} folder.\nProceeding with the assumption that it's imod_python.",
             file=sys.stderr,
         )
@@ -145,7 +143,7 @@ def MdlN_Pa(MdlN: str, MdlN_B: str | bool | None = None, iMOD5: bool = None):
 class MdlN_PaView:
     """Makes MdlN_Pa dict keys accessible through MdlN, e.g. MdlN.Pa.INI instead of MdlN.Pa['INI']."""
 
-    __slots__ = ('_d', '_MdlN')
+    __slots__ = ('_d', '_MdlN', '__dict__')
 
     def __init__(self, MdlN: str, MdlN_B: str | None = None, iMOD5: bool | None = None):
         self._MdlN = MdlN

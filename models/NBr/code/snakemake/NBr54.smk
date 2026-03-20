@@ -25,23 +25,21 @@ iMOD5       =   False
 
 ## Paths
 M           =   Mdl_N(MdlN, iMOD5=iMOD5)
-d_Pa        =   M.Pa
-Pa_Mdl      =   M.Pa.Mdl
-workdir:        Pa_Mdl
-Pa_Smk      =   Pa_Mdl / 'code/snakemake'
+M.Pa.Mdl      =   M.Pa.Mdl
+workdir:        M.Pa.Mdl
+Pa_Smk      =   M.Pa.Mdl / 'code/snakemake'
 Pa_temp     =   Pa_Smk / 'temp'
-Pa_MdlN     =   M.Pa.Sim / f'{MdlN}'
 
-Pa_HD_OBS_WEL   =   Pa_MdlN / f'modflow6/imported_model/{MdlN}.OBS6' # 666
+Pa_HD_OBS_WEL   =   M.Pa.MdlN / f'modflow6/imported_model/{MdlN}.OBS6' # 666
 
-Dir_RIV_OBS     =   Pa_Mdl / 'In' / 'OBS' / 'RIV' / MdlN_OBS
-Dir_DRN_OBS     =   Pa_Mdl / 'In' / 'OBS' / 'DRN' / MdlN_OBS
+Dir_RIV_OBS     =   M.Pa.Mdl / 'In' / 'OBS' / 'RIV' / MdlN_OBS
+Dir_DRN_OBS     =   M.Pa.Mdl / 'In' / 'OBS' / 'DRN' / MdlN_OBS
 l_Fi_RIV_OBS    =   [p.name for p in Dir_RIV_OBS.iterdir() if p.is_file()]
 l_Fi_DRN_OBS    =   [p.name for p in Dir_DRN_OBS.iterdir() if p.is_file()]
 Pa_RIV_OBS_Src  =   [Dir_RIV_OBS / i for i in l_Fi_RIV_OBS]
 Pa_DRN_OBS_Src  =   [Dir_DRN_OBS / i for i in l_Fi_DRN_OBS]
-Pa_RIV_OBS_Dst  =   [d_Pa.Sim_In / i.replace(MdlN_OBS, MdlN) for i in l_Fi_RIV_OBS]
-Pa_DRN_OBS_Dst  =   [d_Pa.Sim_In / i.replace(MdlN_OBS, MdlN) for i in l_Fi_DRN_OBS]
+Pa_RIV_OBS_Dst  =   [M.Pa.Sim_In / i.replace(MdlN_OBS, MdlN) for i in l_Fi_RIV_OBS]
+Pa_DRN_OBS_Dst  =   [M.Pa.Sim_In / i.replace(MdlN_OBS, MdlN) for i in l_Fi_DRN_OBS]
 
 l_Fi_to_git     =   [Pa_WS / i for i in ['pixi.toml', 'pixi.lock', 'code/WS_Mdl']] # If any of these code files changes, the 
 git_hash        =   shell(f"git -C {Pa_WS} rev-parse HEAD", read=True).strip()
@@ -77,19 +75,14 @@ rule log_Init: # Sets status to running, and writes other info about therun. Has
     run:
         import socket
         device = socket.gethostname()
-
         update_log(MdlN, {  'End Status':       'Running',
                             'PrP start DT':     DT.now().strftime("%Y-%m-%d %H:%M:%S"),
                             'Sim device name':  device,
                             'Sim Dir':          Pa_Sim,
-                            '1st SP date':      DT.strptime(d_INI['SDATE'], "%Y%m%d").strftime("%Y-%m-%d"),
-                            'last SP date':     DT.strptime(d_INI['EDATE'], "%Y%m%d").strftime("%Y-%m-%d")})
+                            '1st SP date':      DT.strptime(M.INI.SDATE, "%Y%m%d").strftime("%Y-%m-%d"),
+                            'last SP date':     DT.strptime(M.INI.EDATE, "%Y%m%d").strftime("%Y-%m-%d")})
         Path(output[0]).touch() # Create the file to mark the rule as done.
         
-        # Move this to a new rule later, when you've made it safe for multiple rules to write to the same file. Low priority...
-        update_log(MdlN, {  'Git hash': git_hash,
-                        'Git tag': git_tag}) # Log git info
-
 rule freeze_pixi_env:
     input:
         l_Fi_to_git
@@ -103,14 +96,26 @@ rule freeze_pixi_env:
 
 rule Mdl_Prep: # Prepares Sim Ins (from Ins) via BAT file.
     input:
-        
+        log_Init,
+        BAT = M.Pa.BAT,
+        INI = M.Pa.INI,
+        PRJ = M.Pa.PRJ
     output:
+        d_Pa.NAM_Sim
     run:
+        from WS_Mdl.imod.prep import SFR_Mdl
+        SFR_Mdl(
+            MdlN = MdlN,
+            Pa_Cond_A = M.Pa.WS / r"models\NBr\In\RIV\RIV_Cond_DETAILWATERGANGEN_NBr1.IDF",
+            Pa_Cond_B = M.Pa.WS / r"models\NBr\In\RIV\RIV_Cond_DRN_NBr1.IDF",
+            SFR_OBS_In = M.Pa.In / f'OBS/SFR/NBr40/NBr40_SFR_OBS_Pnt.csv',
+            add_DRN_to_SFR=False,
+)
 
 ## -- PrSimP --
 rule add_HD_OBS_WEL:
     input:
-        d_Pa['NAM_Sim']
+        M.Pa.NAM_Sim
     output:
         Pa_HD_OBS_WEL
     run:
@@ -118,7 +123,7 @@ rule add_HD_OBS_WEL:
 
 rule add_RIV_OBS_copy: # By copying file.
     input:
-        d_Pa['NAM_Sim'],
+        M.Pa.NAM_Sim,
         Pa_RIV_OBS_Src,
     output:
         Pa_RIV_OBS_Dst
@@ -127,11 +132,11 @@ rule add_RIV_OBS_copy: # By copying file.
         for i in range(len(Pa_RIV_OBS_Src)):
             Fi = Path(PBN(Pa_RIV_OBS_Src[i]))
             sh.copy2(Pa_RIV_OBS_Src[i], Pa_RIV_OBS_Dst[i])
-            U.add_OBS_to_MF_In(str_OBS=f" OBS6 FILEIN ./GWF_1/MODELINPUT/{Fi}", Pa=PJ(d_Pa['Sim_In'], f"{Fi.stem}6"))
+            U.add_OBS_to_MF_In(str_OBS=f" OBS6 FILEIN ./GWF_1/MODELINPUT/{Fi}", Pa=PJ(M.Pa.NAM_Sim, f"{Fi.stem}6"))
 
 rule add_DRN_OBS_copy: # By copying file.
     input:
-        d_Pa['NAM_Sim'],
+        M.Pa.NAM_Sim,
         Pa_DRN_OBS_Src
     output:
         Pa_DRN_OBS_Dst
@@ -140,7 +145,7 @@ rule add_DRN_OBS_copy: # By copying file.
         for i in range(len(Pa_DRN_OBS_Src)):
             Fi = Path(PBN(Pa_DRN_OBS_Src[i]))
             sh.copy2(Pa_DRN_OBS_Src[i], Pa_DRN_OBS_Dst[i])
-            U.add_OBS_to_MF_In(str_OBS=f" OBS6 FILEIN ./GWF_1/MODELINPUT/{Fi}", Pa=PJ(d_Pa['Sim_In'], f"{Fi.stem}6"))
+            U.add_OBS_to_MF_In(str_OBS=f" OBS6 FILEIN ./GWF_1/MODELINPUT/{Fi}", Pa=PJ(M.Pa.NAM_Sim, f"{Fi.stem}6"))
 
 ## -- Sim ---
 rule Sim: # Runs the simulation via BAT file.
@@ -152,7 +157,7 @@ rule Sim: # Runs the simulation via BAT file.
     output:
         temp(log_Sim)
     run:
-        os.chdir(Pa_MdlN) # Change directory to the model folder.
+        os.chdir(M.Pa.MdlN) # Change directory to the model folder.
         DT_Sim_Start = DT.now()
         Up_log(MdlN, {  'Sim start DT'  :   DT_Sim_Start.strftime("%Y-%m-%d %H:%M:%S")})
         sp.run(Pa_BAT_RUN, shell=True, check=True)
