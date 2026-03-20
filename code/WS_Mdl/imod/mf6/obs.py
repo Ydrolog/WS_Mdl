@@ -99,7 +99,7 @@ def add(MdlN: str, Opt: str = 'BEGIN OPTIONS\nEND OPTIONS', iMOD5=False):
 
 
 def add_within_catchment(
-    Pa_Shp: str | Path, MdlN: str, Pkg: str, Opt="""BEGIN OPTIONS\n\s DIGITS 4\n  PRINT_INPUT\nEND OPTIONS\n"""
+    Pa_Shp: str | Path, MdlN: str, Pkg: str, Opt="""BEGIN OPTIONS\n  DIGITS 4\n  PRINT_INPUT\nEND OPTIONS\n\n"""
 ):
     """Adds all Pkg elements within a polygon (shapefile) as OBS to the Sim in the steps below:
     -"""
