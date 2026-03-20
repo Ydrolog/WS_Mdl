@@ -98,7 +98,7 @@ def add(MdlN: str, Opt: str = 'BEGIN OPTIONS\nEND OPTIONS', iMOD5=False):
     sprint(Sep)
 
 
-def add_within_catchment(
+def add_within_polygon(
     Pa_Shp: str | Path, MdlN: str, Pkg: str, Opt="""BEGIN OPTIONS\n  DIGITS 4\n  PRINT_INPUT\nEND OPTIONS\n\n"""
 ):
     """Adds all Pkg elements within a polygon (shapefile) as OBS to the Sim in the steps below:
