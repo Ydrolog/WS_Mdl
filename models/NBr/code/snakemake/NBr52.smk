@@ -1,6 +1,6 @@
 ## --- Imports ---
 from WS_Mdl.core.mdl import Mdl_N
-from WS_Mdl.core.log import update_log
+from WS_Mdl.core.log import Up_log
 from WS_Mdl.io.sim import freeze_pixi_env, get_elapsed_time_str
 from WS_Mdl.imod.mf6.obs import add as add_OBS
 from WS_Mdl.imod.mf6.write import add_OBS_to_MF_In
@@ -72,7 +72,7 @@ log_freeze_env  =   Pa_temp / f"Log_freeze_env_{MdlN}"
 # --- Rules ---
 
 def fail(job, execution): # Gets activated if any rule fails.
-    update_log(MdlN, {  'Sim end DT': DT.now().strftime("%Y-%m-%d %H:%M:%S"),
+    Up_log(MdlN, {  'Sim end DT': DT.now().strftime("%Y-%m-%d %H:%M:%S"),
                     'End Status': 'Failed'})
 onerror: fail
 
@@ -92,7 +92,7 @@ rule log_Init: # Sets status to running, and writes other info about therun. Has
         device = socket.gethostname()
         d_INI = M.INI
 
-        update_log(MdlN, {  'End Status':       'Running',
+        Up_log(MdlN, {  'End Status':       'Running',
                             'PrP start DT':     DT.now().strftime("%Y-%m-%d %H:%M:%S"),
                             'Sim device name':  device,
                             'Sim Dir':          Pa_Sim,
@@ -101,7 +101,7 @@ rule log_Init: # Sets status to running, and writes other info about therun. Has
         Path(output[0]).touch() # Create the file to mark the rule as done.
         
         # Move this to a new rule later, when you've made it safe for multiple rules to write to the same file. Low priority...
-        update_log(MdlN, {  'Git hash': git_hash,
+        Up_log(MdlN, {  'Git hash': git_hash,
                         'Git tag': git_tag}) # Log git info
 
 rule freeze_pixi_env:
@@ -111,7 +111,7 @@ rule freeze_pixi_env:
         temp(log_freeze_env)
     run:
         git_hash, git_tag = freeze_pixi_env(MdlN)
-        update_log(MdlN, {  'Git hash': git_hash,
+        Up_log(MdlN, {  'Git hash': git_hash,
                         'Git tag': git_tag}) # Log git info
         Path(output[0]).touch() # Create the file to mark the rule as done.
 
@@ -193,10 +193,10 @@ rule Sim: # Runs the simulation via BAT file.
         temp(log_Sim)
     run:
         DT_Sim_Start = DT.now()
-        update_log(MdlN, {  'Sim start DT'  :   DT_Sim_Start.strftime("%Y-%m-%d %H:%M:%S")})
+        Up_log(MdlN, {  'Sim start DT'  :   DT_Sim_Start.strftime("%Y-%m-%d %H:%M:%S")})
         sp.run(["cmd.exe", "/c", Pa_BAT_RUN], cwd=Pa_MdlN, check=True)
         Path(output[0]).touch() 
-        update_log(MdlN, {  'Sim end DT'    :   DT.now().strftime("%Y-%m-%d %H:%M:%S"),
+        Up_log(MdlN, {  'Sim end DT'    :   DT.now().strftime("%Y-%m-%d %H:%M:%S"),
                             'Sim Dur'       :   get_elapsed_time_str(DT_Sim_Start),
                             'End Status'    :   'Completed'})
 
@@ -208,7 +208,7 @@ rule PRJ_to_TIF:
         temp(log_PRJ_to_TIF)
     run:
         PRJ_to_TIF(MdlN, iMOD5=iMOD5, ) # Convert PRJ to TIFs
-        update_log(MdlN, {  'PRJ_to_TIF':   1})
+        Up_log(MdlN, {  'PRJ_to_TIF':   1})
         Path(output[0]).touch() # Create the file to mark the rule as done.
 
 rule GXG:
@@ -218,7 +218,7 @@ rule GXG:
         temp(log_GXG)
     run:
         HD_Bin_GXG_to_MBTIF(MdlN) # Calculate GXG and save as TIFs
-        update_log(MdlN, {  'GXG':   '1'})
+        Up_log(MdlN, {  'GXG':   '1'})
         Path(output[0]).touch() # Create the file to mark the rule as done.
 
 rule Up_MM:
@@ -229,7 +229,7 @@ rule Up_MM:
         log_Up_MM
     run:
         update_MM(MdlN, MdlN_MM_B=MdlN_MM_B)      # Update MM 
-        update_log(MdlN, {  'PoP end DT':   DT.now().strftime("%Y-%m-%d %H:%M:%S"),
+        Up_log(MdlN, {  'PoP end DT':   DT.now().strftime("%Y-%m-%d %H:%M:%S"),
                         'End Status':   'PoPed',
                         'Up_MM'     :   1}) # Update log
         Path(output[0]).touch()     # Create the file to mark the rule as done.

@@ -1,10 +1,11 @@
 ## --- Imports ---
 from WS_Mdl.core.mdl import Mdl_N
-from WS_Mdl.core.log import update_log
+from WS_Mdl.core.log import Up_log
 from WS_Mdl.io.sim import freeze_pixi_env, get_elapsed_time_str
 from WS_Mdl.imod.mf6.obs import add as add_OBS
 from WS_Mdl.imod.mf6.write import add_OBS_to_MF_In
 
+import subprocess as sp
 from snakemake.io import temp
 from datetime import datetime as DT
 from pathlib import Path
@@ -19,7 +20,7 @@ os.environ["PYTHONUNBUFFERED"] = "1"        # Set Python to unbuffered mode (out
 
 ## Options
 MdlN        =   "NBr54"
-MdlN_MM_B   =   'NBr52'
+MdlN_MM_B   =   'NBr13'
 # Mdl         =   ''.join([i for i in MdlN if i.isalpha()])
 iMOD5       =   False
 
@@ -32,22 +33,24 @@ Pa_temp     =   Pa_Smk / 'temp'
 
 Pa_HD_OBS_WEL   =   M.Pa.MdlN / f'modflow6/imported_model/{MdlN}.OBS6' # 666
 
-Dir_RIV_OBS     =   M.Pa.Mdl / 'In' / 'OBS' / 'RIV' / MdlN_OBS
-Dir_DRN_OBS     =   M.Pa.Mdl / 'In' / 'OBS' / 'DRN' / MdlN_OBS
-l_Fi_RIV_OBS    =   [p.name for p in Dir_RIV_OBS.iterdir() if p.is_file()]
-l_Fi_DRN_OBS    =   [p.name for p in Dir_DRN_OBS.iterdir() if p.is_file()]
-Pa_RIV_OBS_Src  =   [Dir_RIV_OBS / i for i in l_Fi_RIV_OBS]
-Pa_DRN_OBS_Src  =   [Dir_DRN_OBS / i for i in l_Fi_DRN_OBS]
-Pa_RIV_OBS_Dst  =   [M.Pa.Sim_In / i.replace(MdlN_OBS, MdlN) for i in l_Fi_RIV_OBS]
-Pa_DRN_OBS_Dst  =   [M.Pa.Sim_In / i.replace(MdlN_OBS, MdlN) for i in l_Fi_DRN_OBS]
+# Dir_RIV_OBS     =   M.Pa.Mdl / 'In' / 'OBS' / 'RIV' / MdlN_OBS
+# Dir_DRN_OBS     =   M.Pa.Mdl / 'In' / 'OBS' / 'DRN' / MdlN_OBS
+# l_Fi_RIV_OBS    =   [p.name for p in Dir_RIV_OBS.iterdir() if p.is_file()]
+# l_Fi_DRN_OBS    =   [p.name for p in Dir_DRN_OBS.iterdir() if p.is_file()]
+# Pa_RIV_OBS_Src  =   [Dir_RIV_OBS / i for i in l_Fi_RIV_OBS]
+# Pa_DRN_OBS_Src  =   [Dir_DRN_OBS / i for i in l_Fi_DRN_OBS]
+# Pa_RIV_OBS_Dst  =   [M.Pa.Sim_In / i.replace(MdlN_OBS, MdlN) for i in l_Fi_RIV_OBS]
+# Pa_DRN_OBS_Dst  =   [M.Pa.Sim_In / i.replace(MdlN_OBS, MdlN) for i in l_Fi_DRN_OBS]
 
-l_Fi_to_git     =   [Pa_WS / i for i in ['pixi.toml', 'pixi.lock', 'code/WS_Mdl']] # If any of these code files changes, the 
-git_hash        =   shell(f"git -C {Pa_WS} rev-parse HEAD", read=True).strip()
-git_tag         =   shell(f"git -C {Pa_WS} describe --tags --always", read=True, allow_error=True).strip() or "no_tag"
+l_Fi_to_git     =   [M.Pa.WS / i for i in ['pixi.toml', 'pixi.lock', 'code/WS_Mdl']] # If any of these code files changes, the 
+git_hash        =   shell(f"git -C {M.Pa.WS} rev-parse HEAD", read=True).strip()
+git_tag         =   shell(f"git -C {M.Pa.WS} describe --tags --always", read=True, allow_error=True).strip() or "no_tag"
 
 ## Temp files (for completion validation)
 log_Init        =   Pa_Smk / f"temp/Log_init_{MdlN}"
 log_Sim         =   Pa_Smk / f"temp/Log_Sim_{MdlN}"
+log_RIV_OBS     =   Pa_Smk / f"temp/Log_RIV_OBS_{MdlN}"
+log_DRN_OBS     =   Pa_Smk / f"temp/Log_DRN_OBS_{MdlN}"
 log_PRJ_to_TIF  =   Pa_Smk / f"temp/Log_PRJ_to_TIF_{MdlN}"
 log_GXG         =   Pa_Smk / f"temp/Log_GXG_{MdlN}"
 log_Up_MM       =   Pa_Smk / f"temp/Log_Up_MM_{MdlN}"
@@ -75,10 +78,10 @@ rule log_Init: # Sets status to running, and writes other info about therun. Has
     run:
         import socket
         device = socket.gethostname()
-        update_log(MdlN, {  'End Status':       'Running',
+        Up_log(MdlN, {  'End Status':       'Running',
                             'PrP start DT':     DT.now().strftime("%Y-%m-%d %H:%M:%S"),
                             'Sim device name':  device,
-                            'Sim Dir':          Pa_Sim,
+                            'Sim Dir':          M.Pa.MdlN,
                             '1st SP date':      DT.strptime(M.INI.SDATE, "%Y%m%d").strftime("%Y-%m-%d"),
                             'last SP date':     DT.strptime(M.INI.EDATE, "%Y%m%d").strftime("%Y-%m-%d")})
         Path(output[0]).touch() # Create the file to mark the rule as done.
@@ -90,7 +93,7 @@ rule freeze_pixi_env:
         temp(log_freeze_env)
     run:
         git_hash, git_tag = freeze_pixi_env(MdlN)
-        update_log(MdlN, {  'Git hash': git_hash,
+        Up_log(MdlN, {  'Git hash': git_hash,
                         'Git tag': git_tag}) # Log git info
         Path(output[0]).touch() # Create the file to mark the rule as done.
 
@@ -101,7 +104,7 @@ rule Mdl_Prep: # Prepares Sim Ins (from Ins) via BAT file.
         INI = M.Pa.INI,
         PRJ = M.Pa.PRJ
     output:
-        d_Pa.NAM_Sim
+        M.Pa.NAM_Sim
     run:
         from WS_Mdl.imod.prep import SFR_Mdl
         SFR_Mdl(
@@ -113,55 +116,53 @@ rule Mdl_Prep: # Prepares Sim Ins (from Ins) via BAT file.
 )
 
 ## -- PrSimP --
-rule add_HD_OBS_WEL:
+# rule add_HD_OBS_WEL:
+#     input:
+#         M.Pa.NAM_Sim
+#     output:
+#         Pa_HD_OBS_WEL
+#     run:
+#         UIM.add_OBS(MdlN, iMOD5=iMOD5)
+
+rule add_RIV_OBS:
+    input:
+        M.Pa.NAM_Sim,
+    output:
+        log_RIV_OBS
+    run:
+        from WS_Mdl.imod.mf6.obs import add_within_polygon
+        add_within_polygon(Pa_Shp =  r'G:\models\NBr\PoP\common\Pgn\Chaamse_beek\catchment_chaamsebeek_ulvenhout.shp',
+            MdlN = MdlN,
+            Pkg = 'RIV',
+            Opt = """BEGIN OPTIONS\n  DIGITS 4\n  PRINT_INPUT\nEND OPTIONS\n\n""")
+        Path(output[0]).touch() # Create the file to mark the rule as done.
+
+rule add_DRN_OBS:
     input:
         M.Pa.NAM_Sim
     output:
-        Pa_HD_OBS_WEL
+        log_DRN_OBS
     run:
-        UIM.add_OBS(MdlN, iMOD5=iMOD5)
-
-rule add_RIV_OBS_copy: # By copying file.
-    input:
-        M.Pa.NAM_Sim,
-        Pa_RIV_OBS_Src,
-    output:
-        Pa_RIV_OBS_Dst
-    run:
-        PKG = 'RIV'
-        for i in range(len(Pa_RIV_OBS_Src)):
-            Fi = Path(PBN(Pa_RIV_OBS_Src[i]))
-            sh.copy2(Pa_RIV_OBS_Src[i], Pa_RIV_OBS_Dst[i])
-            U.add_OBS_to_MF_In(str_OBS=f" OBS6 FILEIN ./GWF_1/MODELINPUT/{Fi}", Pa=PJ(M.Pa.NAM_Sim, f"{Fi.stem}6"))
-
-rule add_DRN_OBS_copy: # By copying file.
-    input:
-        M.Pa.NAM_Sim,
-        Pa_DRN_OBS_Src
-    output:
-        Pa_DRN_OBS_Dst
-    run:
-        PKG = 'DRN'
-        for i in range(len(Pa_DRN_OBS_Src)):
-            Fi = Path(PBN(Pa_DRN_OBS_Src[i]))
-            sh.copy2(Pa_DRN_OBS_Src[i], Pa_DRN_OBS_Dst[i])
-            U.add_OBS_to_MF_In(str_OBS=f" OBS6 FILEIN ./GWF_1/MODELINPUT/{Fi}", Pa=PJ(M.Pa.NAM_Sim, f"{Fi.stem}6"))
+        from WS_Mdl.imod.mf6.obs import add_within_polygon
+        add_within_polygon(Pa_Shp =  r'G:\models\NBr\PoP\common\Pgn\Chaamse_beek\catchment_chaamsebeek_ulvenhout.shp',
+            MdlN = MdlN,
+            Pkg = 'DRN',
+            Opt = """BEGIN OPTIONS\n DIGITS 4\n  PRINT_INPUT\nEND OPTIONS\n\n""")
+        Path(output[0]).touch() # Create the file to mark the rule as done.
 
 ## -- Sim ---
 rule Sim: # Runs the simulation via BAT file.
     input:
-        Pa_HD_OBS_WEL,
-        Pa_RIV_OBS_Dst,
-        Pa_DRN_OBS_Dst,
-        # Pa_HD_OBS
+        log_RIV_OBS,
+        log_DRN_OBS
     output:
         temp(log_Sim)
     run:
         os.chdir(M.Pa.MdlN) # Change directory to the model folder.
         DT_Sim_Start = DT.now()
         Up_log(MdlN, {  'Sim start DT'  :   DT_Sim_Start.strftime("%Y-%m-%d %H:%M:%S")})
-        sp.run(Pa_BAT_RUN, shell=True, check=True)
-        pathlib.Path(output[0]).touch() 
+        sp.run([M.Pa.coupler_Exe, M.Pa.TOML], shell=True, check=True)
+        Path(output[0]).touch() 
         Up_log(MdlN, {  'Sim end DT'    :   DT.now().strftime("%Y-%m-%d %H:%M:%S"),
                         'Sim Dur'       :   get_elapsed_time_str(DT_Sim_Start),
                         'End Status'    :   'Completed'})
@@ -174,9 +175,9 @@ rule PRJ_to_TIF:
         temp(log_PRJ_to_TIF)
     run:
         from WS_Mdl.imod.prj import to_TIF as PRJ_to_TIF
-        G.PRJ_to_TIF(MdlN, iMOD5=iMOD5, ) # Convert PRJ to TIFs
+        PRJ_to_TIF(MdlN, iMOD5=iMOD5) # Convert PRJ to TIFs
         Up_log(MdlN, {  'PRJ_to_TIF':   1})
-        pathlib.Path(output[0]).touch() # Create the file to mark the rule as done.
+        Path(output[0]).touch() # Create the file to mark the rule as done.
 
 rule GXG:
     input:
@@ -186,7 +187,7 @@ rule GXG:
     run:
         from WS_Mdl.imod.pop.gxg import HD_Bin_GXG_to_MBTIF
         HD_Bin_GXG_to_MBTIF(MdlN) # Calculate GXG and save as TIFs
-        update_log(MdlN, {  'GXG':   '1'})
+        Up_log(MdlN, {  'GXG':   '1'})
         Path(output[0]).touch() # Create the file to mark the rule as done.
 
 rule Up_MM:
@@ -197,8 +198,8 @@ rule Up_MM:
         log_Up_MM
     run:
         from WS_Mdl.io.qgis import update_MM
-        G.Up_MM(MdlN, MdlN_MM_B=MdlN_MM_B)      # Update MM 
+        update_MM(MdlN, MdlN_MM_B=MdlN_MM_B)      # Update MM 
         Up_log(MdlN, {  'PoP end DT':   DT.now().strftime("%Y-%m-%d %H:%M:%S"),
                         'End Status':   'PoPed',
                         'Up_MM'     :   1}) # Update log
-        pathlib.Path(output[0]).touch()     # Create the file to mark the rule as done.
+        Path(output[0]).touch()     # Create the file to mark the rule as done.
