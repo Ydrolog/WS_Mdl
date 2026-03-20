@@ -100,7 +100,7 @@ def RunSim(args):
         if generate_dag:  # DAG parameter passed from RunMng
             cmd = (
                 f'pixi run --manifest-path "{M.Pa.pixi}" snakemake --directory "{M.Pa.Mdl}" --dag -s "{M.Pa.Smk}" --cores {cores_per_Sim} '
-                f'| pixi run --manifest-path "{M.Pa.pixi}" dot -Tpng -o "{M.Pa.DAG}"'
+                f'| pixi run --manifest-path "{M.Pa.pixi}" dot -Tpng -o "{M.Pa.Smk_DAG}"'
             )
             sp.run(cmd, shell=True, check=True)
 
