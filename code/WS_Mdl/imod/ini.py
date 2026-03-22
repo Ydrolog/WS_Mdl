@@ -14,12 +14,16 @@ def as_d(Pa_INI: Path | str) -> dict:
     N_R, N_C = int( - (Ymin - Ymax) / cellsize ), int( (Xmax - Xmin) / cellsize )
     """
     d_INI = {}
-    with open(Pa_INI, 'r', encoding='utf-8') as file:
-        for Ln in file:
-            Ln = Ln.strip()
-            if Ln and not Ln.startswith('#'):  # Ignore empty lines and comments
-                k, v = Ln.split('=', 1)  # Split at the first '='
-                d_INI[k.strip().upper()] = v.strip()  # Remove extra spaces
+
+    try:
+        with open(Pa_INI, 'r', encoding='utf-8') as file:
+            for Ln in file:
+                Ln = Ln.strip()
+                if Ln and not Ln.startswith('#'):  # Ignore empty lines and comments
+                    k, v = Ln.split('=', 1)  # Split at the first '='
+                    d_INI[k.strip().upper()] = v.strip()  # Remove extra spaces
+    except Exception:
+        pass
 
     sprint(f'🟢 - INI file {Pa_INI} read successfully. Dictionary created with {len(d_INI)} keys.')
     return d_INI

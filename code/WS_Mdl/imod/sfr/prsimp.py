@@ -5,8 +5,10 @@ import geopandas as gpd
 import numpy as np
 import pandas as pd
 import sfrmaker as sfr
+from WS_Mdl.core.defaults import CRS
 from WS_Mdl.core.mdl import Mdl_N
 from WS_Mdl.core.style import sprint
+from WS_Mdl.imod.mf6.bin import to_DF
 
 
 def create_SFR_lines(Pa_GPkg: str | Path, verbose: bool, debug_sfr: bool = True):
@@ -258,7 +260,6 @@ def connect_SFR_lines_to_MF6(M: Mdl_N, debug_sfr: bool = True):
 
     import imod
     from shapely import box
-    from WS_Mdl.core.defaults import CRS
 
     # %% Connect SFR to MF6 model
     sprint(' -- SFRmaker - Connecting SFR lines to MF6 model.', verbose_in=True, verbose_out=M.verbose)
@@ -544,78 +545,76 @@ def connect_SFR_lines_to_MF6(M: Mdl_N, debug_sfr: bool = True):
     return DF_reach
 
 
-def DRN_to_SFR_via_MVR(M: Mdl_N):  # 666 needs a lot of cleanup and streamlinging
-    """Connects DRN elements to the nearest SFR reach using MVR package."""
-    # %% Imports
+def Pkg_to_SFR_via_MVR(M: Mdl_N, Pkg, Pa_Shp):  # 666 needs a lot of cleanup and streamlinging
+    """Connects Pkg elements to the nearest SFR reach using MVR package.
+    - M: Mdl_N instance. Needs to have the following extra attributes:
+        - M.N_R: number of Mdl rows.
+        - M.N_C: number of Mdl columns.
+    - Pkg: Package name to connect (e.g. 'DRN').
+    - Pa_Shp: shapefile containing the outer boundaries to clip the Pkg elements within, e.g. if only elements in a catchment need to be connected.
+    """
     import re
 
-    # %% Get paths
-    l_DRN_Pa = [i for i in M.Pa.Sim_In.rglob('*.drn')]
-
-    # %% Prepare DF from DFN Bin files
-    def read_mf6_drn_bin(filepath: str | Path) -> pd.DataFrame:
-        """Read MODFLOW 6 DRN binary input (imod format) into a DataFrame."""
-        dtype = np.dtype(
-            [
-                ('k', '<i4'),  # layer
-                ('i', '<i4'),  # row
-                ('j', '<i4'),  # column
-                ('elev', '<f8'),  # elevation
-                ('cond', '<f8'),  # conductance
-            ]
-        )
-        path = Path(filepath)
-        nrec = path.stat().st_size // dtype.itemsize
-        arr = np.fromfile(path, dtype=dtype, count=nrec)
-        return pd.DataFrame(arr)
-
-    d_DRN_DF = {}
-
-    for i in range(len(l_DRN_Pa)):
-        DF_DRN = read_mf6_drn_bin(l_DRN_Pa[i])
-        d_DRN_DF[int(re.search(r'(?i)drn[-_]?(\d+)', str(l_DRN_Pa[i].parent)).group(1))] = DF_DRN.loc[
-            ~DF_DRN['i'].isin([1, M.N_R]) & ~DF_DRN['j'].isin([1, M.N_C])
-        ]
-    for k in d_DRN_DF.keys():
-        # print(f"DRN-{k} DataFrame shape: {d_DRN_DF[k].shape}")
-        d_DRN_DF[k] = d_DRN_DF[k].ws.Calc_XY(M.Xmin, M.Ymax, M.cellsize)
-        d_DRN_DF[k].drop(columns=['cond', 'elev'], inplace=True)
-        d_DRN_DF[k]['Pkg1'] = f'drn-{k}'
-        d_DRN_DF[k]['Pvd_ID'] = d_DRN_DF[k].index + 1  # 1-based index
-    DF_reach_for_DRN = M.DF_reach[['rno', 'i', 'j']].ws.Calc_XY(M.Xmin, M.Ymax, M.cellsize)
-
-    # %% # Combine all d_DRN_DF items into a single DataFrame
+    import WS_Mdl.core.df  # noqa: F401
     from scipy.spatial.distance import cdist
 
-    DF_DRN_all = pd.concat(d_DRN_DF.values(), ignore_index=True)
+    # %%
+    if Pa_Shp is not None:
+        GDF_Shp = gpd.read_file(Pa_Shp)
+        print(f'Loaded shapefile with {len(GDF_Shp)} features')
+        print(f'CRS: {GDF_Shp.crs}')
+        print(f'Bounds: {GDF_Shp.bounds}')
+        GDF_Shp.crs = CRS
+
+    # %% Get paths
+    l_Pa = [i for i in M.Pa.Sim_In.rglob(f'*{Pkg.lower()}*.bin')]
+
+    # %% Prepare DF from DFN Bin files
+    d_DF = {}
+
+    for i in range(len(l_Pa)):
+        DF = to_DF(l_Pa[i], Pkg=Pkg)
+        print(DF.head())
+        d_DF[int(re.search(rf'(?i){Pkg.lower()}[-_]?(\d+)', str(l_Pa[i].parent)).group(1))] = DF.loc[
+            ~DF['i'].isin([1, M.N_R]) & ~DF['j'].isin([1, M.N_C])
+        ]  # Exclude boundary cells
+    for k in d_DF.keys():
+        # print(f"DRN-{k} DataFrame shape: {d_DF[k].shape}")
+        d_DF[k] = d_DF[k].ws.Calc_XY(M.Xmin, M.Ymax, M.cellsize)
+        d_DF[k].drop(columns=['cond', 'elev'], inplace=True)
+        d_DF[k]['Pkg1'] = f'{Pkg.lower()}-{k}'
+        d_DF[k]['Pvd_ID'] = d_DF[k].index + 1  # 1-based index
+    DF_reach = M.DF_reach[['rno', 'i', 'j']].ws.Calc_XY(M.Xmin, M.Ymax, M.cellsize)
+
+    # %% # Combine all d_DF items into a single DataFrame
+
+    DF_all = pd.concat(d_DF.values(), ignore_index=True)
+    GDF_all = gpd.GeoDataFrame(DF_all, geometry=gpd.points_from_xy(DF_all.X, DF_all.Y), crs=CRS)
+    GDF = gpd.sjoin(GDF_all, GDF_Shp, how='inner', predicate='within')
 
     # %% Calculate distances and find closest reach for each DRN point
-    drn_coords = DF_DRN_all[['X', 'Y']].values
-    reach_coords = DF_reach_for_DRN[['X', 'Y']].values
-    distances = cdist(drn_coords, reach_coords, metric='euclidean')
+    coords = GDF[['X', 'Y']].values
+    reach_coords = DF_reach[['X', 'Y']].values
+    distances = cdist(coords, reach_coords, metric='euclidean')
     min_indices = np.argmin(distances, axis=1)
 
     # %%Add matched reach data to DRN DataFrame
-    matched_reach_data = DF_reach_for_DRN.iloc[min_indices].reset_index(drop=True)
-    DF_DRN_all_matched = DF_DRN_all.copy()
-    DF_DRN_all_matched['Rcv_ID'] = matched_reach_data['rno'].values
-    DF_DRN_all_matched['distance_to_match'] = distances[np.arange(len(drn_coords)), min_indices]
+    matched_reach_data = DF_reach.iloc[min_indices].reset_index(drop=True)
+    DF_matched = GDF.drop(columns='geometry').copy()
+    DF_matched['Rcv_ID'] = matched_reach_data['rno'].values
+    DF_matched['distance_to_match'] = distances[np.arange(len(coords)), min_indices]
 
-    print(f'Combined {len(DF_DRN_all):,} DRN points from {len(d_DRN_DF)} DataFrames')
-    print(f'Matched to {DF_DRN_all_matched["Rcv_ID"].nunique()} unique reaches')
-    print(f'Mean distance: {DF_DRN_all_matched["distance_to_match"].mean():.0f}m')
-    print(f'Perfect matches (same cell): {(DF_DRN_all_matched["distance_to_match"] == 0).sum():,}')
+    print(f'Combined {len(GDF):,} DRN points from {len(d_DF)} DataFrames')
+    print(f'Matched to {DF_matched["Rcv_ID"].nunique()} unique reaches')
+    print(f'Mean distance: {DF_matched["distance_to_match"].mean():.0f}m')
+    print(f'Perfect matches (same cell): {(DF_matched["distance_to_match"] == 0).sum():,}')
 
-    # %% Prepare DF_DRN_write for MVR
-    # print(f"Results: {len(DF_DRN_all_matched):,} DRN points matched")
-    # print(f"Distance stats: mean={DF_DRN_all_matched['distance_to_match'].mean():.0f}m, "
-    #       f"perfect_matches={(DF_DRN_all_matched['distance_to_match'] == 0).sum():,}")
-    # print(DF_DRN_all_matched[['k', 'i', 'j', 'X', 'Y', 'Pkg1', 'Rcv_ID', 'distance_to_match']].head())
-    DF_DRN_all_matched['Pkd2'] = 'sfr'
-    DF_DRN_write = DF_DRN_all_matched[['Pkg1', 'Pvd_ID', 'Pkd2', 'Rcv_ID']]
-    DF_DRN_write['MVR_TYPE'] = 'FACTOR'
-    DF_DRN_write['value'] = 1
-    DF_DRN_write
+    # %% Prepare DF_w for MVR
+    DF_matched['Pkd2'] = 'sfr'
+    DF_w = DF_matched[['Pkg1', 'Pvd_ID', 'Pkd2', 'Rcv_ID']]
+    DF_w['MVR_TYPE'] = 'FACTOR'
+    DF_w['value'] = 1
+    DF_w
     ### 4.3.2 Write MVR file
     Pa_MVR = M.Pa.Sim_In / f'{M.MdlN}.MVR6'
     with open(Pa_MVR, 'w') as f:
@@ -623,18 +622,18 @@ def DRN_to_SFR_via_MVR(M: Mdl_N):  # 666 needs a lot of cleanup and streamlingin
     END OPTIONS
 
     BEGIN DIMENSIONS
-        MAXMVR {DF_DRN_write.shape[0]}
-        MAXPACKAGES {len(d_DRN_DF.keys()) + 1}
+        MAXMVR {DF_w.shape[0]}
+        MAXPACKAGES {len(d_DF.keys()) + 1}
     END DIMENSIONS
 
     BEGIN PACKAGES
-        {'\n    '.join([f'drn-{k}' for k in d_DRN_DF.keys()])}
+        {'\n    '.join([f'{Pkg.lower()}-{k}' for k in d_DF.keys()])}
         sfr
     END PACKAGES
 
     BEGIN PERIOD 1
     """)
-        f.write(DF_DRN_write.ws.to_MF_block())
+        f.write(DF_w.ws.to_MF_block())
         f.write('END PERIOD')
     # Insert MVR line to NAM
     with open(M.Pa.NAM_Mdl, 'r') as f1:
@@ -653,11 +652,11 @@ def DRN_to_SFR_via_MVR(M: Mdl_N):  # 666 needs a lot of cleanup and streamlingin
     with open(M.Pa.SFR, 'w') as f2:
         f2.writelines(l_Lns_SFR)
     # Add MOVER option to DRN files
-    for i in d_DRN_DF.keys():
-        with open((M.Pa.Sim_In / f'drn-{i}.drn'), 'r') as f1:
-            l_Lns_DRN = f1.readlines()
+    for i in d_DF.keys():
+        with open((M.Pa.Sim_In / f'{Pkg.lower()}-{i}.{Pkg.lower()}'), 'r') as f1:
+            l_Lns = f1.readlines()
 
-        l_Lns_DRN.insert(3, '  MOVER\n')
+        l_Lns.insert(3, '  MOVER\n')
 
-        with open((M.Pa.Sim_In / f'drn-{i}.drn'), 'w') as f2:
-            f2.writelines(l_Lns_DRN)
+        with open((M.Pa.Sim_In / f'{Pkg.lower()}-{i}.{Pkg.lower()}'), 'w') as f2:
+            f2.writelines(l_Lns)

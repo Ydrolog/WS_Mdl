@@ -50,8 +50,9 @@ class Mdl_N:
 
         set_verbose(False)
         self.INI = INIView(self.Pa.INI)
-        self.Dmns = Mdl_Dmns(self.Pa.INI)
-        self.Mdl_Aa = Mdl_Aa(self.Pa.INI)
+        if self.INI:
+            self.Dmns = Mdl_Dmns(self.Pa.INI)
+            self.Mdl_Aa = Mdl_Aa(self.Pa.INI)
         set_verbose(True)
 
         self.B = get_B(MdlN)

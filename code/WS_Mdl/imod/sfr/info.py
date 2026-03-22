@@ -1,7 +1,8 @@
 import pandas as pd
-from WS_Mdl.core.mdl import Calc_DF_XY, Mdl_N
+import WS_Mdl.core.df  # Noqa: F401 # gives acess to DF.ws.<functions> (functions from df.py/DFAccessor)
+from WS_Mdl.core.mdl import Mdl_N
 from WS_Mdl.core.style import sprint
-from WS_Mdl.io.text import r_Txt_Lns
+from WS_Mdl.core.text import r_Txt_Lns
 
 
 def SFR_PkgD_to_DF(MdlN: str, Pa_SFR: str = None, Calc_Cond=True, iMOD5: bool = None) -> pd.DataFrame:
@@ -40,8 +41,8 @@ def SFR_PkgD_to_DF(MdlN: str, Pa_SFR: str = None, Calc_Cond=True, iMOD5: bool = 
 
     if ('X' not in PkgDt_Cols) or ('Y' not in PkgDt_Cols):
         sprint('🟡 - Coordinates (X, Y columns) not found in PACKAGEDATA. Calculating coordinates from INI file info.')
-        Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = M.Dmns(M.Pa.INI)
-        DF = Calc_DF_XY(DF, Xmin, Ymax, cellsize)
+        Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = M.Dmns
+        DF = DF.ws.Calc_XY(Xmin, Ymax, cellsize)
 
     if Calc_Cond:
         if ('rlen' in DF.columns) and ('rwid' in DF.columns) and ('rthick' in DF.columns) and ('rcond' in DF.columns):

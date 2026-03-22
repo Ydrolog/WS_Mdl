@@ -7,9 +7,9 @@ import geopandas as gpd
 import numpy as np
 import pandas as pd
 import rasterio
+import WS_Mdl.core.df  # Noqa: F401 # gives acess to DF.ws.<functions> (functions from df.py/DFAccessor)
 from rasterio.transform import from_bounds
 from shapely.geometry import LineString, Point
-from WS_Mdl.core.df import round_Cols
 from WS_Mdl.core.mdl import Mdl_N
 from WS_Mdl.core.style import Sep, set_verbose, sprint
 from WS_Mdl.imod.sfr.info import SFR_ConnD_to_DF, SFR_PkgD_to_DF
@@ -25,27 +25,30 @@ def Par_to_Rst(
     # --- Prep ---
     set_verbose(verbose)
     M = Mdl_N(MdlN)
-    d_Pa = M.Pa
 
     if Pa_SFR is None:
-        Pa_SFR = d_Pa['SFR']
+        Pa_SFR = M.Pa.SFR
 
     if not os.path.exists(Pa_SFR):
         sprint(f'🔴 ERROR: SFR file not found at {Pa_SFR}. Cannot proceed.')
 
-    d_INI = M.INI
-    Xmin, Ymin, Xmax, Ymax = [float(i) for i in d_INI['WINDOW'].split(',')]
-    cellsize = float(d_INI['CELLSIZE'])
+    Xmin, Ymin, Xmax, Ymax = [float(i) for i in M.INI.WINDOW.split(',')]
+    cellsize = float(M.INI.CELLSIZE)
     N_R, N_C = int(-(Ymin - Ymax) / cellsize), int((Xmax - Xmin) / cellsize)
 
     # --- Load PACKAGEDATA DF ---
     DF_PkgDt = SFR_PkgD_to_DF(MdlN, Pa_SFR=Pa_SFR, iMOD5=iMOD5)
 
-    Pa_Out = PJ(d_Pa['PoP'], f'In/SFR/{MdlN}/SFR_{Par}_{MdlN}.tif')
+    Pa_Out = PJ(M.Pa.PoP, f'In/SFR/{MdlN}/SFR_{Par}_{MdlN}.tif')
 
     # --- Create & Fill Array ---
     Arr = np.full((N_R, N_C), np.nan)  # Create empty array
-    Arr[DF_PkgDt['i'].astype(int) - 1, DF_PkgDt['j'].astype(int) - 1] = DF_PkgDt[Par]  # Populate array using i, j
+    if Par.lower() == 'cond' or Par.lower() == 'conductance':  # allows for the calc of conductance
+        Arr[DF_PkgDt['i'].astype(int) - 1, DF_PkgDt['j'].astype(int) - 1] = round(
+            (DF_PkgDt['rwid'] * DF_PkgDt['rlen'] * DF_PkgDt['rhk'] / DF_PkgDt['rbth']), 2
+        )
+    else:
+        Arr[DF_PkgDt['i'].astype(int) - 1, DF_PkgDt['j'].astype(int) - 1] = DF_PkgDt[Par]  # Populate array using i, j
 
     # --- Save ---
     MDs(PDN(Pa_Out), exist_ok=True)
@@ -78,18 +81,16 @@ def SFR_to_GPkg(MdlN: str, CRS: str = 28992, Pa_SFR=None, radius: float = None, 
     # --- Prep ---
     set_verbose(verbose)
     M = Mdl_N(MdlN)
-    d_Pa = M.Pa
 
     if Pa_SFR is None:
-        Pa_SFR = d_Pa['SFR']
+        Pa_SFR = M.Pa.SFR
 
     if not os.path.exists(Pa_SFR):
         sprint(f'🔴 ERROR: SFR file not found at {Pa_SFR}. Cannot proceed.')
 
     if radius is None:  # If radius s not provided, use CELLSIZE from INI file
         set_verbose(False)
-        d_INI = M.INI
-        radius = float(d_INI['CELLSIZE'])
+        radius = float(M.INI.CELLSIZE)
         set_verbose(verbose)
 
     # --- Load PACKAGEDATA DF ---
@@ -159,7 +160,7 @@ def SFR_to_GPkg(MdlN: str, CRS: str = 28992, Pa_SFR=None, radius: float = None, 
         axis=1,
     )
 
-    DF = round_Cols(DF)
+    DF = DF.ws.round_Cols()
 
     # Create duplicates of outlet reaches for the routing layer (as LineStrings)
     DF_outlet_duplicates = DF[DF['reach_type'] == 'outlet'].copy()
@@ -169,7 +170,7 @@ def SFR_to_GPkg(MdlN: str, CRS: str = 28992, Pa_SFR=None, radius: float = None, 
     )
 
     # --- Save to GPKG as separate layers ---
-    Pa_SHP = PJ(d_Pa['PoP'], f'In/SFR/{MdlN}/SFR_{MdlN}.gpkg')
+    Pa_SHP = PJ(M.Pa['PoP'], f'In/SFR/{MdlN}/SFR_{MdlN}.gpkg')
     os.makedirs(PDN(Pa_SHP), exist_ok=True)
 
     # Prepare routing layer: regular routing reaches + outlet duplicates (as LineStrings)
