@@ -576,12 +576,11 @@ def Pkg_to_SFR_via_MVR(M: Mdl_N, Pkg, Pa_Shp):  # 666 needs a lot of cleanup and
         DF = to_DF(l_Pa[i], Pkg=Pkg)
         print(DF.head())
         d_DF[int(re.search(rf'(?i){Pkg.lower()}[-_]?(\d+)', str(l_Pa[i].parent)).group(1))] = DF.loc[
-            ~DF['i'].isin([1, M.N_R]) & ~DF['j'].isin([1, M.N_C])
+            ~DF['i'].isin([1, M.N_R]) & ~DF['j'].isin([1, M.N_C]), ['k', 'i', 'j']
         ]  # Exclude boundary cells
     for k in d_DF.keys():
         # print(f"DRN-{k} DataFrame shape: {d_DF[k].shape}")
         d_DF[k] = d_DF[k].ws.Calc_XY(M.Xmin, M.Ymax, M.cellsize)
-        d_DF[k].drop(columns=['cond', 'elev'], inplace=True)
         d_DF[k]['Pkg1'] = f'{Pkg.lower()}-{k}'
         d_DF[k]['Pvd_ID'] = d_DF[k].index + 1  # 1-based index
     DF_reach = M.DF_reach[['rno', 'i', 'j']].ws.Calc_XY(M.Xmin, M.Ymax, M.cellsize)
@@ -616,7 +615,7 @@ def Pkg_to_SFR_via_MVR(M: Mdl_N, Pkg, Pa_Shp):  # 666 needs a lot of cleanup and
     DF_w['value'] = 1
     DF_w
     ### 4.3.2 Write MVR file
-    Pa_MVR = M.Pa.Sim_In / f'{M.MdlN}.MVR6'
+    Pa_MVR = M.Pa.Sim_In / f'{M.MdlN}_{Pkg.upper()}.MVR6'
     with open(Pa_MVR, 'w') as f:
         f.write(f"""BEGIN OPTIONS
     END OPTIONS
@@ -653,10 +652,11 @@ def Pkg_to_SFR_via_MVR(M: Mdl_N, Pkg, Pa_Shp):  # 666 needs a lot of cleanup and
         f2.writelines(l_Lns_SFR)
     # Add MOVER option to DRN files
     for i in d_DF.keys():
-        with open((M.Pa.Sim_In / f'{Pkg.lower()}-{i}.{Pkg.lower()}'), 'r') as f1:
+        Pa = list(M.Pa.Sim_In.glob(f'*{i}*.{Pkg.lower()}'))[0]
+        with open((Pa), 'r') as f1:
             l_Lns = f1.readlines()
 
         l_Lns.insert(3, '  MOVER\n')
 
-        with open((M.Pa.Sim_In / f'{Pkg.lower()}-{i}.{Pkg.lower()}'), 'w') as f2:
+        with open((Pa), 'w') as f2:
             f2.writelines(l_Lns)
