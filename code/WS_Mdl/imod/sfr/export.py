@@ -10,13 +10,14 @@ import rasterio
 import WS_Mdl.core.df  # Noqa: F401 # gives acess to DF.ws.<functions> (functions from df.py/DFAccessor)
 from rasterio.transform import from_bounds
 from shapely.geometry import LineString, Point
+from WS_Mdl.core.defaults import CRS
 from WS_Mdl.core.mdl import Mdl_N
 from WS_Mdl.core.style import Sep, set_verbose, sprint
 from WS_Mdl.imod.sfr.info import SFR_ConnD_to_DF, SFR_PkgD_to_DF
 
 
 def Par_to_Rst(
-    MdlN: str, Par: str, CRS: str = 28992, Pa_SFR=None, radius: float = None, iMOD5=False, verbose: bool = True
+    MdlN: str, Par: str, CRS: str = CRS, Pa_SFR=None, radius: float = None, iMOD5=False, verbose: bool = True
 ):
     """
     Creates a raster out of a parameter of an SFR file. Parameter needs to be typed exactly as in the PACKAGEDATA DF header (1st commented out line in PACKAGEDATA)
@@ -72,7 +73,7 @@ def Par_to_Rst(
     print(Sep)
 
 
-def SFR_to_GPkg(MdlN: str, CRS: str = 28992, Pa_SFR=None, radius: float = None, iMOD5=False, verbose: bool = True):
+def SFR_to_GPkg(MdlN: str, CRS: str = CRS, Pa_SFR=None, radius: float = None, iMOD5=False, verbose: bool = True):
     """
     Reads SFR package file and converts it to a GeoDataFrame, then saves it as a GPkg file.
     ATM assumes that line right after 'BEGIN PACKAGEDATA' is the header line. This could be improved in the future.
@@ -182,7 +183,8 @@ def SFR_to_GPkg(MdlN: str, CRS: str = 28992, Pa_SFR=None, radius: float = None, 
 
     # Save routing layer (including outlet duplicates as LineStrings)
     if not DF_routing_combined.empty:
-        GDF_routing = gpd.GeoDataFrame(DF_routing_combined, geometry='geometry', CRS=CRS)
+        GDF_routing = gpd.GeoDataFrame(DF_routing_combined, geometry='geometry')
+        GDF_routing.crs = CRS
         GDF_routing.to_file(Pa_SHP, driver='GPKG', layer=f'SFR_{MdlN}_routing')
         routing_count = len(DF_routing)
         outlet_dup_count = len(DF_outlet_duplicates)
@@ -192,7 +194,8 @@ def SFR_to_GPkg(MdlN: str, CRS: str = 28992, Pa_SFR=None, radius: float = None, 
 
     # Save outlets layer if it has data
     if not DF_outlets.empty:
-        GDF_outlets = gpd.GeoDataFrame(DF_outlets, geometry='geometry', CRS=CRS)
+        GDF_outlets = gpd.GeoDataFrame(DF_outlets, geometry='geometry')
+        GDF_outlets.crs = CRS
         GDF_outlets.to_file(Pa_SHP, driver='GPKG', layer=f'SFR_{MdlN}_Outlets')
         sprint(f'🟢 - SFR outlets layer saved with {len(GDF_outlets)} LineString features (outlets)')
 
