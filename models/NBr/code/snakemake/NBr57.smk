@@ -19,7 +19,7 @@ os.environ["PYTHONUNBUFFERED"] = "1"        # Set Python to unbuffered mode (out
 # --- Variables ---
 
 ## Options
-MdlN        =   "NBr56"
+MdlN        =   "NBr57"
 MdlN_SFR_GPkg = 'NBr54'
 MdlN_MM_B   =   'NBr13'
 # Mdl         =   ''.join([i for i in MdlN if i.isalpha()])
@@ -47,6 +47,8 @@ git_tag         =   shell(f"git -C {M.Pa.WS} describe --tags --always", read=Tru
 ## Temp files (for completion validation)
 log_Init        =   Pa_Smk / f"temp/Log_init_{MdlN}"
 log_Sim         =   Pa_Smk / f"temp/Log_Sim_{MdlN}"
+log_RIV_OBS     =   Pa_Smk / f"temp/Log_RIV_OBS_{MdlN}"
+log_DRN_OBS     =   Pa_Smk / f"temp/Log_DRN_OBS_{MdlN}"
 log_PRJ_to_TIF  =   Pa_Smk / f"temp/Log_PRJ_to_TIF_{MdlN}"
 log_GXG         =   Pa_Smk / f"temp/Log_GXG_{MdlN}"
 log_Up_MM       =   Pa_Smk / f"temp/Log_Up_MM_{MdlN}"
@@ -126,36 +128,38 @@ rule Mdl_Prep: # Prepares Sim Ins (from Ins) via BAT file.
 #     run:
 #         UIM.add_OBS(MdlN, iMOD5=iMOD5)
 
-# rule add_RIV_OBS:
-#     input:
-#         M.Pa.NAM_Sim,
-#     output:
-#         log_RIV_OBS
-#     run:
-#         from WS_Mdl.imod.mf6.obs import add_within_polygon
-#         add_within_polygon(Pa_Shp =  r'G:\models\NBr\PoP\common\Pgn\Chaamse_beek\catchment_chaamsebeek_ulvenhout.shp',
-#             MdlN = MdlN,
-#             Pkg = 'RIV',
-#             Opt = """BEGIN OPTIONS\n  DIGITS 4\n  PRINT_INPUT\nEND OPTIONS\n\n""")
-#         Path(output[0]).touch() # Create the file to mark the rule as done.
+rule add_RIV_OBS:
+    input:
+        M.Pa.NAM_Sim,
+    output:
+        log_RIV_OBS
+    run:
+        from WS_Mdl.imod.mf6.obs import add_within_polygon
+        add_within_polygon(Pa_Shp =  r'G:\models\NBr\PoP\common\Pgn\Chaamse_beek\catchment_chaamsebeek_ulvenhout.shp',
+            MdlN = MdlN,
+            Pkg = 'RIV',
+            Opt = """BEGIN OPTIONS\n  DIGITS 4\n  PRINT_INPUT\nEND OPTIONS\n\n""")
+        Path(output[0]).touch() # Create the file to mark the rule as done.
 
-# rule add_DRN_OBS:
-#     input:
-#         M.Pa.NAM_Sim
-#     output:
-#         log_DRN_OBS
-#     run:
-#         from WS_Mdl.imod.mf6.obs import add_within_polygon
-#         add_within_polygon(Pa_Shp =  r'G:\models\NBr\PoP\common\Pgn\Chaamse_beek\catchment_chaamsebeek_ulvenhout.shp',
-#             MdlN = MdlN,
-#             Pkg = 'DRN',
-#             Opt = """BEGIN OPTIONS\n DIGITS 4\n  PRINT_INPUT\nEND OPTIONS\n\n""")
-#         Path(output[0]).touch() # Create the file to mark the rule as done.
+rule add_DRN_OBS:
+    input:
+        M.Pa.NAM_Sim
+    output:
+        log_DRN_OBS
+    run:
+        from WS_Mdl.imod.mf6.obs import add_within_polygon
+        add_within_polygon(Pa_Shp =  r'G:\models\NBr\PoP\common\Pgn\Chaamse_beek\catchment_chaamsebeek_ulvenhout.shp',
+            MdlN = MdlN,
+            Pkg = 'DRN',
+            Opt = """BEGIN OPTIONS\n DIGITS 4\n  PRINT_INPUT\nEND OPTIONS\n\n""")
+        Path(output[0]).touch() # Create the file to mark the rule as done.
 
 ## -- Sim ---
 rule Sim: # Runs the simulation via BAT file.
     input:
-        M.Pa.NAM_Sim
+        # M.Pa.NAM_Sim,
+        log_RIV_OBS,
+        log_DRN_OBS
     output:
         temp(log_Sim)
     run:
