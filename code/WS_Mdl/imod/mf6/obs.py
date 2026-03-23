@@ -109,14 +109,9 @@ def add_within_polygon(
     from WS_Mdl.imod.mf6.bin import to_DF
     from WS_Mdl.imod.mf6.write import add_OBS_to_MF_In
 
+    from .defaults import d_Pkg_Cols
+
     M = Mdl_N(MdlN)
-
-    # if MdlN_B is True:
-    #     MdlN_B = M.B
-    # M_B = Mdl_N(MdlN_B)
-
-    Xmin, Ymin, Xmax, Ymax = [float(i) for i in M.INI['WINDOW'].split(',')]
-    cellsize = float(M.INI.CELLSIZE)
 
     # Load Shp
     if Pa_Shp is not None:
@@ -127,16 +122,28 @@ def add_within_polygon(
         GDF_Shp.crs = CRS
 
     # Load DF
-    d = {
-        f.parent.stem: {'path': f, 'DF': to_DF(f, Pkg)} for f in M.Pa.Sim_In.rglob(f'{Pkg.lower()}*.bin')
-    }  # if M.V == 'imod_python' else {FileNotFoundError}
-    if M.V == 'iMOD5':  # not d:
-        raise FileNotFoundError()
+    d = (
+        {f.parent.name: {'path': f, 'DF': to_DF(f, Pkg)} for f in M.Pa.Sim_In.rglob(f'{Pkg.lower()}*.bin')}
+        if M.V == 'imod_python'
+        else {
+            f.parents[1].name + '_' + f.parent.name: {
+                'path': f,
+                'DF': pd.read_csv(
+                    f,
+                    sep=r'\s+',
+                    names=d_Pkg_Cols[Pkg.upper()],
+                    usecols=range(len(d_Pkg_Cols[Pkg.upper()])),
+                    header=None,
+                ),
+            }
+            for f in M.Pa.Sim_In.rglob(f'{Pkg.lower()}*.arr')
+        }
+    )
 
     for S in d:
         d[S]['DF']['N'] = d[S]['DF']['i'].index + 1
-        Sys = S.split('-')[-1]
-        d[S]['DF'] = d[S]['DF'].ws.Calc_XY(Xmin=Xmin, Ymax=Ymax, cellsize=cellsize)
+        Sys = re.findall(r'\d+', S)[-1]
+        d[S]['DF'] = d[S]['DF'].ws.Calc_XY(Xmin=M.Xmin, Ymax=M.Ymax, cellsize=M.cellsize)
 
         # Create geometry for DRN points
         d[S]['DF']['geometry'] = d[S]['DF'].apply(lambda row: Point(row['X'], row['Y']), axis=1)
@@ -163,6 +170,5 @@ def add_within_polygon(
                 f.write('END CONTINUOUS FILEOUT\n')
 
             # Add to MF_In
-            add_OBS_to_MF_In(
-                str_OBS=f' OBS6 FILEIN ./imported_model/{Fi}', Pa=M.Pa.Sim_In / f'{S}.{Pkg.lower()}', iMOD5=False
-            )
+            text = f' OBS6 FILEIN ./imported_model/{Fi}' if M.V == 'imod_python' else f' OBS6 ./GWF_1/MODELIMPUT/{Fi}'
+            add_OBS_to_MF_In(str_OBS=text, Pa=M.Pa.Sim_In / f'{S}.{Pkg.lower()}', iMOD5=False)
