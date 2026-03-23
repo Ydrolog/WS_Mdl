@@ -127,7 +127,11 @@ def add_within_polygon(
         GDF_Shp.crs = CRS
 
     # Load DF
-    d = {f.parent.stem: {'path': f, 'DF': to_DF(f, Pkg)} for f in M.Pa.Sim_In.rglob(f'{Pkg.lower()}*.bin')}
+    d = {
+        f.parent.stem: {'path': f, 'DF': to_DF(f, Pkg)} for f in M.Pa.Sim_In.rglob(f'{Pkg.lower()}*.bin')
+    }  # if M.V == 'imod_python' else {FileNotFoundError}
+    if M.V == 'imod_python':  # not d:
+        raise FileNotFoundError()
 
     for S in d:
         d[S]['DF']['N'] = d[S]['DF']['i'].index + 1
