@@ -45,7 +45,7 @@ class Mdl_N:
         self.N = int(m.group('N'))
         self.iMOD5 = iMOD5
 
-        self.V = 'imod5' if iMOD5 is True else ('imod_python' if iMOD5 is False else imod_V(MdlN))
+        self.V = 'imod5' if iMOD5 is True else ('imod_python' if iMOD5 is False else imod_V(MdlN, iMOD5=iMOD5))
         self.Pa = MdlN_PaView(MdlN, iMOD5=(self.V == 'imod5'))
 
         set_verbose(False)
