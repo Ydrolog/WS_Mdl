@@ -53,6 +53,7 @@ class Mdl_N:
         if self.INI:
             self.Dmns = Mdl_Dmns(self.Pa.INI)
             self.Mdl_Aa = Mdl_Aa(self.Pa.INI)
+            self.Xmin, self.Ymin, self.Xmax, self.Ymax, self.cellsize, self.N_R, self.N_C = Mdl_Dmns(self.Pa.INI)
         set_verbose(True)
 
         self.B = get_B(MdlN)

@@ -144,14 +144,14 @@ class DFAccessor:
         """
         df = self._df.copy()
         if ('i' in df.columns) and ('j' in df.columns):
-            df['X'] = Xmin + (df['j'] - 0.5) * cellsize
-            df['Y'] = Ymax - (df['i'] - 0.5) * cellsize
+            df['x'] = Xmin + (df['j'] - 0.5) * cellsize
+            df['y'] = Ymax - (df['i'] - 0.5) * cellsize
         elif ('R' in df.columns) and ('C' in df.columns):
-            df['X'] = Xmin + (df['C'] - 0.5) * cellsize
-            df['Y'] = Ymax - (df['R'] - 0.5) * cellsize
+            df['x'] = Xmin + (df['C'] - 0.5) * cellsize
+            df['y'] = Ymax - (df['R'] - 0.5) * cellsize
         elif ('row' in df.columns) and ('column' in df.columns):
-            df['X'] = Xmin + (df['column'] - 0.5) * cellsize
-            df['Y'] = Ymax - (df['row'] - 0.5) * cellsize
+            df['x'] = Xmin + (df['column'] - 0.5) * cellsize
+            df['y'] = Ymax - (df['row'] - 0.5) * cellsize
         else:
             sprint('🔴 - Cannot calculate coordinates: no suitable row/column indices found in PACKAGEDATA.')
             return self._df
