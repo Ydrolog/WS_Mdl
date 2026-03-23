@@ -19,8 +19,12 @@ def get_Mdl(MdlN: str):
     return ''.join([i for i in MdlN if i.isalpha()])
 
 
-def imod_V(MdlN: str):
+def imod_V(MdlN: str, iMOD5: bool | None = None):
     """Returns the imod version used for a given MdlN."""
+    if iMOD5 is True:
+        return 'imod5'
+    if iMOD5 is False:
+        return 'imod_python'
 
     Mdl = get_Mdl(MdlN)
     Pa_Sim = Pa_WS / f'models/{Mdl}/Sim/{MdlN}'
@@ -57,7 +61,7 @@ def MdlN_Pa(MdlN: str, MdlN_B: str | bool | None = None, iMOD5: bool = None):
     """
     # 666 If load time of MdlN_B is minimal, it should be don by default.
     if iMOD5 is None:
-        iMOD5 = imod_V(MdlN) == 'imod5'
+        iMOD5 = imod_V(MdlN, iMOD5=iMOD5) == 'imod5'
 
     def _replace_mdl_name(value, old_mdl: str, new_mdl: str):
         if value is None:
@@ -155,8 +159,9 @@ class MdlN_PaView:
         from .log import get_B
 
         MdlN_B = get_B(self._MdlN)
+        iMOD5_V = self._d['imod_V'] == 'imod5'
 
-        return MdlN_Pa(MdlN_B, iMOD5=(self._d['imod_V'] == 'imod5'))
+        return MdlN_Pa(MdlN_B, iMOD5=iMOD5_V)
 
     def _resolve_key(self, key: str) -> str:
         """Resolve legacy Pa_* keys to the current canonical key names."""
