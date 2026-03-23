@@ -130,7 +130,7 @@ def add_within_polygon(
     d = {
         f.parent.stem: {'path': f, 'DF': to_DF(f, Pkg)} for f in M.Pa.Sim_In.rglob(f'{Pkg.lower()}*.bin')
     }  # if M.V == 'imod_python' else {FileNotFoundError}
-    if M.V == 'imod_python':  # not d:
+    if M.V == 'iMOD5':  # not d:
         raise FileNotFoundError()
 
     for S in d:

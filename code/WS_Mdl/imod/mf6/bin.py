@@ -3,6 +3,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from .defaults import d_Pkg_Cols
+
 
 def to_DF(Pa_Bin: str | Path, Pkg: str = 'DRN') -> pd.DataFrame:
     """
@@ -11,20 +13,11 @@ def to_DF(Pa_Bin: str | Path, Pkg: str = 'DRN') -> pd.DataFrame:
     """
     # 666 I've tested it for DRN, not yet for other Pkgs. Remove this when tested for all.
 
-    # Mapping of package types to their MF6 binary structure
-    d_Dtypes = {
-        'DRN': [('k', '<i4'), ('i', '<i4'), ('j', '<i4'), ('elev', '<f8'), ('cond', '<f8')],
-        'RIV': [('k', '<i4'), ('i', '<i4'), ('j', '<i4'), ('stage', '<f8'), ('cond', '<f8'), ('rbot', '<f8')],
-        'GHB': [('k', '<i4'), ('i', '<i4'), ('j', '<i4'), ('bhead', '<f8'), ('cond', '<f8')],
-        'WEL': [('k', '<i4'), ('i', '<i4'), ('j', '<i4'), ('q', '<f8')],
-        'CHD': [('k', '<i4'), ('i', '<i4'), ('j', '<i4'), ('head', '<f8')],
-    }
-
     Pkg = Pkg.upper()
-    if Pkg not in d_Dtypes:
-        raise ValueError(f'Unsupported package type: {Pkg}. Supported: {list(d_Dtypes.keys())}')
+    if Pkg not in d_Pkg_Cols:
+        raise ValueError(f'Unsupported package type: {Pkg}. Supported: {list(d_Pkg_Cols.keys())}')
 
-    dtype = np.dtype(d_Dtypes[Pkg])
+    dtype = np.dtype(d_Pkg_Cols[Pkg])
     Pa_Bin = Path(Pa_Bin)
 
     if not Pa_Bin.exists():
