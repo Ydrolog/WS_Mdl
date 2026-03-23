@@ -102,6 +102,7 @@ def MdlN_Pa(MdlN: str, MdlN_B: str | bool | None = None, iMOD5: bool = None):
         # Sim
         d_Pa['Sim'] = d_Pa['Mdl'] / 'Sim'  # Sim folder
         d_Pa['MdlN'] = d_Pa['Mdl'] / f'Sim/{MdlN}'
+        d_Pa['BAT_RUN'] = d_Pa['MdlN'] / 'RUN.BAT'
         d_Pa['MF6'] = d_Pa['MdlN'] / 'modflow6' if not iMOD5 else d_Pa['MdlN'] / 'GWF_1'
         d_Pa['MSW'] = d_Pa['MdlN'] / 'metaswap' if not iMOD5 else d_Pa['MdlN'] / 'GWF_1/MSWAPINPUT'
         d_Pa['TOML'] = d_Pa['MdlN'] / 'imod_coupler.toml'
