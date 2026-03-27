@@ -171,4 +171,9 @@ def add_within_polygon(
 
             # Add to MF_In
             text = f' OBS6 FILEIN ./imported_model/{Fi}' if M.V == 'imod_python' else f' OBS6 ./GWF_1/MODELIMPUT/{Fi}'
-            add_OBS_to_MF_In(str_OBS=text, Pa=M.Pa.Sim_In / f'{S}.{Pkg.lower()}', iMOD5=False)
+            Pa = (
+                M.Pa.Sim_In / f'{S}.{Pkg.lower()}'
+                if M.V == 'imod_python'
+                else M.Pa.Sim_In / f'{S.upper()}.{Pkg.upper()}6'
+            )
+            add_OBS_to_MF_In(str_OBS=text, Pa=Pa, iMOD5=False)

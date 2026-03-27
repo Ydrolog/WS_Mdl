@@ -4,6 +4,7 @@ from datetime import datetime as DT
 from os import makedirs as MDs
 from os.path import basename as PBN
 from os.path import join as PJ
+from pathlib import Path
 
 import imod
 import numpy as np
@@ -16,7 +17,10 @@ from WS_Mdl.xr.compare import Diff_MBTIF
 from WS_Mdl.xr.convert import to_MBTIF, to_TIF
 
 
-def HD_Bin_GXG_to_MBTIF(MdlN, start_year='from_INI', end_year='from_INI', IDT='from_INI'):
+def HD_Bin_GXG_to_MBTIF(MdlN, start_year='from_INI', end_year='from_INI', IDT='from_INI', GVG=False):
+    """
+    - end_year: inclussive
+    """
     sprint(Sep)
     set_verbose(False)
 
@@ -55,7 +59,7 @@ def HD_Bin_GXG_to_MBTIF(MdlN, start_year='from_INI', end_year='from_INI', IDT='f
 
         # Calculate GHG - GLG
         GXG['GHG_m_GLG'] = GXG['GHG'] - GXG['GLG']
-        GXG = GXG[['GHG', 'GLG', 'GHG_m_GLG', 'GVG']]
+        GXG = GXG[['GHG', 'GLG', 'GHG_m_GLG', 'GVG']] if GVG else GXG[['GHG', 'GLG', 'GHG_m_GLG']]
 
         # Collect results
         for var in GXG.data_vars:
@@ -81,6 +85,7 @@ def HD_Bin_GXG_to_MBTIF(MdlN, start_year='from_INI', end_year='from_INI', IDT='f
             f'{K}_L{L_min}-{L_max}_{MdlN}': {
                 'AVG': float(GXG.mean().values),
                 'coordinates': GXG.coords,
+                'period': f'{start_year}-{end_year}',
                 'N_years': N_years_GVG if K == 'GVG' else N_years_GXG,
                 'variable': Pa_Out.name[0],
                 'details': f'{MdlN} {K} calculated from (path: {d_Pa["HD_Out_Bin"]}), via function described in: https://deltares.github.io/imod-python/api/generated/evaluate/imod.evaluate.calculate_gxg.html',
@@ -94,14 +99,20 @@ def HD_Bin_GXG_to_MBTIF(MdlN, start_year='from_INI', end_year='from_INI', IDT='f
 
 
 def GXG_Diff(MdlN_1, MdlN_2):
+    """
+    Calcs Diff between GXG of two MdLNs, and saves the Diff as a TIF in the same dir as the original GXG files.
+    Warning!: It doesn't check if the dates used for calculating the GXGs are the same.
+    """
 
     Pa_PoP_GXG = Mdl_N(MdlN_1).Pa.PoP_Out_MdlN / 'GXG'
 
     for Fi in [i for i in Pa_PoP_GXG.iterdir() if i.is_file() and i.suffix == '.tif']:
         Pa_TIF_1 = Pa_PoP_GXG / Fi.name
-        Pa_TIF_2 = Pa_PoP_GXG / Fi.name.replace(MdlN_1, MdlN_2)
-        Pa_Out = Pa_PoP_GXG / Fi.name.replace(MdlN_1, f'{MdlN_1}m{"".join(i for i in MdlN_2 if i.isdigit())}')
-
+        Pa_TIF_2 = Pa_PoP_GXG / Path(str(Fi).replace(MdlN_1, MdlN_2))
+        Pa_Out = Pa_TIF_1.parent / Pa_TIF_1.name.replace(
+            MdlN_1, f'{MdlN_1}m{"".join(i for i in MdlN_2 if i.isdigit())}'
+        )
+        # print(Pa_TIF_1, Pa_TIF_2, Pa_Out, end='\n---------------\n', sep='\n')
         try:
             Diff_MBTIF(Pa_TIF_1, Pa_TIF_2, Pa_Out)
         except (FileNotFoundError, OSError) as e:

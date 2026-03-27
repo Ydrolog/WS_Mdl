@@ -3,7 +3,7 @@ from WS_Mdl.core.mdl import Mdl_N
 from WS_Mdl.core.log import Up_log
 from WS_Mdl.io.sim import freeze_pixi_env, get_elapsed_time_str
 # from WS_Mdl.imod.mf6.obs import add as add_OBS
-# from WS_Mdl.imod.mf6.write import add_OBS_to_MF_In
+from WS_Mdl.imod.mf6.write import add_OBS_to_MF_In
 
 from snakemake.io import temp
 from datetime import datetime as DT
@@ -21,7 +21,7 @@ os.environ["PYTHONUNBUFFERED"] = "1"
 ## Options
 MdlN        =   "NBr52"
 MdlN_MM_B   =   'NBr13'
-# MdlN_OBS    =   'NBr50'
+MdlN_OBS    =   'NBr50'
 iMOD5       =   True 
 
 ## Paths
@@ -32,6 +32,15 @@ Pa_Smk      =   M.Pa.Mdl / 'code/snakemake'
 Pa_temp     =   Pa_Smk / 'temp'
 
 Pa_HD_OBS_WEL   =   M.Pa.MdlN / f'modflow6/imported_model/{MdlN}.OBS6' # 666
+
+Dir_RIV_OBS     =   M.Pa.Mdl / 'In' / 'OBS' / 'RIV' / MdlN_OBS
+Dir_DRN_OBS     =   M.Pa.Mdl / 'In' / 'OBS' / 'DRN' / MdlN_OBS
+l_Fi_RIV_OBS    =   [p.name for p in Dir_RIV_OBS.iterdir() if p.is_file()]
+l_Fi_DRN_OBS    =   [p.name for p in Dir_DRN_OBS.iterdir() if p.is_file()]
+Pa_RIV_OBS_Src  =   [Dir_RIV_OBS / i for i in l_Fi_RIV_OBS]
+Pa_DRN_OBS_Src  =   [Dir_DRN_OBS / i for i in l_Fi_DRN_OBS]
+Pa_RIV_OBS_Dst  =   [M.Pa.Sim_In / i.replace(MdlN_OBS, MdlN) for i in l_Fi_RIV_OBS]
+Pa_DRN_OBS_Dst  =   [M.Pa.Sim_In / i.replace(MdlN_OBS, MdlN) for i in l_Fi_DRN_OBS]
 
 l_Fi_to_git     =   [M.Pa.WS / i for i in ['pixi.toml', 'pixi.lock', 'code/WS_Mdl']] # If any of these code files changes, the 
 git_hash        =   shell(f"git -C {M.Pa.WS} rev-parse HEAD", read=True).strip()

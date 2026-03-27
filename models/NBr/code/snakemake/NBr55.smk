@@ -19,13 +19,23 @@ os.environ["PYTHONUNBUFFERED"] = "1"        # Set Python to unbuffered mode (out
 ## Options
 MdlN        =   "NBr55"
 MdlN_MM_B   =   'NBr13'
-iMOD5       =   True 
+iMOD5       =   True
+MdlN_OBS    =   'NBr50' # For copying OBS files from NBr50
 
 ## Paths
 M           =   Mdl_N(MdlN, iMOD5=iMOD5)
 workdir:        M.Pa.Mdl
 Pa_Smk      =   M.Pa.Smk.parent
 Pa_temp     =   Pa_Smk / 'temp'
+
+Dir_RIV_OBS     =   M.Pa.Mdl / 'In' / 'OBS' / 'RIV' / MdlN_OBS
+Dir_DRN_OBS     =   M.Pa.Mdl / 'In' / 'OBS' / 'DRN' / MdlN_OBS
+l_Fi_RIV_OBS    =   [p.name for p in Dir_RIV_OBS.iterdir() if p.is_file()]
+l_Fi_DRN_OBS    =   [p.name for p in Dir_DRN_OBS.iterdir() if p.is_file()]
+Pa_RIV_OBS_Src  =   [Dir_RIV_OBS / i for i in l_Fi_RIV_OBS]
+Pa_DRN_OBS_Src  =   [Dir_DRN_OBS / i for i in l_Fi_DRN_OBS]
+Pa_RIV_OBS_Dst  =   [M.Pa.Sim_In / i.replace(MdlN_OBS, MdlN) for i in l_Fi_RIV_OBS]
+Pa_DRN_OBS_Dst  =   [M.Pa.Sim_In / i.replace(MdlN_OBS, MdlN) for i in l_Fi_DRN_OBS]
 
 l_Fi_to_git     =   [M.Pa.WS / i for i in ['pixi.toml', 'pixi.lock', 'code/WS_Mdl']] # If any of these code files changes, the 
 git_hash        =   shell(f"git -C {M.Pa.WS} rev-parse HEAD", read=True).strip()
@@ -35,8 +45,8 @@ git_tag         =   shell(f"git -C {M.Pa.WS} describe --tags --always", read=Tru
 log_Init            =   Pa_Smk / f"temp/Log_init_{MdlN}"
 log_remove_IDF_PoP  =   Pa_Smk / f"temp/Log_remove_IDF_PoP_{MdlN}"
 log_Sim             =   Pa_Smk / f"temp/Log_Sim_{MdlN}"
-log_RIV_OBS         =   Pa_Smk / f"temp/Log_RIV_OBS_{MdlN}"
-log_DRN_OBS         =   Pa_Smk / f"temp/Log_DRN_OBS_{MdlN}"
+# log_RIV_OBS         =   Pa_Smk / f"temp/Log_RIV_OBS_{MdlN}"
+# log_DRN_OBS         =   Pa_Smk / f"temp/Log_DRN_OBS_{MdlN}"
 log_PRJ_to_TIF      =   Pa_Smk / f"temp/Log_PRJ_to_TIF_{MdlN}"
 log_GXG             =   Pa_Smk / f"temp/Log_GXG_{MdlN}"
 log_Up_MM           =   Pa_Smk / f"temp/Log_Up_MM_{MdlN}"
@@ -119,38 +129,40 @@ rule remove_IDF_PoP:
 #     run:
 #         add_OBS(MdlN, iMOD5=iMOD5)
 
-rule add_RIV_OBS:
+rule add_RIV_OBS_copy: # By copying file.
     input:
         M.Pa.NAM_Sim,
+        Pa_RIV_OBS_Src,
     output:
-        log_RIV_OBS
+        Pa_RIV_OBS_Dst
     run:
-        from WS_Mdl.imod.mf6.obs import add_within_polygon
-        add_within_polygon(Pa_Shp =  r'G:\models\NBr\PoP\common\Pgn\Chaamse_beek\catchment_chaamsebeek_ulvenhout.shp',
-            MdlN = MdlN,
-            Pkg = 'RIV',
-            Opt = """BEGIN OPTIONS\n  DIGITS 4\n  PRINT_INPUT\nEND OPTIONS\n\n""")
-        Path(output[0]).touch() # Create the file to mark the rule as done.
+        from WS_Mdl.imod.mf6.write import add_OBS_to_MF_In
+        PKG = 'RIV'
+        for i in range(len(Pa_RIV_OBS_Src)):
+            Fi = Path(str(Pa_RIV_OBS_Src[i]).replace(MdlN_OBS, MdlN))
+            sh.copy2(Pa_RIV_OBS_Src[i], Pa_RIV_OBS_Dst[i])
+            add_OBS_to_MF_In(str_OBS=f" OBS6 FILEIN ./GWF_1/MODELINPUT/{Fi.name}", Pa=M.Pa.Sim_In / f"{Fi.stem}6")
 
-rule add_DRN_OBS:
+rule add_DRN_OBS_copy: # By copying file.
     input:
-        M.Pa.NAM_Sim
+        M.Pa.NAM_Sim,
+        Pa_DRN_OBS_Src
     output:
-        log_DRN_OBS
+        Pa_DRN_OBS_Dst
     run:
-        from WS_Mdl.imod.mf6.obs import add_within_polygon
-        add_within_polygon(Pa_Shp =  r'G:\models\NBr\PoP\common\Pgn\Chaamse_beek\catchment_chaamsebeek_ulvenhout.shp',
-            MdlN = MdlN,
-            Pkg = 'DRN',
-            Opt = """BEGIN OPTIONS\n DIGITS 4\n  PRINT_INPUT\nEND OPTIONS\n\n""")
-        Path(output[0]).touch() # Create the file to mark the rule as done.
+        from WS_Mdl.imod.mf6.write import add_OBS_to_MF_In
+        PKG = 'DRN'
+        for i in range(len(Pa_DRN_OBS_Src)):
+            Fi = Path(str(Pa_DRN_OBS_Src[i]).replace(MdlN_OBS, MdlN))
+            sh.copy2(Pa_DRN_OBS_Src[i], Pa_DRN_OBS_Dst[i])
+            add_OBS_to_MF_In(str_OBS=f" OBS6 FILEIN ./GWF_1/MODELINPUT/{Fi.name}", Pa=M.Pa.Sim_In / f"{Fi.stem}6")
 
 ## -- Sim ---
 rule Sim: # Runs the simulation via BAT file.
     input:
         log_remove_IDF_PoP,
-        log_RIV_OBS,
-        log_DRN_OBS
+        Pa_RIV_OBS_Dst,
+        Pa_DRN_OBS_Dst
     output:
         temp(log_Sim)
     run:

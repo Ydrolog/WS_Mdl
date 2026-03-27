@@ -5,13 +5,13 @@ from WS_Mdl.core.mdl import Mdl_N
 from WS_Mdl.core.style import set_verbose, sprint, warn
 
 
-def Agg_OBS(MdlN, Pkg, save, overwrite):
+def Agg_OBS(MdlN, Pkg, save, overwrite, MF6_NaN_to_zero=True):
 
     set_verbose(False)
     M = Mdl_N(MdlN)
     start_date = M.INI.SDATE
     start_date = DT.strptime(start_date, '%Y%m%d')
-    l_Pa_OBS = list(M.Pa.MF6.rglob(f'{Pkg}_OBS*.CSV'))
+    l_Pa_OBS = list(M.Pa.MdlN.rglob(f'{Pkg}_OBS*.CSV'))
     set_verbose(True)
 
     l_DF = []
@@ -20,6 +20,8 @@ def Agg_OBS(MdlN, Pkg, save, overwrite):
         obs_col = Pa.name
         try:
             DF_ = pd.read_csv(Pa)
+            if MF6_NaN_to_zero:
+                DF_ = DF_.replace(3.0e30, 0)
             DF_['date'] = start_date + pd.to_timedelta(DF_['time'] - 1, unit='D')
             DF_ = DF_.drop(columns=['time'])
 
