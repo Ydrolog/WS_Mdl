@@ -1,5 +1,6 @@
 # ---------- Model Number related Functions ----------
 import re
+from datetime import datetime as DT
 
 from WS_Mdl.imod.ini import INIView, Mdl_Aa, Mdl_Dmns
 
@@ -54,6 +55,9 @@ class Mdl_N:
             self.Dmns = Mdl_Dmns(self.Pa.INI)
             self.Mdl_Aa = Mdl_Aa(self.Pa.INI)
             self.Xmin, self.Ymin, self.Xmax, self.Ymax, self.cellsize, self.N_R, self.N_C = Mdl_Dmns(self.Pa.INI)
+            self.SP_1st, self.SP_last = [
+                DT.strftime(DT.strptime(self.INI[f'{i}'], '%Y%m%d'), '%Y-%m-%d') for i in ['SDATE', 'EDATE']
+            ]
         set_verbose(True)
 
         self.B = get_B(MdlN)

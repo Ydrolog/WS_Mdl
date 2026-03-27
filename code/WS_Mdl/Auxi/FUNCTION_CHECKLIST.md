@@ -247,7 +247,6 @@ How to use:
   - [ ] FUNCTION RunMng (L139) <!-- id:func:io/sim.py:RunMng -->
   - [ ] FUNCTION reset_Sim (L204) <!-- id:func:io/sim.py:reset_Sim -->
   - [ ] FUNCTION remove_Sim_Out (L316) <!-- id:func:io/sim.py:remove_Sim_Out -->
-  - [ ] FUNCTION rerun_Sim (L450) <!-- id:func:io/sim.py:rerun_Sim -->
   - [ ] FUNCTION get_elapsed_time_str (L498) <!-- id:func:io/sim.py:get_elapsed_time_str -->
   - [ ] FUNCTION run_cmd (L510) <!-- id:func:io/sim.py:run_cmd -->
   - [ ] FUNCTION freeze_pixi_env (L514) <!-- id:func:io/sim.py:freeze_pixi_env -->
@@ -282,10 +281,6 @@ How to use:
 ## scripts/remove_Sim_Out.py
 - [ ] FILE scripts/remove_Sim_Out.py <!-- id:file:scripts/remove_Sim_Out.py -->
   - [ ] FUNCTION main (L7) <!-- id:func:scripts/remove_Sim_Out.py:main -->
-
-## scripts/rerun_Sim.py
-- [ ] FILE scripts/rerun_Sim.py <!-- id:file:scripts/rerun_Sim.py -->
-  - [ ] FUNCTION main (L6) <!-- id:func:scripts/rerun_Sim.py:main -->
 
 ## scripts/reset_Sim.py
 - [ ] FILE scripts/reset_Sim.py <!-- id:file:scripts/reset_Sim.py -->

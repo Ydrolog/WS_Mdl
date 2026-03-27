@@ -9,7 +9,7 @@ from multiprocessing import Pool, cpu_count
 import pandas as pd
 from colored import attr, fg
 from send2trash import send2trash
-from WS_Mdl.core.log import DF_match_MdlN, r_RunLog, to_Se
+from WS_Mdl.core.log import DF_match_MdlN, to_Se
 from WS_Mdl.core.mdl import Mdl_N
 from WS_Mdl.core.path import MdlN_PaView, Pa_log_Cfg, Pa_log_Out, Pa_WS
 from WS_Mdl.core.style import Sep, bold, dim, sprint, style_reset, warn
@@ -27,16 +27,13 @@ def S_from_B(MdlN: str, iMOD5=False):
     Pa = M.Pa if iMOD5 == (M.V == 'imod5') else MdlN_PaView(MdlN, iMOD5=iMOD5)
     Pa_B = M_B.Pa if iMOD5 == (M_B.V == 'imod5') else MdlN_PaView(MdlN_B, iMOD5=iMOD5)
 
-    Pa_INI_B, Pa_INI = Pa_B.INI, Pa.INI
-    Pa_BAT_B, Pa_BAT = Pa_B.BAT, Pa.BAT
-    Pa_Smk_B, Pa_Smk = Pa_B.Smk, Pa.Smk
     Pa_PRJ_B, Pa_PRJ = Pa_B.PRJ, Pa.PRJ
 
     # Copy .INI, .bat, .prj and make default (those apply to every Sim) modifications
-    for Pa_B, Pa_S in zip([Pa_Smk_B, Pa_BAT_B, Pa_INI_B], [Pa_Smk, Pa_BAT, Pa_INI]):
+    for Pa_B, Pa_S in zip([M_B.Pa_Smk, M_B.Pa_BAT, M_B.Pa_INI], [M.Pa_Smk, M.Pa_BAT, M.Pa_INI]):
         try:
             if not Pa_S.exists():  # Replace the MdlN of with the new one, so that we don't have to do it manually.
-                sh.copy2(Pa_B, Pa_S)
+                # sh.copy2(Pa_B, Pa_S)
                 with open(Pa_S, 'r') as f1:
                     contents = f1.read()
                 with open(Pa_S, 'w') as f2:
@@ -55,7 +52,7 @@ def S_from_B(MdlN: str, iMOD5=False):
 
     try:
         if not Pa_PRJ.exists():  # For the PRJ file, there is no default text replacement to be performed.
-            sh.copy2(Pa_PRJ_B, Pa_PRJ)
+            # sh.copy2(Pa_PRJ_B, Pa_PRJ)
             os.startfile(Pa_PRJ)  # Then we'll open it to make any other changes we want to make.
             sprint(f'🟢 - {Pa_PRJ.name:20} created successfully! {dim}(copy of {Pa_PRJ_B}){style_reset}')
         else:
@@ -89,7 +86,7 @@ def S_from_B_undo(MdlN: str):
     sprint(Sep)
 
 
-def RunSim(args):
+def _RunSim(args):
     """Helper function that runs a single model's snakemake workflow."""
     _, Se_Ln, cores_per_Sim, generate_dag, no_temp = args
     M = Mdl_N(Se_Ln['MdlN'])
@@ -137,7 +134,6 @@ def RunMng(cores=None, DAG: bool = True, Cct_Sims=None, no_temp: bool = True):
         DAG: Whether to generate a DAG visualization
         Cct_Sims: Number of models to run simultaneously (defaults to number of available cores)
     """
-
     os.chdir(Pa_WS)
 
     if cores is None:
@@ -176,7 +172,7 @@ def RunMng(cores=None, DAG: bool = True, Cct_Sims=None, no_temp: bool = True):
 
         # Run models in parallel
         with Pool(processes=Cct_Sims) as pool:
-            results = pool.map(RunSim, args)
+            results = pool.map(_RunSim, args)
 
         # Print results
         for result in results:
@@ -436,54 +432,6 @@ def remove_Sim_Out(
             sprint(f'🔴 - {MdlN} not found in log.')
     else:
         sprint('🔴🔴🔴 - Reset cancelled by user (you).')
-    sprint(Sep)
-
-
-def rerun_Sim(MdlN: str, cores=None, DAG: bool = True):
-    """
-    Reruns the simulation by:
-        1. Deleting all files in the MldN folder in the Sim folder.
-        2. Clearing log.csv.
-        3. Deletes Smk log files for MdlN.
-        4. Deletes PoP folder for MdlN.
-        5. Runs S_from_B to prepare the simulation files again.
-    """
-
-    if cores is None:
-        cores = max(
-            cpu_count() - 2, 1
-        )  # Leave 2 cores free for other tasks. If there aren't enough cores available, set to 1.
-
-    reset_Sim(MdlN)
-
-    DF = r_RunLog()
-
-    if MdlN not in DF['MdlN'].values:
-        sprint(f'🔴🔴🔴 - {MdlN} not found in the RunLog. Cannot rerun.')
-        return
-    else:
-        Se_Ln = to_Se(MdlN)  # Get the row for the MdlN
-
-        # Prepare arguments for multiprocessing
-
-        args = [('_', Se_Ln, cores, DAG)]
-
-        # Run models in parallel
-        with Pool(processes=cores) as pool:
-            results = pool.map(RunSim, args)
-
-        # Print results
-        for result in results:
-            if len(result) == 2:
-                model_id, success = result
-                if success:
-                    sprint(f'🟢🟢 Model {model_id} completed successfully')
-                else:
-                    sprint(f'🔴🔴 Model {model_id} failed')
-            else:
-                model_id, success, error = result
-                sprint(f'🔴🔴 Model {model_id} failed: {error}')
-
     sprint(Sep)
 
 

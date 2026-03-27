@@ -1,4 +1,4 @@
-from datetime import datetime as DT
+from dataclasses import dataclass
 from pathlib import Path
 
 from WS_Mdl.core import Mdl_N, Sep, bold, sprint
@@ -7,23 +7,35 @@ from WS_Mdl.imod.prj import PrSimP
 from WS_Mdl.imod.sfr.prsimp import Pkg_to_SFR_via_MVR, connect_SFR_lines_to_MF6, create_SFR_lines
 
 
-def SFR_Mdl(
+@dataclass
+class SFR_Config:
+    Pa_Cond_A: str | Path  # Primary conductance file for SFR. This is required.
+    Pa_Cond_B: str | Path | None = (
+        None  # Optional secondary conductance file for SFR. If not specified, only the primary conductance file will be used.
+    )
+    Pa_Gpkg: str | Path | None = None  # Main SFR geopackage. # 666 detailes about required columns need to be written.
+    Pa_OBS_In: str | Path | None = None  # OBS for SFR
+    connect_DRN: bool = True  # Option to connect DRN to SFR via MVR.
+    connect_RIV: bool = True  # Option to connect RIV to SFR via MVR.
+    Pa_Shp_DRN: str | Path | None = (
+        None  # Shapefile containing the outer boundaries of the DRN package cells to be connected to the nearest SFR cells.
+    )
+    Pa_Shp_RIV: str | Path | None = (
+        None  # Shapefile containing the outer boundaries of the RIV package cells to be connected to the nearest SFR cells.
+    )
+
+
+def Sim(
     MdlN: str,
-    Pa_Cond_A: str | Path,
-    Pa_Cond_B: str | Path = None,
-    Pa_SFR_Gpkg: str | Path = None,
+    verbose: bool = False,
+    SFR: bool = True,
     Pa_MF6_DLL: str = None,
     Pa_MSW_DLL: str = None,
-    Pa_SFR_OBS_In: str | Path = None,
-    verbose: bool = False,
-    add_DRN_to_SFR: bool = True,
-    add_RIV_to_SFR: bool = True,
-    Pa_Shp_DRN: str | Path = None,
-    Pa_Shp_RIV: str | Path = None,
 ):
     """
-    Prepares Sim Fis from In Fis.
-    Ins need to be read and processed, then MF6 and MSW need to be coupled. Then Sim Ins can be written.
+    Prepares Sim Fis from In Fis following the process described in PrSimP's description (WS_Mdl.imod.prj.PrSimP).
+
+    Set SFR = True to create an SFR package for that imod Sim. If SFR = True, the SFR_Config dataclass must be filled out and passed to the SFR argument. See SFR_Config for details.
     """
     sprint(Sep)
     sprint(f'----- Mdl_Prep: {MdlN} -----', style=bold, verbose_out=verbose)
@@ -31,11 +43,6 @@ def SFR_Mdl(
     # Create Mdl_N instance and enchance with params needed in following functions.
     sprint(' -- Loading MdlN parameters.', end='', verbose_in=True, verbose_out=verbose)
     M = Mdl_N(MdlN)
-    # Dir_PRJ = PDN(Pa_PRJ)
-    # d_INI = M.INI
-    M.Xmin, M.Ymin, M.Xmax, M.Ymax, M.cellsize, M.N_R, M.N_C = M.Dmns
-    M.SP_1st, M.SP_last = [DT.strftime(DT.strptime(M.INI[f'{i}'], '%Y%m%d'), '%Y-%m-%d') for i in ['SDATE', 'EDATE']]
-    # dx = dy = float(d_INI['CELLSIZE'])
     M.Pa.MF6_DLL = Pa_MF6_DLL if Pa_MF6_DLL else M.Pa.MF6_DLL  # If not specified, the default location will be used.
     M.Pa.MSW_DLL = Pa_MSW_DLL if Pa_MSW_DLL else M.Pa.MSW_DLL
     M.verbose = verbose
@@ -45,39 +52,40 @@ def SFR_Mdl(
     sprint(' -- imod PrSimP from PRJ file.', verbose_in=True, verbose_out=verbose)
     M.Sim_MF6 = timed_Exe(PrSimP, M)
 
-    # %% Create SFR Lines
-    sprint(' -- SFRmaker - Creating SFR lines.', verbose_in=True, verbose_out=verbose)
-    if Pa_SFR_Gpkg is None:
-        Pa_SFR_Gpkg = M.Pa.In / f'SFR/{MdlN}/WBD_1ry_SW_NW_cleaned_{MdlN}.gpkg'
-    M.lines = timed_Exe(create_SFR_lines, Pa_GPkg=Pa_SFR_Gpkg, verbose=M.verbose)
+    if SFR:
+        # %% Create SFR Lines
+        sprint(' -- SFRmaker - Creating SFR lines.', verbose_in=True, verbose_out=verbose)
+        if SFR.Pa_Gpkg is None:
+            Pa_Gpkg = M.Pa.In / f'SFR/{MdlN}/WBD_1ry_SW_NW_cleaned_{MdlN}.gpkg'
+        M.lines = timed_Exe(create_SFR_lines, Pa_GPkg=Pa_Gpkg, verbose=M.verbose)
 
-    # %% Connect SFR Lines to MF6 (writes files and connects them to NAM)
-    sprint(' -- SFRmaker - Connecting SFR lines to MF6.', verbose_in=True, verbose_out=verbose)
-    M.Pa_SFR_OBS_In = Path(Pa_SFR_OBS_In)
-    M.Pa_Cond_A = Path(Pa_Cond_A)
-    M.Pa_Cond_B = Path(Pa_Cond_A) if Pa_Cond_B is None else Path(Pa_Cond_B)
-    M.DF_reach = timed_Exe(
-        connect_SFR_lines_to_MF6,
-        M,
-        debug_sfr=True,
-    )
-
-    # %% Connect DRN to SFR via MVR
-    sprint(' -- SFRmaker - Connecting DRN to SFR via MVR.', verbose_in=True, verbose_out=verbose)
-    if add_DRN_to_SFR:
-        timed_Exe(
-            Pkg_to_SFR_via_MVR,
+        # %% Connect SFR Lines to MF6 (writes files and connects them to NAM)
+        sprint(' -- SFRmaker - Connecting SFR lines to MF6.', verbose_in=True, verbose_out=verbose)
+        M.Pa_SFR_OBS_In = Path(SFR.Pa_OBS_In)
+        M.Pa_Cond_A = Path(SFR.Pa_Cond_A)
+        M.Pa_Cond_B = Path(SFR.Pa_Cond_B) if SFR.Pa_Cond_B is None else Path(SFR.Pa_Cond_B)
+        M.DF_reach = timed_Exe(
+            connect_SFR_lines_to_MF6,
             M,
-            Pkg='DRN',
-            Pa_Shp=Pa_Shp_DRN,
+            debug_sfr=True,
         )
 
-    # %% Connect RIV to SFR via MVR
-    sprint(' -- SFRmaker - Connecting RIV to SFR via MVR.', verbose_in=True, verbose_out=verbose)
-    if add_RIV_to_SFR:
-        timed_Exe(
-            Pkg_to_SFR_via_MVR,
-            M,
-            Pkg='RIV',
-            Pa_Shp=Pa_Shp_RIV,
-        )
+        # %% Connect DRN to SFR via MVR
+        sprint(' -- SFRmaker - Connecting DRN to SFR via MVR.', verbose_in=True, verbose_out=verbose)
+        if SFR.connect_DRN:
+            timed_Exe(
+                Pkg_to_SFR_via_MVR,
+                M,
+                Pkg='DRN',
+                Pa_Shp=SFR.Pa_Shp_DRN,
+            )
+
+        # %% Connect RIV to SFR via MVR
+        sprint(' -- SFRmaker - Connecting RIV to SFR via MVR.', verbose_in=True, verbose_out=verbose)
+        if SFR.connect_RIV:
+            timed_Exe(
+                Pkg_to_SFR_via_MVR,
+                M,
+                Pkg='RIV',
+                Pa_Shp=SFR.Pa_Shp_RIV,
+            )

@@ -18,20 +18,12 @@ def add(MdlN: str, Opt: str = 'BEGIN OPTIONS\nEND OPTIONS', iMOD5=False):
     Assumes OBS IPF file contains the following parameters/columns: 'Id', 'L', 'X', 'Y'
     for iMOD5 option check WS_Mdl.utils.MdlN_Pa() description.
     """
-    from WS_Mdl.core.path import MdlN_PaView
     from WS_Mdl.imod.ipf import as_DF
     from WS_Mdl.imod.prj import r_with_OBS
 
     sprint(Sep)
     sprint('Running add_OBS ...')
     M = Mdl_N(MdlN)
-    Pa = M.Pa if iMOD5 == (M.V == 'imod5') else MdlN_PaView(MdlN, iMOD5=iMOD5)
-
-    # Extract info from INI file.
-    d_INI = M.INI
-    Xmin, Ymin, Xmax, Ymax = [float(i) for i in d_INI['WINDOW'].split(',')]
-    cellsize = float(d_INI['CELLSIZE'])
-    # N_R, N_C = int( - (Ymin - Ymax) / cellsize ), int( (Xmax - Xmin) / cellsize ),
 
     # Read PRJ file to extract OBS block info - list of OBS files to be added.
     l_OBS_lines = r_with_OBS(M.Pa.PRJ)[1]
@@ -53,14 +45,14 @@ def add(MdlN: str, Opt: str = 'BEGIN OPTIONS\nEND OPTIONS', iMOD5=False):
             Pa_OBS_IPF
         )  # Get list of OBS items (without temporal dimension, as it's uneccessary for the OBS file, and takes ages to load)
         DF_OBS_IPF_MdlAa = DF_OBS_IPF.loc[
-            ((DF_OBS_IPF['X'] > Xmin) & (DF_OBS_IPF['X'] < Xmax))
-            & ((DF_OBS_IPF['Y'] > Ymin) & (DF_OBS_IPF['Y'] < Ymax))
+            ((DF_OBS_IPF['X'] > M.Xmin) & (DF_OBS_IPF['X'] < M.Xmax))
+            & ((DF_OBS_IPF['Y'] > M.Ymin) & (DF_OBS_IPF['Y'] < M.Ymax))
         ].copy()  # Slice to OBS within the Mdl Aa (using INI window)
 
-        DF_OBS_IPF_MdlAa['C'] = ((DF_OBS_IPF_MdlAa['X'] - Xmin) / cellsize).astype(
+        DF_OBS_IPF_MdlAa['C'] = ((DF_OBS_IPF_MdlAa['X'] - M.Xmin) / M.cellsize).astype(
             np.int32
         ) + 1  # Calculate Cs. Xmin at the origin of the model.
-        DF_OBS_IPF_MdlAa['R'] = (-(DF_OBS_IPF_MdlAa['Y'] - Ymax) / cellsize).astype(
+        DF_OBS_IPF_MdlAa['R'] = (-(DF_OBS_IPF_MdlAa['Y'] - M.Ymax) / M.cellsize).astype(
             np.int32
         ) + 1  # Calculate Rs. Ymax at the origin of the model.
 
@@ -80,8 +72,8 @@ def add(MdlN: str, Opt: str = 'BEGIN OPTIONS\nEND OPTIONS', iMOD5=False):
             f.write('END CONTINUOUS\n')
 
         # Open NAM file and add OBS file to it
-        lock = FL(f'{Pa.NAM_Mdl}.lock')  # Create a file lock to prevent concurrent writes
-        with lock, open(Pa.NAM_Mdl, 'r+') as f:
+        lock = FL(f'{M.Pa.NAM_Mdl}.lock')  # Create a file lock to prevent concurrent writes
+        with lock, open(M.Pa.NAM_Mdl, 'r+') as f:
             l_NAM = f.read().split('END PACKAGES')
             f.seek(0)
             f.truncate()  # overwrite in-place
@@ -150,7 +142,7 @@ def add_within_polygon(
         GDF = gpd.GeoDataFrame(d[S]['DF'], crs=CRS)
 
         # Store init counts before filtering
-        N_init = len(d[S]['DF'])
+        # N_init = len(d[S]['DF'])
 
         # Clip to shapefile
         GDF = gpd.sjoin(GDF, GDF_Shp, how='inner', predicate='within')

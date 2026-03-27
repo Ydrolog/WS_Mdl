@@ -13,7 +13,7 @@ def timed_import(module):
     mod = importlib.import_module(module)
     end = time.perf_counter()
 
-    sprint(f'{module} imported in {end - start:.1f}s')
+    sprint(f'{module} imported in {end - start:.3f}s')
     return mod
 
 
@@ -41,5 +41,5 @@ def timed_class_init(cls, *args, **kwargs):
     start = time.perf_counter()
     instance = cls(*args, **kwargs)
     end = time.perf_counter()
-    sprint(f'{cls.__name__} instance created in {end - start:.1f}s')
+    sprint(f'{cls.__name__} instance created in {end - start:.2f}s')
     return instance

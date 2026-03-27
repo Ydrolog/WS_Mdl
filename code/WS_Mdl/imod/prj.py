@@ -607,6 +607,21 @@ def to_TIF(MdlN, iMOD5=False):
 def PrSimP(
     M: Mdl_N,
 ):
+    """
+    Prepares Sim Ins for Mdl_N following the process below:
+    1. Load and regrid PRJ file to target grid (if necessary).
+    2. Load MF6 Simulation from regridded PRJ.
+    3. Load MSW Simulation from regridded PRJ and MF6 DIS.
+    4. Clip both simulations to AoI.
+    5. Create mask from current regridded model (not the old one).
+    6. Clean up MF6 packages (remove unused packages, reformat BC packages).
+    7. Write Sim In files (MF6 and MSW) to disk.
+
+    Returns Sim_MF6 & MSW_Mdl for potential downstream processes.
+
+    Requires M.verbose, Pa.MF6_DLL, M.Pa.MSW_DLL to be imbued to the Mdl_N object/class. Those are not standard Mdl_N properties.
+    """
+
     # ----- Load and regrid PRJ -----
     PRJ_ = timed_Exe(
         o_with_OBS, M.Pa.PRJ, pre=f'  - Loading {M.Pa.PRJ.name} ...', verbose_in=True, verbose_out=M.verbose
@@ -724,4 +739,4 @@ def PrSimP(
     )
     add_missing_Cols(M.Pa.Pa_MdlN / 'metaswap/mete_grid.inp')
 
-    return Sim_MF6
+    return Sim_MF6_AoI, MSW_Mdl_AoI

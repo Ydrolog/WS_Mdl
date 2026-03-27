@@ -17,33 +17,34 @@ from WS_Mdl.xr.compare import Diff_MBTIF
 from WS_Mdl.xr.convert import to_MBTIF, to_TIF
 
 
-def HD_Bin_GXG_to_MBTIF(MdlN, start_year='from_INI', end_year='from_INI', IDT='from_INI', GVG=False):
+def HD_Bin_GXG_to_MBTIF(
+    MdlN, start_year='from_INI', end_year='from_INI', IDT='from_INI', GVG=False, l_Ls=[1, 3, 5, 7, 9]
+):
     """
-    - end_year: inclussive
+    - start_year: 'YYYY' (inclusive) or 'from_INI' to read from INI file
+    - end_year: 'YYYY' (inclusive) or 'from_INI' to read from INI file
+    - IDT: Number of days per SP. #666 this should be upgraded to use ITT too, to allow for other time units (e.g. hour).
+    - GVG: Boolean, whether to include GVG in the output
     """
     sprint(Sep)
     set_verbose(False)
 
     # Load standard imod paths and variables
     M = Mdl_N(MdlN)
-    d_Pa = M.Pa
-    if start_year == 'from_INI':
-        start_year = int(M.INI.SDATE[:4])
-    if end_year == 'from_INI':
-        end_year = int(M.INI.EDATE[:4])
-    if IDT == 'from_INI':
-        IDT = int(M.INI.IDT)
-    Pa_PoP = d_Pa['PoP']
+
+    start_year = int(M.INI.SDATE[:4]) if start_year == 'from_INI' else int(start_year)
+    end_year = int(M.INI.EDATE[:4]) if end_year == 'from_INI' else int(end_year)
+    IDT = int(M.INI.IDT) if IDT == 'from_INI' else int(IDT)
+
     l_years = [i for i in range(start_year, end_year + 1)]
-    l_Ls = [i for i in range(1, 11 + 1, 2)]
     set_verbose(True)
 
     # 1. Load & trim Bin HD file
-    DA_HD = imod.mf6.open_hds(hds_path=d_Pa['HD_Out_Bin'], grb_path=d_Pa['DIS_GRB'])
+    DA_HD = imod.mf6.open_hds(hds_path=M.Pa.HD_Out_Bin, grb_path=M.Pa.DIS_GRB)
     dates = pd.date_range(start=str(start_year), periods=DA_HD.time.size, freq=f'{IDT}D')
     DA_HD = DA_HD.assign_coords(time=dates)  # Assign to DA_HD
     DA_HD = DA_HD.where(DA_HD.time.dt.year.isin(l_years), drop=True).sel(layer=l_Ls)  # Select specific years and layers
-    sprint(f'🟢 - Loaded HD file from {d_Pa["HD_Out_Bin"]}')
+    sprint(f' 🟢🟢 - Loaded HD file from {M.Pa.HD_Out_Bin}')
 
     # 2. GXG
     ##  Calculate GXG
@@ -57,7 +58,7 @@ def HD_Bin_GXG_to_MBTIF(MdlN, start_year='from_INI', end_year='from_INI', IDT='f
         N_years_GXG = np.unique(GXG.N_YEARS_GXG.values).max()
         N_years_GVG = np.unique(GXG.N_YEARS_GVG.values).max()
 
-        # Calculate GHG - GLG
+        # Calculate GW range: GHG-GLG
         GXG['GHG_m_GLG'] = GXG['GHG'] - GXG['GLG']
         GXG = GXG[['GHG', 'GLG', 'GHG_m_GLG', 'GVG']] if GVG else GXG[['GHG', 'GLG', 'GHG_m_GLG']]
 
@@ -70,16 +71,15 @@ def HD_Bin_GXG_to_MBTIF(MdlN, start_year='from_INI', end_year='from_INI', IDT='f
     for var in d_GXG:
         if isinstance(d_GXG[var], list):
             d_GXG[var] = xra.concat(d_GXG[var], dim=pd.Index(l_Ls, name='layer'))
-    sprint(f'🟢 - Calculated GXG for {MdlN}')
-    d_Pa.keys()
+    sprint(f' 🟢🟢 - Calculated GXG for {MdlN}')
 
     # 3. Save to MBTIF
-    (Pa_PoP / 'Out' / MdlN / 'GXG').mkdir(parents=True, exist_ok=True)
-    d_GXG.keys()
+    (M.Pa.PoP_Out_MdlN / 'GXG').mkdir(parents=True, exist_ok=True)
+
     for K, GXG in d_GXG.items():
         L_min, L_max = GXG.layer.values.min(), GXG.layer.values.max()
 
-        Pa_Out = Pa_PoP / 'Out' / MdlN / 'GXG' / f'{K}_L{L_min}-{L_max}_{MdlN}.tif'
+        Pa_Out = M.Pa.PoP_Out_MdlN / 'GXG' / f'{K}_L{L_min}-{L_max}_{MdlN}.tif'
 
         d_MtDt = {
             f'{K}_L{L_min}-{L_max}_{MdlN}': {
@@ -88,25 +88,26 @@ def HD_Bin_GXG_to_MBTIF(MdlN, start_year='from_INI', end_year='from_INI', IDT='f
                 'period': f'{start_year}-{end_year}',
                 'N_years': N_years_GVG if K == 'GVG' else N_years_GXG,
                 'variable': Pa_Out.name[0],
-                'details': f'{MdlN} {K} calculated from (path: {d_Pa["HD_Out_Bin"]}), via function described in: https://deltares.github.io/imod-python/api/generated/evaluate/imod.evaluate.calculate_gxg.html',
+                'details': f'{MdlN} {K} calculated from (path: {M.Pa.HD_Out_Bin}), via function described in: https://deltares.github.io/imod-python/api/generated/evaluate/imod.evaluate.calculate_gxg.html',
             }
         }
 
         to_MBTIF(GXG, Pa_Out, d_MtDt, _print=False)
-        sprint(f'🟢 - Saved {K} to {Pa_Out}')
+        sprint(f'  🟢 - Saved {K} to {Pa_Out}')
     sprint(f'🟢🟢🟢 - HD_Bin_GXG_to_MBTIF finished successfully for {MdlN}.')
     sprint(Sep)
 
 
 def GXG_Diff(MdlN_1, MdlN_2):
     """
-    Calcs Diff between GXG of two MdLNs, and saves the Diff as a TIF in the same dir as the original GXG files.
+    Calcs Diff between GXG of two MdLNs, and saves the Diff as a TIF in the same dir as the MdlN_1 GXG files.
     Warning!: It doesn't check if the dates used for calculating the GXGs are the same.
     """
 
     Pa_PoP_GXG = Mdl_N(MdlN_1).Pa.PoP_Out_MdlN / 'GXG'
+    l_GXG_Fi = [i for i in Pa_PoP_GXG.iterdir() if i.is_file() and i.suffix == '.tif']
 
-    for Fi in [i for i in Pa_PoP_GXG.iterdir() if i.is_file() and i.suffix == '.tif']:
+    for Fi in l_GXG_Fi:
         Pa_TIF_1 = Pa_PoP_GXG / Fi.name
         Pa_TIF_2 = Pa_PoP_GXG / Path(str(Fi).replace(MdlN_1, MdlN_2))
         Pa_Out = Pa_TIF_1.parent / Pa_TIF_1.name.replace(
@@ -122,7 +123,7 @@ def GXG_Diff(MdlN_1, MdlN_2):
 def HD_IDF_GXG_to_TIF(MdlN: str, N_cores: int = None, CRS: str = None, rules: str = None, iMOD5=False):
     """Reads Sim Out IDF files from the model directory and calculates GXG for each L. Saves them as MultiBand TIF files - each band representing one of the GXG params for a L."""
 
-    def _HD_IDF_GXG_to_TIF_per_L(DF, L, MdlN, Pa_PoP, Pa_HD, CRS):
+    def _HD_IDF_GXG_to_TIF_per_L(DF, L, MdlN, Pa_HD, CRS):
         """Only for use within HD_IDF_GXG_to_TIF - to utilize multiprocessing."""
 
         # Load HD files corresponding to the L to an XA
@@ -146,9 +147,9 @@ def HD_IDF_GXG_to_TIF(MdlN: str, N_cores: int = None, CRS: str = None, rules: st
         GXG = GXG[['GHG', 'GLG', 'GHG_m_GLG', 'GVG']]
 
         # Save to TIF
-        MDs(PJ(Pa_PoP, 'Out', MdlN, 'GXG'), exist_ok=True)
+        MDs(PJ(M.Pa.PoP_Out_MdlN, 'GXG'), exist_ok=True)
         for V in GXG.data_vars:
-            Pa_Out = PJ(Pa_PoP, 'Out', MdlN, 'GXG', f'{V}_L{L}_{MdlN}.tif')
+            Pa_Out = PJ(M.Pa.PoP_Out_MdlN, 'GXG', f'{V}_L{L}_{MdlN}.tif')
 
             d_MtDt = {
                 f'{V}_L{L}_{MdlN}': {
@@ -173,10 +174,9 @@ def HD_IDF_GXG_to_TIF(MdlN: str, N_cores: int = None, CRS: str = None, rules: st
 
     # Get paths
     M = Mdl_N(MdlN)
-    Pa_PoP, Pa_HD = [M.Pa[v] for v in ['PoP', 'Out_HD']]
 
     # Read DF and apply rules to DF if rules is not None.
-    DF = HD_Out_to_DF(Pa_HD)
+    DF = HD_Out_to_DF(M.Pa.Out_HD)
     if rules is not None:
         DF = DF.query(rules)
 
@@ -185,7 +185,7 @@ def HD_IDF_GXG_to_TIF(MdlN: str, N_cores: int = None, CRS: str = None, rules: st
     start = DT.now()  # Start time
 
     with PPE(max_workers=N_cores) as E:
-        futures = [E.submit(_HD_IDF_GXG_to_TIF_per_L, DF, L, MdlN, Pa_PoP, Pa_HD, CRS) for L in DF['L'].unique()]
+        futures = [E.submit(_HD_IDF_GXG_to_TIF_per_L, DF, L, MdlN, M.Pa.Out_HD, CRS) for L in DF['L'].unique()]
         for f in futures:
             sprint('\t', f.result(), '- Elapsed time (from start):', DT.now() - start)
 
