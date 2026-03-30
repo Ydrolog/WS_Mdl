@@ -1,3 +1,4 @@
+from WS_Mdl.core.style import sprint
 from WS_Mdl.core.mdl import Mdl_N
 
 
@@ -31,5 +32,10 @@ def clip_Mdl_area(A, MdlN):
 
     M = Mdl_N(MdlN)
     Xmin, Ymin, Xmax, Ymax = (float(i) for i in M.INI.window.split(','))
+
+    if A.y.values[0] > A.y.values[-1]:
+        A = A.reindex(y=A.y[::-1])
+        sprint(f"🟡 - Reversed y-axis of DataArray to match model area orientation.")
+
     A_clipped = A.sel(x=slice(Xmin, Xmax), y=slice(Ymin, Ymax))
     return A_clipped

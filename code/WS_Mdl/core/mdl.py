@@ -26,9 +26,17 @@ class Mdl_N:
         'INI': 'INI file content view',
         'Dmns': 'tuple: Xmin, Ymin, Xmax, Ymax, dx, dy (Model dimensions)',
         'Mdl_Aa': 'float: Model Area',
+        'Xmin': 'float: Minimum X coordinate',
+        'Ymin': 'float: Minimum Y coordinate',
+        'Xmax': 'float: Maximum X coordinate',
+        'Ymax': 'float: Maximum Y coordinate',
+        'cellsize': 'float: Model cell size',
+        'N_R': 'int: Number of rows in the model grid',
+        'N_C': 'int: Number of columns in the model grid',
+        'SP_1st': 'str: Start date of the model simulation period (YYYY-MM-DD)',
+        'SP_last': 'str: End date of the model simulation period (YYYY-MM-DD)',
         'B': 'str: Baseline Model Number (e.g., "NBr18")',
         'Pa_B': 'Paths view for the Baseline Model',
-        '__dict__': 'Allow dynamic attributes',
     }
 
     def __init__(self, MdlN: str, iMOD5: bool | None = None):
@@ -56,9 +64,14 @@ class Mdl_N:
             self.Mdl_Aa = Mdl_Aa(self.Pa.INI)
             self.Xmin, self.Ymin, self.Xmax, self.Ymax, self.cellsize, self.N_R, self.N_C = Mdl_Dmns(self.Pa.INI)
             self.SP_1st, self.SP_last = [
-                DT.strftime(DT.strptime(self.INI[f'{i}'], '%Y%m%d'), '%Y-%m-%d') for i in ['SDATE', 'EDATE']
+                DT.strftime(DT.strptime(self.INI[f'{i}'], '%Y%m%d'), '%Y-%m-%d') for i in ['SDATE', 'EDATE']\
             ]
         set_verbose(True)
 
         self.B = get_B(MdlN)
         self.Pa_B = MdlN_PaView(self.B, iMOD5=(self.V == 'imod5'))
+
+    @property
+    def vars(self):
+        """Return all slotted attributes and their current values as a dict."""
+        return {k: getattr(self, k, None) for k in self.__slots__}
