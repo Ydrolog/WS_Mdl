@@ -37,6 +37,7 @@ class Mdl_N:
         'SP_last': 'str: End date of the model simulation period (YYYY-MM-DD)',
         'B': 'str: Baseline Model Number (e.g., "NBr18")',
         'Pa_B': 'Paths view for the Baseline Model',
+        '__dict__': 'dict: allow dynamic attributes',
     }
 
     def __init__(self, MdlN: str, iMOD5: bool | None = None):
@@ -64,7 +65,7 @@ class Mdl_N:
             self.Mdl_Aa = Mdl_Aa(self.Pa.INI)
             self.Xmin, self.Ymin, self.Xmax, self.Ymax, self.cellsize, self.N_R, self.N_C = Mdl_Dmns(self.Pa.INI)
             self.SP_1st, self.SP_last = [
-                DT.strftime(DT.strptime(self.INI[f'{i}'], '%Y%m%d'), '%Y-%m-%d') for i in ['SDATE', 'EDATE']\
+                DT.strftime(DT.strptime(self.INI[f'{i}'], '%Y%m%d'), '%Y-%m-%d') for i in ['SDATE', 'EDATE']
             ]
         set_verbose(True)
 
