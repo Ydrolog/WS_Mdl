@@ -1,0 +1,3 @@
+- In `stack_Out_TS.ipynb`, clipping `DA_qrun` with `GDF_CB` failed because shapefile loaded without CRS (`GDF_CB.crs is None`).
+- Robust pattern: set spatial dims (`x`,`y`) on DA, then align CRS; if both missing, assume project CRS (`EPSG:28992`) before `rio.clip(..., drop=False)`.
+- `GeoDataFrame` is a suitable vector format for clipping; key requirement is valid CRS metadata.

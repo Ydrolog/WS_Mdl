@@ -631,6 +631,38 @@ def PrSimP(
     sprint('  - Regridding PRJ ...', end='', verbose_in=True, verbose_out=M.verbose, set_time=True)
     PRJ_regrid = timed_Exe(regrid, PRJ, M.MdlN)  # Speeds up Mdl load.
 
+    # Filter period_data to avoid DTypePromotionError when repeat labels don't overlap simulation time
+    # This happens when imod.util.expand_repetitions returns an empty dict for a repeat.
+    # In NumPy 2.x, comparing float64(0.0) with datetime64[ns] raises DTypePromotionError.
+    sprint('  - Filtering period_data ...', end='', verbose_in=True, verbose_out=M.verbose)
+    from imod.util.expand_repetitions import expand_repetitions
+    
+    T_min = pd.Timestamp(M.INI.SDATE)
+    T_max = pd.Timestamp(M.INI.EDATE)
+    
+    filtered_period_data = {}
+    for pkg_name, pkg_data in period_data.items():
+        if not isinstance(pkg_data, dict):
+            filtered_period_data[pkg_name] = pkg_data
+            continue
+            
+        filtered_pkg_data = {}
+        for repeat_key, repeat_val in pkg_data.items():
+            # expand_repetitions returns a dict of {new_date: old_date}
+            # If the dict is empty, this repetition is not active during simulation time.
+            # We filter it out early to prevent iMOD-Python from creating empty packages
+            # that might trigger NumPy 2.x DType promotion errors.
+            try:
+                repetitions = expand_repetitions(repeat_val, T_min, T_max)
+                if repetitions:
+                    filtered_pkg_data[repeat_key] = repeat_val
+            except Exception:
+                # If expansion fails for any reason, keep the original to be safe
+                filtered_pkg_data[repeat_key] = repeat_val
+        filtered_period_data[pkg_name] = filtered_pkg_data
+    period_data = filtered_period_data
+    sprint('🟢', verbose_in=True, verbose_out=M.verbose)
+
     # Set outer boundaries to -1. Otherwise CHD won't be loaded properly.
     BND = PRJ_regrid['bnd']['ibound']
     BND.loc[:, [BND.y[0], BND.y[-1]], :] = -1  # Top and bottom rows
@@ -638,7 +670,7 @@ def PrSimP(
     sprint('🟢', verbose_in=True, verbose_out=M.verbose, print_time=True)
 
     # ----- Load MF6 Simulation
-    times = pd.date_range(M.INI.SDATE, M.INI.EDATE, freq='D')
+    times = pd.date_range(M.SP_1st, M.SP_last, freq='D')
     Sim_MF6 = timed_Exe(
         mf6.Modflow6Simulation.from_imod5_data,
         PRJ_regrid,

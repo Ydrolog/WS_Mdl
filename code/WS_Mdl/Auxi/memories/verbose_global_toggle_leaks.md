@@ -1,0 +1,3 @@
+- Global verbosity in `WS_Mdl` is controlled by `WS_Mdl.core.style.VERBOSE` and should gate all routine console output.
+- `WS_Mdl/core/runtime.py` must not print timers/progress unconditionally (`timed_*`, `watch_execution`); guard with `if core_style.VERBOSE`.
+- `WS_Mdl/core/mdl.py` should not force `set_verbose(True)` after init; restore previous state instead so caller-level `set_verbose(False)` persists.

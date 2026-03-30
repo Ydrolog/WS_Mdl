@@ -1,0 +1,3 @@
+- In imod MF6 import, if period_data repeat dates do not overlap the simulation window, expand_repetitions() returns empty dict.
+- get_repeat_stress(empty_dict) creates an empty float64 array, causing DTypePromotionError/UFuncTypeError when clip.py compares keys with datetime.
+- Workaround in notebooks: pre-filter period_data keys by keeping only repeats where len(expand_repetitions(repeat, times[0], times[-1])) > 0 before calling Modflow6Simulation.from_imod5_data().
