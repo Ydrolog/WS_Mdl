@@ -27,13 +27,11 @@ def S_from_B(MdlN: str, iMOD5=False):
     Pa = M.Pa if iMOD5 == (M.V == 'imod5') else MdlN_PaView(MdlN, iMOD5=iMOD5)
     Pa_B = M_B.Pa if iMOD5 == (M_B.V == 'imod5') else MdlN_PaView(MdlN_B, iMOD5=iMOD5)
 
-    Pa_PRJ_B, Pa_PRJ = Pa_B.PRJ, Pa.PRJ
-
     # Copy .INI, .bat, .prj and make default (those apply to every Sim) modifications
-    for Pa_B, Pa_S in zip([M_B.Pa_Smk, M_B.Pa_BAT, M_B.Pa_INI], [M.Pa_Smk, M.Pa_BAT, M.Pa_INI]):
+    for Pa_B, Pa_S in zip([Pa_B.Smk, Pa_B.BAT, Pa_B.INI, Pa_B.PRJ], [Pa.Smk, Pa.BAT, Pa.INI, Pa.PRJ]):
         try:
             if not Pa_S.exists():  # Replace the MdlN of with the new one, so that we don't have to do it manually.
-                # sh.copy2(Pa_B, Pa_S)
+                sh.copy2(Pa_B, Pa_S)
                 with open(Pa_S, 'r') as f1:
                     contents = f1.read()
                 with open(Pa_S, 'w') as f2:
@@ -49,18 +47,6 @@ def S_from_B(MdlN: str, iMOD5=False):
                 )
         except Exception as e:
             sprint(f'🔴 - Error copying {Pa_B} to {Pa_S}: {e}')
-
-    try:
-        if not Pa_PRJ.exists():  # For the PRJ file, there is no default text replacement to be performed.
-            # sh.copy2(Pa_PRJ_B, Pa_PRJ)
-            os.startfile(Pa_PRJ)  # Then we'll open it to make any other changes we want to make.
-            sprint(f'🟢 - {Pa_PRJ.name:20} created successfully! {dim}(copy of {Pa_PRJ_B}){style_reset}')
-        else:
-            sprint(
-                f'🟡 - {Pa_PRJ.name:20} already exists. If you want it to be replaced, you have to delete it manually before running this command.'
-            )
-    except Exception as e:
-        sprint(f'🔴 - Error copying {Pa_PRJ_B} to {Pa_PRJ}: {e}')
 
     sprint(Sep)
 
