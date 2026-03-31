@@ -5,7 +5,7 @@ from WS_Mdl.core.mdl import Mdl_N
 from WS_Mdl.core.style import set_verbose, sprint, warn
 
 
-def Agg_OBS(MdlN, Pkg, save, overwrite, MF6_NaN_to_zero=True):
+def Agg_OBS(MdlN, Pkg, save=True, overwrite=False, MF6_NaN_to_zero=True):
 
     set_verbose(False)
     M = Mdl_N(MdlN)

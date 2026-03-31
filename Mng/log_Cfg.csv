@@ -104,11 +104,11 @@ No RIV. Via imod python. PRJ: SS blocks removed, otherwise it wouldn't work with
 - Using Smk file in SFR simulation for the 1st time. (hence 2.0)
 - Only main SFR in Chaamse Beek catchment, the rest is modelled by RIV. DRN and RIV are not connected to the SFR.","Queued","PoPed"
 "55","NBr","55","NBr55","52","NBr52","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #4
-  Main RIV Stg set to SFR AVG summer and winter stage from NBr54. This is to isolate the effects of the difference in data between NBr50 and NBr55. Then NBr54 Vs NBr55 isolates the Diff the method (SFR vs RIV) have on the system.","Queued","Running"
+  Main RIV Stg set to SFR AVG summer and winter stage from NBr54. This is to isolate the effects of the difference in data between NBr50 and NBr55. Then NBr54 Vs NBr55 isolates the Diff the method (SFR vs RIV) have on the system.","Queued","Completed"
 "56","NBr","56","NBr56","54","NBr54","MK","Test","SFR maker #2.1: SFR for main SW in Chaamse Beek
-- DRN & RIV connected to SFR.","Queued","Running"
-"57","NBr","57","NBr57","56","NBr56","MK","Test","SFR maker #2.2: SFR for main SW in Chaamse Beek
-- Added DRN & RIV OBS","Queued","Running"
+- DRN & RIV connected to SFR.","Queued","Completed"
+"57","NBr","57","NBr57","52","NBr52","MK","Test","B via imod_python
+- To compare with NBr55, and see if just switching to imod_python causes different results.","Queued",""
 "0","","","","","","","","0","",""
 "0","","","","","","","","0","",""
 "0","","","","","","","","0","",""

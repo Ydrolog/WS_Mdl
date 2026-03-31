@@ -102,8 +102,8 @@ rule Mdl_Prep: # Prepares Sim Ins (from Ins) via BAT file.
     output:
         M.Pa.NAM_Sim
     run:
-        from WS_Mdl.imod.prep import SFR_Mdl
-        SFR_Mdl(
+        from WS_Mdl.imod.prep import Sim
+        Sim(
             MdlN = MdlN,
             Pa_Cond_A = Pa_SW_Cond_A,
             Pa_Cond_B = Pa_SW_Cond_B,

@@ -12,7 +12,7 @@ from WS_Mdl.core.mdl import Mdl_N
 from WS_Mdl.core.style import Sep, sprint
 
 
-def add(MdlN: str, Opt: str = 'BEGIN OPTIONS\nEND OPTIONS', iMOD5=False):
+def add_GWL_OBS(MdlN: str, Opt: str = 'BEGIN OPTIONS\nEND OPTIONS', iMOD5=False):
     """
     Adds OBS file(s) from PRJ file OBS block to Mdl Sim (which iMOD can't do). Thus the OBS file needs to be written, and then a link to the OBS file needs to be created within the NAM file.
     Assumes OBS IPF file contains the following parameters/columns: 'Id', 'L', 'X', 'Y'
@@ -22,7 +22,7 @@ def add(MdlN: str, Opt: str = 'BEGIN OPTIONS\nEND OPTIONS', iMOD5=False):
     from WS_Mdl.imod.prj import r_with_OBS
 
     sprint(Sep)
-    sprint('Running add_OBS ...')
+    sprint('Running add_GWL_OBS ...')
     M = Mdl_N(MdlN)
 
     # Read PRJ file to extract OBS block info - list of OBS files to be added.
@@ -37,9 +37,9 @@ def add(MdlN: str, Opt: str = 'BEGIN OPTIONS\nEND OPTIONS', iMOD5=False):
         Pa_OBS_IPF = (M.Pa.MdlN / path).resolve()  # path of IPF file. To be read.
         OBS_IPF_Fi = Pa_OBS_IPF.name  # Filename of OBS file to be added to Sim (to be added without ending)
         if i == 0:
-            Pa_OBS = M.Pa.MdlN / f'GWF_1/MODELINPUT/{MdlN}.OBS6'  # path of OBS file. To be written.
+            Pa_OBS = M.Pa.Sim_In / f'{MdlN}_GWL.OBS6'  # path of OBS file. To be written.
         else:
-            Pa_OBS = M.Pa.MdlN / f'GWF_1/MODELINPUT/{MdlN}_N{i}.OBS6'  # path of OBS file. To be written.
+            Pa_OBS = M.Pa.Sim_In / f'{MdlN}_GWL_N{i}.OBS6'  # path of OBS file. To be written.
 
         DF_OBS_IPF = as_DF(
             Pa_OBS_IPF
@@ -64,7 +64,7 @@ def add(MdlN: str, Opt: str = 'BEGIN OPTIONS\nEND OPTIONS', iMOD5=False):
             # sprint(M.Pa.MdlN, path, Pa_OBS_IPF, sep='\n')
             f.write(f'# created from {Pa_OBS_IPF}\n')
             f.write(Opt.encode().decode('unicode_escape'))  # write optional block
-            f.write(f'\n\nBEGIN CONTINUOUS FILEOUT OBS_{OBS_IPF_Fi.split(".")[0]}.csv\n')
+            f.write(f'\n\nBEGIN CONTINUOUS FILEOUT OBS_{MdlN}({OBS_IPF_Fi.split(".")[0]}).csv\n')
 
             for _, row in DF_OBS_IPF_MdlAa.drop_duplicates(subset=['Id', 'L', 'R', 'C']).iterrows():
                 f.write(f' {row["Id"]} HEAD {row["L"]} {row["R"]} {row["C"]}\n')
@@ -74,13 +74,13 @@ def add(MdlN: str, Opt: str = 'BEGIN OPTIONS\nEND OPTIONS', iMOD5=False):
         # Open NAM file and add OBS file to it
         lock = FL(f'{M.Pa.NAM_Mdl}.lock')  # Create a file lock to prevent concurrent writes
         with lock, open(M.Pa.NAM_Mdl, 'r+') as f:
-            l_NAM = f.read().split('END PACKAGES')
+            l_NAM = f.read().upper().split('END PACKAGES')
             f.seek(0)
             f.truncate()  # overwrite in-place
-            Pa_OBS_Rel = Path(Pa_OBS).relative_to(M.Pa.MdlN)
+            Pa_OBS_Rel = Path(Pa_OBS).relative_to(M.Pa.NAM_Sim.parent)
 
             f.write(l_NAM[0])
-            f.write(rf' OBS6 .\{Pa_OBS_Rel} OBS_{OBS_IPF_Fi.split(".")[0]}')
+            f.write(rf' OBS6 .\{Pa_OBS_Rel} OBS_{MdlN}')  # ({OBS_IPF_Fi.split(".")[0]})')
             f.write('\nEND PACKAGES')
 
             f.flush()
@@ -108,10 +108,10 @@ def add_within_polygon(
     # Load Shp
     if Pa_Shp is not None:
         GDF_Shp = gpd.read_file(Pa_Shp)
+        GDF_Shp.crs = CRS
         print(f'Loaded shapefile with {len(GDF_Shp)} features')
         print(f'CRS: {GDF_Shp.crs}')
         print(f'Bounds: {GDF_Shp.bounds}')
-        GDF_Shp.crs = CRS
 
     # Load DF
     d = (
@@ -138,7 +138,7 @@ def add_within_polygon(
         d[S]['DF'] = d[S]['DF'].ws.Calc_XY(Xmin=M.Xmin, Ymax=M.Ymax, cellsize=M.cellsize)
 
         # Create geometry for DRN points
-        d[S]['DF']['geometry'] = d[S]['DF'].apply(lambda row: Point(row['X'], row['Y']), axis=1)
+        d[S]['DF']['geometry'] = d[S]['DF'].apply(lambda row: Point(row['x'], row['y']), axis=1)
         GDF = gpd.GeoDataFrame(d[S]['DF'], crs=CRS)
 
         # Store init counts before filtering

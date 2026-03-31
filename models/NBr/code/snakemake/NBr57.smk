@@ -2,13 +2,11 @@
 from WS_Mdl.core.mdl import Mdl_N
 from WS_Mdl.core.log import Up_log
 from WS_Mdl.io.sim import freeze_pixi_env, get_elapsed_time_str
-from WS_Mdl.imod.mf6.obs import add as add_OBS
-from WS_Mdl.imod.mf6.write import add_OBS_to_MF_In
 
-import subprocess as sp
 from snakemake.io import temp
 from datetime import datetime as DT
 from pathlib import Path
+import subprocess as sp
 import os
 import shutil as sh
 import sys
@@ -20,38 +18,29 @@ os.environ["PYTHONUNBUFFERED"] = "1"        # Set Python to unbuffered mode (out
 
 ## Options
 MdlN        =   "NBr57"
-MdlN_SFR_GPkg = 'NBr54'
-MdlN_MM_B   =   'NBr13'
 iMOD5       =   False
+MdlN_MM_B   =   'NBr13'
 
 ## Paths
 M           =   Mdl_N(MdlN, iMOD5=iMOD5)
 workdir:        M.Pa.Mdl
-Pa_Smk      =   M.Pa.Smk.parent
-Pa_temp     =   Pa_Smk / 'temp'
 
-Pa_HD_OBS_WEL   =   M.Pa.MdlN / f'modflow6/imported_model/{MdlN}.OBS6' # 666
-
-Pa_SFR_GPkg = M.Pa.In / f'SFR/{MdlN_SFR_GPkg}/WBD_1ry_SW_NW_cleaned_{MdlN_SFR_GPkg}.gpkg'
-Pa_SW_Cond_A = M.Pa.WS / r"models\NBr\In\RIV\RIV_Cond_DETAILWATERGANGEN_NBr1.IDF"
-Pa_SW_Cond_B = M.Pa.WS / r"models\NBr\In\RIV\RIV_Cond_DRN_NBr1.IDF"
-Pa_SFR_OBS_In = M.Pa.In / 'OBS/SFR/NBr40/NBr40_SFR_OBS_Pnt.csv'
-Pa_Shp_catchment = M.Pa.WS / r'models\NBr\PoP\common\Pgn\Chaamse_beek\catchment_chaamsebeek_ulvenhout.shp'
+Pa_HD_OBS_WEL   =   M.Pa.MdlN / f'modflow6/imported_model/{MdlN}_GWL.OBS6'
 
 l_Fi_to_git     =   [M.Pa.WS / i for i in ['pixi.toml', 'pixi.lock', 'code/WS_Mdl']] # If any of these code files changes, the 
 git_hash        =   shell(f"git -C {M.Pa.WS} rev-parse HEAD", read=True).strip()
 git_tag         =   shell(f"git -C {M.Pa.WS} describe --tags --always", read=True, allow_error=True).strip() or "no_tag"
 
 ## Temp files (for completion validation)
-log_Init        =   Pa_Smk / f"temp/Log_init_{MdlN}"
-log_Sim         =   Pa_Smk / f"temp/Log_Sim_{MdlN}"
-log_RIV_OBS     =   Pa_Smk / f"temp/Log_RIV_OBS_{MdlN}"
-log_DRN_OBS     =   Pa_Smk / f"temp/Log_DRN_OBS_{MdlN}"
-log_PRJ_to_TIF  =   Pa_Smk / f"temp/Log_PRJ_to_TIF_{MdlN}"
-log_GXG         =   Pa_Smk / f"temp/Log_GXG_{MdlN}"
-log_Up_MM       =   Pa_Smk / f"temp/Log_Up_MM_{MdlN}"
-log_freeze_env  =   Pa_temp / f"Log_freeze_env_{MdlN}"
-
+Pa_temp             =   M.Pa.Smk.parent / 'temp'
+log_freeze_env      =   Pa_temp / f"Log_freeze_env_{MdlN}"
+log_Init            =   Pa_temp / f"Log_init_{MdlN}"
+log_Sim             =   Pa_temp / f"Log_Sim_{MdlN}"
+log_RIV_OBS         =   Pa_temp / f"Log_RIV_OBS_{MdlN}"
+log_DRN_OBS         =   Pa_temp / f"Log_DRN_OBS_{MdlN}"
+log_PRJ_to_TIF      =   Pa_temp / f"Log_PRJ_to_TIF_{MdlN}"
+log_GXG             =   Pa_temp / f"Log_GXG_{MdlN}"
+log_Up_MM           =   Pa_temp / f"Log_Up_MM_{MdlN}"
 
 # --- Rules ---
 
@@ -63,7 +52,6 @@ onerror: fail
 
 rule all: # Final rule
     input:
-        log_Sim, # 666 might be redundant - as log_Up_MM is final step of the same line.
         log_Up_MM,
         log_freeze_env
         
@@ -81,7 +69,7 @@ rule log_Init: # Sets status to running, and writes other info about therun. Has
                             '1st SP date':      DT.strptime(M.INI.SDATE, "%Y%m%d").strftime("%Y-%m-%d"),
                             'last SP date':     DT.strptime(M.INI.EDATE, "%Y%m%d").strftime("%Y-%m-%d")})
         Path(output[0]).touch() # Create the file to mark the rule as done.
-        
+
 rule freeze_pixi_env:
     input:
         l_Fi_to_git
@@ -102,29 +90,18 @@ rule Mdl_Prep: # Prepares Sim Ins (from Ins) via BAT file.
     output:
         M.Pa.NAM_Sim
     run:
-        from WS_Mdl.imod.prep import SFR_Mdl
-        SFR_Mdl(
-            MdlN = MdlN,
-            Pa_Cond_A = Pa_SW_Cond_A,
-            Pa_Cond_B = Pa_SW_Cond_B,
-            Pa_SFR_Gpkg = Pa_SFR_GPkg,
-            Pa_SFR_OBS_In = Pa_SFR_OBS_In,
-            verbose=True,
-            add_DRN_to_SFR=True,
-            add_RIV_to_SFR=True,
-            Pa_Shp_DRN = Pa_Shp_catchment,
-            Pa_Shp_RIV = Pa_Shp_catchment
-)
+        from WS_Mdl.imod.prep import Sim
+        Sim(MdlN = MdlN, verbose=True, SFR=False)
 
-## -- PrSimP --
-
-# rule add_HD_OBS_WEL:
-#     input:
-#         M.Pa.NAM_Sim
-#     output:
-#         Pa_HD_OBS_WEL
-#     run:
-#         UIM.add_OBS(MdlN, iMOD5=iMOD5)
+# ## -- PrSimP --
+rule add_HD_OBS_WEL:
+    input:
+        M.Pa.NAM_Sim
+    output:
+        Pa_HD_OBS_WEL
+    run:
+        from WS_Mdl.imod.mf6.obs import add_GWL_OBS
+        add_GWL_OBS(MdlN, iMOD5=iMOD5)
 
 rule add_RIV_OBS:
     input:
@@ -155,7 +132,6 @@ rule add_DRN_OBS:
 ## -- Sim ---
 rule Sim: # Runs the simulation via BAT file.
     input:
-        # M.Pa.NAM_Sim,
         log_RIV_OBS,
         log_DRN_OBS
     output:

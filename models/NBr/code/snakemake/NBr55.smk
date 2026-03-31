@@ -18,8 +18,8 @@ os.environ["PYTHONUNBUFFERED"] = "1"        # Set Python to unbuffered mode (out
 
 ## Options
 MdlN        =   "NBr55"
-MdlN_MM_B   =   'NBr13'
 iMOD5       =   True
+MdlN_MM_B   =   'NBr13'
 MdlN_OBS    =   'NBr50' # For copying OBS files from NBr50
 
 ## Paths
