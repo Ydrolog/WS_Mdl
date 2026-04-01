@@ -274,7 +274,7 @@
  1,2, 035,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr57\SHD_19960101_L35_NBr57.idf' >>> (shd) starting heads (idf) <<<
  1,2, 036,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr57\SHD_19960101_L36_NBr57.idf' >>> (shd) starting heads (idf) <<<
  1,2, 037,   1.000000    ,   0.000000    ,  -999.9900    , '..\..\In\SHD\NBr57\SHD_19960101_L37_NBr57.idf' >>> (shd) starting heads (idf) <<<
- 
+
 0001,(STO),1, Confined Storage Coefficient
 001,037
  1,1, 001,   1.000000    ,   0.000000    ,  0.2000000    ,''

@@ -108,8 +108,10 @@ No RIV. Via imod python. PRJ: SS blocks removed, otherwise it wouldn't work with
 "56","NBr","56","NBr56","54","NBr54","MK","Test","SFR maker #2.1: SFR for main SW in Chaamse Beek
 - DRN & RIV connected to SFR.","Queued","Completed"
 "57","NBr","57","NBr57","52","NBr52","MK","Test","B via imod_python
-- To compare with NBr55, and see if just switching to imod_python causes different results.","Queued",""
-"0","","","","","","","","0","",""
+- To compare with NBr52, and see if just switching to imod_python causes different results.
+- Had to use new SHD, cause imod_python struggles with nan's (created where idomain=0 from previous Sim (NBr50 HD Out))","Queued","PoPed"
+"58","NBr","58","NBr58","56","NBr56","MK","Test","SFRmaker #2.2: SFR for main SW in Chaamse Beek
+- Used heads NBr57 SHDs","Queued","Running"
 "0","","","","","","","","0","",""
 "0","","","","","","","","0","",""
 "0","","","","","","","","0","",""
