@@ -567,7 +567,7 @@ def Pkgs_to_SFR_via_MVR(M: Mdl_N, Pkgs: list | str, Pa_Shp: str | Path):  # 666 
         l_Pa = [i for i in M.Pa.Sim_In.rglob(f'*{Pkg.lower()}*.bin')]
 
         for Pa in l_Pa:
-            PkgN = Pa.paren.name
+            PkgN = Pa.parent.name
 
             DF = to_DF(Pa, Pkg=Pkg)  # Load
             DF = DF.loc[~DF['i'].isin([1, M.N_R]) & ~DF['j'].isin([1, M.N_C]), ['k', 'i', 'j']]  # Remove boundary cells
@@ -590,7 +590,8 @@ def Pkgs_to_SFR_via_MVR(M: Mdl_N, Pkgs: list | str, Pa_Shp: str | Path):  # 666 
         GDF = GDF_all.copy()
 
     # %% Calculate distances and find closest reach for each DRN point
-    DF_reach = M.DF_reach[['rno', 'i', 'j']].ws.Calc_XY(M.Xmin, M.Ymax, M.cellsize)  # Calc DF_reach XY
+    M.DF_reach[['i', 'j']] = M.DF_reach[['i', 'j']] + 1  # Convert to 1-based indexing for distance calculation
+    DF_reach = M.DF_reach[['rno', 'i', 'j']].ws.Calc_XY(M.Xmin, M.Ymax, M.cellsize)  # Calc DF_reach XYDF_
 
     coords = GDF[['x', 'y']].values
     reach_coords = DF_reach[['x', 'y']].values
