@@ -558,13 +558,6 @@ def Pkgs_to_SFR_via_MVR(M: Mdl_N, Pkgs: list | str, Pa_Shp: str | Path):  # 666 
     from scipy.spatial.distance import cdist
     from shapely.geometry import LineString
 
-    # %% Load shapefile
-    if Pa_Shp is not None:
-        GDF_Shp = gpd.read_file(Pa_Shp)
-        GDF_Shp.crs = CRS
-        print(f'Loaded shapefile with {len(GDF_Shp)} features')
-        print(f'Bounds: {GDF_Shp.bounds}')
-
     # %% Load Ins as DFs and combine them into one GDF
     d_DF = {}
     for Pkg in Pkgs:
@@ -582,7 +575,16 @@ def Pkgs_to_SFR_via_MVR(M: Mdl_N, Pkgs: list | str, Pa_Shp: str | Path):  # 666 
 
     DF_all = pd.concat(d_DF.values(), ignore_index=True)
     GDF_all = gpd.GeoDataFrame(DF_all, geometry=gpd.points_from_xy(DF_all.x, DF_all.y), crs=CRS)
-    GDF = gpd.sjoin(GDF_all, GDF_Shp, how='inner', predicate='within')
+
+    # %% Load shapefile & perform spatial join to keep only points within the shapefile (if provided)
+    if Pa_Shp is not None:
+        GDF_Shp = gpd.read_file(Pa_Shp)
+        GDF_Shp.crs = CRS
+        sprint(f'Loaded shapefile with {len(GDF_Shp)} features', indent=2, verbose_in=True, verbose_out=M.verbose)
+        sprint(f'Bounds: {GDF_Shp.bounds}', indent=2, verbose_in=True, verbose_out=M.verbose)
+        GDF = gpd.sjoin(GDF_all, GDF_Shp, how='inner', predicate='within')
+    else:
+        GDF = GDF_all.copy()
 
     # %% Calculate distances and find closest reach for each DRN point
     DF_reach = M.DF_reach[['rno', 'i', 'j']].ws.Calc_XY(M.Xmin, M.Ymax, M.cellsize)  # Calc DF_reach XY

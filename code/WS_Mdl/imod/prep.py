@@ -1,10 +1,11 @@
 from dataclasses import dataclass
 from pathlib import Path
 
-from WS_Mdl.core import Mdl_N, Sep, bold, sprint
+from WS_Mdl.core.mdl import Mdl_N
 from WS_Mdl.core.runtime import timed_Exe
+from WS_Mdl.core.style import Sep, bold, sprint
 from WS_Mdl.imod.prj import PrSimP
-from WS_Mdl.imod.sfr.prsimp import Pkg_to_SFR_via_MVR, connect_SFR_lines_to_MF6, create_SFR_lines
+from WS_Mdl.imod.sfr.prsimp import Pkgs_to_SFR_via_MVR, connect_SFR_lines_to_MF6, create_SFR_lines
 
 
 @dataclass
@@ -16,11 +17,8 @@ class SFR_settings:
     )
     Pa_OBS_In: str | Path | None = None  # OBS for SFR
     connect_Pkgs: list = []  # Option to connect DRN to SFR via MVR.
-    Pa_Shp_DRN: str | Path | None = (
+    Pa_Shp_connect_Pkgs: str | Path | None = (
         None  # Shapefile containing the outer boundaries of the DRN package cells to be connected to the nearest SFR cells.
-    )
-    Pa_Shp_RIV: str | Path | None = (
-        None  # Shapefile containing the outer boundaries of the RIV package cells to be connected to the nearest SFR cells.
     )
 
 
@@ -71,8 +69,8 @@ def Sim(
         if SFR.connect_Pkgs:
             sprint(f' -- Connecting Pkgs ({SFR.Pkgs}) to SFR via MVR.', verbose_in=True, verbose_out=verbose)
             timed_Exe(
-                Pkg_to_SFR_via_MVR,
+                Pkgs_to_SFR_via_MVR,
                 M,
                 Pkgs=SFR.connect_Pkgs,
-                Pa_Shp=SFR.Pa_Shp_DRN,
+                Pa_Shp=SFR.Pa_Shp_connect_Pkgs,
             )
