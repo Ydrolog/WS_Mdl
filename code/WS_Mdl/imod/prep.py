@@ -16,7 +16,7 @@ class SFR_settings:
         None  # Optional secondary conductance file for SFR. If not specified, only the primary conductance file will be used.
     )
     Pa_OBS_In: str | Path | None = None  # OBS for SFR
-    connect_Pkgs: list = []  # Option to connect DRN to SFR via MVR.
+    connect_Pkgs: tuple = ()  # Option to connect DRN to SFR via MVR.
     Pa_Shp_connect_Pkgs: str | Path | None = (
         None  # Shapefile containing the outer boundaries of the DRN package cells to be connected to the nearest SFR cells.
     )
@@ -67,7 +67,7 @@ def Sim(
 
         # %% Connect DRN to SFR via MVR
         if SFR.connect_Pkgs:
-            sprint(f' -- Connecting Pkgs ({SFR.Pkgs}) to SFR via MVR.', verbose_in=True, verbose_out=verbose)
+            sprint(f' -- Connecting Pkgs ({SFR.connect_Pkgs}) to SFR via MVR.', verbose_in=True, verbose_out=verbose)
             timed_Exe(
                 Pkgs_to_SFR_via_MVR,
                 M,

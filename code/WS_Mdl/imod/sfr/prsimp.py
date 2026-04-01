@@ -552,19 +552,22 @@ def Pkgs_to_SFR_via_MVR(M: Mdl_N, Pkgs: list | str, Pa_Shp: str | Path):  # 666 
     - Pkgs: List of package names to connect (e.g. ['DRN']). If str is provided, it will be converted to a list with one element.
     - Pa_Shp: shapefile containing the outer boundaries to clip the Pkg elements within, e.g. if only elements in a catchment need to be connected.
     """
-    import re
 
     import WS_Mdl.core.df  # noqa: F401
     from scipy.spatial.distance import cdist
     from shapely.geometry import LineString
 
     # %% Load Ins as DFs and combine them into one GDF
+    if isinstance(Pkgs, str):
+        Pkgs = tuple(Pkgs)
+
     d_DF = {}
+
     for Pkg in Pkgs:
         l_Pa = [i for i in M.Pa.Sim_In.rglob(f'*{Pkg.lower()}*.bin')]
 
         for Pa in l_Pa:
-            PkgN = re.search(r'^.*?\d+', Pa.parent.name).group()
+            PkgN = Pa.paren.name
 
             DF = to_DF(Pa, Pkg=Pkg)  # Load
             DF = DF.loc[~DF['i'].isin([1, M.N_R]) & ~DF['j'].isin([1, M.N_C]), ['k', 'i', 'j']]  # Remove boundary cells
@@ -649,20 +652,19 @@ def Pkgs_to_SFR_via_MVR(M: Mdl_N, Pkgs: list | str, Pa_Shp: str | Path):  # 666 
     Pa_MVR = M.Pa.Sim_In / f'{M.MdlN}.MVR6'
     with open(Pa_MVR, 'w') as f:
         f.write(f"""BEGIN OPTIONS
-    END OPTIONS
+END OPTIONS
 
-    BEGIN DIMENSIONS
-    MAXMVR {DF_w.shape[0]}
-    MAXPACKAGES {len(DF_match['Pkg1'].unique()) + 1}
-    END DIMENSIONS
+BEGIN DIMENSIONS
+MAXMVR {DF_w.shape[0]}
+MAXPACKAGES {len(DF_match['Pkg1'].unique()) + 1}
+END DIMENSIONS
 
-    BEGIN PACKAGES
-    {'\n  '.join([k for k in DF_match['Pkg1'].unique()])}
-    sfr
-    END PACKAGES
+BEGIN PACKAGES
+{'\n  '.join([k for k in DF_match['Pkg1'].unique()])}
+sfr
+END PACKAGES
 
-    BEGIN PERIOD 1
-    """)
+BEGIN PERIOD 1""")
         f.write(DF_w.ws.to_MF_block(indent=1))
         f.write('END PERIOD')
 
