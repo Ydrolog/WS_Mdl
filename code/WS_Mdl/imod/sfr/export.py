@@ -114,7 +114,7 @@ def SFR_to_GPkg(MdlN: str, CRS: str = CRS, Pa_SFR=None, radius: float = None, iM
     DF.drop(left_merge, axis=1, inplace=True)
     DF = pd.merge(
         DF,
-        DF[['reach_N', 'X', 'Y']].rename(columns={'reach_N': 'downstream', 'X': 'DStr_X', 'Y': 'DStr_Y'}),
+        DF[['reach_N', 'x', 'y']].rename(columns={'reach_N': 'downstream', 'x': 'DStr_X', 'y': 'DStr_Y'}),
         on='downstream',
         how='left',
     )
@@ -154,9 +154,9 @@ def SFR_to_GPkg(MdlN: str, CRS: str = CRS, Pa_SFR=None, radius: float = None, iM
     # Create LineString geometries for all reaches
     DF['geometry'] = DF.apply(
         lambda row: (
-            LineString([(row['X'], row['Y']), (row['DStr_X'], row['DStr_Y'])])
+            LineString([(row['x'], row['y']), (row['DStr_X'], row['DStr_Y'])])
             if pd.notnull(row['DStr_X']) and pd.notnull(row['DStr_Y'])
-            else Point(row['X'], row['Y']).buffer(radius)
+            else Point(row['x'], row['y']).buffer(radius)
         ),
         axis=1,
     )
@@ -166,7 +166,7 @@ def SFR_to_GPkg(MdlN: str, CRS: str = CRS, Pa_SFR=None, radius: float = None, iM
     # Create duplicates of outlet reaches for the routing layer (as LineStrings)
     DF_outlet_duplicates = DF[DF['reach_type'] == 'outlet'].copy()
     DF_outlet_duplicates['geometry'] = DF_outlet_duplicates.apply(
-        lambda row: LineString([(row['X'], row['Y']), (row['X'], row['Y'])]),
+        lambda row: LineString([(row['x'], row['y']), (row['x'], row['y'])]),
         axis=1,
     )
 

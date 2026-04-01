@@ -190,12 +190,12 @@ def stage_TS(
             break
 
         start_date = (
-            pd.to_datetime(input('Enter start date (YYYY-MM-DD):\n')) if In1.upper() == 'Y' else DF['time'].min()
+            pd.to_datetime(input('Enter start date (YYYY-MM-DD):\n')) if In1.upper() == 'y' else DF['time'].min()
         )
-        end_date = pd.to_datetime(input('Enter end date (YYYY-MM-DD):\n')) if In1.upper() == 'Y' else DF['time'].max()
+        end_date = pd.to_datetime(input('Enter end date (YYYY-MM-DD):\n')) if In1.upper() == 'y' else DF['time'].max()
         DF_trim = (
             DF.copy().loc[(DF['time'] >= start_date) & (DF['time'] <= end_date)].reset_index(drop=True)
-            if In1.upper() == 'Y'
+            if In1.upper() == 'y'
             else DF.copy()
         )
 

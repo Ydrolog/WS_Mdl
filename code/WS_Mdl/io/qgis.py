@@ -73,7 +73,7 @@ def update_MM(MdlN, MdlN_MM_B=None):
                 if (MdlX != MdlN) and (Pa_full.exists()):
                     Pa_X = path.replace(MdlX, MdlN)
                     DS.text = f'{Pa_X}|{suffix}' if suffix else Pa_X
-                    sprint(f' - 🟢 Updated {MdlX} → {MdlN} in {Pa_full}')
+                    sprint(f'  - 🟢 Updated {MdlX} → {MdlN} in {Pa_full}')
                 # else:
                 # sprint(" - OK (no change)")
         # else:

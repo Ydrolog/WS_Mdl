@@ -91,6 +91,7 @@ def sprint(
         args_fmt = tuple(_highlight_MdlN(str(arg), style) for arg in args)  # Highlights Mdl_N instances.
         prefix = f'{style}{"  " * indent}'
 
+        kwargs.setdefault('flush', True)  # Flush the output immediately, so it appears in the console without delay.
         if args_fmt:
             args_out = list(args_fmt)
             args_out[0] = f'{prefix}{args_out[0]}'

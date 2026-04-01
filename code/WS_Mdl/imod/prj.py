@@ -237,7 +237,7 @@ def o_with_OBS(Pa_PRJ, return_OBS=False):
     PRJ = imod.prj.open_projectfile_data(Pa_PRJ_temp)  # Load the PRJ file without OBS
     Path(Pa_PRJ_temp).unlink()  # Delete temp PRJ file as it's not needed anymore.
 
-    sprint(f'🟢🟢 - PRJ loaded from {Pa_PRJ}')
+    # sprint(f'🟢🟢 - PRJ loaded from {Pa_PRJ}')
     if return_OBS:
         return PRJ, l_OBS_Lns
     else:
@@ -624,7 +624,12 @@ def PrSimP(
 
     # ----- Load and regrid PRJ -----
     PRJ_ = timed_Exe(
-        o_with_OBS, M.Pa.PRJ, pre=f'  - Loading {M.Pa.PRJ.name} ...', verbose_in=True, verbose_out=M.verbose
+        o_with_OBS,
+        M.Pa.PRJ,
+        pre=f'  - Loading {M.Pa.PRJ.name} ...',
+        verbose_in=True,
+        verbose_out=M.verbose,
+        post='🟢',
     )
     PRJ, period_data = PRJ_[0], PRJ_[1]
 

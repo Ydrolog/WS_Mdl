@@ -15,7 +15,7 @@ from WS_Mdl.core.style import Sep, sprint
 def add_GWL_OBS(MdlN: str, Opt: str = 'BEGIN OPTIONS\nEND OPTIONS', iMOD5=False):
     """
     Adds OBS file(s) from PRJ file OBS block to Mdl Sim (which iMOD can't do). Thus the OBS file needs to be written, and then a link to the OBS file needs to be created within the NAM file.
-    Assumes OBS IPF file contains the following parameters/columns: 'Id', 'L', 'X', 'Y'
+    Assumes OBS IPF file contains the following parameters/columns: 'Id', 'L', 'x', 'y'
     for iMOD5 option check WS_Mdl.utils.MdlN_Pa() description.
     """
     from WS_Mdl.imod.ipf import as_DF
@@ -80,7 +80,7 @@ def add_GWL_OBS(MdlN: str, Opt: str = 'BEGIN OPTIONS\nEND OPTIONS', iMOD5=False)
             Pa_OBS_Rel = Path(Pa_OBS).relative_to(M.Pa.NAM_Sim.parent)
 
             f.write(l_NAM[0])
-            f.write(rf' OBS6 .\{Pa_OBS_Rel} OBS_{MdlN}')  # ({OBS_IPF_Fi.split(".")[0]})')
+            f.write(rf'  OBS6 .\{Pa_OBS_Rel} OBS_{MdlN}')  # ({OBS_IPF_Fi.split(".")[0]})')
             f.write('\nEND PACKAGES')
 
             f.flush()

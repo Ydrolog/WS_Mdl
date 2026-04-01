@@ -4,7 +4,6 @@ from pathlib import Path
 import geopandas as gpd
 import numpy as np
 import pandas as pd
-import sfrmaker as sfr
 from WS_Mdl.core.defaults import CRS
 from WS_Mdl.core.mdl import Mdl_N
 from WS_Mdl.core.style import sprint
@@ -13,6 +12,7 @@ from WS_Mdl.imod.mf6.bin import to_DF
 
 def create_SFR_lines(Pa_GPkg: str | Path, verbose: bool, debug_sfr: bool = True):
     """Creates SFR_lines object (from SFRmaker Lib) from a GPkg with a specific structure. The GPkg is expected to have the following columns:"""  # 666 fill with more info
+    import sfrmaker as sfr
 
     Pa_GPkg = Path(Pa_GPkg)
 
@@ -259,11 +259,12 @@ def connect_SFR_lines_to_MF6(M: Mdl_N, debug_sfr: bool = True):
     import shutil as sh
 
     import imod
+    import sfrmaker as sfr
     from shapely import box
 
     # %% Connect SFR to MF6 model
     sprint(' -- SFRmaker - Connecting SFR lines to MF6 model.', verbose_in=True, verbose_out=M.verbose)
-    sprint(' - Creating SFR_grid item.', verbose_in=True, verbose_out=M.verbose, set_time=True, end='')
+    sprint('  - Creating SFR_grid item.', verbose_in=True, verbose_out=M.verbose, set_time=True, end='')
     # Create sfr.StructuredGrid directly from MF6_DIS (DataFrame approach) #666 This cell and the cells below it can be combined into a function to read in a MF6_DIS (imod) object, and return a DF (GDF_grid) with the grid and geometry.
     DS = M.Sim_MF6['imported_model']['dis'].dataset
     N_L, N_R, N_C = DS.dims['layer'], DS.dims['y'], DS.dims['x']
@@ -306,7 +307,7 @@ def connect_SFR_lines_to_MF6(M: Mdl_N, debug_sfr: bool = True):
     sprint('🟢', verbose_in=True, verbose_out=M.verbose, print_time=True)
 
     # %% Identify deepest SFR layer
-    sprint(' - Identifying deepest SFR layer.', verbose_in=True, verbose_out=M.verbose, set_time=True, end='')
+    sprint('  - Identifying deepest SFR layer.', verbose_in=True, verbose_out=M.verbose, set_time=True, end='')
     """The reason we're doing this is that the model has too many Ls and it takes a very long time to run the SFR functions with all of them. So we'll find the deepest L that has any part of the stream network in it, and **we'll only use up to that layer for the SFR grid.**"""
     for L in range(BOTs.shape[0]):
         L_BOT_min = BOTs[L].min()
@@ -545,96 +546,125 @@ def connect_SFR_lines_to_MF6(M: Mdl_N, debug_sfr: bool = True):
     return DF_reach
 
 
-def Pkg_to_SFR_via_MVR(M: Mdl_N, Pkg, Pa_Shp):  # 666 needs a lot of cleanup and streamlinging
+def Pkgs_to_SFR_via_MVR(M: Mdl_N, Pkgs: list | str, Pa_Shp: str | Path):  # 666 needs a lot of cleanup and streamlinging
     """Connects Pkg elements to the nearest SFR reach using MVR package.
-    - M: Mdl_N instance. Needs to have the following extra attributes:
-        - M.N_R: number of Mdl rows.
-        - M.N_C: number of Mdl columns.
-    - Pkg: Package name to connect (e.g. 'DRN').
+    - M: Mdl_N instance.
+    - Pkgs: List of package names to connect (e.g. ['DRN']). If str is provided, it will be converted to a list with one element.
     - Pa_Shp: shapefile containing the outer boundaries to clip the Pkg elements within, e.g. if only elements in a catchment need to be connected.
     """
     import re
 
     import WS_Mdl.core.df  # noqa: F401
     from scipy.spatial.distance import cdist
+    from shapely.geometry import LineString
 
-    # %%
+    # %% Load shapefile
     if Pa_Shp is not None:
         GDF_Shp = gpd.read_file(Pa_Shp)
-        print(f'Loaded shapefile with {len(GDF_Shp)} features')
-        print(f'CRS: {GDF_Shp.crs}')
-        print(f'Bounds: {GDF_Shp.bounds}')
         GDF_Shp.crs = CRS
+        print(f'Loaded shapefile with {len(GDF_Shp)} features')
+        print(f'Bounds: {GDF_Shp.bounds}')
 
-    # %% Get paths
-    l_Pa = [i for i in M.Pa.Sim_In.rglob(f'*{Pkg.lower()}*.bin')]
-
-    # %% Prepare DF from DFN Bin files
+    # %% Load Ins as DFs and combine them into one GDF
     d_DF = {}
+    for Pkg in Pkgs:
+        l_Pa = [i for i in M.Pa.Sim_In.rglob(f'*{Pkg.lower()}*.bin')]
 
-    for i in range(len(l_Pa)):
-        DF = to_DF(l_Pa[i], Pkg=Pkg)
-        print(DF.head())
-        d_DF[int(re.search(rf'(?i){Pkg.lower()}[-_]?(\d+)', str(l_Pa[i].parent)).group(1))] = DF.loc[
-            ~DF['i'].isin([1, M.N_R]) & ~DF['j'].isin([1, M.N_C]), ['k', 'i', 'j']
-        ]  # Exclude boundary cells
-    for k in d_DF.keys():
-        # print(f"DRN-{k} DataFrame shape: {d_DF[k].shape}")
-        d_DF[k] = d_DF[k].ws.Calc_XY(M.Xmin, M.Ymax, M.cellsize)
-        d_DF[k]['Pkg1'] = f'{Pkg.lower()}-{k}'
-        d_DF[k]['Pvd_ID'] = d_DF[k].index + 1  # 1-based index
-    DF_reach = M.DF_reach[['rno', 'i', 'j']].ws.Calc_XY(M.Xmin, M.Ymax, M.cellsize)
+        for Pa in l_Pa:
+            PkgN = re.search(r'^.*?\d+', Pa.parent.name).group()
 
-    # %% # Combine all d_DF items into a single DataFrame
+            DF = to_DF(Pa, Pkg=Pkg)  # Load
+            DF = DF.loc[~DF['i'].isin([1, M.N_R]) & ~DF['j'].isin([1, M.N_C]), ['k', 'i', 'j']]  # Remove boundary cells
+            DF = DF.ws.Calc_XY(M.Xmin, M.Ymax, M.cellsize)
+            DF['Pkg1'] = PkgN
+            DF['Pvd_ID'] = DF.index + 1  # 1-based index
+            d_DF[PkgN] = DF
 
     DF_all = pd.concat(d_DF.values(), ignore_index=True)
-    GDF_all = gpd.GeoDataFrame(DF_all, geometry=gpd.points_from_xy(DF_all.X, DF_all.Y), crs=CRS)
+    GDF_all = gpd.GeoDataFrame(DF_all, geometry=gpd.points_from_xy(DF_all.x, DF_all.y), crs=CRS)
     GDF = gpd.sjoin(GDF_all, GDF_Shp, how='inner', predicate='within')
 
     # %% Calculate distances and find closest reach for each DRN point
-    coords = GDF[['X', 'Y']].values
-    reach_coords = DF_reach[['X', 'Y']].values
+    DF_reach = M.DF_reach[['rno', 'i', 'j']].ws.Calc_XY(M.Xmin, M.Ymax, M.cellsize)  # Calc DF_reach XY
+
+    coords = GDF[['x', 'y']].values
+    reach_coords = DF_reach[['x', 'y']].values
     distances = cdist(coords, reach_coords, metric='euclidean')
     min_indices = np.argmin(distances, axis=1)
 
-    # %%Add matched reach data to DRN DataFrame
+    # %% Add matched reach data to DRN DataFrame
     matched_reach_data = DF_reach.iloc[min_indices].reset_index(drop=True)
-    DF_matched = GDF.drop(columns='geometry').copy()
-    DF_matched['Rcv_ID'] = matched_reach_data['rno'].values
-    DF_matched['distance_to_match'] = distances[np.arange(len(coords)), min_indices]
+    DF_match = GDF.drop(columns='geometry').copy()
+    DF_match['Rcv_ID'] = matched_reach_data['rno'].values
+    DF_match['distance_to_match'] = distances[np.arange(len(coords)), min_indices]
 
-    print(f'Combined {len(GDF):,} DRN points from {len(d_DF)} DataFrames')
-    print(f'Matched to {DF_matched["Rcv_ID"].nunique()} unique reaches')
-    print(f'Mean distance: {DF_matched["distance_to_match"].mean():.0f}m')
-    print(f'Perfect matches (same cell): {(DF_matched["distance_to_match"] == 0).sum():,}')
+    sprint(
+        f'Combined {len(GDF):,} points ({Pkgs}) from {len(d_DF)} DataFrames',
+        indent=2,
+        verbose_in=True,
+        verbose_out=M.verbose,
+    )
+    sprint(
+        f'Matched to {DF_match["Rcv_ID"].nunique()} unique reaches', indent=2, verbose_in=True, verbose_out=M.verbose
+    )
+    sprint(
+        f'Mean distance: {DF_match["distance_to_match"].mean():.0f}m', indent=2, verbose_in=True, verbose_out=M.verbose
+    )
+    sprint(
+        f'Perfect matches (same cell): {(DF_match["distance_to_match"] == 0).sum():,}',
+        indent=2,
+        verbose_in=True,
+        verbose_out=M.verbose,
+    )
+
+    # %% Plot connections
+    if M.verbose:
+        DF_match_plot = DF_match.merge(DF_reach, left_on='Rcv_ID', right_on='rno', suffixes=('', '_r'))
+        GDF_match = gpd.GeoDataFrame(
+            DF_match,
+            geometry=[LineString([(r.x, r.y), (r.x_r, r.y_r)]) for _, r in DF_match_plot.iterrows()],
+            crs='EPSG:28992',
+        )  # Create GDF with LineString Geom
+
+        GDF_match = GDF_match.drop(columns=['index_right', 'CATCHMENT_', 'SUM_OPPERV', 'x', 'y']).rename(
+            columns={'distance_to_match': 'distance', 'Pkg1': 'Pkg'}
+        )  # Trim extra Cols + rename
+
+        for Pkg in GDF_match['Pkg'].unique():
+            GDF = GDF_match.loc[GDF_match['Pkg'] == Pkg]
+
+            Pa = M.Pa.PoP / f'In/MVR/{M.MdlN}/{Pkg}_to_SFR_{M.MdlN}.gpkg'
+            Pa.parent.mkdir(parents=True, exist_ok=True)
+            GDF.to_file(Pa)
 
     # %% Prepare DF_w for MVR
-    DF_matched['Pkd2'] = 'sfr'
-    DF_w = DF_matched[['Pkg1', 'Pvd_ID', 'Pkd2', 'Rcv_ID']]
+    DF_match['Pkd2'] = 'sfr'
+    DF_w = DF_match[['Pkg1', 'Pvd_ID', 'Pkd2', 'Rcv_ID']]
     DF_w['MVR_TYPE'] = 'FACTOR'
     DF_w['value'] = 1
-    DF_w
-    ### 4.3.2 Write MVR file
-    Pa_MVR = M.Pa.Sim_In / f'{M.MdlN}_{Pkg.upper()}.MVR6'
+
+    # %% Write MVR file
+    Pa_MVR = M.Pa.Sim_In / f'{M.MdlN}.MVR6'
     with open(Pa_MVR, 'w') as f:
         f.write(f"""BEGIN OPTIONS
     END OPTIONS
 
     BEGIN DIMENSIONS
-        MAXMVR {DF_w.shape[0]}
-        MAXPACKAGES {len(d_DF.keys()) + 1}
+    MAXMVR {DF_w.shape[0]}
+    MAXPACKAGES {len(DF_match['Pkg1'].unique()) + 1}
     END DIMENSIONS
 
     BEGIN PACKAGES
-        {'\n    '.join([f'{Pkg.lower()}-{k}' for k in d_DF.keys()])}
-        sfr
+    {'\n  '.join([k for k in DF_match['Pkg1'].unique()])}
+    sfr
     END PACKAGES
 
     BEGIN PERIOD 1
     """)
-        f.write(DF_w.ws.to_MF_block())
+        f.write(DF_w.ws.to_MF_block(indent=1))
         f.write('END PERIOD')
-    # Insert MVR line to NAM
+
+    # %% Insert MVR line to NAM
     with open(M.Pa.NAM_Mdl, 'r') as f1:
         l_Lns_NAM = f1.readlines()
 
@@ -642,7 +672,8 @@ def Pkg_to_SFR_via_MVR(M: Mdl_N, Pkg, Pa_Shp):  # 666 needs a lot of cleanup and
 
     with open(M.Pa.NAM_Mdl, 'w') as f2:
         f2.writelines(l_Lns_NAM)
-    # Add MOVER option to SFR
+
+    # %% Add MOVER option to SFR
     with open(M.Pa.SFR, 'r') as f1:
         l_Lns_SFR = f1.readlines()
 
@@ -650,9 +681,10 @@ def Pkg_to_SFR_via_MVR(M: Mdl_N, Pkg, Pa_Shp):  # 666 needs a lot of cleanup and
 
     with open(M.Pa.SFR, 'w') as f2:
         f2.writelines(l_Lns_SFR)
-    # Add MOVER option to DRN files
-    for i in d_DF.keys():
-        Pa = list(M.Pa.Sim_In.glob(f'*{i}*.{Pkg.lower()}'))[0]
+
+    # %% Add MOVER option to DRN files
+    for i in DF_match['Pkg1'].unique():
+        Pa = list(M.Pa.Sim_In.rglob(f'{i}*.{i[:3].lower()}'))[0]
         with open((Pa), 'r') as f1:
             l_Lns = f1.readlines()
 

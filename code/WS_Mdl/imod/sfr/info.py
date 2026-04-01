@@ -39,7 +39,7 @@ def SFR_PkgD_to_DF(MdlN: str, Pa_SFR: str = None, Calc_Cond=True, iMOD5: bool = 
 
     DF = DF.convert_dtypes()  # 3. optional: get nullable ints/floats
 
-    if ('X' not in PkgDt_Cols) or ('Y' not in PkgDt_Cols):
+    if ('x' not in PkgDt_Cols) or ('y' not in PkgDt_Cols):
         sprint('🟡 - Coordinates (X, Y columns) not found in PACKAGEDATA. Calculating coordinates from INI file info.')
         Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = M.Dmns
         DF = DF.ws.Calc_XY(Xmin, Ymax, cellsize)
@@ -97,7 +97,7 @@ def reach_to_cell_id(reach: int, GDF_SFR: pd.DataFrame, MdlN=None, reach_Col='rn
     return (L, R, C)
 
 
-def reach_to_XY(reach: int, GDF_SFR: pd.DataFrame, MdlN=None, reach_Col='rno', X_C='X', Y_C='Y'):
+def reach_to_XY(reach: int, GDF_SFR: pd.DataFrame, MdlN=None, reach_Col='rno', X_C='x', Y_C='y'):
     """Returns the X, Y coordinates for a given reach number using the provided SFR GeoDataFrame."""
     if (GDF_SFR is None) and (MdlN is None):
         raise ValueError('Either GDF_SFR or MdlN must be provided.')
