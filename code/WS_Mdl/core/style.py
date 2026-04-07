@@ -67,6 +67,7 @@ def sprint(
     verbose_out: bool = None,
     set_time: bool = False,
     print_time: bool = False,
+    print_time_first: bool = False,
     **kwargs,
 ):
     """
@@ -78,6 +79,10 @@ def sprint(
 
     if verbose_in is not None:
         globals()['set_verbose'](verbose_in)
+
+    if print_time_first:
+        elapsed = time.time() - START_TIME
+        print(f'[{elapsed:.1f} s]', end=' ')
 
     time_str = ''
     if print_time:

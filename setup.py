@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 
 setup(
     name='WS_Mdl',
-    version='0.2.0',
+    version='0.3.0',
     package_dir={'': 'code'},
     packages=find_packages(where='code'),
     install_requires=[
@@ -18,10 +18,7 @@ setup(
             'S_from_B=WS_Mdl.scripts.S_from_B:main',  # Create Run Cfg Fis for S from B, then open them with the default editor.
             'S_from_B_undo=WS_Mdl.scripts.S_from_B_undo:main',  # Deletes the Run Cfg Fis for a MdlN.
             'Dir_Fo_size=WS_Mdl.scripts.Dir_Fo_size:main',  # Gets all directory sizes
-            'map_DVC=WS_Mdl.scripts.map_DVC:main',  # Maps all DVC'd files/directories
             'map_gitignore=WS_Mdl.scripts.map_gitignore:main',  # Maps all DVC'd files/directories
-            'DVC_add_pattern=WS_Mdl.scripts.DVC_add_pattern:main',  # Runs DVC add for all files directly under provided directory.
-            'DVC_add_pattern_deep=WS_Mdl.scripts.DVC_add_pattern_deep:main',  # Runs DVC add for all files directly under provided directory.
             'reset_Sim=WS_Mdl.scripts.reset_Sim:main',  # Resets all Sims to a pre-run state (i.e. .bat, .ini. prj, .smk files are preserved, but MdlN Fo in Sim gets deleted). SHOULD ONLY be used in development stage. Either modify this, or make another function for archiving.
             'remove_Sim_Out=WS_Mdl.scripts.remove_Sim_Out:main',
             'RunMng=WS_Mdl.scripts.RunMng:main',  # Read the RunLog, and for each queued model, run the corresponding Snakemake file.
@@ -37,6 +34,7 @@ setup(
             'Bin_to_text=WS_Mdl.scripts.Bin_to_text:main',  # Converts specific binary files to text format.
             'SFR_stage_TS=WS_Mdl.scripts.SFR_stage_TS:main',  # Plots SFR stage time series for specified models.
             'SFR_Par_to_Rst=WS_Mdl.scripts.SFR_Par_to_Rst:main',  # Creates a raster from an SFR parameter.
+            'WB_Diff=WS_Mdl.scripts.WB_Diff:main',  # Compares the water budget of two models (MdlN and MdlN_B) for a specific date and saves the differences to an Excel file.
         ]
     },
 )

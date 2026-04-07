@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-import sys
 from WS_Mdl.io.sim import RunMng
 
 
