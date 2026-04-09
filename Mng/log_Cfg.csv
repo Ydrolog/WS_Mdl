@@ -107,13 +107,16 @@ No RIV. Via imod python. PRJ: SS blocks removed, otherwise it wouldn't work with
   Main RIV Stg set to SFR AVG summer and winter stage from NBr54. This is to isolate the effects of the difference in data between NBr50 and NBr55. Then NBr54 Vs NBr55 isolates the Diff the method (SFR vs RIV) have on the system.","Queued","Completed"
 "56","NBr","56","NBr56","54","NBr54","MK","Test","SFR maker #2.1: SFR for main SW in Chaamse Beek
 - DRN & RIV connected to SFR.","Queued","Completed"
-"57","NBr","57","NBr57","52","NBr52","MK","Test","B via imod_python
+"57","NBr","57","NBr57","52","NBr52","MK","Test","B (RIV) via imod_python
 - To compare with NBr52, and see if just switching to imod_python causes different results.
 - Had to use new SHD, cause imod_python struggles with nan's (created where idomain=0 from previous Sim (NBr50 HD Out))","Queued","PoPed"
 "58","NBr","58","NBr58","56","NBr56","MK","Test","SFRmaker #2.2: SFR for main SW in Chaamse Beek
-- Used NBr57 SHDs","Queued","Running"
-"0","","","","","","","","0","",""
-"0","","","","","","","","0","",""
+- Used NBr57 SHDs","Queued","Removed Output"
+"59","NBr","59","NBr59","52","NBr52","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #3p4.
+- iMOD5.
+- SHDs from NBr57 so that this Sim can be compared to NBr60 (no difference in SHDs).","Queued",""
+"60","NBr","60","NBr60","57","NBr57","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #3p5.
+- imod_python. Changed code to remove outer boundary cells/SVATs.","Development",""
 "0","","","","","","","","0","",""
 "0","","","","","","","","0","",""
 "0","","","","","","","","0","",""
