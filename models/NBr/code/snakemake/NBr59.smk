@@ -25,7 +25,7 @@ iMOD5       =   True
 M           =   Mdl_N(MdlN, iMOD5=iMOD5)
 workdir:        M.Pa.Mdl
 
-Pa_HD_OBS_WEL   =   M.Pa.MdlN / f'modflow6/imported_model/{MdlN}_GWL.OBS6'
+Pa_HD_OBS_WEL   =   M.Pa.Sim_In / f'{M.MdlN}_GWL.OBS6'
 
 l_Fi_to_git     =   [M.Pa.WS / i for i in ['pixi.toml', 'pixi.lock', 'code/WS_Mdl']] # If any of these code files changes, the 
 git_hash        =   shell(f"git -C {M.Pa.WS} rev-parse HEAD", read=True).strip()
@@ -111,7 +111,7 @@ rule add_HD_OBS_WEL:
         Pa_HD_OBS_WEL
     run:
         from WS_Mdl.imod.mf6.obs import add_GWL_OBS
-        add_GWL_OBS(MdlN, iMOD5=iMOD5)
+        add_GWL_OBS(M=M )
 
 rule add_RIV_OBS:
     input:
@@ -151,7 +151,7 @@ rule Sim: # Runs the simulation via BAT file.
         os.chdir(M.Pa.MdlN) # Change directory to the model folder.
         DT_Sim_Start = DT.now()
         Up_log(MdlN, {  'Sim start DT'  :   DT_Sim_Start.strftime("%Y-%m-%d %H:%M:%S")})
-        sp.run(["cmd.exe", "/c", Pa_BAT_RUN], cwd=Pa_MdlN, check=True)
+        sp.run(["cmd.exe", "/c", M.Pa.BAT_RUN], cwd=M.Pa.MdlN, check=True)
         Path(output[0]).touch() 
         Up_log(MdlN, {  'Sim end DT'    :   DT.now().strftime("%Y-%m-%d %H:%M:%S"),
                         'Sim Dur'       :   get_elapsed_time_str(DT_Sim_Start),
