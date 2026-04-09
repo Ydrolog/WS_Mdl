@@ -677,7 +677,7 @@ def PrSimP(
     )
 
     # ----- Fix storage coefficient
-    MSW_Mdl['infiltration']['extra_storage_coefficient'] = MSW_Mdl['infiltration']['bottom_resistance.values']
+    MSW_Mdl['infiltration']['extra_storage_coefficient'] = 0.01  # MSW_Mdl['infiltration']['bottom_resistance.values']
 
     # ----- Clip models
     sprint('  - Clipping models ...', end='', verbose_in=True, verbose_out=M.verbose, set_time=True)
