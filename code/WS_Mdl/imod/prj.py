@@ -676,6 +676,9 @@ def PrSimP(
         verbose_out=M.verbose,
     )
 
+    # ----- Fix storage coefficient
+    MSW_Mdl['infiltration']['extra_storage_coefficient'] = MSW_Mdl['infiltration']['bottom_resistance.values']
+
     # ----- Clip models
     sprint('  - Clipping models ...', end='', verbose_in=True, verbose_out=M.verbose, set_time=True)
     Sim_MF6_AoI = timed_Exe(Sim_MF6.clip_box, x_min=M.Xmin, x_max=M.Xmax, y_min=M.Ymin, y_max=M.Ymax, pre='')
