@@ -166,7 +166,7 @@ def Diff_to_xlsx(
     )
 
     Pa = Path(Pa).with_suffix('') if isinstance(Pa, str) else Pa.with_suffix('')
-    Pa.parent.mkdir(exist_ok=True)
+    Pa.parent.mkdir(parents=True, exist_ok=True)
 
     # WB closing
     DF_closing = pd.DataFrame()
@@ -188,7 +188,7 @@ def Diff_to_xlsx(
         elif '%' in col:
             DF[col] = DF[col].map(lambda x: f'{x:.1f}' if pd.notna(x) else '')
 
-    DF.to_csv(f'{Pa}.csv', index=True)
+    # DF.to_csv(f'{Pa}.csv', index=True)
     DF_closing.T.to_csv(f'{Pa}_Closing.csv', index=True)
 
     sprint('🟢', print_time_first=True)

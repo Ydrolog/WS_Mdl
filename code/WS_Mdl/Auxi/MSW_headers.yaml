@@ -1,4 +1,16 @@
 {
+    "area_svat.inp": [
+        "SVAT unit",
+        "area",
+        # "soil surface elevation",
+        "temperature at bottom of soil profile",
+        "soil physical unit number / or / soil physical unit descriptive string",
+        "land use type",
+        "root zone thickness / maximum",
+        "meteorological region code number",
+        "local calibration factor for precipitation",
+        "local calibration factor for potential evapotranspiration of reference crop"
+    ],
     "fact_svat.inp": [
         "vegetation type",
         "day number",
@@ -11,6 +23,21 @@
         "factor for ponding",
         "crop height",
         "dynamic root zone depth"
+    ],
+    "idf_svat.inp": [
+        "SVAT unit",
+        "row number of gridcell (MODFLOW style)",
+        "column number of gridcell (MODFLOW style)",
+        "X",
+        "Y"
+    ],
+    "infi_svat.inp": [
+        "SVAT unit",
+        "infiltration capacity of soil surface",
+        "downward flow resistance of soil surface",
+        "upward flow resistance of soil surface",
+        "flow resistance of bottom flux link (c-link)",
+        "extra storage coefficient of phreatic layer"
     ],
     "init_svat.inp": [
         "pF of root zone"
@@ -51,9 +78,7 @@
         "average rainfall intensity, Gash",
         "average evaporation intensity Gash",
         "max. concentration for no salt stress, Maas & Hoffman model",
-        "decline of salt stress coefficient per unit of salt concentration, Maas & Hoffman",
-        "id",
-        "name"
+        "decline of salt stress coefficient per unit of salt concentration, Maas & Hoffman"
     ],
     "mete_grid.inp": [
         "time from 00:00:00",
@@ -68,16 +93,10 @@
         "path\\name humidity grid",
         "path\\name wind speed grid"
     ],
-    "sel_key_svat_per.inp": [
-        "do not include variable in database",
-        "include variable in database, make idf file with unit m (m3 per active m2)",
-        "include variable in database, make idf file, with unit m3",
-        "include variable in database, make idf file, with unit m and m3"
-    ],
-    "tiop_sim.inp": [
-        "time from beginning of year at 00:00:00",
-        "year number",
-        "option number"
+    "mod2svat.inp": [
+        "Modflow-id",
+        "index of SVAT-unit",
+        "layer of SVAT-unit"
     ],
     "para_sim.inp": [
         "vegetation type",
@@ -86,5 +105,52 @@
         "time of crop harvest",
         "Crop type",
         "Type of initialization"
+    ],
+    "scap_svat.inp": [
+        "SVAT unit",
+        "maximum abstraction from groundwater mm/d",
+        "maximum abstraction from surface water mm/d",
+        "maximum abstraction from groundwater m3/d",
+        "fraction of abstraction from surface water m3/d"
+    ],
+    "sel_key_svat_per.inp": [
+        "do not include variable in database",
+        "include variable in database, make idf file with unit m (m3 per active m2)",
+        "include variable in database, make idf file, with unit m3",
+        "include variable in database, make idf file, with unit m and m3"
+    ],
+    "svat2etrefgrid.inp": [
+        "SVAT unit",
+        "row number of ETREF grid",
+        "column number of ETREF grid",
+        # "weight of ETREF grid cell" # Incorectly included by Copilot
+    ],
+    "svat2precgrid.inp": [
+        "SVAT unit",
+        "row number of PREC grid",
+        "column number of PREC grid",
+        # "weight of PREC grid cell" # Incorectly included by Copilot
+    ],
+    "svat2swnr_roff.inp": [
+        "SVAT unit",
+        "surface water location identifier",
+        "micro-storage capacity, =sill of the runoff relationship",
+        "runoff resistance",
+        "runon resistance",
+        "slope fraction of soil surface for Curve Number Method"
+    ],
+    "time_sim.inp": [
+        "time variable"
+    ],
+    "tiop_sim.inp": [
+        "time from beginning of year at 00:00:00",
+        "year number",
+        "option number"
+    ],
+    "uscl_svat.inp": [
+        "SVAT unit",
+        "scaling factor of soil moisture",
+        "scaling factor of conductivity",
+        "scaling factor of pressure head"
     ]
 }
