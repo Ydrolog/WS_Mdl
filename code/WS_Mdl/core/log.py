@@ -71,7 +71,7 @@ def Up_log(MdlN: str, d_Up: dict, Pa_log_Out=Pa_log_Out):  # Pa_log_Out=PJ(Pa_WS
                 input('log.csv is open. Press Enter after closing the file...')  # Wait for user input
 
 
-def get_B(MdlN):
+def get_B(MdlN: str) -> str:
     """Returns the Baseline Sim for a given MdlN, based on the RunLog."""
     S = to_Se(MdlN)
     return S['B MdlN']

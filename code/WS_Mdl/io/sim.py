@@ -9,9 +9,9 @@ from multiprocessing import Pool, cpu_count
 import pandas as pd
 from colored import attr, fg
 from send2trash import send2trash
-from WS_Mdl.core.log import DF_match_MdlN, to_Se
+from WS_Mdl.core.log import DF_match_MdlN, get_B
 from WS_Mdl.core.mdl import Mdl_N
-from WS_Mdl.core.path import MdlN_PaView, Pa_log_Cfg, Pa_log_Out, Pa_WS
+from WS_Mdl.core.path import Pa_log_Cfg, Pa_log_Out, Pa_WS
 from WS_Mdl.core.style import Sep, bold, dim, sprint, style_reset, warn
 
 
@@ -20,30 +20,27 @@ def S_from_B(MdlN: str, iMOD5=False):
 
     sprint(Sep)
     M = Mdl_N(MdlN)
-    MdlN_B = to_Se(MdlN)['B MdlN']
-    M_B = Mdl_N(MdlN_B)
-
-    # Keep explicit iMOD5 override behavior while defaulting to model-native paths.
-    Pa = M.Pa if iMOD5 == (M.V == 'imod5') else MdlN_PaView(MdlN, iMOD5=iMOD5)
-    Pa_B = M_B.Pa if iMOD5 == (M_B.V == 'imod5') else MdlN_PaView(MdlN_B, iMOD5=iMOD5)
+    MdlN_B = get_B(MdlN)
+    MB = Mdl_N(MdlN_B)
 
     # Copy .INI, .bat, .prj and make default (those apply to every Sim) modifications
-    for Pa_B, Pa_S in zip([Pa_B.Smk, Pa_B.BAT, Pa_B.INI, Pa_B.PRJ], [Pa.Smk, Pa.BAT, Pa.INI, Pa.PRJ]):
+    for Pa_B, Pa_S in zip([MB.Pa.Smk, MB.Pa.BAT, MB.Pa.INI, MB.Pa.PRJ], [M.Pa.Smk, M.Pa.BAT, M.Pa.INI, M.Pa.PRJ]):
         try:
             if not Pa_S.exists():  # Replace the MdlN of with the new one, so that we don't have to do it manually.
                 sh.copy2(Pa_B, Pa_S)
                 with open(Pa_S, 'r') as f1:
                     contents = f1.read()
                 with open(Pa_S, 'w') as f2:
-                    f2.write(contents.replace(MdlN_B, MdlN))
-                if Pa_B.suffix.lower() != '.bat':
-                    os.startfile(
-                        Pa_S
-                    )  # Then we'll open it to make any other changes we want to make. Except if it's the BAT file
+                    contents = contents.replace(MdlN_B, MdlN) if Pa_S.suffix.lower() != '.prj' else contents
+                    f2.write(contents)
+                if Pa_S.suffix.lower() == '.smk':
+                    sp.Popen(['code', str(Pa_S)], shell=True)
+                elif Pa_S.suffix.lower() != '.bat':
+                    os.startfile(Pa_S)
                 sprint(f'🟢 - {Pa_S.name:20} created successfully! {dim}(copy of {Pa_B}){style_reset}')
             else:
                 sprint(
-                    f'🟡 - {Pa_S.name:20} already exists. If you want it to be replaced, you have to delete it manually before running this command.'
+                    f'🟡 - {Pa_S.name:20} already exists. If you want it to be replaced, you have to delete it manually before running this command.\nTip: Use S_from_B_undo to delete the existing files.'
                 )
         except Exception as e:
             sprint(f'🔴 - Error copying {Pa_B} to {Pa_S}: {e}')

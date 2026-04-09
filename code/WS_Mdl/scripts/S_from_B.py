@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import sys
+
 from WS_Mdl.io.sim import S_from_B
-from WS_Mdl.io.text import Sim_Cfg
 
 
 def main():
@@ -11,7 +11,6 @@ def main():
 
     for MdlN in sys.argv[1:]:  # Loop through all arguments after the script name
         S_from_B(MdlN)
-        Sim_Cfg(MdlN)
 
 
 if __name__ == '__main__':
