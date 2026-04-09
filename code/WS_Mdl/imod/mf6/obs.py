@@ -12,7 +12,7 @@ from WS_Mdl.core.mdl import Mdl_N
 from WS_Mdl.core.style import Sep, sprint
 
 
-def add_GWL_OBS(MdlN: str, Opt: str = 'BEGIN OPTIONS\nEND OPTIONS', iMOD5=False):
+def add_GWL_OBS(MdlN: str = None, M: Mdl_N = None, Opt: str = 'BEGIN OPTIONS\nEND OPTIONS', iMOD5=False):
     """
     Adds OBS file(s) from PRJ file OBS block to Mdl Sim (which iMOD can't do). Thus the OBS file needs to be written, and then a link to the OBS file needs to be created within the NAM file.
     Assumes OBS IPF file contains the following parameters/columns: 'Id', 'L', 'x', 'y'
@@ -23,7 +23,7 @@ def add_GWL_OBS(MdlN: str, Opt: str = 'BEGIN OPTIONS\nEND OPTIONS', iMOD5=False)
 
     sprint(Sep)
     sprint('Running add_GWL_OBS ...')
-    M = Mdl_N(MdlN)
+    M = Mdl_N(MdlN) if M is None else M
 
     # Read PRJ file to extract OBS block info - list of OBS files to be added.
     l_OBS_lines = r_with_OBS(M.Pa.PRJ)[1]
@@ -37,9 +37,9 @@ def add_GWL_OBS(MdlN: str, Opt: str = 'BEGIN OPTIONS\nEND OPTIONS', iMOD5=False)
         Pa_OBS_IPF = (M.Pa.MdlN / path).resolve()  # path of IPF file. To be read.
         OBS_IPF_Fi = Pa_OBS_IPF.name  # Filename of OBS file to be added to Sim (to be added without ending)
         if i == 0:
-            Pa_OBS = M.Pa.Sim_In / f'{MdlN}_GWL.OBS6'  # path of OBS file. To be written.
+            Pa_OBS = M.Pa.Sim_In / f'{M.MdlN}_GWL.OBS6'  # path of OBS file. To be written.
         else:
-            Pa_OBS = M.Pa.Sim_In / f'{MdlN}_GWL_N{i}.OBS6'  # path of OBS file. To be written.
+            Pa_OBS = M.Pa.Sim_In / f'{M.MdlN}_GWL_N{i}.OBS6'  # path of OBS file. To be written.
 
         DF_OBS_IPF = as_DF(
             Pa_OBS_IPF
@@ -64,7 +64,7 @@ def add_GWL_OBS(MdlN: str, Opt: str = 'BEGIN OPTIONS\nEND OPTIONS', iMOD5=False)
             # sprint(M.Pa.MdlN, path, Pa_OBS_IPF, sep='\n')
             f.write(f'# created from {Pa_OBS_IPF}\n')
             f.write(Opt.encode().decode('unicode_escape'))  # write optional block
-            f.write(f'\n\nBEGIN CONTINUOUS FILEOUT OBS_{MdlN}({OBS_IPF_Fi.split(".")[0]}).csv\n')
+            f.write(f'\n\nBEGIN CONTINUOUS FILEOUT OBS_{M.MdlN}({OBS_IPF_Fi.split(".")[0]}).csv\n')
 
             for _, row in DF_OBS_IPF_MdlAa.drop_duplicates(subset=['Id', 'L', 'R', 'C']).iterrows():
                 f.write(f' {row["Id"]} HEAD {row["L"]} {row["R"]} {row["C"]}\n')
@@ -80,7 +80,7 @@ def add_GWL_OBS(MdlN: str, Opt: str = 'BEGIN OPTIONS\nEND OPTIONS', iMOD5=False)
             Pa_OBS_Rel = Path(Pa_OBS).relative_to(M.Pa.NAM_Sim.parent)
 
             f.write(l_NAM[0])
-            f.write(rf'  OBS6 .\{Pa_OBS_Rel} OBS_{MdlN}')  # ({OBS_IPF_Fi.split(".")[0]})')
+            f.write(rf'  OBS6 .\{Pa_OBS_Rel} OBS_{M.MdlN}')  # ({OBS_IPF_Fi.split(".")[0]})')
             f.write('\nEND PACKAGES')
 
             f.flush()
