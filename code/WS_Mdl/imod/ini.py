@@ -71,7 +71,7 @@ def Mdl_Dmns(Pa_INI):
     return Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C
 
 
-def Mdl_Aa(Pa_INI):
+def Mdl_area(Pa_INI):
     """Returns the (total) area of the model grid from the INI file of the model."""
 
     d = as_d(Pa_INI)

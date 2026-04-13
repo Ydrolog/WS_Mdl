@@ -44,19 +44,19 @@ def add_GWL_OBS(MdlN: str = None, M: Mdl_N = None, Opt: str = 'BEGIN OPTIONS\nEN
         DF_OBS_IPF = as_DF(
             Pa_OBS_IPF
         )  # Get list of OBS items (without temporal dimension, as it's uneccessary for the OBS file, and takes ages to load)
-        DF_OBS_IPF_MdlAa = DF_OBS_IPF.loc[
+        DF_OBS_IPF_Mdlarea = DF_OBS_IPF.loc[
             ((DF_OBS_IPF['X'] > M.Xmin) & (DF_OBS_IPF['X'] < M.Xmax))
             & ((DF_OBS_IPF['Y'] > M.Ymin) & (DF_OBS_IPF['Y'] < M.Ymax))
-        ].copy()  # Slice to OBS within the Mdl Aa (using INI window)
+        ].copy()  # Slice to OBS within the Mdl area (using INI window)
 
-        DF_OBS_IPF_MdlAa['C'] = ((DF_OBS_IPF_MdlAa['X'] - M.Xmin) / M.cellsize).astype(
+        DF_OBS_IPF_Mdlarea['C'] = ((DF_OBS_IPF_Mdlarea['X'] - M.Xmin) / M.cellsize).astype(
             np.int32
         ) + 1  # Calculate Cs. Xmin at the origin of the model.
-        DF_OBS_IPF_MdlAa['R'] = (-(DF_OBS_IPF_MdlAa['Y'] - M.Ymax) / M.cellsize).astype(
+        DF_OBS_IPF_Mdlarea['R'] = (-(DF_OBS_IPF_Mdlarea['Y'] - M.Ymax) / M.cellsize).astype(
             np.int32
         ) + 1  # Calculate Rs. Ymax at the origin of the model.
 
-        DF_OBS_IPF_MdlAa.sort_values(
+        DF_OBS_IPF_Mdlarea.sort_values(
             by=['L', 'R', 'C'], ascending=[True, True, True], inplace=True
         )  # Let's sort the DF by L, R, C
 
@@ -66,7 +66,7 @@ def add_GWL_OBS(MdlN: str = None, M: Mdl_N = None, Opt: str = 'BEGIN OPTIONS\nEN
             f.write(Opt.encode().decode('unicode_escape'))  # write optional block
             f.write(f'\n\nBEGIN CONTINUOUS FILEOUT OBS_{M.MdlN}({OBS_IPF_Fi.split(".")[0]}).csv\n')
 
-            for _, row in DF_OBS_IPF_MdlAa.drop_duplicates(subset=['Id', 'L', 'R', 'C']).iterrows():
+            for _, row in DF_OBS_IPF_Mdlarea.drop_duplicates(subset=['Id', 'L', 'R', 'C']).iterrows():
                 f.write(f' {row["Id"]} HEAD {row["L"]} {row["R"]} {row["C"]}\n')
 
             f.write('END CONTINUOUS\n')

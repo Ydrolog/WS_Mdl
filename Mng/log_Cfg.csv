@@ -114,10 +114,11 @@ No RIV. Via imod python. PRJ: SS blocks removed, otherwise it wouldn't work with
 - Used NBr57 SHDs","Queued","Removed Output"
 "59","NBr","59","NBr59","52","NBr52","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #3p4.
 - iMOD5.
-- SHDs from NBr57 so that this Sim can be compared to NBr60 (no difference in SHDs).","Queued",""
+- SHDs from NBr57 so that this Sim can be compared to NBr60 (no difference in SHDs).","Queued","Running"
 "60","NBr","60","NBr60","57","NBr57","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #3p5.
+- imod_python. Change extra storage coefficient of phreatic layer to NaN (in infi_svat.inp).","Queued","Completed"
+"61","NBr","61","NBr61","60","NBr60","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #3p5.
 - imod_python. Changed code to remove outer boundary cells/SVATs.","Development",""
-"0","","","","","","","","0","",""
 "0","","","","","","","","0","",""
 "0","","","","","","","","0","",""
 "0","","","","","","","","0","",""

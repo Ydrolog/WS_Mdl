@@ -13,7 +13,7 @@ from WS_Mdl.imod import ini, prj
 from WS_Mdl.imod.msw.meteo import to_XA
 from WS_Mdl.imod.prj import r_with_OBS
 from WS_Mdl.imod.sfr.info import SFR_PkgD_to_DF, get_SFR_OBS_Out_Pas, reach_to_cell_id, reach_to_XY
-from WS_Mdl.imod.xr import clip_Mdl_Aa
+from WS_Mdl.imod.xr import clip_Mdl_area
 from WS_Mdl.viz.ts import SFR_reach_TS
 from WS_Mdl.xr.spatial import get_value
 
@@ -96,8 +96,8 @@ def stage_TS(
         print(f'Invalid system number. It should be >= 1 & <= {PRJ_RIV["(riv)"]["n_system"]}.')
         return
 
-    A_RIV_Stg = clip_Mdl_Aa(imod.idf.open(PRJ_RIV['(riv)']['stage'][N_system_RIV - 1]['path']), MdlN=MdlN)
-    A_RIV_Btm = clip_Mdl_Aa(imod.idf.open(PRJ_RIV['(riv)']['bottom_elevation'][N_system_RIV - 1]['path']), MdlN=MdlN)
+    A_RIV_Stg = clip_Mdl_area(imod.idf.open(PRJ_RIV['(riv)']['stage'][N_system_RIV - 1]['path']), MdlN=MdlN)
+    A_RIV_Btm = clip_Mdl_area(imod.idf.open(PRJ_RIV['(riv)']['bottom_elevation'][N_system_RIV - 1]['path']), MdlN=MdlN)
 
     print('🟢')
     if A_RIV_Btm.notnull().sum().values == (A_RIV_Btm == A_RIV_Stg).sum().values:
@@ -128,16 +128,16 @@ def stage_TS(
         print(f'Invalid system number. It should be >= 1 & <= {PRJ["(drn)"]["n_system"]}.')
         return
 
-    A_DRN_Elv = clip_Mdl_Aa(imod.idf.open(PRJ['(drn)']['elevation'][N_system_DRN - 1]['path']), MdlN=MdlN)
+    A_DRN_Elv = clip_Mdl_area(imod.idf.open(PRJ['(drn)']['elevation'][N_system_DRN - 1]['path']), MdlN=MdlN)
     print('🟢')
 
     print(' -- Loading TOP BOT data...', end='')
     l_Pa_TOP = [i['path'] for i in PRJ['(top)']['top']]
-    A_TOP = clip_Mdl_Aa(
+    A_TOP = clip_Mdl_area(
         imod.idf.open(l_Pa_TOP, pattern=r'TOP_L{layer}_{name}'), MdlN=MdlN
     )  # We're just doing this to avoid errors - using {name} to capture the model number part - imod will use it for the DataArray name.
     l_Pa_BOT = [i['path'] for i in PRJ['(bot)']['bottom']]
-    A_BOT = clip_Mdl_Aa(imod.idf.open(l_Pa_BOT, pattern=r'BOT_L{layer}_{name}'), MdlN=MdlN)
+    A_BOT = clip_Mdl_area(imod.idf.open(l_Pa_BOT, pattern=r'BOT_L{layer}_{name}'), MdlN=MdlN)
     print('🟢')
 
     # Get layers relevant for SFR (HDS output can be too big to load to memory, and it's also efficient to just save the relevant layers)

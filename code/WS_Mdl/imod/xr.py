@@ -4,7 +4,7 @@ from WS_Mdl.core.style import sprint
 from WS_Mdl.imod.ini import Mdl_Dmns
 
 
-def clip_Mdl_Aa(
+def clip_Mdl_area(
     xr_data: xra.DataArray | xra.Dataset,
     MdlN: str = None,
     Pa_INI: str = None,

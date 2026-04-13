@@ -165,7 +165,7 @@ How to use:
 
 ## imod/msw/read.py
 - [ ] FILE imod/msw/read.py <!-- id:file:imod/msw/read.py -->
-  - [ ] FUNCTION MSW_In_to_DF (L9) <!-- id:func:imod/msw/read.py:MSW_In_to_DF -->
+  - [ ] FUNCTION In_Fi_to_DF (L9) <!-- id:func:imod/msw/read.py:In_Fi_to_DF -->
 
 ## imod/pop/gxg.py
 - [ ] FILE imod/pop/gxg.py <!-- id:file:imod/pop/gxg.py -->

@@ -1,10 +1,10 @@
 # ---------- Model Number related Functions ----------
 import re
 from datetime import datetime as DT
+from functools import cached_property
 
-from WS_Mdl.imod.ini import INIView, Mdl_Aa, Mdl_Dmns
+from WS_Mdl.imod.ini import INIView, Mdl_area, Mdl_Dmns
 
-from .log import get_B
 from .path import MdlN_PaView, imod_V
 from .style import set_verbose
 
@@ -25,7 +25,7 @@ class Mdl_N:
         'Pa': 'Paths view for the model',
         'INI': 'INI file content view',
         'Dmns': 'tuple: Xmin, Ymin, Xmax, Ymax, dx, dy (Model dimensions)',
-        'Mdl_Aa': 'float: Model Area',
+        'Mdl_area': 'float: Model Area',
         'Xmin': 'float: Minimum X coordinate',
         'Ymin': 'float: Minimum Y coordinate',
         'Xmax': 'float: Maximum X coordinate',
@@ -35,8 +35,6 @@ class Mdl_N:
         'N_C': 'int: Number of columns in the model grid',
         'SP_1st': 'str: Start date of the model simulation period (YYYY-MM-DD)',
         'SP_last': 'str: End date of the model simulation period (YYYY-MM-DD)',
-        'B': 'str: Baseline Model Number (e.g., "NBr18")',
-        'Pa_B': 'Paths view for the Baseline Model',
         '__dict__': 'dict: allow dynamic attributes',
     }
 
@@ -62,15 +60,29 @@ class Mdl_N:
         self.INI = INIView(self.Pa.INI)
         if self.INI:
             self.Dmns = Mdl_Dmns(self.Pa.INI)
-            self.Mdl_Aa = Mdl_Aa(self.Pa.INI)
+            self.Mdl_area = Mdl_area(self.Pa.INI)
             self.Xmin, self.Ymin, self.Xmax, self.Ymax, self.cellsize, self.N_R, self.N_C = Mdl_Dmns(self.Pa.INI)
             self.SP_1st, self.SP_last = [
                 DT.strftime(DT.strptime(self.INI[f'{i}'], '%Y%m%d'), '%Y-%m-%d') for i in ['SDATE', 'EDATE']
             ]
+            self.cell_area = self.cellsize**2
         set_verbose(True)
 
-        self.B = get_B(MdlN)
-        self.Pa_B = MdlN_PaView(self.B, iMOD5=(self.V == 'imod5'))
+    @cached_property
+    def B(self):
+        from .log import get_B
+
+        return get_B(self.MdlN)
+
+    @cached_property
+    def Pa_B(self):
+        return MdlN_PaView(self.B, iMOD5=(self.V == 'imod5'))
+
+    @cached_property
+    def MSW_In(self):
+        from WS_Mdl.imod.msw.input import MSW_In
+
+        return MSW_In(self)
 
     @property
     def vars(self):

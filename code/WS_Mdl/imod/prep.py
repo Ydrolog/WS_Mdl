@@ -45,7 +45,7 @@ def Sim(
     M.verbose = verbose
     sprint('🟢', verbose_in=True, verbose_out=verbose, print_time=True)
 
-    # %% Load PRJ & regrid it to Mdl Aa
+    # %% Load PRJ & regrid it to Mdl area
     sprint('--- imod PrSimP from PRJ file.', verbose_in=True, verbose_out=verbose)
     M.Sim_MF6, M.MSW_Mdl = timed_Exe(PrSimP, M)
 

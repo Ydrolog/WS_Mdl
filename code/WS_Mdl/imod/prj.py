@@ -492,7 +492,7 @@ def to_TIF(MdlN, iMOD5=False):
                 DF_IPF = imod.formats.ipf.read(R['path'])
                 DF_IPF = DF_IPF.loc[
                     ((DF_IPF['x'] > Xmin) & (DF_IPF['x'] < Xmax)) & ((DF_IPF['y'] > Ymin) & (DF_IPF['y'] < Ymax))
-                ].copy()  # Slice to OBS within the Mdl Aa
+                ].copy()  # Slice to OBS within the Mdl area
 
                 if ('q_m3' in DF_IPF.columns) and ('id' not in DF_IPF.columns):
                     DF_IPF.rename(
@@ -637,10 +637,10 @@ def PrSimP(
     PRJ_regrid = timed_Exe(regrid, PRJ, M.MdlN)  # Speeds up Mdl load.
 
     # Set outer boundaries to -1. Otherwise CHD won't be loaded properly.
-    BND = PRJ_regrid['bnd']['ibound']
-    BND.loc[:, [BND.y[0], BND.y[-1]], :] = -1  # Top and bottom rows
-    BND.loc[:, :, [BND.x[0], BND.x[-1]]] = -1  # Left and right columns
-    sprint('🟢', verbose_in=True, verbose_out=M.verbose, print_time=True)
+    # BND = PRJ_regrid['bnd']['ibound']
+    # BND.loc[:, [BND.y[0], BND.y[-1]], :] = -1  # Top and bottom rows
+    # BND.loc[:, :, [BND.x[0], BND.x[-1]]] = -1  # Left and right columns
+    # sprint('🟢', verbose_in=True, verbose_out=M.verbose, print_time=True)
 
     # ----- Load MF6 Simulation
     times = pd.date_range(M.SP_1st, M.SP_last, freq='D')
@@ -675,9 +675,13 @@ def PrSimP(
         verbose_in=True,
         verbose_out=M.verbose,
     )
+    # %% ----- Deactivate MSW first and last row/Col. Assuming that MF has a CHD there. #666 needs to be improved so that it checks the actual CHD and deactivates the cells that have a CHD.
+    MSW_active = MSW_Mdl.data['grid']['active']
+    MSW_active.loc[dict(y=MSW_active.y[[0, -1]])] = False
+    MSW_active.loc[dict(x=MSW_active.x[[0, -1]])] = False
 
     # ----- Fix storage coefficient
-    MSW_Mdl['infiltration']['extra_storage_coefficient'][:] = 0.01  # Can't set to -999.9 as only 0.01-1 allowed
+    # MSW_Mdl['infiltration']['extra_storage_coefficient'][:] = 0.01  # Can't set to -999.9 as only 0.01-1 allowed # Relic. this values has no impact on the Sim.
 
     # ----- Clip models
     sprint('  - Clipping models ...', end='', verbose_in=True, verbose_out=M.verbose, set_time=True)
@@ -700,7 +704,7 @@ def PrSimP(
     # ----- Create mask from current regridded model (not the old one)
     sprint('  - Creating mask ...', end='', verbose_in=True, verbose_out=M.verbose, set_time=True)
     mask = MF6_Mdl_AoI.domain
-    # 666 mask needs to be checked and potentially updated with -1 values at the edge of the Mdl Aa.
+    # 666 mask needs to be checked and potentially updated with -1 values at the edge of the Mdl area.
     Sim_MF6_AoI.mask_all_models(mask)
     DIS_AoI = MF6_Mdl_AoI['dis']
     sprint('🟢', verbose_in=True, verbose_out=M.verbose, print_time=True)
