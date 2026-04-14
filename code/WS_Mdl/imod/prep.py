@@ -44,7 +44,7 @@ def Sim(
     M.Pa.MF6_DLL = Pa_MF6_DLL if Pa_MF6_DLL else M.Pa.MF6_DLL  # If not specified, the default location will be used.
     M.Pa.MSW_DLL = Pa_MSW_DLL if Pa_MSW_DLL else M.Pa.MSW_DLL
     M.verbose = verbose
-    M.Bin_Ins
+    M.Bin_Ins = Bin_Ins
     sprint('🟢', verbose_in=True, verbose_out=verbose, print_time=True)
 
     # %% Load PRJ & regrid it to Mdl area
