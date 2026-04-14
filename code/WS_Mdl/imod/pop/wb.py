@@ -21,7 +21,7 @@ def Diff_to_xlsx(
     Pa_Out: str | None = None,
     verbose: bool = True,
     open_after: bool = True,
-):  # 666 add option to do cumulative of just for that SP
+):
     """
     Compares the water budget of two models (MdlN and MdlN_B) for a specific date and saves the differences to an Excel file.
     - date: YYYY-MM-DD
