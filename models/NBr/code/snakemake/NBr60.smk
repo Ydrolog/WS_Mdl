@@ -91,7 +91,7 @@ rule Mdl_Prep: # Prepares Sim Ins (from Ins) via BAT file.
         M.Pa.NAM_Sim
     run:
         from WS_Mdl.imod.prep import Sim
-        Sim(MdlN = MdlN, verbose=True, SFR=False)
+        Sim(MdlN = MdlN, verbose=True, SFR=False, Bin_Ins=False)
 
 # ## -- PrSimP --
 rule add_HD_OBS_WEL:

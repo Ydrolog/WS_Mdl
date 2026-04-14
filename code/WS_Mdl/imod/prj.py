@@ -649,7 +649,7 @@ def PrSimP(
         PRJ_regrid,
         period_data,
         times,
-        pre='  - Loading MF6 Simulation ...',
+        pre='🟢\n  - Loading MF6 Simulation ...',
         post='🟢',
         verbose_in=True,
         verbose_out=M.verbose,
