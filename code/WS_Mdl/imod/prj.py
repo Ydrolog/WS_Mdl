@@ -748,7 +748,7 @@ def PrSimP(
         post='🟢',
         verbose_in=True,
         verbose_out=M.verbose,
-        binary=M.Bin_Ins,  # If True, writes Ins in Bin format.
+        modflow6_write_kwargs={'binary': M.Bin_Ins},  # If True, writes Ins in Bin format.
     )
     add_missing_Cols(M.Pa.Pa_MdlN / 'metaswap/mete_grid.inp')
 
