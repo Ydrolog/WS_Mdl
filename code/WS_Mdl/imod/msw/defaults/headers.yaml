@@ -3,9 +3,10 @@
     "area_svat.inp": [
         "SVAT unit",
         "area",
-        # "soil surface elevation",
+        "soil surface elevation",
         "temperature at bottom of soil profile",
-        "soil physical unit number / or / soil physical unit descriptive string",
+        "soil physical unit number",
+        "soil physical unit descriptive string",
         "land use type",
         "root zone thickness / maximum",
         "meteorological region code number",

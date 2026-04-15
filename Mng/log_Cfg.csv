@@ -119,7 +119,7 @@ No RIV. Via imod python. PRJ: SS blocks removed, otherwise it wouldn't work with
 - imod_python. Change extra storage coefficient of phreatic layer to NaN (in infi_svat.inp).
 - imod_python. Changed code to remove outer boundary cells/SVATs.","Queued","PoPed"
 "61","NBr","61","NBr61","60","NBr60","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #3.1.3.
-- Trying corrected MSW areas (replacing area_svat.inp with g:\code\Jupyter\PoP\compare_Ins\area_svat_NBr61.inp).","Queued",""
+- Trying corrected MSW areas (replacing area_svat.inp with g:\code\Jupyter\PoP\compare_Ins\area_svat_NBr61.inp).","Queued","PoPed"
 "0","","","","","","","","0","",""
 "0","","","","","","","","0","",""
 "0","","","","","","","","0","",""

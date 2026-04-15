@@ -137,6 +137,7 @@ rule fix_MSW_area:
         log_fix_MSW_area
     run:
         sh.copy2(r"g:\code\Jupyter\PoP\compare_Ins\area_svat_NBr61.inp", M.Pa.MSW / "area_svat.inp")
+        Path(output[0]).touch() # Create the file to mark the rule as done.
 
 ## -- Sim ---
 rule Sim: # Runs the simulation via BAT file.

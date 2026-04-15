@@ -11,7 +11,6 @@ import pandas as pd
 import xarray as xra
 import yaml
 from WS_Mdl.core.mdl import Mdl_N
-from WS_Mdl.core.path import Pa_WS
 from WS_Mdl.core.style import sprint
 
 
@@ -22,8 +21,8 @@ def to_DF(Pa: Path | str) -> pd.DataFrame:
     Pa = Path(Pa)
     Fi = Pa.name.lower()
 
-    d_headers = yaml.safe_load(open(Pa_WS / 'code/WS_Mdl/Auxi/MSW_headers.yaml'))
-    d_colspecs = yaml.safe_load(open(Pa_WS / 'code/WS_Mdl/Auxi/MSW_colspecs.yaml'))
+    d_headers = yaml.safe_load(open(Path(__file__).parent / 'defaults/headers.yaml'))
+    d_colspecs = yaml.safe_load(open(Path(__file__).parent / 'defaults/colspecs.yaml'))
 
     try:
         status = '🟢'
