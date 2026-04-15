@@ -41,6 +41,7 @@ def add_OBS_to_MF_In(str_OBS, PKG=None, MdlN=None, Pa=None, iMOD5=False):
     elif (MdlN is not None) and (PKG is not None):
         M = Mdl_N(MdlN)
         Pa_view = M.Pa if iMOD5 == (M.V == 'imod5') else MdlN_PaView(MdlN, iMOD5=iMOD5)
+        print('----------', Pa_view)
         Pa = Pa_view.Sim_In / f'{MdlN}.{PKG}6'
     else:
         raise ValueError('Either Pa or both MdlN and PKG must be provided.')

@@ -123,12 +123,15 @@ def add_within_polygon(
                 'DF': pd.read_csv(
                     f,
                     sep=r'\s+',
-                    names=d_Pkg_Cols[Pkg.upper()],
+                    names=[col[0] for col in d_Pkg_Cols[Pkg.upper()]],
                     usecols=range(len(d_Pkg_Cols[Pkg.upper()])),
                     header=None,
+                    skipfooter=12,  # Footer contains dimensions
+                    engine='python',
                 ),
             }
             for f in M.Pa.Sim_In.rglob(f'{Pkg.lower()}*.arr')
+            if not f.open().readline().startswith('# DIMENSIONS')  # Skip empty files (only have dimensions)
         }
     )
 
@@ -162,10 +165,14 @@ def add_within_polygon(
                 f.write('END CONTINUOUS FILEOUT\n')
 
             # Add to MF_In
-            text = f' OBS6 FILEIN ./imported_model/{Fi}' if M.V == 'imod_python' else f' OBS6 ./GWF_1/MODELIMPUT/{Fi}'
+            text = (
+                f' OBS6 FILEIN ./imported_model/{Fi}'
+                if M.V == 'imod_python'
+                else f' OBS6 FILEIN ./GWF_1/MODELINPUT/{Fi}'
+            )
             Pa = (
                 M.Pa.Sim_In / f'{S}.{Pkg.lower()}'
                 if M.V == 'imod_python'
-                else M.Pa.Sim_In / f'{S.upper()}.{Pkg.upper()}6'
+                else M.Pa.Sim_In / f'{MdlN}_{S.split("_")[-1].upper()}.{Pkg.upper()}6'
             )
             add_OBS_to_MF_In(str_OBS=text, Pa=Pa, iMOD5=False)
