@@ -96,3 +96,7 @@ def MF6_block_to_DF(
         DF.columns = [f'col_{i}' for i in range(DF.shape[1])]
 
     return DF
+
+
+def test():
+    print('test')

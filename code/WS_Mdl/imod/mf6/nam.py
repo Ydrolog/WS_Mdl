@@ -22,3 +22,7 @@ def add_PKG(MdlN, str_PKG, iMOD5=False):
         for i in l_lines:
             f.write(i)
         f.write('END PACKAGES')
+
+
+def test():
+    print('test')
