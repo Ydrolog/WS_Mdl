@@ -2,14 +2,13 @@ import os
 import shutil as sh
 import stat
 import subprocess as sp
-import sys
 from datetime import datetime as DT
 from multiprocessing import Pool, cpu_count
 
 import pandas as pd
 from colored import attr, fg
 from send2trash import send2trash
-from WS_Mdl.core.log import DF_match_MdlN, get_B
+from WS_Mdl.core.log import DF_match_MdlN, Up_log, get_B
 from WS_Mdl.core.mdl import Mdl_N
 from WS_Mdl.core.path import Pa_log_Cfg, Pa_log_Out, Pa_WS
 from WS_Mdl.core.style import Sep, bold, dim, sprint, style_reset, warn
@@ -108,7 +107,7 @@ def _RunSim(args):
         return (Se_Ln['MdlN'], False, str(e))
 
 
-def RunMng(cores=None, DAG: bool = True, Cct_Sims=None, no_temp: bool = True):
+def RunMng(cores=None, DAG: bool = True, Cct_Sims=None, no_temp: bool = True, freeze_env: str = 'before'):
     """
     Read the RunLog, and for each queued model, run the corresponding Snakemake file.
 
@@ -116,8 +115,13 @@ def RunMng(cores=None, DAG: bool = True, Cct_Sims=None, no_temp: bool = True):
         cores: Number of cores to allocate to each Snakemake process
         DAG: Whether to generate a DAG visualization
         Cct_Sims: Number of models to run simultaneously (defaults to number of available cores)
+        freeze_env: When to freeze env/code snapshot in git. One of: 'before', 'after', 'off'.
     """
     os.chdir(Pa_WS)
+
+    freeze_env = freeze_env.lower()
+    if freeze_env not in {'before', 'after', 'off'}:
+        raise ValueError("freeze_env must be one of: 'before', 'after', 'off'.")
 
     if cores is None:
         cores = max(
@@ -150,6 +154,20 @@ def RunMng(cores=None, DAG: bool = True, Cct_Sims=None, no_temp: bool = True):
     if DF_q.empty:
         sprint('\n🟡🟡🟡 - No queued runs found in the RunLog.')
     else:
+        l_MdlN = DF_q['MdlN'].tolist()
+
+        if freeze_env == 'before':
+            try:
+                git_hash, git_tag = freeze_pixi_env('RunMng')
+                for MdlN in l_MdlN:
+                    Up_log(MdlN, {'Git hash': git_hash, 'Git tag': git_tag})
+                sprint(f'🟢 Env snapshot set before run: {git_hash} ({git_tag})')
+            except RuntimeError as e:
+                sprint(f'🔴🔴🔴 - Failed to freeze env before run: {e}')
+                sprint('RunMng aborted before starting Snakemake jobs.')
+                sprint(Sep)
+                return
+
         # Prepare arguments for multiprocessing
         args = [(i, row, cores_per_Sim, DAG, no_temp) for i, row in DF_q.iterrows()]
 
@@ -168,6 +186,19 @@ def RunMng(cores=None, DAG: bool = True, Cct_Sims=None, no_temp: bool = True):
             else:
                 model_id, success, error = result
                 sprint(f'🔴🔴 Model {model_id} failed: {error}')
+
+        if freeze_env == 'after':
+            all_success = all(result[1] for result in results)
+            if all_success:
+                try:
+                    git_hash, git_tag = freeze_pixi_env('RunMng')
+                    for MdlN in l_MdlN:
+                        Up_log(MdlN, {'Git hash': git_hash, 'Git tag': git_tag})
+                    sprint(f'🟢 Env snapshot set after run: {git_hash} ({git_tag})')
+                except RuntimeError as e:
+                    sprint(f'🔴 - Sims finished but env freeze after run failed: {e}')
+            else:
+                sprint('🟡 Skipping env freeze after run because one or more Sims failed.')
 
     sprint(Sep)
 
@@ -434,7 +465,17 @@ def run_cmd(cmd, check=True, capture=False):
     return sp.run(cmd, check=check, capture_output=capture, text=True)
 
 
-def freeze_pixi_env(MdlN: str):
+def _current_git_commit_and_tag():
+    """Returns current HEAD hash and tag description."""
+    git_hash = run_cmd(['git', 'rev-parse', 'HEAD'], capture=True).stdout.strip()
+    try:
+        git_tag = run_cmd(['git', 'describe', '--tags', '--always', 'HEAD'], capture=True).stdout.strip() or '-'
+    except sp.CalledProcessError:
+        git_tag = '-'
+    return git_hash, git_tag
+
+
+def freeze_pixi_env(MdlN: str, lock_timeout_s: int = 120):
     """
     Freezes the current Python environment by committing changes to tracked files in the git repository.
     The pixi env freezes everything in pixi.lock. The only package that's not included in pixi.lock (WS_Mdl) can also be restored to a previous state by checking out a specific commit.
@@ -444,47 +485,44 @@ def freeze_pixi_env(MdlN: str):
         Pa_WS / i for i in ['pixi.toml', 'pixi.lock', 'code/WS_Mdl']
     ]  # If any of these code files changes, the env needs to be frozen.
 
+    from filelock import FileLock, Timeout
+
+    Pa_freeze_lock = Pa_WS / '.git' / 'freeze_pixi_env.lock'
+    lock = FileLock(str(Pa_freeze_lock))
+
     try:
-        # Ensure we are in repo root
-        Pa_repo = run_cmd(['git', 'rev-parse', '--show-toplevel'], capture=True).stdout.strip()
-        sprint(f'Repo root: {Pa_repo}')
+        with lock.acquire(timeout=lock_timeout_s):
+            # Ensure we are in repo root
+            Pa_repo = run_cmd(['git', 'rev-parse', '--show-toplevel'], capture=True).stdout.strip()
+            sprint(f'Repo root: {Pa_repo}')
 
-        # Check for changes in the relevant files
-        diff_cmd = ['git', 'status', '--porcelain'] + l_Fi_to_track
-        changes = run_cmd(diff_cmd, capture=True).stdout.strip()
+            # Check for changes in the relevant files
+            diff_cmd = ['git', 'status', '--porcelain'] + l_Fi_to_track
+            changes = run_cmd(diff_cmd, capture=True).stdout.strip()
 
-        if not changes:
-            sprint('⚪️⚪️⚪️ No changes to tracked env/code files. Nothing to commit.')
-            return None, None
+            if not changes:
+                sprint('⚪️⚪️⚪️ No changes to tracked env/code files. Nothing to commit.')
+                return _current_git_commit_and_tag()
 
-        sprint('🟢 Changes detected:\n' + changes)
+            sprint('🟢 Changes detected:\n' + changes)
 
-        # Stage changes
-        run_cmd(['git', 'add'] + l_Fi_to_track)
-        sprint('🟢 Staged changes.')
+            # Stage changes
+            run_cmd(['git', 'add'] + l_Fi_to_track)
+            sprint('🟢 Staged changes.')
 
-        # Commit with timestamp
-        now = DT.now().strftime('%Y-%m-%d %H:%M:%S')
-        commit_msg = f'#auto {MdlN} env snapshot - {now}'
-        run_cmd(['git', 'commit', '-m', commit_msg])
+            # Commit with timestamp
+            now = DT.now().strftime('%Y-%m-%d %H:%M:%S')
+            commit_msg = f'#auto {MdlN} env snapshot - {now}'
+            run_cmd(['git', 'commit', '-m', commit_msg])
 
-        # Get the commit hash of the just-created commit
-        commit_hash = run_cmd(['git', 'rev-parse', 'HEAD'], capture=True).stdout.strip()
-        sprint(f'🟢 Commit hash: {commit_hash}')
-
-        # Get the tag of the latest commit (if any)
-        try:
-            tag_result = run_cmd(['git', 'describe', '--tags', '--always', 'HEAD'], capture=True)
-            tag = tag_result.stdout.strip()
+            commit_hash, tag = _current_git_commit_and_tag()
+            sprint(f'🟢 Commit hash: {commit_hash}')
             sprint(f'🟢 Tag: {tag}')
-        except sp.CalledProcessError:
-            tag = '-'
-            sprint('⚪️ No tag found for this commit. Only the hash will be recorded.')
+            sprint(f"🟢🟢🟢 Committed changes with message: '{commit_msg}'")
 
-        sprint(f"🟢🟢🟢 Committed changes with message: '{commit_msg}'")
+            return commit_hash, tag
 
-        return commit_hash, tag
-
+    except Timeout as e:
+        raise RuntimeError(f'Could not acquire freeze lock within {lock_timeout_s}s: {Pa_freeze_lock}') from e
     except sp.CalledProcessError as e:
-        print(f'🔴🔴🔴 Error running command: {e}', file=sys.stderr)
-        sys.exit(1)
+        raise RuntimeError(f'Error running git command: {e}') from e
