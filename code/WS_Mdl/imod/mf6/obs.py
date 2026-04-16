@@ -135,6 +135,10 @@ def add_within_polygon(
         }
     )
 
+    if not d:
+        print(f'No {Pkg} files found in {M.Pa.Sim_In}')
+        return
+
     for S in d:
         d[S]['DF']['N'] = d[S]['DF']['i'].index + 1
         Sys = re.findall(r'\d+', S)[-1]

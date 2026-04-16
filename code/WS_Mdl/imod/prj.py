@@ -633,8 +633,15 @@ def PrSimP(
     )
     PRJ, period_data = PRJ_[0], PRJ_[1]
 
-    sprint('  - Regridding PRJ ...', end='', verbose_in=True, verbose_out=M.verbose, set_time=True)
-    PRJ_regrid = timed_Exe(regrid, PRJ, M.MdlN)  # Speeds up Mdl load.
+    PRJ_regrid = timed_Exe(
+        regrid,
+        PRJ,
+        M.MdlN,
+        pre='  - Regridding PRJ ...',
+        post='🟢',
+        verbose_in=True,
+        verbose_out=M.verbose,
+    )  # Speeds up Mdl load.
 
     # Set outer boundaries to -1. Otherwise CHD won't be loaded properly.
     # BND = PRJ_regrid['bnd']['ibound']
