@@ -244,7 +244,7 @@ def o_with_OBS(Pa_PRJ, return_OBS=False):
         return PRJ
 
 
-def regrid(PRJ, MdlN: str = None, x_CeCes=None, y_CeCes=None, method='linear'):
+def regrid(PRJ, MdlN: str = None, x_CeCes=None, y_CeCes=None, method='linear', verbose=False):
     """
     Regrid all spatial data in PRJ to target discretization.
     If x_CeCes and y_CeCes are provided, they will be used as the target grid.
@@ -272,7 +272,7 @@ def regrid(PRJ, MdlN: str = None, x_CeCes=None, y_CeCes=None, method='linear'):
     PRJ_regridded = {}
 
     for key, data in PRJ.items():
-        sprint(f'Processing {key}...')
+        sprint(f'Processing {key}...', verbose_in=verbose)
 
         if isinstance(data, dict):
             # Handle nested dictionaries (like 'cap', 'bnd')
@@ -287,14 +287,14 @@ def regrid(PRJ, MdlN: str = None, x_CeCes=None, y_CeCes=None, method='linear'):
     return PRJ_regridded
 
 
-def regrid_DA(DA, x_CeCes, y_CeCes, dx, dy, item_name, method='linear'):
+def regrid_DA(DA, x_CeCes, y_CeCes, dx, dy, item_name, method='linear', verbose=False):
     """Handle regridding of individual DA items"""
 
     item_name_lower = item_name.lower()
 
     # Skip if not xarray or no spatial dimensions
     if not hasattr(DA, 'dims') or not ('x' in DA.dims and 'y' in DA.dims):
-        sprint(f'  {item_name}: ⚪️ - No spatial dims - keeping original')
+        sprint(f'  {item_name}: ⚪️ - No spatial dims - keeping original', verbose_in=verbose)
         return DA
 
     # Check if DA is already on target grid before doing anything
@@ -316,7 +316,7 @@ def regrid_DA(DA, x_CeCes, y_CeCes, dx, dy, item_name, method='linear'):
                 coords_match = False
 
         if same_resolution and same_size and coords_match:
-            sprint(f'  {item_name}: ⚫️ - Already on target grid')
+            sprint(f'  {item_name}: ⚫️ - Already on target grid', verbose_in=verbose)
             return DA
 
     # Handle special DA types
@@ -334,7 +334,7 @@ def regrid_DA(DA, x_CeCes, y_CeCes, dx, dy, item_name, method='linear'):
 
         # Attach dx and dy attributes to the regridded DataArray
         regridded = regridded.assign_coords(dx=dx, dy=dy)
-        sprint(f'  {item_name}: 🟢 - Area field regridded with grid ratio scaling')
+        sprint(f'  {item_name}: 🟢 - Area field regridded with grid ratio scaling', verbose_in=verbose)
         return regridded
 
     # Option A: Interpolate first, then clip to target bounds
@@ -344,7 +344,7 @@ def regrid_DA(DA, x_CeCes, y_CeCes, dx, dy, item_name, method='linear'):
 
         # Attach dx and dy attributes to the regridded DataArray
         regridded = regridded.assign_coords(dx=dx, dy=dy)
-        sprint(f'  {item_name}: 🟢 - {DA.sizes} -> {regridded.sizes}. Method: {method}.')
+        sprint(f'  {item_name}: 🟢 - {DA.sizes} -> {regridded.sizes}. Method: {method}.', verbose_in=verbose)
         return regridded
     except Exception as e:
         sprint(f'  {item_name}: 🔴 - Regridding failed ({e}) - keeping original')
