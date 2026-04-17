@@ -17,17 +17,24 @@ os.environ["PYTHONUNBUFFERED"] = "1"        # Set Python to unbuffered mode (out
 # --- Variables ---
 
 ## Options
-MdlN        =   "NBr61"
-iMOD5       =   False
+MdlN        =   "NBr62"
+MdlN_SFR_GPkg = 'NBr54'
 MdlN_MM_B   =   'NBr13'
+iMOD5       =   False
 
 ## Paths
 M           =   Mdl_N(MdlN, iMOD5=iMOD5)
 workdir:        M.Pa.Mdl
 
+Pa_SFR_GPkg = M.Pa.In / f'SFR/{MdlN_SFR_GPkg}/WBD_1ry_SW_NW_cleaned_{MdlN_SFR_GPkg}.gpkg'
+Pa_SW_Cond_A = M.Pa.WS / r"models\NBr\In\RIV\RIV_Cond_DETAILWATERGANGEN_NBr1.IDF"
+Pa_SW_Cond_B = M.Pa.WS / r"models\NBr\In\RIV\RIV_Cond_DRN_NBr1.IDF"
+Pa_SFR_OBS_In = M.Pa.In / 'OBS/SFR/NBr40/NBr40_SFR_OBS_Pnt.csv'
+Pa_Shp_catchment = M.Pa.WS / r'models\NBr\PoP\common\Pgn\Chaamse_beek\catchment_chaamsebeek_ulvenhout.shp'
+
 Pa_HD_OBS_WEL   =   M.Pa.MdlN / f'modflow6/imported_model/{MdlN}_GWL.OBS6'
 
-## Temp files (for completion validation)
+## Temp files - for completion validation. If you want to re-run a rule, delete the coresponding temp file.
 Pa_temp             =   M.Pa.Smk.parent / 'temp'
 log_Init            =   Pa_temp / f"Log_init_{MdlN}"
 log_RIV_OBS         =   Pa_temp / f"Log_RIV_OBS_{MdlN}"
@@ -37,6 +44,7 @@ log_Sim             =   Pa_temp / f"Log_Sim_{MdlN}"
 log_PRJ_to_TIF      =   Pa_temp / f"Log_PRJ_to_TIF_{MdlN}"
 log_GXG             =   Pa_temp / f"Log_GXG_{MdlN}"
 log_Up_MM           =   Pa_temp / f"Log_Up_MM_{MdlN}"
+
 
 # --- Rules ---
 
@@ -74,10 +82,20 @@ rule Mdl_Prep: # Prepares Sim Ins (from Ins) via BAT file.
     output:
         M.Pa.NAM_Sim
     run:
-        from WS_Mdl.imod.prep import Sim
-        Sim(MdlN = MdlN, verbose=True, SFR=False)
+        from WS_Mdl.imod.prep import Sim, SFR_settings
+        SFR_Cfg = SFR_settings( Pa_Cond_A = Pa_SW_Cond_A,
+                                Pa_Cond_B = Pa_SW_Cond_B,
+                                Pa_Gpkg = Pa_SFR_GPkg,
+                                Pa_OBS_In = Pa_SFR_OBS_In,
+                                connect_Pkgs=('DRN', 'RIV'),
+                                Pa_Shp_connect_Pkgs = Pa_Shp_catchment,
+                                )
+        Sim(MdlN = MdlN,
+            verbose=True,
+            SFR=SFR_Cfg)
 
-# ## -- PrSimP --
+## -- PrSimP --
+
 rule add_HD_OBS_WEL:
     input:
         M.Pa.NAM_Sim
@@ -86,32 +104,6 @@ rule add_HD_OBS_WEL:
     run:
         from WS_Mdl.imod.mf6.obs import add_GWL_OBS
         add_GWL_OBS(MdlN, iMOD5=iMOD5)
-
-rule add_RIV_OBS:
-    input:
-        M.Pa.NAM_Sim,
-    output:
-        log_RIV_OBS
-    run:
-        from WS_Mdl.imod.mf6.obs import add_within_polygon
-        add_within_polygon(Pa_Shp =  r'G:\models\NBr\PoP\common\Pgn\Chaamse_beek\catchment_chaamsebeek_ulvenhout.shp',
-            MdlN = MdlN,
-            Pkg = 'RIV',
-            Opt = """BEGIN OPTIONS\n  DIGITS 4\n  PRINT_INPUT\nEND OPTIONS\n\n""")
-        Path(output[0]).touch() # Create the file to mark the rule as done.
-
-rule add_DRN_OBS:
-    input:
-        M.Pa.NAM_Sim
-    output:
-        log_DRN_OBS
-    run:
-        from WS_Mdl.imod.mf6.obs import add_within_polygon
-        add_within_polygon(Pa_Shp =  r'G:\models\NBr\PoP\common\Pgn\Chaamse_beek\catchment_chaamsebeek_ulvenhout.shp',
-            MdlN = MdlN,
-            Pkg = 'DRN',
-            Opt = """BEGIN OPTIONS\n DIGITS 4\n  PRINT_INPUT\nEND OPTIONS\n\n""")
-        Path(output[0]).touch() # Create the file to mark the rule as done.
 
 rule fix_MSW_area:
     input:
@@ -126,8 +118,6 @@ rule fix_MSW_area:
 rule Sim: # Runs the simulation via BAT file.
     input:
         Pa_HD_OBS_WEL,
-        log_RIV_OBS,
-        log_DRN_OBS,
         log_fix_MSW_area
     output:
         temp(log_Sim)
