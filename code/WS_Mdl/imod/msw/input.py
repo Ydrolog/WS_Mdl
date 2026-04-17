@@ -21,6 +21,7 @@ def to_DF(Pa: Path | str) -> pd.DataFrame:
     Pa = Path(Pa)
     Fi = Pa.name.lower()
 
+    # Get headers and colspecs, as in MSW documentation. Necessary cause the files have no headers and fixed width columns.
     d_headers = yaml.safe_load(open(Path(__file__).parent / 'defaults/headers.yaml'))
     d_colspecs = yaml.safe_load(open(Path(__file__).parent / 'defaults/colspecs.yaml'))
 

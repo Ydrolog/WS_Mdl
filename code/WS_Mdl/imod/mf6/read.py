@@ -78,19 +78,27 @@ def MF6_block_to_DF(
 
     text = ''.join(buffer)
 
+    # If explicit names are provided, treat all rows as data and keep those names.
+    explicit_names = read_csv_kwargs.get('names')
+
     # Determine how pandas will treat headers inside *text*
-    pandas_header = None if header_line is not None else (0 if has_header else None)
+    if explicit_names is not None:
+        pandas_header = None
+    else:
+        pandas_header = None if header_line is not None else (0 if has_header else None)
 
     DF = pd.read_csv(
         StringIO(text),
-        delim_whitespace=True,  # MF6 tables are whitespace-delimited
+        sep='\s+',  # MF6 tables are whitespace-delimited
         header=pandas_header,
         comment=None,  # comments were already handled
         **read_csv_kwargs,
     )
 
     # Apply column names logic
-    if header_line is not None:
+    if explicit_names is not None:
+        pass
+    elif header_line is not None:
         DF.columns = re.split(r'\s+', header_line.strip())
     elif not has_header:
         DF.columns = [f'col_{i}' for i in range(DF.shape[1])]

@@ -84,6 +84,12 @@ class Mdl_N:
 
         return MSW_In(self)
 
+    @cached_property
+    def Pkgs(self):  # Refers to MF6 packages, as the pack
+        from WS_Mdl.imod.mf6.nam import l_Pkgs
+
+        return l_Pkgs(self.MdlN)
+
     @property
     def vars(self):
         """Return all slotted attributes and their current values as a dict."""
