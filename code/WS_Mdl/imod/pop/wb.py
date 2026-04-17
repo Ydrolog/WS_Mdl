@@ -56,8 +56,8 @@ def Diff_to_xlsx(
     # Combine DFs + Drop extra rows.
     S_1 = DF_1.loc[DF_1.index == date].squeeze()
     S_2 = DF_2.loc[DF_2.index == date].squeeze()
-    S_1.index = S_1.index.str.upper()
-    S_2.index = S_2.index.str.upper()
+    S_1.index = S_1.index.astype(str).str.upper()
+    S_2.index = S_2.index.astype(str).str.upper()
 
     DF_MF6 = pd.DataFrame(data={MdlN: S_1, MdlN_B: S_2})  # .squeeze(), MdlN_B: S_2.squeeze()})
     DF_MF6.drop(
