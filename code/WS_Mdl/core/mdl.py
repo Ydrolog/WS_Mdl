@@ -62,6 +62,7 @@ class Mdl_N:
             self.Dmns = Mdl_Dmns(self.Pa.INI)
             self.Mdl_area = Mdl_area(self.Pa.INI)
             self.Xmin, self.Ymin, self.Xmax, self.Ymax, self.cellsize, self.N_R, self.N_C = Mdl_Dmns(self.Pa.INI)
+            self.N_L_cells = self.N_R * self.N_C
             self.SP_1st, self.SP_last = [
                 DT.strftime(DT.strptime(self.INI[f'{i}'], '%Y%m%d'), '%Y-%m-%d') for i in ['SDATE', 'EDATE']
             ]
