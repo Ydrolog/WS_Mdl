@@ -27,7 +27,7 @@ def from_HD_Out(MdlN: str, date_B_YMD: str, MdlN_B: bool | str = True, fill_NA: 
     date_S_YMD = DT.strftime(date_B + timedelta(days=1), '%Y%m%d')
 
     # 1. Read HD. Select SP. Fill NA (linear, then nearest). Save as IDF.
-    HDs = imod.mf6.open_hds(M_B.Pa.HD_Out_Bin, M_B.Pa.DIS_GRB, simulation_start_time=date_B).sel(time=date_B).compute()
+    HDs = imod.mf6.open_hds(M_B.Pa.HD_Out_Bin, M_B.Pa.GRB, simulation_start_time=date_B).sel(time=date_B).compute()
 
     if fill_NA:
         from WS_Mdl.xr.fill_na import all_layers

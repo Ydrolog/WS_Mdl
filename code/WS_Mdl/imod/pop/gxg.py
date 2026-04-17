@@ -40,7 +40,7 @@ def HD_Bin_GXG_to_MBTIF(
     set_verbose(True)
 
     # 1. Load & trim Bin HD file
-    DA_HD = imod.mf6.open_hds(hds_path=M.Pa.HD_Out_Bin, grb_path=M.Pa.DIS_GRB)
+    DA_HD = imod.mf6.open_hds(hds_path=M.Pa.HD_Out_Bin, grb_path=M.Pa.GRB)
     dates = pd.date_range(start=str(start_year), periods=DA_HD.time.size, freq=f'{IDT}D')
     DA_HD = DA_HD.assign_coords(time=dates)  # Assign to DA_HD
     DA_HD = DA_HD.where(DA_HD.time.dt.year.isin(l_years), drop=True).sel(layer=l_Ls)  # Select specific years and layers

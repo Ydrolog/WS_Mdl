@@ -120,7 +120,7 @@ def MdlN_Pa(MdlN: str, MdlN_B: str | bool | None = None, iMOD5: bool = None):
         # Post-run
         d_Pa['HD_Out_IDF'] = d_Pa['MdlN'] / 'GWF_1/MODELOUTPUT/HEAD' if iMOD5 else None
         d_Pa['HD_Out_Bin'] = d_Pa['Sim_In'] / 'imported_model.hds' if not iMOD5 else d_Pa['HD_Out_IDF'] / 'HEAD.HED'
-        d_Pa['DIS_GRB'] = d_Pa['Sim_In'] / f'{MdlN.upper()}.DIS6.grb' if iMOD5 else d_Pa['Sim_In'] / 'dis.dis.grb'
+        d_Pa['GRB'] = d_Pa['Sim_In'] / f'{MdlN.upper()}.DIS6.grb' if iMOD5 else d_Pa['Sim_In'] / 'dis.dis.grb'
         d_Pa['PoP_Out_MdlN'] = d_Pa['PoP'] / 'Out' / MdlN
         d_Pa['MM'] = d_Pa['PoP_Out_MdlN'] / f'MM-{MdlN}.qgz'
 

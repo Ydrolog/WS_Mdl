@@ -161,7 +161,7 @@ def stage_TS(
         try:
             A_HD_ = imod.mf6.open_hds(
                 hds_path=Pa.HD_Out_Bin,
-                grb_path=Pa.DIS_GRB,
+                grb_path=Pa.GRB,
                 simulation_start_time=pd.to_datetime(SP_date_1st),
                 time_unit='d',
             ).astype('float32')
@@ -172,7 +172,7 @@ def stage_TS(
         try:
             A_HD_RIV_ = imod.mf6.open_hds(
                 hds_path=Pa_RIV.HD_Out_Bin,
-                grb_path=Pa_RIV.DIS_GRB,
+                grb_path=Pa_RIV.GRB,
                 simulation_start_time=pd.to_datetime(SP_date_1st_RIV),
                 time_unit='d',
             ).astype('float32')
