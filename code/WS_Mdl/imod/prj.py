@@ -639,7 +639,7 @@ def PrSimP(
         M.MdlN,
         pre='  - Regridding PRJ ...',
         post='🟢',
-        verbose_in=False,
+        verbose_in=True,
         verbose_out=M.verbose,
     )  # Speeds up Mdl load.
 

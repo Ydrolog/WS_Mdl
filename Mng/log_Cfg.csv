@@ -122,7 +122,8 @@ No RIV. Via imod python. PRJ: SS blocks removed, otherwise it wouldn't work with
 - Testing MSW area_svat patch.","Queued",""
 "62","NBr","62","NBr62","58","NBr58","MK","Test","SFRmaker #2.3: SFR for main SW in Chaamse Beek
 - area_svat patch (from NBr61) applied to SFR Sim","Queued",""
-"0","","","","","","","","0","",""
+"63","NBr","63","NBr63","61","NBr61","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #3.1.4.
+- CHD fix - BND=-1 at the outer boundaries so CHD is read properly from PRJ.","Queued","Running"
 "0","","","","","","","","0","",""
 "0","","","","","","","","0","",""
 "0","","","","","","","","0","",""
