@@ -697,8 +697,8 @@ def PrSimP(
     for Pkg in [i for i in MF6_Mdl.keys() if ('riv' in i.lower()) or ('drn' in i.lower())]:
         for Par, A in list(MF6_Mdl[Pkg].dataset.items()):
             if 'x' in A.coords and 'y' in A.coords:
-                A = A.where(~edge, np.nan)
-                sprint(f'- {Pkg}{Par} edge removed', indent=2, verbose_in=True, verbose_out=M.verbose)
+                MF6_Mdl[Pkg].dataset[Par] = A.where(~edge, np.nan)
+                sprint(f'- {Pkg}|{Par} edge removed', indent=2, verbose_in=True, verbose_out=M.verbose)
 
     # %% ----- Fix storage coefficient
     # MSW_Mdl['infiltration']['extra_storage_coefficient'][:] = 0.01  # Can't set to -999.9 as only 0.01-1 allowed # Relic. this values has no impact on the Sim.
