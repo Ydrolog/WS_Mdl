@@ -682,10 +682,23 @@ def PrSimP(
         verbose_in=True,
         verbose_out=M.verbose,
     )
-    # %% ----- Deactivate MSW first and last row/Col. Assuming that MF has a CHD there. #666 needs to be improved so that it checks the actual CHD and deactivates the cells that have a CHD.
+    # %% ----- Deactivate first and last row/Col from MSW, RIV, DRN. Assuming that MF has a CHD there. #666 needs to be improved so that it checks the actual CHD and deactivates the cells that have a CHD.
+    edge = (
+        (MF6_DIS.dataset.x == MF6_DIS.dataset.x[0])
+        | (MF6_DIS.dataset.x == MF6_DIS.dataset.x[-1])
+        | (MF6_DIS.dataset.y == MF6_DIS.dataset.y[0])
+        | (MF6_DIS.dataset.y == MF6_DIS.dataset.y[-1])
+    )
+
     MSW_active = MSW_Mdl.data['grid']['active']
     MSW_active.loc[dict(y=MSW_active.y[[0, -1]])] = False
     MSW_active.loc[dict(x=MSW_active.x[[0, -1]])] = False
+
+    for Pkg in [i for i in MF6_Mdl.keys() if ('riv' in i.lower()) or ('drn' in i.lower())]:
+        for Par, A in list(MF6_Mdl[Pkg].dataset.items()):
+            if 'x' in A.coords and 'y' in A.coords:
+                A = A.where(~edge, np.nan)
+                sprint(f'- {Pkg}{Par} edge removed', indent=2, verbose_in=True, verbose_out=M.verbose)
 
     # %% ----- Fix storage coefficient
     # MSW_Mdl['infiltration']['extra_storage_coefficient'][:] = 0.01  # Can't set to -999.9 as only 0.01-1 allowed # Relic. this values has no impact on the Sim.

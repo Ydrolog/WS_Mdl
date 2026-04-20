@@ -3,7 +3,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from .defaults import d_Pkg_Cols
+from .headers import d_Pkg_Cols
 
 
 def to_DF(Pa_Bin: str | Path, Pkg: str = 'DRN') -> pd.DataFrame:

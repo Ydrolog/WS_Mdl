@@ -101,7 +101,7 @@ def add_within_polygon(
     from WS_Mdl.imod.mf6.bin import to_DF
     from WS_Mdl.imod.mf6.write import add_OBS_to_MF_In
 
-    from .defaults import d_Pkg_Cols
+    from .headers import d_Pkg_Cols
 
     M = Mdl_N(MdlN)
 
