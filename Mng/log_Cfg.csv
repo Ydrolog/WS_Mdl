@@ -119,13 +119,16 @@ No RIV. Via imod python. PRJ: SS blocks removed, otherwise it wouldn't work with
 - imod_python. Change extra storage coefficient of phreatic layer to NaN (in infi_svat.inp).
 - imod_python. Changed code to remove outer boundary cells/SVATs.","Queued","PoPed"
 "61","NBr","61","NBr61","60","NBr60","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #3.1.3.
-- Testing MSW area_svat patch.","Queued",""
+- Testing MSW area_svat patch.","Queued","PoPed"
 "62","NBr","62","NBr62","58","NBr58","MK","Test","SFRmaker #2.3: SFR for main SW in Chaamse Beek
-- area_svat patch (from NBr61) applied to SFR Sim","Queued",""
+- area_svat patch (from NBr61) applied to SFR Sim","Queued","PoPed"
 "63","NBr","63","NBr63","61","NBr61","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #3.1.4.
-- CHD fix - BND=-1 at the outer boundaries so CHD is read properly from PRJ.","Queued","Running"
-"0","","","","","","","","0","",""
-"0","","","","","","","","0","",""
+- CHD fix - BND=-1 at the outer boundaries so CHD is read properly from PRJ.","Queued","PoPed"
+"64","NBr","64","NBr64","63","NBr63","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #3.1.5.
+- Removed outer boundary from all MF6 packages (like imod5 does).","Queued","PoPed"
+"65","NBr","65","NBr65","59","NBr59","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #3.1.1.
+- iMOD5.
+- DRN Sys3 patch.","Queued","Completed"
 "0","","","","","","","","0","",""
 "0","","","","","","","","0","",""
 "0","","","","","","","","0","",""
