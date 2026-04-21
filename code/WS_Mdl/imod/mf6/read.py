@@ -89,7 +89,7 @@ def MF6_block_to_DF(
 
     DF = pd.read_csv(
         StringIO(text),
-        sep='\s+',  # MF6 tables are whitespace-delimited
+        sep=r'\s+',  # MF6 tables are whitespace-delimited
         header=pandas_header,
         comment=None,  # comments were already handled
         **read_csv_kwargs,

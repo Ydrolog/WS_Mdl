@@ -21,6 +21,7 @@ def Diff_to_xlsx(
     Pa_Out: str | None = None,
     verbose: bool = True,
     open_after: bool = True,
+    save_closing_error: bool = False,
 ):
     """
     Compares the water budget of two models (MdlN and MdlN_B) for a specific date and saves the differences to an Excel file.
@@ -177,19 +178,22 @@ def Diff_to_xlsx(
     DF_closing['MF SUM % error'] = DF_closing['MF SUM'] / DF_closing['MF ABS SUM'] * 100
     DF_closing['MSW SUM % error'] = DF_closing['MSW SUM'] / DF_closing['MSW ABS SUM'] * 100
 
-    if sum_Pkg and net_only:
+    if sum_Pkg and net_only:  # This is the most common use case. The template is designed for this.
         WB_save_with_template(DF, Pa_template, 'Diff', Pa.with_suffix('.xlsx'))
+    else:  # In other cases, just save as CSV.
+        DF.to_csv(Pa.with_suffix('.csv'), index=True)
 
     # Write to CSV
     # Reformatting values manually before saving, so CSV retains comma separators
-    for col in DF.columns:
-        if col not in ['Diff_%', 'Parameter']:
-            DF[col] = DF[col].map(lambda x: f'{x:,.0f}' if pd.notna(x) else '')
-        elif '%' in col:
-            DF[col] = DF[col].map(lambda x: f'{x:.1f}' if pd.notna(x) else '')
+    # for col in DF.columns:
+    #     if col not in ['Diff_%', 'Parameter']:
+    #         DF[col] = DF[col].map(lambda x: f'{x:,.0f}' if pd.notna(x) else '')
+    #     elif '%' in col:
+    #         DF[col] = DF[col].map(lambda x: f'{x:.1f}' if pd.notna(x) else '')
 
     # DF.to_csv(f'{Pa}.csv', index=True)
-    DF_closing.T.to_csv(f'{Pa}_Closing.csv', index=True)
+    if save_closing_error:
+        DF_closing.T.to_csv(f'{Pa}_Closing.csv', index=True)
 
     sprint('🟢', print_time_first=True)
     sprint(Sep)

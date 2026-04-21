@@ -16,6 +16,8 @@ from WS_Mdl.imod.idf import HD_Out_to_DF
 from WS_Mdl.xr.compare import Diff_MBTIF
 from WS_Mdl.xr.convert import to_MBTIF, to_TIF
 
+__all__ = ['HD_Bin_GXG_to_MBTIF', 'GXG_Diff', 'HD_IDF_GXG_to_TIF']
+
 
 def HD_Bin_GXG_to_MBTIF(
     MdlN, start_year='from_INI', end_year='from_INI', IDT='from_INI', GVG=False, l_Ls=[1, 3, 5, 7, 9]
@@ -105,7 +107,12 @@ def GXG_Diff(MdlN_1, MdlN_2):
     """
 
     Pa_PoP_GXG = Mdl_N(MdlN_1).Pa.PoP_Out_MdlN / 'GXG'
+    Pa_PoP_GXG.mkdir(parents=True, exist_ok=True)
     l_GXG_Fi = [i for i in Pa_PoP_GXG.iterdir() if i.is_file() and i.suffix == '.tif']
+
+    if not l_GXG_Fi:
+        print(f"🔴 - No GXG .tif files found for '{MdlN_1}' in: {Pa_PoP_GXG}")
+        return
 
     for Fi in l_GXG_Fi:
         Pa_TIF_1 = Pa_PoP_GXG / Fi.name
