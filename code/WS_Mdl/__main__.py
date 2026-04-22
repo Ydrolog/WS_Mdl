@@ -144,7 +144,29 @@ def _discover_exports() -> dict[str, list[str]]:
 def _print_usage() -> None:
     """Print CLI usage help."""
     print('Usage: WS_Mdl <function_name> [arguments ...]')
+    print('       WS_Mdl <function_name> key=value [key=value ...]')
     print('       WS_Mdl --list')
+
+
+def _parse_cli_value(value: str):
+    """Parse a CLI token value into a basic Python type when safe."""
+    low = value.lower()
+    low = True if low == 'true' else False if low == 'false' else None if low == 'none' else low
+
+    try:
+        return int(value)
+    except ValueError:
+        pass
+
+    try:
+        return float(value)
+    except ValueError:
+        pass
+
+    if (value.startswith('"') and value.endswith('"')) or (value.startswith("'") and value.endswith("'")):
+        return value[1:-1]
+
+    return value
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -180,10 +202,20 @@ def main(argv: list[str] | None = None) -> int:
             print(f' - {name}')
         return 0
 
-    # Treat first argument as function name, remaining args as raw positional
-    # string arguments passed directly to the target callable.
+    # Treat first argument as function name and parse remaining tokens into
+    # positional args and key=value kwargs.
     function_name = argv[0]
-    args = argv[1:]
+    args: list[object] = []
+    kwargs: dict[str, object] = {}
+    for token in argv[1:]:
+        if '=' in token:
+            key, value = token.split('=', 1)
+            if not key:
+                print(f"Error: Invalid keyword argument '{token}'.")
+                return 1
+            kwargs[key] = _parse_cli_value(value)
+        else:
+            args.append(token)
 
     # Find candidate module(s) exporting this name.
     candidate_modules = exports.get(function_name, [])
@@ -214,8 +246,7 @@ def main(argv: list[str] | None = None) -> int:
             return 1
 
         try:
-            # Arguments are passed as strings; conversion is handled by target func.
-            result = func(*args)
+            result = func(*args, **kwargs)
         except TypeError as exc:
             # Usually indicates wrong number/type of positional arguments.
             print(f"Error calling '{function_name}' from {module_name}: {exc}")

@@ -13,6 +13,8 @@ from WS_Mdl.core.mdl import Mdl_N
 from WS_Mdl.core.path import Pa_log_Cfg, Pa_log_Out, Pa_WS
 from WS_Mdl.core.style import Sep, bold, dim, sprint, style_reset, warn
 
+__all__ = ['RunMng']
+
 
 def S_from_B(MdlN: str, iMOD5=False):
     """Copies files that contain Sim options from the B Sim, renames them for the S Sim, and opens them in the default file editor. Assumes default WS_Mdl folder structure (as described in READ_ME.MD)."""

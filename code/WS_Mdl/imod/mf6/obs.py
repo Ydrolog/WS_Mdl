@@ -105,6 +105,30 @@ def add_within_polygon(
 
     M = Mdl_N(MdlN)
 
+    pkg_cols = [c[0] for c in d_Pkg_Cols[Pkg.upper()]]
+
+    def _read_pkg_table(
+        path: Path, skiprows: int = 0, skipfooter: int = 0
+    ) -> pd.DataFrame:  # 666 This can be improved: move it to a new file, so it can be re-used for all MF6 In loading.
+        DF = pd.read_csv(
+            path,
+            sep=r'\s+',
+            header=None,
+            skiprows=skiprows,
+            skipfooter=skipfooter,
+            engine='python',
+        )
+
+        n_file = DF.shape[1]
+        n_base = len(pkg_cols)
+
+        if n_file < n_base:
+            raise ValueError(f'{path.name}: expected at least {n_base} cols, found {n_file}')
+
+        extra = [f'aux{i}' for i in range(1, n_file - n_base + 1)]
+        DF.columns = pkg_cols + extra
+        return DF
+
     # Load Shp
     if Pa_Shp is not None:
         GDF_Shp = gpd.read_file(Pa_Shp)
@@ -120,15 +144,7 @@ def add_within_polygon(
         else {
             f.parents[1].name + '_' + f.parent.name: {
                 'path': f,
-                'DF': pd.read_csv(
-                    f,
-                    sep=r'\s+',
-                    names=[col[0] for col in d_Pkg_Cols[Pkg.upper()]],
-                    usecols=range(len(d_Pkg_Cols[Pkg.upper()])),
-                    header=None,
-                    skipfooter=12,  # Footer contains dimensions
-                    engine='python',
-                ),
+                'DF': _read_pkg_table(f, skipfooter=12),  # Footer contains dimensions
             }
             for f in M.Pa.Sim_In.rglob(f'{Pkg.lower()}*.arr')
             if not f.open().readline().startswith('# DIMENSIONS')  # Skip empty files (only have dimensions)
@@ -141,12 +157,10 @@ def add_within_polygon(
         d = {
             f.parent.name: {
                 'path': f,
-                'DF': pd.read_csv(f, sep=r'\s+', skiprows=1, names=[col[0] for col in d_Pkg_Cols[Pkg.upper()]][:-1]),
+                'DF': _read_pkg_table(f, skiprows=1),
             }
             for f in M.Pa.Sim_In.rglob(f'{Pkg.lower()}*0.dat')
         }
-    return d
-    print(d.keys())
 
     if not d:
         raise FileNotFoundError(f'🔴 - No {Pkg} files found  in {M.Pa.Sim_In}')
