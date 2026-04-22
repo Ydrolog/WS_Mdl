@@ -111,8 +111,7 @@ def GXG_Diff(MdlN_1, MdlN_2):
     l_GXG_Fi = [i for i in Pa_PoP_GXG.iterdir() if i.is_file() and i.suffix == '.tif']
 
     if not l_GXG_Fi:
-        print(f"🔴 - No GXG .tif files found for '{MdlN_1}' in: {Pa_PoP_GXG}")
-        return
+        raise FileNotFoundError(f"🔴 - No GXG .tif files found for '{MdlN_1}' in: {Pa_PoP_GXG}")
 
     for Fi in l_GXG_Fi:
         Pa_TIF_1 = Pa_PoP_GXG / Fi.name

@@ -1,7 +1,7 @@
 ## --- Imports ---
 from WS_Mdl.core.mdl import Mdl_N
 from WS_Mdl.core.log import Up_log
-from WS_Mdl.io.sim import freeze_pixi_env, get_elapsed_time_str
+from WS_Mdl.io.sim import get_elapsed_time_str
 
 from snakemake.io import temp
 from datetime import datetime as DT
@@ -10,8 +10,8 @@ import subprocess as sp
 import os
 import shutil as sh
 import sys
-sys.stdout.reconfigure(encoding='utf-8')    # Set stdout encoding to UTF-8
-sys.stderr.reconfigure(encoding='utf-8')    # Set stderr encoding to UTF-8
+sys.stdout.reconfigure(encoding='utf-8', line_buffering=True, write_through=True)    # Set stdout encoding to UTF-8
+sys.stderr.reconfigure(encoding='utf-8', line_buffering=True, write_through=True)    # Set stderr encoding to UTF-8
 os.environ["PYTHONUNBUFFERED"] = "1"        # Set Python to unbuffered mode (output is written immediately)
 
 # --- Variables ---
@@ -27,18 +27,13 @@ workdir:        M.Pa.Mdl
 
 Pa_HD_OBS_WEL   =   M.Pa.Sim_In / f'{M.MdlN}_GWL.OBS6'
 
-l_Fi_to_git     =   [M.Pa.WS / i for i in ['pixi.toml', 'pixi.lock', 'code/WS_Mdl']] # If any of these code files changes, the 
-git_hash        =   shell(f"git -C {M.Pa.WS} rev-parse HEAD", read=True).strip()
-git_tag         =   shell(f"git -C {M.Pa.WS} describe --tags --always", read=True, allow_error=True).strip() or "no_tag"
-
 ## Temp files (for completion validation)
 Pa_temp             =   M.Pa.Smk.parent / 'temp'
-log_freeze_env      =   Pa_temp / f"Log_freeze_env_{MdlN}"
 log_Init            =   Pa_temp / f"Log_init_{MdlN}"
-log_Sim             =   Pa_temp / f"Log_Sim_{MdlN}"
 log_RIV_OBS         =   Pa_temp / f"Log_RIV_OBS_{MdlN}"
 log_DRN_OBS         =   Pa_temp / f"Log_DRN_OBS_{MdlN}"
 log_DRN_Sys3_patch  =   Pa_temp / f"Log_DRN_Sys3_patch_{MdlN}"
+log_Sim             =   Pa_temp / f"Log_Sim_{MdlN}"
 log_PRJ_to_TIF      =   Pa_temp / f"Log_PRJ_to_TIF_{MdlN}"
 log_GXG             =   Pa_temp / f"Log_GXG_{MdlN}"
 log_Up_MM           =   Pa_temp / f"Log_Up_MM_{MdlN}"
@@ -53,9 +48,8 @@ onerror: fail
 
 rule all: # Final rule
     input:
-        log_Up_MM,
-        log_freeze_env
-        
+        log_Up_MM
+
 ## -- PrP --
 rule log_Init: # Sets status to running, and writes other info about therun. Has to complete before anything else.
     output:
@@ -69,17 +63,6 @@ rule log_Init: # Sets status to running, and writes other info about therun. Has
                             'Sim Dir':          M.Pa.MdlN,
                             '1st SP date':      DT.strptime(M.INI.SDATE, "%Y%m%d").strftime("%Y-%m-%d"),
                             'last SP date':     DT.strptime(M.INI.EDATE, "%Y%m%d").strftime("%Y-%m-%d")})
-        Path(output[0]).touch() # Create the file to mark the rule as done.
-
-rule freeze_pixi_env:
-    input:
-        l_Fi_to_git
-    output:
-        temp(log_freeze_env)
-    run:
-        git_hash, git_tag = freeze_pixi_env(MdlN)
-        Up_log(MdlN, {  'Git hash': git_hash,
-                        'Git tag': git_tag}) # Log git info
         Path(output[0]).touch() # Create the file to mark the rule as done.
 
 rule Mdl_Prep: # Prepares Sim Ins (from Ins) via BAT file.

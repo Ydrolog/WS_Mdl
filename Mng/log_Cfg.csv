@@ -114,7 +114,7 @@ No RIV. Via imod python. PRJ: SS blocks removed, otherwise it wouldn't work with
 - Used NBr57 SHDs","Queued","Removed Output"
 "59","NBr","59","NBr59","52","NBr52","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #3.1.1.
 - iMOD5.
-- SHDs from NBr57 so that this Sim can be compared to NBr60 (no difference in SHDs).","Queued","PoPed"
+- SHDs from NBr57 so that this Sim can be compared to NBr57 & NBr60 (no difference in SHDs).","Queued","PoPed"
 "60","NBr","60","NBr60","57","NBr57","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #3.1.2.
 - imod_python. Change extra storage coefficient of phreatic layer to NaN (in infi_svat.inp).
 - imod_python. Changed code to remove outer boundary cells/SVATs.","Queued","PoPed"
@@ -125,11 +125,11 @@ No RIV. Via imod python. PRJ: SS blocks removed, otherwise it wouldn't work with
 "63","NBr","63","NBr63","61","NBr61","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #3.1.4.
 - CHD fix - BND=-1 at the outer boundaries so CHD is read properly from PRJ.","Queued","PoPed"
 "64","NBr","64","NBr64","63","NBr63","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #3.1.5.
-- Removed outer boundary from all MF6 packages (like imod5 does).","Queued","PoPed"
+- Removed outer boundary from MF6 packages (DRN+RIV) (like imod5 does).","Queued",""
 "65","NBr","65","NBr65","59","NBr59","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #3.1.1.
 - iMOD5.
 - DRN Sys3 patch.","Queued","Completed"
-"0","","","","","","","","0","",""
+"0","","","","","","","","0","0",""
 "0","","","","","","","","0","",""
 "0","","","","","","","","0","",""
 "0","","","","","","","","0","",""

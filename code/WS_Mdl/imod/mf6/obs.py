@@ -135,9 +135,21 @@ def add_within_polygon(
         }
     )
 
+    if (
+        M.V == 'imod_python' and not d
+    ):  # imod_python and no files -> caused by Bin_Ins=False; written as .dat instead. Try to load .dat.
+        d = {
+            f.parent.name: {
+                'path': f,
+                'DF': pd.read_csv(f, sep=r'\s+', skiprows=1, names=[col[0] for col in d_Pkg_Cols[Pkg.upper()]][:-1]),
+            }
+            for f in M.Pa.Sim_In.rglob(f'{Pkg.lower()}*0.dat')
+        }
+    return d
+    print(d.keys())
+
     if not d:
-        print(f'No {Pkg} files found in {M.Pa.Sim_In}')
-        return
+        raise FileNotFoundError(f'🔴 - No {Pkg} files found  in {M.Pa.Sim_In}')
 
     for S in d:
         d[S]['DF']['N'] = d[S]['DF']['i'].index + 1
