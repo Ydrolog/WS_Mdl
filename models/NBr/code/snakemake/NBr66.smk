@@ -1,7 +1,7 @@
 ## --- Imports ---
 from WS_Mdl.core.mdl import Mdl_N
 from WS_Mdl.core.log import Up_log
-from WS_Mdl.io.sim import freeze_pixi_env, get_elapsed_time_str
+from WS_Mdl.io.sim import get_elapsed_time_str
 
 from snakemake.io import temp
 from datetime import datetime as DT
@@ -10,16 +10,16 @@ import subprocess as sp
 import os
 import shutil as sh
 import sys
-sys.stdout.reconfigure(encoding='utf-8')    # Set stdout encoding to UTF-8
-sys.stderr.reconfigure(encoding='utf-8')    # Set stderr encoding to UTF-8
+sys.stdout.reconfigure(encoding='utf-8', line_buffering=True, write_through=True)    # Set stdout encoding to UTF-8
+sys.stderr.reconfigure(encoding='utf-8', line_buffering=True, write_through=True)    # Set stderr encoding to UTF-8
 os.environ["PYTHONUNBUFFERED"] = "1"        # Set Python to unbuffered mode (output is written immediately)
 
 # --- Variables ---
 
 ## Options
 MdlN        =   "NBr66"
+iMOD5       =   False
 MdlN_MM_B   =   'NBr13'
-iMOD5       =   True 
 
 ## Paths
 M           =   Mdl_N(MdlN, iMOD5=iMOD5)
@@ -27,17 +27,13 @@ workdir:        M.Pa.Mdl
 
 Pa_HD_OBS_WEL   =   M.Pa.Sim_In / f'{M.MdlN}_GWL.OBS6'
 
-l_Fi_to_git     =   [M.Pa.WS / i for i in ['pixi.toml', 'pixi.lock', 'code/WS_Mdl']] # If any of these code files changes, the 
-git_hash        =   shell(f"git -C {M.Pa.WS} rev-parse HEAD", read=True).strip()
-git_tag         =   shell(f"git -C {M.Pa.WS} describe --tags --always", read=True, allow_error=True).strip() or "no_tag"
-
 ## Temp files (for completion validation)
 Pa_temp             =   M.Pa.Smk.parent / 'temp'
-log_freeze_env      =   Pa_temp / f"Log_freeze_env_{MdlN}"
 log_Init            =   Pa_temp / f"Log_init_{MdlN}"
-log_Sim             =   Pa_temp / f"Log_Sim_{MdlN}"
 log_RIV_OBS         =   Pa_temp / f"Log_RIV_OBS_{MdlN}"
 log_DRN_OBS         =   Pa_temp / f"Log_DRN_OBS_{MdlN}"
+log_fix_MSW_area    =   Pa_temp / f"Log_fix_MSW_area_{MdlN}"
+log_Sim             =   Pa_temp / f"Log_Sim_{MdlN}"
 log_PRJ_to_TIF      =   Pa_temp / f"Log_PRJ_to_TIF_{MdlN}"
 log_GXG             =   Pa_temp / f"Log_GXG_{MdlN}"
 log_Up_MM           =   Pa_temp / f"Log_Up_MM_{MdlN}"
@@ -52,9 +48,8 @@ onerror: fail
 
 rule all: # Final rule
     input:
-        log_Up_MM,
-        log_freeze_env
-        
+        log_Up_MM
+
 ## -- PrP --
 rule log_Init: # Sets status to running, and writes other info about therun. Has to complete before anything else.
     output:
@@ -70,17 +65,6 @@ rule log_Init: # Sets status to running, and writes other info about therun. Has
                             'last SP date':     DT.strptime(M.INI.EDATE, "%Y%m%d").strftime("%Y-%m-%d")})
         Path(output[0]).touch() # Create the file to mark the rule as done.
 
-rule freeze_pixi_env:
-    input:
-        l_Fi_to_git
-    output:
-        temp(log_freeze_env)
-    run:
-        git_hash, git_tag = freeze_pixi_env(MdlN)
-        Up_log(MdlN, {  'Git hash': git_hash,
-                        'Git tag': git_tag}) # Log git info
-        Path(output[0]).touch() # Create the file to mark the rule as done.
-
 rule Mdl_Prep: # Prepares Sim Ins (from Ins) via BAT file.
     input:
         log_Init,
@@ -90,18 +74,8 @@ rule Mdl_Prep: # Prepares Sim Ins (from Ins) via BAT file.
     output:
         M.Pa.NAM_Sim
     run:
-        shell(f"call {input.BAT}")
-
-        # Remove standard iMOD PoP that converts .HD to .IDF 
-        with open(M.Pa.BAT_RUN, 'r+') as f:
-            content = f.readlines()
-            i = next(i for i, line in enumerate(content) if "ECHO MODFLOW finished, postprocessing started" in line)
-
-            content = content[: i + 1]
-
-            f.seek(0)
-            f.writelines(content)
-            f.truncate()
+        from WS_Mdl.imod.prep import Sim
+        Sim(MdlN = MdlN, verbose=True, SFR=False, Bin_Ins=False)
 
 ## -- PrSimP --
 rule add_HD_OBS_WEL:
@@ -111,7 +85,7 @@ rule add_HD_OBS_WEL:
         Pa_HD_OBS_WEL
     run:
         from WS_Mdl.imod.mf6.obs import add_GWL_OBS
-        add_GWL_OBS(M=M )
+        add_GWL_OBS(MdlN, iMOD5=iMOD5)
 
 rule add_RIV_OBS:
     input:
@@ -139,19 +113,29 @@ rule add_DRN_OBS:
             Opt = """BEGIN OPTIONS\n DIGITS 4\n  PRINT_INPUT\nEND OPTIONS\n\n""")
         Path(output[0]).touch() # Create the file to mark the rule as done.
 
+rule fix_MSW_area:
+    input:
+        M.Pa.NAM_Sim
+    output:
+        log_fix_MSW_area
+    run:
+        sh.copy2(r"g:\code\Jupyter\PoP\compare_Ins\area_svat_NBr61.inp", M.Pa.MSW / "area_svat.inp")
+        Path(output[0]).touch() # Create the file to mark the rule as done.
+
 ## -- Sim ---
 rule Sim: # Runs the simulation via BAT file.
     input:
         Pa_HD_OBS_WEL,
         log_RIV_OBS,
         log_DRN_OBS,
+        log_fix_MSW_area
     output:
         temp(log_Sim)
     run:
         os.chdir(M.Pa.MdlN) # Change directory to the model folder.
         DT_Sim_Start = DT.now()
         Up_log(MdlN, {  'Sim start DT'  :   DT_Sim_Start.strftime("%Y-%m-%d %H:%M:%S")})
-        sp.run(["cmd.exe", "/c", M.Pa.BAT_RUN], cwd=M.Pa.MdlN, check=True)
+        sp.run([M.Pa.coupler_Exe, M.Pa.TOML], shell=True, check=True)
         Path(output[0]).touch() 
         Up_log(MdlN, {  'Sim end DT'    :   DT.now().strftime("%Y-%m-%d %H:%M:%S"),
                         'Sim Dur'       :   get_elapsed_time_str(DT_Sim_Start),

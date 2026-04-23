@@ -264,9 +264,10 @@ def regrid(PRJ, MdlN: str = None, x_CeCes=None, y_CeCes=None, method='linear', v
         sprint('🔴🔴🔴 - Either MdlN or x_CeCes and y_CeCes must be provided. Cancelling regridding...')
         return  # Stop regridding if no valid grid is provided
 
-    sprint(f'\nTarget grid: {len(x_CeCes)}x{len(y_CeCes)} cells at {dx:.1f}x{dy:.1f} m resolution')
+    sprint(f'Target grid: {len(x_CeCes)}x{len(y_CeCes)} cells at {dx:.1f}x{dy:.1f} m resolution', verbose_in=verbose)
     sprint(
-        f'\nTarget extents: X=[{x_CeCes.min():.1f}, {x_CeCes.max():.1f}], Y=[{y_CeCes.min():.1f}, {y_CeCes.max():.1f}]'
+        f'Target extents: X=[{x_CeCes.min():.1f}, {x_CeCes.max():.1f}], Y=[{y_CeCes.min():.1f}, {y_CeCes.max():.1f}]',
+        verbose_in=verbose,
     )
 
     PRJ_regridded = {}
@@ -274,13 +275,11 @@ def regrid(PRJ, MdlN: str = None, x_CeCes=None, y_CeCes=None, method='linear', v
     for key, data in PRJ.items():
         sprint(f'Processing {key}...', verbose_in=verbose)
 
-        if isinstance(data, dict):
-            # Handle nested dictionaries (like 'cap', 'bnd')
+        if isinstance(data, dict):  # Handle nested dictionaries (all packages) check just for safety.
             PRJ_regridded[key] = {}
             for sub_key, sub_data in data.items():
                 PRJ_regridded[key][sub_key] = regrid_DA(sub_data, x_CeCes, y_CeCes, dx, dy, f'{key}.{sub_key}', method)
-        else:
-            # Handle top-level data
+        else:  # Handle top-level data. None should exist, but just in case.
             PRJ_regridded[key] = regrid_DA(data, x_CeCes, y_CeCes, dx, dy, key, method)
 
     sprint('🟢🟢🟢 - PRJ has been regridded successfully!')
@@ -299,52 +298,56 @@ def regrid_DA(DA, x_CeCes, y_CeCes, dx, dy, item_name, method='linear', verbose=
 
     # Check if DA is already on target grid before doing anything
     DA_x, DA_y = DA.x.values, DA.y.values
-    if len(DA_x) > 1 and len(DA_y) > 1:
-        DA_dx = DA_x[1] - DA_x[0]
-        DA_dy = abs(DA_y[1] - DA_y[0])
+    DA_dx, DA_dy = abs(DA_x[1] - DA_x[0]), abs(DA_y[1] - DA_y[0])
 
-        # Compare with tolerance
-        same_resolution = np.isclose(DA_dx, dx, atol=1e-6) and np.isclose(DA_dy, abs(dy), atol=1e-6)
-        same_size = len(DA_x) == len(x_CeCes) and len(DA_y) == len(y_CeCes)
+    # Compare with tolerance
+    same_resolution = np.isclose(DA_dx, dx, atol=1e-6) and np.isclose(DA_dy, abs(dy), atol=1e-6)
+    same_size = len(DA_x) == len(x_CeCes) and len(DA_y) == len(y_CeCes)
 
-        # Check if coordinates match (within tolerance)
-        coords_match = False
-        if same_size:
-            try:
-                coords_match = np.allclose(DA_x, x_CeCes, atol=1e-6) and np.allclose(DA_y, y_CeCes, atol=1e-6)
-            except Exception:
-                coords_match = False
+    # Check if coordinates match (within tolerance)
+    coords_match = False
+    if same_size:
+        try:
+            coords_match = np.allclose(DA_x, x_CeCes, atol=1e-6) and np.allclose(DA_y, y_CeCes, atol=1e-6)
+        except Exception:
+            coords_match = False
 
-        if same_resolution and same_size and coords_match:
-            sprint(f'  {item_name}: ⚫️ - Already on target grid', verbose_in=verbose)
-            return DA
+    if same_resolution and same_size and coords_match:
+        sprint(f'  {item_name}: ⚫️ - Already on target grid', verbose_in=verbose)
+        return DA
 
-    # Handle special DA types
-    if ('riv' in item_name_lower) or ('drn' in item_name_lower):
-        method = 'nearest'  # Sparse BC rasters: preserve support; linear can erode NaN-heavy masks.
-    elif 'ibound' in item_name_lower:
-        method = 'nearest'  # Use nearest neighbor for boundary conditions. They're 1 or 0, so we don't want to be messing with decimals.
-    elif any(x in item_name_lower for x in ['landuse', 'soil_unit', 'zone']):
-        method = 'nearest'  # Use nearest neighbor for categorical DA
-    elif 'area' in item_name_lower:
-        # Special handling for area fields - scale by grid ratio
-        regridded = DA.interp(x=x_CeCes, y=y_CeCes, method='linear')
-        grid_ratio = (len(x_CeCes) * len(y_CeCes)) / (len(DA.x) * len(DA.y))
-        regridded = regridded * grid_ratio
-
-        # Attach dx and dy attributes to the regridded DataArray
-        regridded = regridded.assign_coords(dx=dx, dy=dy)
-        sprint(f'  {item_name}: 🟢 - Area field regridded with grid ratio scaling', verbose_in=verbose)
-        return regridded
+    method = (
+        'nearest'
+        if (
+            ('riv' in item_name_lower)
+            or ('drn' in item_name_lower)  # Sparse BC rasters: preserve support; linear can erode NaN-heavy masks.
+            or ('ibound' in item_name_lower)  # They're 1 or 0, we don't want to be messing with decimals.
+            or any(x in item_name_lower for x in ['landuse', 'soil_unit', 'zone'])  # Categorical DA
+        )
+        else method
+    )
 
     # Option A: Interpolate first, then clip to target bounds
     # This is simpler but more computationally expensive for large arrays
     try:
-        regridded = DA.interp(x=x_CeCes, y=y_CeCes, method=method)
+        if 'conductance' in item_name_lower:
+            ratio = abs(dx * dy) / abs(DA_dx * DA_dy)
+            scaling_method = 'area_scaling'
+        elif 'area' in item_name_lower:
+            ratio = (len(x_CeCes) * len(y_CeCes)) / (len(DA.x) * len(DA.y))
+            scaling_method = 'grid_ratio_scaling'
+        else:
+            ratio = 1
+            scaling_method = ''
+
+        regridded = DA.interp(x=x_CeCes, y=y_CeCes, method=method) * ratio
 
         # Attach dx and dy attributes to the regridded DataArray
         regridded = regridded.assign_coords(dx=dx, dy=dy)
-        sprint(f'  {item_name}: 🟢 - {DA.sizes} -> {regridded.sizes}. Method: {method}.', verbose_in=verbose)
+        sprint(
+            f'  {item_name}: 🟢 - {DA.sizes} -> {regridded.sizes}. Interpolation method: {method}. Scaling method: {scaling_method}.',
+            verbose_in=verbose,
+        )
         return regridded
     except Exception as e:
         sprint(f'  {item_name}: 🔴 - Regridding failed ({e}) - keeping original')
@@ -638,7 +641,7 @@ def PrSimP(
         PRJ,
         M.MdlN,
         pre='  - Regridding PRJ ...',
-        post='🟢',
+        post='',
         verbose_in=True,
         verbose_out=M.verbose,
     )  # Speeds up Mdl load.
@@ -647,7 +650,7 @@ def PrSimP(
     BND = PRJ_regrid['bnd']['ibound']
     BND.loc[:, [BND.y[0], BND.y[-1]], :] = -1  # Top and bottom rows
     BND.loc[:, :, [BND.x[0], BND.x[-1]]] = -1  # Left and right columns
-    sprint('🟢', verbose_in=True, verbose_out=M.verbose, print_time=True)
+    # sprint('🟢', verbose_in=True, verbose_out=M.verbose, print_time=True)
 
     # %% ----- Load MF6 Simulation
     times = pd.date_range(M.SP_1st, M.SP_last, freq='D')
