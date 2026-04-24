@@ -20,7 +20,12 @@ __all__ = ['HD_Bin_GXG_to_MBTIF', 'GXG_Diff', 'HD_IDF_GXG_to_TIF']
 
 
 def HD_Bin_GXG_to_MBTIF(
-    MdlN, start_year='from_INI', end_year='from_INI', IDT='from_INI', GVG=False, l_Ls=[1, 3, 5, 7, 9]
+    MdlN: str,
+    start_year: str = 'from_INI',
+    end_year: str = 'from_INI',
+    IDT: str = 'from_INI',
+    GVG: bool = False,
+    l_Ls: list = [1, 3, 5, 7, 9],
 ):
     """
     - start_year: 'YYYY' (inclusive) or 'from_INI' to read from INI file

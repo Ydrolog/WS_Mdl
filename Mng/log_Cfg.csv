@@ -125,14 +125,16 @@ No RIV. Via imod python. PRJ: SS blocks removed, otherwise it wouldn't work with
 "63","NBr","63","NBr63","61","NBr61","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #3.1.4.
 - CHD fix - BND=-1 at the outer boundaries so CHD is read properly from PRJ.","Queued","PoPed"
 "64","NBr","64","NBr64","63","NBr63","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #3.1.5.
-- Removed outer boundary from MF6 packages (DRN+RIV) (like imod5 does).","Queued","Running"
+- Removed outer boundary from MF6 packages (DRN+RIV) (like imod5 does).","Queued","PoPed"
 "65","NBr","65","NBr65","59","NBr59","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #3.1.6.
 - iMOD5.
 - DRN Sys3 patch.","Queued","Completed"
 "66","NBr","66","NBr66","64","NBr64","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #3.1.7.
-- Fixed Cond regridding in my imod_python code.","Queued",""
-"0","","","","","","","","0","",""
-"0","","","","","","","","0","",""
+- Fixed Cond regridding in my imod_python code.","Queued","PoPed"
+"67","NBr","67","NBr67","66","NBr66","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #3.1.8.
+- Peformed regridding after loading MF6_Sim in an attempt to fix CHDs.","Queued","PoPed"
+"68","NBr","68","NBr68","66","NBr66","MK","Test","SFRmaker #3.0: SFR for main SW in Chaamse Beek
+- NBr66 becomes new B for SFR Sims moving forward.","Development",""
 "0","","","","","","","","0","",""
 "0","","","","","","","","0","",""
 "0","","","","","","","","0","",""

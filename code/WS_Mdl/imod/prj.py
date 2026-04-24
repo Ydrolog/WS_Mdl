@@ -14,7 +14,7 @@ from WS_Mdl.core.defaults import CRS
 from WS_Mdl.core.mdl import Mdl_N
 from WS_Mdl.core.path import MdlN_PaView, Pa_WS
 from WS_Mdl.core.runtime import timed_Exe
-from WS_Mdl.core.style import Sep, sprint
+from WS_Mdl.core.style import Sep, set_verbose, sprint
 from WS_Mdl.imod.ini import CeCes, Mdl_Dmns
 from WS_Mdl.imod.mf6.solution import moderate_settings
 from WS_Mdl.imod.msw.mete_grid import Cvt_to_AbsPa, add_missing_Cols
@@ -250,19 +250,18 @@ def regrid(PRJ, MdlN: str = None, x_CeCes=None, y_CeCes=None, method='linear', v
     If x_CeCes and y_CeCes are provided, they will be used as the target grid.
     If MdlN is provided, it will use the model's spatial dimensions from the INI file.
     """
+    set_verbose(verbose)
 
-    if x_CeCes is not None and y_CeCes is not None:
-        dx = x_CeCes[1] - x_CeCes[0] if len(x_CeCes) > 1 else 0
-        dy = y_CeCes[1] - y_CeCes[0] if len(y_CeCes) > 1 else 0
-
-    elif MdlN:  # If MdlN is provided, get the model's spatial dimensions from INI file
-        x_CeCes, y_CeCes = CeCes(MdlN)
-        dx = x_CeCes[1] - x_CeCes[0] if len(x_CeCes) > 1 else 0
-        dy = y_CeCes[1] - y_CeCes[0] if len(y_CeCes) > 1 else 0
-
-    else:
+    if (x_CeCes is None or y_CeCes is None) and (MdlN is None):
         sprint('🔴🔴🔴 - Either MdlN or x_CeCes and y_CeCes must be provided. Cancelling regridding...')
-        return  # Stop regridding if no valid grid is provided
+        return
+    elif (
+        x_CeCes is None or y_CeCes is None
+    ) and MdlN:  # Get CeCes if not provide (MdlN need to be provided in this case)
+        x_CeCes, y_CeCes = CeCes(MdlN)
+
+    dx = x_CeCes[1] - x_CeCes[0] if len(x_CeCes) > 1 else 0
+    dy = y_CeCes[1] - y_CeCes[0] if len(y_CeCes) > 1 else 0
 
     sprint(f'Target grid: {len(x_CeCes)}x{len(y_CeCes)} cells at {dx:.1f}x{dy:.1f} m resolution', verbose_in=verbose)
     sprint(
@@ -340,7 +339,17 @@ def regrid_DA(DA, x_CeCes, y_CeCes, dx, dy, item_name, method='linear', verbose=
             ratio = 1
             scaling_method = ''
 
-        regridded = DA.interp(x=x_CeCes, y=y_CeCes, method=method) * ratio
+        if method == 'polynomial':
+            # xarray does not support polynomial interpolation over multiple dimensions in one call.
+            # Interpolate per axis to keep polynomial(order=3) behavior for CHD.
+            regridded = (
+                DA.interp(x=x_CeCes, method='polynomial', kwargs={'order': 3}).interp(
+                    y=y_CeCes, method='polynomial', kwargs={'order': 3}
+                )
+                * ratio
+            )
+        else:
+            regridded = DA.interp(x=x_CeCes, y=y_CeCes, method=method) * ratio
 
         # Attach dx and dy attributes to the regridded DataArray
         regridded = regridded.assign_coords(dx=dx, dy=dy)
@@ -642,7 +651,7 @@ def PrSimP(
         M.MdlN,
         pre='  - Regridding PRJ ...',
         post='',
-        verbose_in=True,
+        verbose_in=False,
         verbose_out=M.verbose,
     )  # Speeds up Mdl load.
 

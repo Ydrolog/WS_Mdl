@@ -151,7 +151,12 @@ def _print_usage() -> None:
 def _parse_cli_value(value: str):
     """Parse a CLI token value into a basic Python type when safe."""
     low = value.lower()
-    low = True if low == 'true' else False if low == 'false' else None if low == 'none' else low
+    if low == 'true':
+        return True
+    if low == 'false':
+        return False
+    if low == 'none':
+        return None
 
     try:
         return int(value)
