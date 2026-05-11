@@ -134,10 +134,12 @@ No RIV. Via imod python. PRJ: SS blocks removed, otherwise it wouldn't work with
 "67","NBr","67","NBr67","66","NBr66","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #3.1.8.
 - Peformed regridding after loading MF6_Sim in an attempt to fix CHDs.","Queued","PoPed"
 "68","NBr","68","NBr68","62","NBr62","MK","Test","SFRmaker #3.0: SFR for main SW in Chaamse Beek
-- NBr66 becomes new B for SFR Sims moving forward.","Queued",""
-"69","NBr","69","NBr69","66","NBr66","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #3.1.7.
-- To confirm cleaned interpolation works the sae as in B and to run longer for GXG","Queued",""
-"0","","","","","","","","0","",""
+- NBr66 becomes new B for SFR Sims moving forward.","Queued","PoPed"
+"69","NBr","69","NBr69","66","NBr66","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #5.
+- To confirm cleaned interpolation works the sae as in B and to run longer for GXG","Queued","PoPed"
+"70","NBr","70","NBr70","69","NBr69","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #4
+- Main RIV Stg set to SFR AVG summer and winter stage from NBr68. This is to isolate the effects of the difference in data - i.e. different stages in the SFR dataset compared to RIV.
+- Then NBr68 Vs NBr70 isolates the Diff the method (SFR vs RIV) have on the system.","Queued",""
 "0","","","","","","","","0","",""
 "0","","","","","","","","0","",""
 "0","","","","","","","","0","",""
