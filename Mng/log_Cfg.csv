@@ -117,22 +117,22 @@ No RIV. Via imod python. PRJ: SS blocks removed, otherwise it wouldn't work with
 - SHDs from NBr57 so that this Sim can be compared to NBr57 & NBr60 (no difference in SHDs).","Queued","PoPed"
 "60","NBr","60","NBr60","57","NBr57","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #3.1.2.
 - imod_python. Change extra storage coefficient of phreatic layer to NaN (in infi_svat.inp).
-- imod_python. Changed code to remove outer boundary cells/SVATs.","Queued","PoPed"
+- imod_python. Changed code to remove outer boundary cells/SVATs.","Queued","Removed Output"
 "61","NBr","61","NBr61","60","NBr60","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #3.1.3.
-- Testing MSW area_svat patch.","Queued","PoPed"
+- Testing MSW area_svat patch.","Queued","Removed Output"
 "62","NBr","62","NBr62","58","NBr58","MK","Test","SFRmaker #2.3: SFR for main SW in Chaamse Beek
-- area_svat patch (from NBr61) applied to SFR Sim","Queued","PoPed"
+- area_svat patch (from NBr61) applied to SFR Sim","Queued","Removed Output"
 "63","NBr","63","NBr63","61","NBr61","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #3.1.4.
-- CHD fix - BND=-1 at the outer boundaries so CHD is read properly from PRJ.","Queued","PoPed"
+- CHD fix - BND=-1 at the outer boundaries so CHD is read properly from PRJ.","Queued","Removed Output"
 "64","NBr","64","NBr64","63","NBr63","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #3.1.5.
-- Removed outer boundary from MF6 packages (DRN+RIV) (like imod5 does).","Queued","PoPed"
+- Removed outer boundary from MF6 packages (DRN+RIV) (like imod5 does).","Queued","Removed Output"
 "65","NBr","65","NBr65","59","NBr59","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #3.1.6.
 - iMOD5.
-- DRN Sys3 patch.","Queued","Completed"
+- DRN Sys3 patch.","Queued","Removed Output"
 "66","NBr","66","NBr66","64","NBr64","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #3.1.7.
 - Fixed Cond regridding in my imod_python code.","Queued","PoPed"
 "67","NBr","67","NBr67","66","NBr66","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #3.1.8.
-- Peformed regridding after loading MF6_Sim in an attempt to fix CHDs.","Queued","PoPed"
+- Peformed regridding after loading MF6_Sim in an attempt to fix CHDs.","Queued","Removed Output"
 "68","NBr","68","NBr68","62","NBr62","MK","Test","SFRmaker #3.0: SFR for main SW in Chaamse Beek
 - NBr66 becomes new B for SFR Sims moving forward.","Queued","PoPed"
 "69","NBr","69","NBr69","66","NBr66","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #5.
@@ -140,7 +140,8 @@ No RIV. Via imod python. PRJ: SS blocks removed, otherwise it wouldn't work with
 "70","NBr","70","NBr70","69","NBr69","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #4
 - Main RIV Stg set to SFR AVG summer and winter stage from NBr68. This is to isolate the effects of the difference in data - i.e. different stages in the SFR dataset compared to RIV.
 - Then NBr68 Vs NBr70 isolates the Diff the method (SFR vs RIV) have on the system.","Queued",""
-"0","","","","","","","","0","",""
+"71","NBr","71","NBr71","66","NBr66","MK","Test","SURF Test:
+- Attempting to store Outs in different drive than Ins.","Development",""
 "0","","","","","","","","0","",""
 "0","","","","","","","","0","",""
 "0","","","","","","","","0","",""
