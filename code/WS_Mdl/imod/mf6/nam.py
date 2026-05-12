@@ -2,7 +2,6 @@ from typing import TYPE_CHECKING
 
 from filelock import FileLock as FL
 from WS_Mdl.core.mdl import Mdl_N
-from WS_Mdl.core.path import MdlN_PaView
 from WS_Mdl.imod.mf6.read import MF6_block_to_DF
 
 if TYPE_CHECKING:
@@ -22,9 +21,8 @@ def add_Pkg(MdlN, str_Pkg, iMOD5=False):
     str_PKG should be the exact line to add for the package, e.g. 'mvr6 mvr6.mvr6' (without quotes).
     Uses a file lock to ensure thread-safe file editing.
     """
-    M = Mdl_N(MdlN)
-    Pa = M.Pa if iMOD5 == (M.V == 'imod5') else MdlN_PaView(MdlN, iMOD5=iMOD5)
-    Pa_NAM = Pa.NAM_Mdl
+    M = Mdl_N(MdlN, iMOD5=iMOD5)
+    Pa_NAM = M.Pa.NAM_Mdl
 
     lock = FL(f'{Pa_NAM}.lock')  # Create a file lock to prevent concurrent writes
     with lock, open(Pa_NAM, 'r+') as f:

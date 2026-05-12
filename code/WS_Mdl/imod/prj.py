@@ -12,7 +12,7 @@ import xarray as xra
 from imod import mf6, msw
 from WS_Mdl.core.defaults import CRS
 from WS_Mdl.core.mdl import Mdl_N
-from WS_Mdl.core.path import MdlN_PaView, Pa_WS
+from WS_Mdl.core.path import Pa_WS
 from WS_Mdl.core.runtime import timed_Exe
 from WS_Mdl.core.style import Sep, set_verbose, sprint
 from WS_Mdl.imod.ini import CeCes, Mdl_Dmns
@@ -120,7 +120,6 @@ def to_DF(MdlN):
     Could have been included in utils.py based on dependencies, but utils_imod.py fits it better as it's almost always used after r_PRJ_with_OBS (so the libs will be already loaded)."""
 
     M = Mdl_N(MdlN)
-    Pa = M.Pa
 
     Pa_AppData = Path(os.getenv('APPDATA')).parent
     t_Pa_replace = (
@@ -128,7 +127,7 @@ def to_DF(MdlN):
         str(Pa_WS / 'models' / M.alias),
     )  # For some reason imod.idf.read reads the path incorrectly, so I have to replace the incorrect part.
 
-    d_PRJ, OBS = r_with_OBS(Pa.PRJ)
+    d_PRJ, OBS = r_with_OBS(M.Pa.PRJ)
 
     columns = [
         'package',
@@ -369,10 +368,9 @@ def to_TIF(MdlN, iMOD5=False):
     Also creates a .csv file with the TIF file paths to be replaced in the QGIS project."""
 
     # -------------------- Initiate ----------------------------------------------
-    M = Mdl_N(MdlN)
-    Pa = M.Pa if iMOD5 == (M.V == 'imod5') else MdlN_PaView(MdlN, iMOD5=iMOD5)
+    M = Mdl_N(MdlN, iMOD5=iMOD5)
     M_alias = M.alias
-    Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = Mdl_Dmns(Pa.INI)  # Get dimensions
+    Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = Mdl_Dmns(M.Pa.INI)  # Get dimensions
 
     DF = to_DF(MdlN)  # Read PRJ file to DF
 
@@ -400,7 +398,7 @@ def to_TIF(MdlN, iMOD5=False):
 
             ## Prepare directoreis and filenames
             Pkg_MdlN = M_alias + str(DF_Par['MdlN'].str.extract(r'(\d+)').astype(int).max().values[0])
-            Pa_TIF = Pa.Pa_Mdl / 'PoP' / 'In' / Pkg / Pkg_MdlN / f'{Pkg}_{Par}_{Pkg_MdlN}.tif'  # Full path to TIF file
+            Pa_TIF = M.Pa.PoP / 'In' / Pkg / Pkg_MdlN / f'{Pkg}_{Par}_{Pkg_MdlN}.tif'  # Full path to TIF file
 
             ## Build a dictionary mapping each band’s name to its row’s metadata. We're assuming that the order the paths are read into DA is the same as the order in DF_Par.
             d_MtDt = {}
@@ -459,7 +457,7 @@ def to_TIF(MdlN, iMOD5=False):
         sprint(f'\t{f"{R['package']}_{R['parameter']}":<30} ... ', end='')
 
         Pa_TIF = (
-            Pa.Pa_Mdl / 'PoP' / 'In' / R['package'] / R['MdlN'] / Path(R['path']).with_suffix('.tif').name
+            M.Pa.Pa_Mdl / 'PoP' / 'In' / R['package'] / R['MdlN'] / Path(R['path']).with_suffix('.tif').name
         )  # Full path to TIF file
 
         if Pa_TIF.exists():
@@ -493,7 +491,7 @@ def to_TIF(MdlN, iMOD5=False):
         sprint(f'\t{R["path"].name:<30} ... ', end='')
 
         Pa_GPKG = (
-            Pa.Pa_Mdl / 'PoP' / 'In' / R['package'] / R['MdlN'] / Path(R['path']).with_suffix('.gpkg').name
+            M.Pa.Pa_Mdl / 'PoP' / 'In' / R['package'] / R['MdlN'] / Path(R['path']).with_suffix('.gpkg').name
         )  # Full path to TIF file
 
         if Pa_GPKG.exists():

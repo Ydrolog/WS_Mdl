@@ -2,7 +2,6 @@ from pathlib import Path
 
 from filelock import FileLock as FL
 from WS_Mdl.core.mdl import Mdl_N
-from WS_Mdl.core.path import MdlN_PaView
 from WS_Mdl.core.style import sprint
 
 
@@ -39,9 +38,8 @@ def add_OBS_to_MF_In(str_OBS, PKG=None, MdlN=None, Pa=None, iMOD5=False):
     if Pa is not None:
         Pa = Path(Pa)
     elif (MdlN is not None) and (PKG is not None):
-        M = Mdl_N(MdlN)
-        Pa_view = M.Pa if iMOD5 == (M.V == 'imod5') else MdlN_PaView(MdlN, iMOD5=iMOD5)
-        Pa = Pa_view.Sim_In / f'{MdlN}.{PKG}6'
+        M = Mdl_N(MdlN, iMOD5=iMOD5)
+        Pa = M.Pa.Sim_In / f'{MdlN}.{PKG}6'
     else:
         raise ValueError('Either Pa or both MdlN and PKG must be provided.')
 

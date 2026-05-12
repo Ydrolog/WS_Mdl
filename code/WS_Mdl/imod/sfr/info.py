@@ -8,10 +8,10 @@ from WS_Mdl.core.text import r_Txt_Lns
 def SFR_PkgD_to_DF(MdlN: str, Pa_SFR: str = None, Calc_Cond=True, iMOD5: bool = None) -> pd.DataFrame:
     """
     Reads SFR6 PACKAGE DATA block from a .SFR6 file, from MdlN folder, and returns it as a pandas DataFrame.
-    Pa_SFR: Path to the SFR6 file. If None, it will be determined using MdlN_Pa().
+    Pa_SFR: Path to the SFR6 file. If None, default MdlN SFR file will be used.
     iMOD5: Boolean indicating whether to use the imod5 folder structure. If None, it will be determined automatically.
     """
-    M = Mdl_N(MdlN)
+    M = Mdl_N(MdlN, iMOD5=iMOD5)
 
     if Pa_SFR is None:
         Pa_SFR = M.Pa.SFR
@@ -58,7 +58,7 @@ def SFR_ConnD_to_DF(MdlN: str, Pa_SFR: str = None, iMOD5: bool = None) -> pd.Dat
     """
     Reads SFR6 connection data from a .SFR6 file and returns it as a pandas DataFrame.
     """
-    M = Mdl_N(MdlN)
+    M = Mdl_N(MdlN, iMOD5=iMOD5)
 
     if Pa_SFR is None:
         Pa_SFR = M.Pa.SFR
