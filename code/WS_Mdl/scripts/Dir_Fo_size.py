@@ -52,5 +52,20 @@ def main(Dir=None, sort_by='size'):
         items = sorted(sizes.items())
 
     for name, size in items:
-        print(f'{name}: {size / (1024 * 1024):.2f} MB')
+        print(f'{name}: {size / (1024 * 1024):10.2f} MB')
     print('-' * 100, '\n')
+
+
+def cli():
+    import argparse
+
+    parser = argparse.ArgumentParser(description='Print folder sizes in a directory')
+    parser.add_argument('dir', nargs='?', default=None, help='Directory path (default: current directory)')
+    parser.add_argument('--sort', choices=['size', 'name'], default='size', help='Sort by size or name (default: size)')
+
+    args = parser.parse_args()
+    main(Dir=args.dir, sort_by=args.sort)
+
+
+if __name__ == '__main__':
+    cli()
