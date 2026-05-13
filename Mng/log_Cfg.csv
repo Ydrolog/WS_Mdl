@@ -139,7 +139,7 @@ No RIV. Via imod python. PRJ: SS blocks removed, otherwise it wouldn't work with
 - To confirm cleaned interpolation works the sae as in B and to run longer for GXG","Queued","PoPed"
 "70","NBr","70","NBr70","69","NBr69","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #4
 - Main RIV Stg set to SFR AVG summer and winter stage from NBr68. This is to isolate the effects of the difference in data - i.e. different stages in the SFR dataset compared to RIV.
-- Then NBr68 Vs NBr70 isolates the Diff the method (SFR vs RIV) have on the system.","Queued","Running"
+- Then NBr68 Vs NBr70 isolates the Diff the method (SFR vs RIV) have on the system.","Queued","PoPed"
 "71","NBr","71","NBr71","66","NBr66","MK","Test","SURF Test:
 - Attempting to store Outs in different drive than Ins.","Development",""
 "0","","","","","","","","0","",""

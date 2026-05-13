@@ -31,7 +31,7 @@ def timed_Exe(func, *args, pre=None, post='', verbose_in=False, verbose_out=Fals
     result = func(*args, **kwargs)
     end = time.perf_counter()
 
-    sprint(f'{post} [{end - start:.1f}s]', verbose_in=verbose_in, verbose_out=verbose_out)
+    sprint(f'{post} [{end - start:.2f}s]', verbose_in=verbose_in, verbose_out=verbose_out)
 
     return result
 

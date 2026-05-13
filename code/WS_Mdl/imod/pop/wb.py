@@ -40,7 +40,9 @@ def Diff_to_xlsx(
     M_B = Mdl_N(MdlN_B) if MdlN_B else Mdl_N(M.B)
     start_date = pd.to_datetime(M.INI.SDATE, format='%Y%m%d')
 
-    sprint(' -- Loading MF6 WB ... ', end='', set_time=True)
+    sprint(
+        ' -- Loading MF6 WB ... ', end='', set_time=True
+    )  # ------------------------------------------------------------------
     # Load budget to dataframes. fp.utils.Mf6ListBudget returns a tuple. [0] is WB per SP. [1] is cumulative.
     i = 1 if cumulative else 0
     DF_1 = fp.utils.Mf6ListBudget(M.Pa.LST_Mdl).get_dataframes(
@@ -96,7 +98,9 @@ def Diff_to_xlsx(
     sorted_i = pd.concat([i.sort_values() for i in MF_indexes]).values
     DF_MF6 = DF_MF6.loc[sorted_i]
 
-    sprint('🟢\n -- Loading MSW WB ... ', end='', set_time=True, print_time_first=True)
+    sprint(
+        '🟢\n -- Loading MSW WB ... ', end='', set_time=True, print_time_first=True
+    )  # -------------------------------------
     # Load WB for each MdlN
     DF_MSW = pd.DataFrame()
     for m in [M, M_B]:
@@ -148,7 +152,7 @@ def Diff_to_xlsx(
     MF_Par = [i for i in d_Par if '_NET' in i]
     MSW_Par = [i for i in d_Par if '_NET' not in i]
 
-    # Calc Diff
+    # Calc Diff --------------------------------------------------------------------------------------------------------------------
     DF['Diff'] = DF[MdlN] - DF[MdlN_B]
     DF['Diff_%'] = DF.apply(
         lambda x: x['Diff'] / x[MdlN_B] * 100 if pd.notnull(x['Diff']) and x[MdlN_B] != 0 else np.nan, axis=1
@@ -169,7 +173,7 @@ def Diff_to_xlsx(
     Pa = Path(Pa).with_suffix('') if isinstance(Pa, str) else Pa.with_suffix('')
     Pa.parent.mkdir(parents=True, exist_ok=True)
 
-    # WB closing
+    # WB closing --------------------------------------------------------------------------------------------------------------
     DF_closing = pd.DataFrame()
     DF_closing['MF SUM'] = DF.loc[MF_Par, [MdlN, MdlN_B]].sum()
     DF_closing['MSW SUM'] = DF.loc[MSW_Par, [MdlN, MdlN_B]].sum()
@@ -179,7 +183,7 @@ def Diff_to_xlsx(
     DF_closing['MSW SUM % error'] = DF_closing['MSW SUM'] / DF_closing['MSW ABS SUM'] * 100
 
     if sum_Pkg and net_only:  # This is the most common use case. The template is designed for this.
-        WB_save_with_template(DF, Pa_template, 'Diff', Pa.with_suffix('.xlsx'))
+        WB_save_with_template(DF, Pa_template, 'Diff', Pa.with_suffix('.xlsx'), date=date)
     else:  # In other cases, just save as CSV.
         DF.to_csv(Pa.with_suffix('.csv'), index=True)
 
@@ -204,13 +208,17 @@ def Diff_to_xlsx(
     return DF
 
 
-def WB_save_with_template(DF, Pa_template, tab, Pa_Out):
+def WB_save_with_template(DF, Pa_template, tab, Pa_Out, date=None):
     """Saves the provided DataFrame to an Excel file using the provided template."""
     from openpyxl import load_workbook
 
     # Load the template workbook and select the active worksheet
     wb = load_workbook(Pa_template)
     ws = wb[tab]
+
+    # Write date if provided
+    if date:
+        ws['A1'] = f'{date}'
 
     # Write column headers in row 1, starting at column 2 (B)
     for c_idx, col_name in enumerate(DF.columns, start=2):
