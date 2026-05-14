@@ -126,6 +126,7 @@ def Diff_to_xlsx(
     for k in d_MSW_Agg:
         DF_MSW.rename(index={i: k for i in d_MSW_Agg[k]}, inplace=True)
     DF_MSW = DF_MSW.groupby(level=0, sort=False).sum()
+    # print(DF_MSW.loc['qsimtot'])
     DF_MSW.drop(index=['qsimtot', 'vcr'], inplace=True)
 
     sprint('🟢\n -- Merging & Saving ... ', end='', set_time=True, print_time_first=True)
@@ -149,7 +150,8 @@ def Diff_to_xlsx(
         'WEL_NET': 'Wells',
     }
     DF['Parameter'] = DF.index.map(d_Par)
-    MF_Par = [i for i in d_Par if '_NET' in i]
+
+    MF_Par = [i for i in d_Par if '_NET' in i] if net_only else DF.index.tolist()
     MSW_Par = [i for i in d_Par if '_NET' not in i]
 
     # Calc Diff --------------------------------------------------------------------------------------------------------------------
@@ -162,7 +164,9 @@ def Diff_to_xlsx(
 
     # Final touches + save
     DF.insert(len(DF.columns) - 1, 'Parameter', DF.pop('Parameter'))  # Move Parameter to last column
-    DF = DF.reindex(d_Par.keys())  # Reorder rows based on d_Par keys.
+    if net_only:
+        DF = DF.reindex(d_Par.keys())  # Reorder rows based on d_Par keys.
+
     date_ = date.replace('-', '')
     Pa = (
         (M.Pa.PoP_Out_MdlN / f'WB/WB_Diff_{MdlN}_m_{MdlN_B}_{date_}{"_cumulative" if cumulative else ""}')
@@ -197,6 +201,7 @@ def Diff_to_xlsx(
 
     # DF.to_csv(f'{Pa}.csv', index=True)
     if save_closing_error:
+        print(Pa)
         DF_closing.T.to_csv(f'{Pa}_Closing.csv', index=True)
 
     sprint('🟢', print_time_first=True)
