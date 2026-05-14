@@ -201,7 +201,6 @@ def Diff_to_xlsx(
 
     # DF.to_csv(f'{Pa}.csv', index=True)
     if save_closing_error:
-        print(Pa)
         DF_closing.T.to_csv(f'{Pa}_Closing.csv', index=True)
 
     sprint('🟢', print_time_first=True)
