@@ -58,11 +58,11 @@ rule log_Init: # Sets status to running, and writes other info about therun. Has
         import socket
         device = socket.gethostname()
         Up_log(MdlN, {  'End Status':       'Running',
-                            'PrP start DT':     DT.now().strftime("%Y-%m-%d %H:%M:%S"),
-                            'Sim device name':  device,
-                            'Sim Dir':          M.Pa.MdlN,
-                            '1st SP date':      DT.strptime(M.INI.SDATE, "%Y%m%d").strftime("%Y-%m-%d"),
-                            'last SP date':     DT.strptime(M.INI.EDATE, "%Y%m%d").strftime("%Y-%m-%d")})
+                        'PrP start DT':     DT.now().strftime("%Y-%m-%d %H:%M:%S"),
+                        'Sim device name':  device,
+                        'Sim Dir':          M.Pa.MdlN,
+                        '1st SP date':      DT.strptime(M.INI.SDATE, "%Y%m%d").strftime("%Y-%m-%d"),
+                        'last SP date':     DT.strptime(M.INI.EDATE, "%Y%m%d").strftime("%Y-%m-%d")})
         Path(output[0]).touch() # Create the file to mark the rule as done.
 
 rule Mdl_Prep: # Prepares Sim Ins (from Ins) via BAT file.
