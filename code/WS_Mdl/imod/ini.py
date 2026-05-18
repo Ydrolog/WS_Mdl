@@ -1,10 +1,10 @@
 from pathlib import Path
 
 from WS_Mdl.core.path import MdlN_Pa
-from WS_Mdl.core.style import sprint
+from WS_Mdl.core.style import VERBOSE, sprint
 
 
-def as_d(Pa_INI: Path | str) -> dict:
+def as_d(Pa_INI: Path | str, verbose=False) -> dict:
     """
     Reads INI file (used for preparing the model) and converts it to a dictionary. Keys are converted to upper-case.
     Common use:
@@ -25,7 +25,11 @@ def as_d(Pa_INI: Path | str) -> dict:
     except Exception:
         pass
 
-    sprint(f'🟢 - INI file {Pa_INI} read successfully. Dictionary created with {len(d_INI)} keys.')
+    sprint(
+        f'🟢 - INI file {Pa_INI} read successfully. Dictionary created with {len(d_INI)} keys.',
+        verbose_in=verbose,
+        verbose_out=VERBOSE,
+    )
     return d_INI
 
 

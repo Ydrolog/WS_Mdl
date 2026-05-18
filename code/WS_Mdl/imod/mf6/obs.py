@@ -34,7 +34,7 @@ def add_GWL_OBS(MdlN: str = None, M: Mdl_N = None, Opt: str = 'BEGIN OPTIONS\nEN
 
     # Iterate through OBS files of OBS blocks and add them to the Sim
     for i, path in enumerate(l_IPF):
-        Pa_OBS_IPF = (M.Pa.MdlN / path).resolve()  # path of IPF file. To be read.
+        Pa_OBS_IPF = (M.Pa.PRJ.parent / path).resolve()  # path of IPF file. To be read.
         OBS_IPF_Fi = Pa_OBS_IPF.name  # Filename of OBS file to be added to Sim (to be added without ending)
         if i == 0:
             Pa_OBS = M.Pa.Sim_In / f'{M.MdlN}_GWL.OBS6'  # path of OBS file. To be written.

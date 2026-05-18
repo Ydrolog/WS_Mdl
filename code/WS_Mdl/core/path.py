@@ -37,13 +37,13 @@ def imod_V(MdlN: str, iMOD5: bool | None = None):
             return 'imod5'
         else:
             print(
-                f"Could not determine imod version from Sim/{MdlN} folder.\nProceeding with the assumption it's imod_python.",
+                f"\n  - Could not determine imod version from Sim/{MdlN} folder. Proceeding with the assumption it's imod_python.\n",
                 file=sys.stderr,
             )
             return 'imod_python'
     except FileNotFoundError:
         print(
-            f"Could not determine imod version from Sim/{MdlN} folder.\nProceeding with the assumption that it's imod_python.",
+            f"\n  - Could not determine imod version from Sim/{MdlN} folder. Proceeding with the assumption that it's imod_python.\n",
             file=sys.stderr,
         )
         return 'imod_python'
@@ -100,8 +100,14 @@ def MdlN_Pa(MdlN: str, MdlN_B: str | bool | None = None, iMOD5: bool = None):
         d_Pa['Smk_DAG'] = d_Pa['Mdl'] / f'code/snakemake/DAG/DAG_{MdlN}.png'
 
         # Sim
-        d_Pa['Sim'] = d_Pa['Mdl'] / 'Sim'  # Sim folder
-        d_Pa['MdlN'] = d_Pa['Mdl'] / f'Sim/{MdlN}'
+        if d_Pa['INI'].exists():  # Get Sim folder from INI file, if it exists.
+            from WS_Mdl.imod.ini import as_d
+
+            d_Pa['Sim'] = (d_Pa['INI'] / as_d(d_Pa['INI'])['NAMFILE_OUT']).parents[1].resolve()
+        else:  # Otherwise assume Sim Out in same folder as In.
+            d_Pa['Sim'] = d_Pa['Mdl'] / 'Sim'  # Sim folder
+
+        d_Pa['MdlN'] = d_Pa['Sim'] / f'{MdlN}'
         d_Pa['BAT_RUN'] = d_Pa['MdlN'] / 'RUN.BAT'
         d_Pa['MF6'] = d_Pa['MdlN'] / 'modflow6' if not iMOD5 else d_Pa['MdlN'] / 'GWF_1'
         d_Pa['MSW'] = d_Pa['MdlN'] / 'metaswap' if not iMOD5 else d_Pa['MdlN'] / 'GWF_1/MSWAPINPUT'
