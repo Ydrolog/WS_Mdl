@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 
+from WS_Mdl.core.mdl import Mdl_N
 from WS_Mdl.core.style import set_verbose, sprint
 from WS_Mdl.imod.ini import Mdl_Dmns
 
@@ -156,6 +157,19 @@ class DFAccessor:
             sprint('🔴 - Cannot calculate coordinates: no suitable row/column indices found in PACKAGEDATA.')
             return self._df
         return df
+
+    def XY_to_RC(self, M: Mdl_N | str, x='x', y='y') -> pd.DataFrame:
+        """
+        Converts X,Y coordinates to row/column indices based on model dimensions.
+        Assumes the DataFrame has 'x' and 'y' columns with coordinates.
+        """
+        if M.istype(str):
+            M = Mdl_N(M)
+
+        DF = self._df.copy()
+        DF['C'] = ((DF[x] - M.Xmin) / M.cellsize).astype(int) + 1
+        DF['R'] = ((M.Ymax - DF[y]) / M.cellsize).astype(int) + 1
+        return DF
 
     def Calc_XY_start_end_from_Geom(self) -> pd.DataFrame:
         """
