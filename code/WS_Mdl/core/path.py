@@ -103,7 +103,7 @@ def MdlN_Pa(MdlN: str, MdlN_B: str | bool | None = None, iMOD5: bool = None):
         if d_Pa['INI'].exists():  # Get Sim folder from INI file, if it exists.
             from WS_Mdl.imod.ini import as_d
 
-            d_Pa['Sim'] = (d_Pa['INI'] / as_d(d_Pa['INI'])['NAMFILE_OUT']).parents[1].resolve()
+            d_Pa['Sim'] = (d_Pa['INI'].parent / as_d(d_Pa['INI'])['NAMFILE_OUT']).parents[1].resolve()
         else:  # Otherwise assume Sim Out in same folder as In.
             d_Pa['Sim'] = d_Pa['Mdl'] / 'Sim'  # Sim folder
 
