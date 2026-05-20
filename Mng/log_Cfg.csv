@@ -134,7 +134,7 @@ No RIV. Via imod python. PRJ: SS blocks removed, otherwise it wouldn't work with
 "67","NBr","67","NBr67","66","NBr66","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #3.1.8.
 - Peformed regridding after loading MF6_Sim in an attempt to fix CHDs.","Queued","Removed Output"
 "68","NBr","68","NBr68","62","NBr62","MK","Test","SFRmaker #3.0: SFR for main SW in Chaamse Beek
-- NBr66 becomes new B for SFR Sims moving forward.","Queued","PoPed"
+- NBr66/69 becomes new B for SFR Sims moving forward.","Queued","PoPed"
 "69","NBr","69","NBr69","66","NBr66","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #5.
 - To confirm cleaned interpolation works the sae as in B and to run longer for GXG","Queued","PoPed"
 "70","NBr","70","NBr70","69","NBr69","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #4
@@ -142,12 +142,14 @@ No RIV. Via imod python. PRJ: SS blocks removed, otherwise it wouldn't work with
 - Then NBr68 Vs NBr70 isolates the Diff the method (SFR vs RIV) have on the system.","Queued","PoPed"
 "71","NBr","71","NBr71","66","NBr66","MK","Test","SURF Test:
 - Attempting to store Outs in different drive than Ins.","Queued","PoPed"
-"72","NBr","72","NBr72","70","NBr70","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #4.1
+"72","NBr","72","NBr72","68","NBr68","MK","Test","SFRmaker #3.1: SFR for main SW in Chaamse Beek
+- Extra OBS points (all flows)","Queued",""
+"73","NBr","73","NBr73","68","NBr68","MK","Test","SFRmaker #3.2: SFR for main SW in Chaamse Beek
+- Long Sim","Development",""
+"74","NBr","74","NBr74","70","NBr70","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #4.1
 - RIV Bot set to SFR rtp, so RIV can also infiltrate.","Development",""
-"73","NBr","73","NBr73","68","NBr68","MK","Test","SFRmaker #4.0: SFR for main SW in Chaamse Beek
+"75","NBr","75","NBr75","68","NBr68","MK","Test","SFRmaker #4.0: SFR for main SW in Chaamse Beek
 - Detailed SW Nw added.","Development",""
-"0","","","","","","","","0","",""
-"0","","","","","","","","0","",""
 "0","","","","","","","","0","",""
 "0","","","","","","","","0","",""
 "0","","","","","","","","0","",""

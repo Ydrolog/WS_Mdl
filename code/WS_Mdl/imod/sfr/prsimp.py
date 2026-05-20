@@ -34,7 +34,7 @@ def create_SFR_lines(Pa_GPkg: str | Path, verbose: bool, debug_sfr: bool = True)
             ),
             verbose_in=True,
             verbose_out=verbose,
-            indent=3,
+            indent=0,
         )
 
     # %% Check NaN counts
@@ -215,11 +215,7 @@ def create_SFR_lines(Pa_GPkg: str | Path, verbose: bool, debug_sfr: bool = True)
             verbose_out=verbose,
         )
 
-    # %%
-    # print(GDF_Elv.loc[ GDF_Elv['D'] - GDF_Elv['C_'] < 0 ])
-
     # %% Merge adjusted elevations back to GDF
-    # GDF2 = GDF.copy()
     GDF = GDF.merge(GDF_Elv[['ID', 'C_', 'D']], on='ID', how='left')
 
     # %% Generate SFRmaker lines
@@ -307,14 +303,16 @@ def connect_SFR_lines_to_MF6(M: Mdl_N, debug_sfr: bool = True):
     sprint('🟢', verbose_in=True, verbose_out=M.verbose, print_time=True)
 
     # %% Identify deepest SFR layer
-    sprint('  - Identifying deepest SFR layer.', verbose_in=True, verbose_out=M.verbose, set_time=True, end='')
+    sprint('  - Identifying deepest SFR layer.', verbose_in=True, verbose_out=M.verbose, set_time=True)
     """The reason we're doing this is that the model has too many Ls and it takes a very long time to run the SFR functions with all of them. So we'll find the deepest L that has any part of the stream network in it, and **we'll only use up to that layer for the SFR grid.**"""
     for L in range(BOTs.shape[0]):
         L_BOT_min = BOTs[L].min()
         L_BOT_max = BOTs[L].max()
-        sprint(L + 1, f'|{L_BOT_min:8.2f} |', f'{L_BOT_max:8.2f} |', indent=3)
+        if debug_sfr:
+            sprint(L + 1, f'|{L_BOT_min:8.2f} |', f'{L_BOT_max:8.2f} |', indent=3)
         if L_BOT_min > M.lines.df['elevdn'].min():
             SFR_deepest_L = L + 1
+
     ### 3.0.3 Create SFR grid(s)
     SFR_grid = sfr.StructuredGrid(
         GDF_grid.loc[GDF_grid['k'] <= SFR_deepest_L - 1], crs=CRS
@@ -328,7 +326,7 @@ def connect_SFR_lines_to_MF6(M: Mdl_N, debug_sfr: bool = True):
     # print(f"Available methods: {[method for method in dir(SFR_grid) if not method.startswith('_')][:10]}")
 
     # Try to get basic info without full representation
-    if M.verbose:
+    if debug_sfr:
         print(f'Grid shape info: {hasattr(SFR_grid, "shape")}')
         if hasattr(SFR_grid, 'nlay'):
             print(f'Number of layers: {SFR_grid.nlay}')
@@ -338,11 +336,9 @@ def connect_SFR_lines_to_MF6(M: Mdl_N, debug_sfr: bool = True):
             print(f'Number of cols: {SFR_grid.ncol}')
     sprint('🟢', verbose_in=True, verbose_out=M.verbose, print_time=True)
 
-    # %% SFRdata
-    # paths = M.lines.paths
+    # %% Assign and Review SFRdata
     SFR_data = M.lines.to_sfr(grid=SFR_grid_L1, one_reach_per_cell=True)
 
-    # %% Explore DF_reach
     SFR_data.reach_data.sort_values(by=['i', 'j'])
     DF_reach = SFR_data.reach_data.copy()
     DF_reach[['k', 'i', 'j']] = DF_reach[['k', 'i', 'j']] + 1  # convert to 1-based indexing for reviewing
@@ -494,6 +490,7 @@ def connect_SFR_lines_to_MF6(M: Mdl_N, debug_sfr: bool = True):
     # - the roughness values are all the same (default) - **OK**
     # - downstream elevation is always lower than (or equal to) upstream - **OK**
     # - the widths seem to be the ones read from the shapefile - **OK**
+
     # %% Add SFR OBS
     # %% Calibration points
     DF_SFR_OBS = pd.read_csv(M.Pa_SFR_OBS_In)
@@ -509,7 +506,7 @@ def connect_SFR_lines_to_MF6(M: Mdl_N, debug_sfr: bool = True):
             obsname_column='site_no',
         )
     # %% Stage
-    DF_stage_OBS = pd.DataFrame({'rno': DF_reach['rno']})
+    DF_stage_OBS = pd.DataFrame({'rno': DF_reach['rno']})  # This will add stage OBS for all points.
     DF_stage_OBS['obs_name'] = (
         'Stg_L'
         + (DF_reach['k'] + 1).astype(str)
