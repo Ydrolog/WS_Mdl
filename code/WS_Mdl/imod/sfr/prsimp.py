@@ -246,10 +246,8 @@ def connect_SFR_lines_to_MF6(M: Mdl_N, debug_sfr: bool = True):
     - Sim_MF6: imod.mf6.Modflow6Simulation instance. (Can be created by WS_Mdl.imod.prj.PrSimP function.)
     - verbose: bool, for printing progress and info.
     - Pa_Cond_A: Path to primary conductance IDF file.
-    - Pa_Cond_B: Path to secondary conductance IDF file. Used wherever primary Cond file has not values.
-    - Xmin, Xmax, Ymin, Ymax: model domain extents, used for subsetting the Cond IDF files.
+    - Pa_Cond_B: Path to secondary conductance IDF file. Used wherever primary Cond file has no values.
     - Pa_SFR_OBS_In: Path to SFR OBS csv file, used for adding SFR OBS to the model.
-    -
     """  # 666 fill with more info
 
     import shutil as sh
@@ -517,7 +515,7 @@ def connect_SFR_lines_to_MF6(M: Mdl_N, debug_sfr: bool = True):
     )
     DF_stage_OBS['obstype'] = 'stage'
     SFR_data.add_observations(DF_stage_OBS, rno_column='rno', obstype_column='obstype', obsname_column='obs_name')
-    SFR_data.observations
+    # SFR_data.observations
     # %% Run diagnostics
     SFR_data.run_diagnostics(verbose=True)
     # GDF_Elv.loc[ GDF_Elv['D'] - GDF_Elv['B_'] < 0]

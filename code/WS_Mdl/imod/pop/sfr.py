@@ -27,7 +27,7 @@ def stage_TS(
     load_HD_RIV: bool = True,
     load_P: bool = True,
     SFR_Out_Col_prefix: str = 'STG_',
-):
+):  # 666 to be reviewed (this doesn't include qrun), and improved
     """
     Generates time series plots of SFR stage data from model output.
     """
