@@ -200,8 +200,8 @@ class DFAccessor:
             DataFrame to format. If omitted, uses the accessor DataFrame.
         Min_width : int, default=4
             Minimum width for each column
-        indent : str, default='    '
-            String for line indentation
+        indent : int, default=2
+            Number of spaces for line indentation
         Max_decimals : int, default=4
             Maximum decimal places for float values
 
@@ -255,13 +255,13 @@ class DFAccessor:
             widths[col] = max(len(col), max_val_len, Min_width)
 
         # Prepare header line (right aligned)
-        header_line = indent * '  ' + ' '.join(col.rjust(widths[col]) for col in DF_str.columns)
+        header_line = indent * ' ' + ' '.join(col.rjust(widths[col]) for col in DF_str.columns)
 
         lines = [header_line]
 
         # Prepare data lines (right aligned)
         for _, row in DF_str.iterrows():
-            line = indent * '  ' + ' '.join(row[col].rjust(widths[col]) for col in DF_str.columns)
+            line = indent * ' ' + ' '.join(row[col].rjust(widths[col]) for col in DF_str.columns)
             lines.append(line)
 
         return '\n'.join(lines) + '\n'

@@ -92,6 +92,26 @@ class Mdl_N:
         return l_Pkgs(self.MdlN)
 
     @property
+    def _PRJ_bundle(self):
+        from WS_Mdl.imod.prj import r_with_OBS
+
+        return r_with_OBS(
+            self.Pa.PRJ
+        )  # , season_to_DT=False) # Fix for ufunc 'greater_equal' did not contain a loop with signature matching types (<class 'numpy.dtypes.Float64DType'>, <class 'numpy.dtypes.DateTime64DType'>) -> None
+
+    @property
+    def PRJ(self):
+        return self._PRJ_bundle[0]
+
+    @property
+    def PRJ_OBS(self):
+        return self._PRJ_bundle[1]
+
+    @property
+    def N_L(self):
+        return self.PRJ['(bot)']['n_system']
+
+    @property
     def vars(self):
         """Return all slotted attributes and their current values as a dict."""
         return {k: getattr(self, k, None) for k in self.__slots__}

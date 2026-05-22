@@ -490,32 +490,35 @@ def connect_SFR_lines_to_MF6(M: Mdl_N, debug_sfr: bool = True):
     # - the widths seem to be the ones read from the shapefile - **OK**
 
     # %% Add SFR OBS
-    # %% Calibration points
-    DF_SFR_OBS = pd.read_csv(M.Pa_SFR_OBS_In)
-    for (
-        i,
-        row,
-    ) in DF_SFR_OBS.iterrows():  # Have to add them one by one, otherwise it groups them by reach and only keeps the 1st one. This is an SFRmaker bug, I can fix that later and make a pull request. #666 it worked for stage though, so maybe I should trty again.
-        SFR_data.add_observations(
-            pd.DataFrame(row).T,
-            x_location_column='x',
-            y_location_column='y',
-            obstype_column='obstype',
-            obsname_column='site_no',
+    # %% OBS points from file
+    if M.Pa_SFR_OBS_In:
+        DF_SFR_OBS = pd.read_csv(M.Pa_SFR_OBS_In)
+        for (
+            i,
+            row,
+        ) in DF_SFR_OBS.iterrows():  # Have to add them one by one, otherwise it groups them by reach and only keeps the 1st one. This is an SFRmaker bug, I can fix that later and make a pull request. #666 it worked for stage though, so maybe I should try again.
+            SFR_data.add_observations(
+                pd.DataFrame(row).T,
+                x_location_column='x',
+                y_location_column='y',
+                obstype_column='obstype',
+                obsname_column='site_no',
+            )
+    # %% OBS for parameters where we want to print Outs for all reaches.
+    for Par in M.SFR_OBS_all:
+        DF_OBS = pd.DataFrame({'rno': DF_reach['rno']})  # This will add stage OBS for all points.
+        DF_OBS['name'] = (
+            f'{Par}_L'
+            + (DF_reach['k'] + 1).astype(str)
+            + '_R'
+            + (DF_reach['i'] + 1).astype(str)
+            + '_C'
+            + (DF_reach['j'] + 1).astype(str)
         )
-    # %% Stage
-    DF_stage_OBS = pd.DataFrame({'rno': DF_reach['rno']})  # This will add stage OBS for all points.
-    DF_stage_OBS['obs_name'] = (
-        'Stg_L'
-        + (DF_reach['k'] + 1).astype(str)
-        + '_R'
-        + (DF_reach['i'] + 1).astype(str)
-        + '_C'
-        + (DF_reach['j'] + 1).astype(str)
-    )
-    DF_stage_OBS['obstype'] = 'stage'
-    SFR_data.add_observations(DF_stage_OBS, rno_column='rno', obstype_column='obstype', obsname_column='obs_name')
-    # SFR_data.observations
+        DF_OBS['type'] = Par
+        SFR_data.add_observations(DF_OBS, rno_column='rno', obstype_column='type', obsname_column='name')
+        # SFR_data.observations # Use this to review them
+
     # %% Run diagnostics
     SFR_data.run_diagnostics(verbose=True)
     # GDF_Elv.loc[ GDF_Elv['D'] - GDF_Elv['B_'] < 0]

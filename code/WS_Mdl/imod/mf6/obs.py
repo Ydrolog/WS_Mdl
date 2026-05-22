@@ -12,7 +12,7 @@ from WS_Mdl.core.mdl import Mdl_N
 from WS_Mdl.core.style import Sep, sprint
 
 
-def add_GWL_OBS(MdlN: str = None, M: Mdl_N = None, Opt: str = 'BEGIN OPTIONS\nEND OPTIONS', iMOD5=False):
+def add_GWL_OBS(MdlN: str = None, M: Mdl_N = None, Opt: str = 'BEGIN OPTIONS\nEND OPTIONS'):
     """
     Adds OBS file(s) from PRJ file OBS block to Mdl Sim (which iMOD can't do). Thus the OBS file needs to be written, and then a link to the OBS file needs to be created within the NAM file.
     Assumes OBS IPF file contains the following parameters/columns: 'Id', 'L', 'x', 'y'
@@ -206,3 +206,47 @@ def add_within_polygon(
                 else M.Pa.Sim_In / f'{MdlN}_{S.split("_")[-1].upper()}.{Pkg.upper()}6'
             )
             add_OBS_to_MF_In(str_OBS=text, Pa=Pa, iMOD5=False)
+
+
+def add_L_HD_OBS(MdlN: str, l_L: int, Opt: str = 'BEGIN OPTIONS\n  DIGITS 5\nEND OPTIONS\n\n'):
+    """
+    Adds HD OBS for all active cells in specified layers based on B .grb file.
+    Checks if B domain matches the S domain. If False, stops.
+    """
+    M = Mdl_N(MdlN)  # Load Mdl_N instance
+
+    from imod.mf6 import read_grb
+
+    ID = read_grb(M.Pa_B.GRB)['idomain']  # Load B domain
+
+    if ID.shape != (M.N_L, M.N_R, M.N_C):  # Ensure dimensions match
+        raise ValueError(
+            f'B ({M.B}) domain dimensions {ID.shape} do not match {MdlN} {(M.N_L, M.N_R, M.N_C)}. Check if B domain matches S domain.'
+        )
+
+    # Make DF from L R C of active cells in selected layers
+    ID = (
+        ID.sel(layer=l_L)
+        .rename({'y': 'R', 'x': 'C', 'layer': 'L'})
+        .assign_coords(
+            R=('R', ((ID.y[0] - ID.y) / M.cellsize + 1).astype(int).values),
+            C=('C', ((ID.x - ID.x[0]) / M.cellsize + 1).astype(int).values),
+        )
+    )
+
+    LRC = (
+        ID.where(ID == 1, drop=True)
+        .stack(cell=('L', 'R', 'C'))
+        .dropna('cell')
+        .cell.to_index()
+        .map(lambda x: ' '.join(map(str, x)))
+    )
+
+    DF = pd.DataFrame({'obsname': LRC.map(lambda x: 'HD_' + x.replace(' ', '_')), 'obstype': 'HEAD', 'id': LRC})
+
+    with open(M.Pa.Sim_In / f'L_HD_OBS_{MdlN}.OBS6', 'w') as f:
+        f.write(f'# created with {M.Pa_B.GRB}\n')
+        f.write(Opt)  # write optional block
+        f.write(f'BEGIN CONTINUOUS FILEOUT L_HD_OBS_{MdlN}.csv\n')
+        f.write(DF.ws.to_MF_block())
+        f.write('END CONTINUOUS\n')

@@ -1,4 +1,3 @@
-import math
 import os
 import tempfile
 from pathlib import Path
@@ -26,18 +25,18 @@ xra.set_options(use_new_combine_kwarg_defaults=True)
 # import importlib as IL
 
 
-def r_with_OBS(
-    Pa_PRJ, remove_SS=True, season_to_DT=True
-):  # 666 Turn this into a class. And add other functions as methods.
+def split_OBS(Pa_PRJ):
     """
-    imod.formats.prj.read_projectfile struggles with .prj files that contain OBS blocks. This will read the PRJ file and return a tuple. The first item is a PRJ dictionary (as imod.formats.prj would return) and also a list of the OBS block lines.
+    Reads a PRJ file.
+    Returns tuple:
+        1st item: Temp PRJ file (OBS block removed) path.
+        2nd item: list of OBS block lines.
 
-    Pa_PRJ: a the path of the PRJ file.
     remove_SS: if True, removes any steady state periods from the PRJ file. This is useful when working with transient models only, as steady state periods can cause issues with some packages (e.g. RIV, DRN) when using imod python.
     season_to_DT: CAUTION!!! this can be set to True so that imod.formats.prj.read_projectfile() doesn't fail when it encounters season names (winter, summer) in the PRJ blocks, but it won't apply them properly (as iMOD5 would do). This function would need to be upgraded for that to happen.
+
     """
-    Pa_PRJ = Path(Pa_PRJ)  # Convert to Path object for easier manipulation
-    with open(Pa_PRJ, 'r') as f:
+    with open(Path(Pa_PRJ), 'r') as f:
         lines = f.readlines()
 
     l_filtered_Lns, l_OBS_Lns = [], []
@@ -54,56 +53,74 @@ def r_with_OBS(
         else:
             l_filtered_Lns.append(line)  # Keep everything else
 
-    get_SS_N, N_SS, l_filtered_Lns1 = False, 0, []
-    if remove_SS:
-        for i, Ln in enumerate(l_filtered_Lns[:]):  # Iterate over a copy of the list to allow removal
-            if 'STEADY-STATE' in Ln.upper():  # Identify steady state period lines
-                get_SS_N = True
-                LL = l_filtered_Lns1[-1].split(',')  # LL: Last Line
-                l_filtered_Lns1[-1] = ','.join([f'{int(LL[0]) - 1:03}'] + LL[1:])
-            elif get_SS_N:
-                l_SS_Ln = Ln.replace('\n', '').split(',')
-                N_SS = math.prod([int(x) for x in l_SS_Ln])
-                get_SS_N = False
-            elif N_SS > 0:
-                N_SS -= 1
-            else:
-                l_filtered_Lns1.append(Ln)  # Keep non-steady state lines
+    # region Extra options (under development)
+    # get_SS_N, N_SS, l_filtered_Lns1 = False, 0, []
 
-    # Replace seasons
-    l_filtered_Lns2 = []
-    if season_to_DT:
-        season_map = {}
-        record_periods = False
-        for i, Ln in enumerate(l_filtered_Lns1[:]):  # Iterate over a copy of the list to allow modification
-            if 'periods' in Ln.lower():  # Identify season lines
-                record_periods = True
-                # l_filtered_Lns.pop(i)
-            elif record_periods and Ln.strip() == '':  # End of season block
-                record_periods = False
-            elif record_periods:
-                if 'winter\n' == Ln.lower():
-                    date_str = l_filtered_Lns1[i + 1].strip()
-                    try:
-                        dt = pd.to_datetime(date_str, dayfirst=True)
-                        season_map[Ln] = dt.strftime('%Y-%m-%d %H:%M:%S') + '\n'
-                    except Exception:
-                        season_map[Ln] = date_str + '\n'
-                elif 'summer\n' == Ln.lower():
-                    date_str = l_filtered_Lns1[i + 1].strip()
-                    try:
-                        dt = pd.to_datetime(date_str, dayfirst=True)
-                        season_map[Ln] = dt.strftime('%Y-%m-%d %H:%M:%S') + '\n'
-                    except Exception:
-                        season_map[Ln] = date_str + '\n'
-        l_filtered_Lns2 = [season_map.get(x, x) for x in l_filtered_Lns1]
+    # if remove_SS:  # 666 review this too.
+    #     for i, Ln in enumerate(l_filtered_Lns[:]):  # Iterate over a copy of the list to allow removal
+    #         if 'STEADY-STATE' in Ln.upper():  # Identify steady state period lines
+    #             get_SS_N = True
+    #             LL = l_filtered_Lns1[-1].split(',')  # LL: Last Line
+    #             l_filtered_Lns1[-1] = ','.join([f'{int(LL[0]) - 1:03}'] + LL[1:])
+    #         elif get_SS_N:
+    #             l_SS_Ln = Ln.replace('\n', '').split(',')
+    #             N_SS = math.prod([int(x) for x in l_SS_Ln])
+    #             get_SS_N = False
+    #         elif N_SS > 0:
+    #             N_SS -= 1
+    #         else:
+    #             l_filtered_Lns1.append(Ln)  # Keep non-steady state lines
+
+    # # Replace seasons #666 review this, could be very important and I may want to add smth similar to o_with OBS asit may avoid problems with UFuncTypeError in file "G:\models\NBr\code\snakemake\NBr73.smk", line 94: ufunc 'greater_equal' did not contain a loop with signature matching types (<class 'numpy.dtypes.Float64DType'>, <class 'numpy.dtypes.DateTime64DType'>) -> None. This is caused when the Sim duration isn't long enough for the seasons to change.
+    # l_filtered_Lns2 = []
+    # if season_to_DT:
+    #     season_map = {}
+    #     record_periods = False
+    #     for i, Ln in enumerate(l_filtered_Lns1[:]):  # Iterate over a copy of the list to allow modification
+    #         if 'periods' in Ln.lower():  # Identify season lines
+    #             record_periods = True
+    #             # l_filtered_Lns.pop(i)
+    #         elif record_periods and Ln.strip() == '':  # End of season block
+    #             record_periods = False
+    #         elif record_periods:
+    #             if 'winter\n' == Ln.lower():
+    #                 date_str = l_filtered_Lns1[i + 1].strip()
+    #                 try:
+    #                     dt = pd.to_datetime(date_str, dayfirst=True)
+    #                     season_map[Ln] = dt.strftime('%Y-%m-%d %H:%M:%S') + '\n'
+    #                 except Exception:
+    #                     season_map[Ln] = date_str + '\n'
+    #             elif 'summer\n' == Ln.lower():
+    #                 date_str = l_filtered_Lns1[i + 1].strip()
+    #                 try:
+    #                     dt = pd.to_datetime(date_str, dayfirst=True)
+    #                     season_map[Ln] = dt.strftime('%Y-%m-%d %H:%M:%S') + '\n'
+    #                 except Exception:
+    #                     season_map[Ln] = date_str + '\n'
+    #     l_filtered_Lns2 = [season_map.get(x, x) for x in l_filtered_Lns1]
 
     # Write to a temporary file
-    l_filtered_Lns = l_filtered_Lns2
+    # l_filtered_Lns = l_filtered_Lns2
+
+    # endregion
+
     # Create the temp file in the same directory as the original PRJ so relative paths resolve correctly
     with tempfile.NamedTemporaryFile(delete=False, mode='w', dir=Pa_PRJ.parent, suffix='.prj') as temp_file:
         temp_file.writelines(l_filtered_Lns)
         Pa_PRJ_temp = temp_file.name
+
+    return Pa_PRJ_temp, l_OBS_Lns
+
+
+def r_with_OBS(
+    Pa_PRJ, remove_SS=True, season_to_DT=True
+):  # 666 Turn this into a class. And add other functions as methods.
+    """
+    imod.formats.prj.read_projectfile struggles with .prj files that contain OBS blocks. This will read the PRJ file and return a tuple. The first item is a PRJ dictionary (as imod.formats.prj would return) and also a list of the OBS block lines.
+
+    Pa_PRJ: a the path of the PRJ file.
+    """
+    Pa_PRJ_temp, l_OBS_Lns = split_OBS(Pa_PRJ)  # Get temp PRJ file path and OBS lines
 
     try:
         PRJ = imod.formats.prj.read_projectfile(Pa_PRJ_temp)  # Load the PRJ file without OBS
@@ -209,29 +226,7 @@ def o_with_OBS(Pa_PRJ, return_OBS=False):
     - This works for both types of PRJ files - with and without OBS blocks. So it's SAFER to use overall.
     """
 
-    Dir_PRJ = Path(Pa_PRJ).parent  # Directory of the PRJ file
-
-    with open(Pa_PRJ, 'r') as f:
-        lines = f.readlines()
-
-    l_filtered_Lns, l_OBS_Lns = [], []
-    skip_block = False
-
-    for line in lines:
-        if '(obs)' in line.lower():  # Start of OBS block
-            skip_block = True
-            l_OBS_Lns.append(line)  # Keep the header
-        elif skip_block and line.strip() == '':  # End of OBS block
-            skip_block = False
-        elif skip_block:
-            l_OBS_Lns.append(line)  # Store OBS content
-        else:
-            l_filtered_Lns.append(line)  # Keep everything else
-
-    # Write to a temporary file
-    with tempfile.NamedTemporaryFile(delete=False, mode='w', suffix='.prj.tmp', dir=Dir_PRJ) as temp_file:
-        temp_file.writelines(l_filtered_Lns)
-        Pa_PRJ_temp = temp_file.name
+    Pa_PRJ_temp, l_OBS_Lns = split_OBS(Pa_PRJ)  # Get temp PRJ file path and OBS lines
 
     PRJ = imod.prj.open_projectfile_data(Pa_PRJ_temp)  # Load the PRJ file without OBS
     Path(Pa_PRJ_temp).unlink()  # Delete temp PRJ file as it's not needed anymore.

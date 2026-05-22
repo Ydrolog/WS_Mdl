@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 from WS_Mdl.core.mdl import Mdl_N
@@ -20,12 +20,15 @@ class SFR_settings:
     Pa_Shp_connect_Pkgs: str | Path | None = (
         None  # Shapefile containing the outer boundaries of the DRN package cells to be connected to the nearest SFR cells.
     )
+    OBS_all: list = field(
+        default_factory=list
+    )  # Pars to report for all reaches as OBS. E.g. 'stage', 'downstream-flow'. Search for "Observation type" in MF6 I/O guide for other options.
 
 
 def Sim(
     MdlN: str,
     verbose: bool = False,
-    SFR: bool = True,
+    SFR: SFR_settings = True,
     Pa_MF6_DLL: str = None,
     Pa_MSW_DLL: str = None,
     Bin_Ins: bool = True,
@@ -47,6 +50,12 @@ def Sim(
     M.Bin_Ins = Bin_Ins
     sprint('🟢', verbose_in=True, verbose_out=verbose, print_time=True)
 
+    # %% Guard clause
+    if SFR is True and not isinstance(SFR, SFR_settings):
+        raise ValueError(
+            'SFR argument must be an instance of the SFR_settings dataclass with the appropriate parameters filled out or False. This is a Guard Clause.'
+        )
+
     # %% Load PRJ & regrid it to Mdl area
     sprint('--- imod PrSimP from PRJ file.', verbose_in=True, verbose_out=verbose)
     M.Sim_MF6, M.MSW_Mdl = timed_Exe(PrSimP, M)
@@ -58,9 +67,10 @@ def Sim(
 
         # %% Connect SFR Lines to MF6 (writes files and connects them to NAM)
         sprint(' -- Connecting SFR lines to MF6.', verbose_in=True, verbose_out=verbose)
-        M.Pa_SFR_OBS_In = Path(SFR.Pa_OBS_In)
+        M.Pa_SFR_OBS_In = Path(SFR.Pa_OBS_In) if SFR.Pa_OBS_In is not None else None
         M.Pa_Cond_A = Path(SFR.Pa_Cond_A)
-        M.Pa_Cond_B = Path(SFR.Pa_Cond_B) if SFR.Pa_Cond_B is None else Path(SFR.Pa_Cond_B)
+        M.Pa_Cond_B = Path(SFR.Pa_Cond_B) if SFR.Pa_Cond_B is None else Path(SFR.Pa_Cond_A)
+        M.SFR_OBS_all = SFR.OBS_all
         M.DF_reach = timed_Exe(
             connect_SFR_lines_to_MF6,
             M,
