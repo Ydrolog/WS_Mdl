@@ -1,3 +1,4 @@
+import os
 from typing import TYPE_CHECKING
 
 from filelock import FileLock as FL
@@ -8,20 +9,20 @@ if TYPE_CHECKING:
     import pandas as pd
 
 
-def add_PKG(MdlN, str_PKG, iMOD5=False):
+def add_PKG(MdlN, str_PKG):
     """
-    Backwards compatibility for add_Pkg. Renamed casue PKG doesn't follow the abbreviation rules of this project.
+    Backwards compatibility for add_Pkg. Renamed cause PKG doesn't follow the abbreviation rules of this project.
     """
-    add_Pkg(MdlN, str_PKG, iMOD5=iMOD5)
+    add_Pkg(MdlN, str_PKG)
 
 
-def add_Pkg(MdlN, str_Pkg, iMOD5=False):
+def add_Pkg(MdlN, str_Pkg):
     """
     Adds a package (PKG) to the NAM file for the specified model (MdlN).
     str_PKG should be the exact line to add for the package, e.g. 'mvr6 mvr6.mvr6' (without quotes).
     Uses a file lock to ensure thread-safe file editing.
     """
-    M = Mdl_N(MdlN, iMOD5=iMOD5)
+    M = Mdl_N(MdlN)
     Pa_NAM = M.Pa.NAM_Mdl
 
     lock = FL(f'{Pa_NAM}.lock')  # Create a file lock to prevent concurrent writes
@@ -33,6 +34,10 @@ def add_Pkg(MdlN, str_Pkg, iMOD5=False):
         for i in l_lines:
             f.write(i)
         f.write('END PACKAGES')
+
+        f.flush()
+        os.fsync(f.fileno())  # ensure it’s on disk
+        # lock is released automatically when the with-block closes
 
 
 def DF_Pkgs(MdlN: str | Mdl_N) -> 'pd.DataFrame':

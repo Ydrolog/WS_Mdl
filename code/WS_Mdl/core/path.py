@@ -20,7 +20,7 @@ def get_Mdl(MdlN: str):
 
 
 def imod_V(MdlN: str, iMOD5: bool | None = None):
-    """Returns the imod version used for a given MdlN."""
+    """Returns the imod version used for a given MdlN. Determined based on folderstructure if not provided."""
     if iMOD5 is True:
         return 'imod5'
     if iMOD5 is False:

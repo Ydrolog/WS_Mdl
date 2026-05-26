@@ -31,10 +31,10 @@ Pa_SW_Cond_A = M.Pa.WS / r"models\NBr\In\RIV\RIV_Cond_DETAILWATERGANGEN_NBr1.IDF
 Pa_SW_Cond_B = M.Pa.WS / r"models\NBr\In\RIV\RIV_Cond_DRN_NBr1.IDF"
 Pa_SFR_OBS_In = M.Pa.In / 'OBS/SFR/NBr40/NBr40_SFR_OBS_Pnt.csv'
 Pa_Shp_catchment = M.Pa.WS / r'models\NBr\PoP\common\Pgn\Chaamse_beek\catchment_chaamsebeek_ulvenhout.shp'
-SFR_OBS_all = ['downstream-flow', 'inflow', 'stage', 'from_mvr']
+SFR_OBS_all = ['downstream-flow', 'inflow', 'stage', 'from-mvr']
 
-Pa_HD_OBS_WEL   =   M.Pa.Sim_In / f'{M.MdlN}_GWL.OBS6'
-Pa_L_HD_OBS    =   M.Pa.Sim_In / f'L_HD_OBS_{MdlN}.OBS6'
+Pa_HD_OBS_Src = M.Pa.In / f"OBS/HD/NBr73/HD_NBr73.OBS6"
+Pa_HD_OBS_Dst = M.Pa.Sim_In / f'GWHD_{MdlN}.OBS6'
 
 ## Temp files - for completion validation. If you want to re-run a rule, delete the coresponding temp file.
 Pa_temp             =   M.Pa.Smk.parent / 'temp'
@@ -83,36 +83,31 @@ rule Mdl_Prep: # Prepares Sim Ins (from Ins) via BAT file.
     output:
         M.Pa.NAM_Sim
     run:
-        from WS_Mdl.imod.prep import Sim, SFR_settings
+        from WS_Mdl.imod.sfr.prsimp import SFR_settings
+        from WS_Mdl.imod.prep import Sim
         SFR_Cfg = SFR_settings( Pa_Cond_A = Pa_SW_Cond_A,
                                 Pa_Cond_B = Pa_SW_Cond_B,
                                 Pa_Gpkg = Pa_SFR_GPkg,
                                 Pa_OBS_In = Pa_SFR_OBS_In,
                                 connect_Pkgs=('DRN', 'RIV'),
                                 Pa_Shp_connect_Pkgs = Pa_Shp_catchment,
+                                OBS_all = SFR_OBS_all
                                 )
         Sim(MdlN = MdlN,
             verbose=True,
             SFR=SFR_Cfg)
 
 ## -- PrSimP --
-rule add_HD_OBS_WEL:
+rule add_HD_OBS_copy: # Copying so I can manually make a file that contains OBS for both OBS Pnts and whole layers.
     input:
         M.Pa.NAM_Sim
     output:
-        Pa_HD_OBS_WEL
+        Pa_HD_OBS_Dst
     run:
-        from WS_Mdl.imod.mf6.obs import add_GWL_OBS
-        add_GWL_OBS(MdlN)
-
-rule add_L_HD_OBS:
-    input:
-        M.Pa.NAM_Sim
-    output:
-        Pa_L_HD_OBS
-    run:
-        from WS_Mdl.imod.mf6.obs import add_L_HD_OBS
-        add_L_HD_OBS(MdlN, l_L=[1, 3, 5, 7, 9, 11])
+        from WS_Mdl.imod.mf6.nam import add_Pkg
+        sh.copy2(Pa_HD_OBS_Src, Pa_HD_OBS_Dst) # Copy the file to create a new one with the same content.
+        # Add to NAM file
+        add_Pkg(M.MdlN, fr'  OBS6 .\imported_model\GWHD_{MdlN}.OBS6 GWHD_OBS')  # Add to NAM
 
 rule fix_MSW_area:
     input:
@@ -126,8 +121,7 @@ rule fix_MSW_area:
 ## -- Sim ---
 rule Sim: # Runs the simulation via BAT file.
     input:
-        Pa_HD_OBS_WEL,
-        Pa_L_HD_OBS,
+        Pa_HD_OBS_Dst,
         log_fix_MSW_area
     output:
         temp(log_Sim)

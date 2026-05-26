@@ -1,15 +1,14 @@
-import os
 import re
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import WS_Mdl.core.df  # noqa: F401
-from filelock import FileLock as FL
 from shapely.geometry import Point
 from WS_Mdl.core.defaults import CRS
 from WS_Mdl.core.mdl import Mdl_N
 from WS_Mdl.core.style import Sep, sprint
+from WS_Mdl.imod.mf6.nam import add_Pkg
 
 
 def add_GWL_OBS(MdlN: str = None, M: Mdl_N = None, Opt: str = 'BEGIN OPTIONS\nEND OPTIONS'):
@@ -64,28 +63,16 @@ def add_GWL_OBS(MdlN: str = None, M: Mdl_N = None, Opt: str = 'BEGIN OPTIONS\nEN
             # sprint(M.Pa.MdlN, path, Pa_OBS_IPF, sep='\n')
             f.write(f'# created from {Pa_OBS_IPF}\n')
             f.write(Opt.encode().decode('unicode_escape'))  # write optional block
-            f.write(f'\n\nBEGIN CONTINUOUS FILEOUT OBS_{M.MdlN}({OBS_IPF_Fi.split(".")[0]}).csv\n')
+            f.write(f'\n\nBEGIN CONTINUOUS FILEOUT GWL_OBS_{M.MdlN}({OBS_IPF_Fi.split(".")[0]}).csv\n')
 
             for _, row in DF_OBS_IPF_Mdlarea.drop_duplicates(subset=['Id', 'L', 'R', 'C']).iterrows():
                 f.write(f' {row["Id"]} HEAD {row["L"]} {row["R"]} {row["C"]}\n')
 
             f.write('END CONTINUOUS\n')
 
-        # Open NAM file and add OBS file to it
-        lock = FL(f'{M.Pa.NAM_Mdl}.lock')  # Create a file lock to prevent concurrent writes
-        with lock, open(M.Pa.NAM_Mdl, 'r+') as f:
-            l_NAM = f.read().upper().split('END PACKAGES')
-            f.seek(0)
-            f.truncate()  # overwrite in-place
-            Pa_OBS_Rel = Path(Pa_OBS).relative_to(M.Pa.NAM_Sim.parent)
+        Pa_OBS_Rel = Path(Pa_OBS).relative_to(M.Pa.NAM_Sim.parent)
+        add_Pkg(M.MdlN, f'  OBS6 .\\{Pa_OBS_Rel} GWHD_OBS_Pnt')  # Add to NAM
 
-            f.write(l_NAM[0])
-            f.write(rf'  OBS6 .\{Pa_OBS_Rel} OBS_{M.MdlN}')  # ({OBS_IPF_Fi.split(".")[0]})')
-            f.write('\nEND PACKAGES')
-
-            f.flush()
-            os.fsync(f.fileno())  # ensure it’s on disk
-            # lock is released automatically when the with-block closes
         sprint(f'🟢 - {Pa_OBS} has been added successfully!')
     sprint(Sep)
 
@@ -244,9 +231,14 @@ def add_L_HD_OBS(MdlN: str, l_L: int, Opt: str = 'BEGIN OPTIONS\n  DIGITS 5\nEND
 
     DF = pd.DataFrame({'obsname': LRC.map(lambda x: 'HD_' + x.replace(' ', '_')), 'obstype': 'HEAD', 'id': LRC})
 
-    with open(M.Pa.Sim_In / f'L_HD_OBS_{MdlN}.OBS6', 'w') as f:
+    Pa_OBS = M.Pa.Sim_In / f'L_HD_OBS_{MdlN}.OBS6'
+
+    with open(Pa_OBS, 'w') as f:
         f.write(f'# created with {M.Pa_B.GRB}\n')
         f.write(Opt)  # write optional block
         f.write(f'BEGIN CONTINUOUS FILEOUT L_HD_OBS_{MdlN}.csv\n')
         f.write(DF.ws.to_MF_block())
         f.write('END CONTINUOUS\n')
+
+    Pa_OBS_Rel = Path(Pa_OBS).relative_to(M.Pa.NAM_Sim.parent)
+    add_Pkg(M.MdlN, f'  OBS6 .\\{Pa_OBS_Rel} GWHD_OBS_L')  # Add to NAM

@@ -1,4 +1,5 @@
 import sys
+from dataclasses import dataclass, field
 from pathlib import Path
 
 import geopandas as gpd
@@ -8,6 +9,23 @@ from WS_Mdl.core.defaults import CRS
 from WS_Mdl.core.mdl import Mdl_N
 from WS_Mdl.core.style import sprint
 from WS_Mdl.imod.mf6.bin import to_DF
+
+
+@dataclass
+class SFR_settings:
+    Pa_Gpkg: str | Path  # Main SFR geopackage. # 666 details about required columns need to be written.
+    Pa_Cond_A: str | Path  # Primary conductance file for SFR. This is required.
+    Pa_Cond_B: str | Path | None = (
+        None  # Optional secondary conductance file for SFR. If not specified, only the primary conductance file will be used.
+    )
+    Pa_OBS_In: str | Path | None = None  # OBS for SFR
+    connect_Pkgs: tuple = ()  # Option to connect DRN to SFR via MVR.
+    Pa_Shp_connect_Pkgs: str | Path | None = (
+        None  # Shapefile containing the outer boundaries of the DRN package cells to be connected to the nearest SFR cells.
+    )
+    OBS_all: list = field(
+        default_factory=list
+    )  # Pars to report for all reaches as OBS. E.g. 'stage', 'downstream-flow'. Search for "Observation type" in MF6 I/O guide for other options.
 
 
 def create_SFR_lines(Pa_GPkg: str | Path, verbose: bool, debug_sfr: bool = True):

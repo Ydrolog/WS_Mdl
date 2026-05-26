@@ -145,7 +145,7 @@ No RIV. Via imod python. PRJ: SS blocks removed, otherwise it wouldn't work with
 "72","NBr","72","NBr72","68","NBr68","MK","Test","SFRmaker #3.1: SFR for main SW in Chaamse Beek
 - Extra OBS points (real outlet in 1st column)","Cancelled","Running"
 "73","NBr","73","NBr73","68","NBr68","MK","Test","SFRmaker #3.2: SFR for main SW in Chaamse Beek
-- Long Sim","Queued",""
+- Long Sim","Queued","Running"
 "74","NBr","74","NBr74","70","NBr70","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #4.1
 - RIV Bot set to SFR rtp, so RIV can also infiltrate.","Development",""
 "75","NBr","75","NBr75","68","NBr68","MK","Test","SFRmaker #4.0: SFR for main SW in Chaamse Beek
