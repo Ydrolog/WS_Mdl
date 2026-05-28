@@ -26,6 +26,7 @@ class SFR_settings:
     OBS_all: list = field(
         default_factory=list
     )  # Pars to report for all reaches as OBS. E.g. 'stage', 'downstream-flow'. Search for "Observation type" in MF6 I/O guide for other options.
+    options: list[str] = None
 
 
 def create_SFR_lines(Pa_GPkg: str | Path, verbose: bool, debug_sfr: bool = True):
@@ -268,15 +269,14 @@ def connect_SFR_lines_to_MF6(M: Mdl_N, debug_sfr: bool = True):
     - Pa_SFR_OBS_In: Path to SFR OBS csv file, used for adding SFR OBS to the model.
     """  # 666 fill with more info
 
-    import shutil as sh
-
     import imod
     import sfrmaker as sfr
     from shapely import box
+    from WS_Mdl.imod.mf6.nam import add_Pkg
 
     # %% Connect SFR to MF6 model
-    sprint(' -- SFRmaker - Connecting SFR lines to MF6 model.', verbose_in=True, verbose_out=M.verbose)
-    sprint('  - Creating SFR_grid item.', verbose_in=True, verbose_out=M.verbose, set_time=True, end='')
+    sprint(' -- SFRmaker - Connecting SFR lines to MF6 model.', verbose_in=True, verbose_out=M.Sim.verbose)
+    sprint('  - Creating SFR_grid item.', verbose_in=True, verbose_out=M.Sim.verbose, set_time=True, end='')
     # Create sfr.StructuredGrid directly from MF6_DIS (DataFrame approach) #666 This cell and the cells below it can be combined into a function to read in a MF6_DIS (imod) object, and return a DF (GDF_grid) with the grid and geometry.
     DS = M.Sim_MF6['imported_model']['dis'].dataset
     N_L, N_R, N_C = DS.dims['layer'], DS.dims['y'], DS.dims['x']
@@ -316,10 +316,10 @@ def connect_SFR_lines_to_MF6(M: Mdl_N, debug_sfr: bool = True):
         GDF_grid.loc[GDF_grid['k'] == k, 'geometry'] = L0_geom
     GDF_grid = GDF_grid.set_geometry('geometry', crs=DS.rio.crs)
 
-    sprint('🟢', verbose_in=True, verbose_out=M.verbose, print_time=True)
+    sprint('🟢', verbose_in=True, verbose_out=M.Sim.verbose, print_time=True)
 
     # %% Identify deepest SFR layer
-    sprint('  - Identifying deepest SFR layer.', verbose_in=True, verbose_out=M.verbose, set_time=True)
+    sprint('  - Identifying deepest SFR layer.', verbose_in=True, verbose_out=M.Sim.verbose, set_time=True)
     """The reason we're doing this is that the model has too many Ls and it takes a very long time to run the SFR functions with all of them. So we'll find the deepest L that has any part of the stream network in it, and **we'll only use up to that layer for the SFR grid.**"""
     for L in range(BOTs.shape[0]):
         L_BOT_min = BOTs[L].min()
@@ -350,7 +350,7 @@ def connect_SFR_lines_to_MF6(M: Mdl_N, debug_sfr: bool = True):
             print(f'Number of rows: {SFR_grid.nrow}')
         if hasattr(SFR_grid, 'ncol'):
             print(f'Number of cols: {SFR_grid.ncol}')
-    sprint('🟢', verbose_in=True, verbose_out=M.verbose, print_time=True)
+    sprint('🟢', verbose_in=True, verbose_out=M.Sim.verbose, print_time=True)
 
     # %% Assign and Review SFRdata
     SFR_data = M.lines.to_sfr(grid=SFR_grid_L1, one_reach_per_cell=True)
@@ -472,19 +472,19 @@ def connect_SFR_lines_to_MF6(M: Mdl_N, debug_sfr: bool = True):
     sprint(
         f'Replaced {valid_mask_RC.sum()} values out of {len(DF_RC)} total rows ({valid_mask_RC.sum() / len(DF_RC) * 100:.1f}%)',
         verbose_in=True,
-        verbose_out=M.verbose,
+        verbose_out=M.Sim.verbose,
         indent=3,
     )
     sprint(
         f'Original Cond: min={DF_RC["Cond"].min():.3f}, max={DF_RC["Cond"].max():.3f}',
         verbose_in=True,
-        verbose_out=M.verbose,
+        verbose_out=M.Sim.verbose,
         indent=3,
     )
     sprint(
         f'New RIV_Cond: min={DF_RC["RIV_Cond"].min():.3f}, max={DF_RC["RIV_Cond"].max():.3f}',
         verbose_in=True,
-        verbose_out=M.verbose,
+        verbose_out=M.Sim.verbose,
         indent=3,
     )
 
@@ -538,26 +538,16 @@ def connect_SFR_lines_to_MF6(M: Mdl_N, debug_sfr: bool = True):
         # SFR_data.observations # Use this to review them
 
     # %% Run diagnostics
-    SFR_data.run_diagnostics(verbose=True)
+    SFR_data.run_diagnostics(verbose=True, checkfile=str(M.Pa.Sim_In / f'{M.MdlN}.SFR.chk'))
     # GDF_Elv.loc[ GDF_Elv['D'] - GDF_Elv['B_'] < 0]
     # There are fewer entries in the GDF_Elv where the DStr Elv > UStr Elv, but this DF contains segments, not reaches. So this is expected.
     # %% Write file and add to NAM
     SFR_data.reach_data = DF_reach
-    SFR_data.write_package(str(M.Pa.SFR), version='mf6')
-    # Try to find an inteernal SFRmaker way to fix this later. This is just a temporary patch.
-    with open(M.Pa.SFR, 'r+', encoding='cp1252') as f:
-        content = f.read()
-        content = content.replace(f'FILEIN {M.MdlN}.SFR6.obs', f'FILEIN imported_model/{M.MdlN}.SFR6.obs')
-        content = content.replace('BUDGET FILEOUT', '#BUDGET FILEOUT')
-        f.seek(0)
-        f.truncate()
-        f.write(content)
-    sh.copy2('model_SFR.chk', M.Pa.MF6 / 'imported_model/model_SFR.chk')
-    with open(M.Pa.NAM_Mdl, 'r') as f1:
-        l_Lns_NAM = f1.readlines()
-    l_Lns_NAM.insert(-1, f'  sfr6 imported_model/{M.Pa.SFR.name} sfr\n')
-    with open(M.Pa.NAM_Mdl, 'w') as f2:
-        f2.writelines(l_Lns_NAM)
+    print(f'SFR options: {M.SFR_options}')
+    print('SFR_data type:', type(SFR_data))
+    SFR_data.write_package(str(M.Pa.SFR), version='mf6', options=M.SFR_options)
+
+    add_Pkg(M.MdlN, f'  sfr6 imported_model/{M.Pa.SFR.name} sfr')  # Add to NAM
 
     return DF_reach
 
@@ -580,7 +570,9 @@ def Pkgs_to_SFR_via_MVR(M: Mdl_N, Pkgs: list | str, Pa_Shp: str | Path):  # 666 
     d_DF = {}
 
     for Pkg in Pkgs:
-        l_Pa = [i for i in M.Pa.Sim_In.rglob(f'*{Pkg.lower()}*.bin')]
+        l_Pa = [
+            p for p in M.Pa.Sim_In.rglob(f'*{Pkg.lower()}*') if p.suffix.lower() in ['.bin', f'.{Pkg.lower()}']
+        ]  # Works with either M.Sim.Bin_Ins = False/True
 
         for Pa in l_Pa:
             PkgN = Pa.parent.name
@@ -599,8 +591,8 @@ def Pkgs_to_SFR_via_MVR(M: Mdl_N, Pkgs: list | str, Pa_Shp: str | Path):  # 666 
     if Pa_Shp is not None:
         GDF_Shp = gpd.read_file(Pa_Shp)
         GDF_Shp.crs = CRS
-        sprint(f'Loaded shapefile with {len(GDF_Shp)} features', indent=2, verbose_in=True, verbose_out=M.verbose)
-        sprint(f'Bounds: {GDF_Shp.bounds}', indent=2, verbose_in=True, verbose_out=M.verbose)
+        sprint(f'Loaded shapefile with {len(GDF_Shp)} features', indent=2, verbose_in=True, verbose_out=M.Sim.verbose)
+        sprint(f'Bounds: {GDF_Shp.bounds}', indent=2, verbose_in=True, verbose_out=M.Sim.verbose)
         GDF = gpd.sjoin(GDF_all, GDF_Shp, how='inner', predicate='within')
     else:
         GDF = GDF_all.copy()
@@ -624,23 +616,29 @@ def Pkgs_to_SFR_via_MVR(M: Mdl_N, Pkgs: list | str, Pa_Shp: str | Path):  # 666 
         f'Combined {len(GDF):,} points ({Pkgs}) from {len(d_DF)} DataFrames',
         indent=2,
         verbose_in=True,
-        verbose_out=M.verbose,
+        verbose_out=M.Sim.verbose,
     )
     sprint(
-        f'Matched to {DF_match["Rcv_ID"].nunique()} unique reaches', indent=2, verbose_in=True, verbose_out=M.verbose
+        f'Matched to {DF_match["Rcv_ID"].nunique()} unique reaches',
+        indent=2,
+        verbose_in=True,
+        verbose_out=M.Sim.verbose,
     )
     sprint(
-        f'Mean distance: {DF_match["distance_to_match"].mean():.0f}m', indent=2, verbose_in=True, verbose_out=M.verbose
+        f'Mean distance: {DF_match["distance_to_match"].mean():.0f}m',
+        indent=2,
+        verbose_in=True,
+        verbose_out=M.Sim.verbose,
     )
     sprint(
         f'Perfect matches (same cell): {(DF_match["distance_to_match"] == 0).sum():,}',
         indent=2,
         verbose_in=True,
-        verbose_out=M.verbose,
+        verbose_out=M.Sim.verbose,
     )
 
     # %% Plot connections
-    if M.verbose:
+    if M.Sim.verbose:
         DF_match_plot = DF_match.merge(DF_reach, left_on='Rcv_ID', right_on='rno', suffixes=('', '_r'))
         GDF_match = gpd.GeoDataFrame(
             DF_match,

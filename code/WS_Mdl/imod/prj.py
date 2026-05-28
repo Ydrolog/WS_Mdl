@@ -1,5 +1,6 @@
 import os
 import tempfile
+from contextlib import suppress
 from pathlib import Path
 
 import geopandas as gpd
@@ -117,7 +118,6 @@ def r_with_OBS(
 ):  # 666 Turn this into a class. And add other functions as methods.
     """
     imod.formats.prj.read_projectfile struggles with .prj files that contain OBS blocks. This will read the PRJ file and return a tuple. The first item is a PRJ dictionary (as imod.formats.prj would return) and also a list of the OBS block lines.
-
     Pa_PRJ: a the path of the PRJ file.
     """
     Pa_PRJ_temp, l_OBS_Lns = split_OBS(Pa_PRJ)  # Get temp PRJ file path and OBS lines
@@ -127,7 +127,9 @@ def r_with_OBS(
     except Exception as e:
         sprint(f'Error reading PRJ file: {e}')
         PRJ = None
-    Path(Pa_PRJ_temp).unlink()  # Delete temp PRJ file as it's not needed anymore.
+    finally:
+        with suppress(FileNotFoundError, OSError):  # ensures no error if the file gets deleted by another process
+            Path(Pa_PRJ_temp).unlink()  # Delete temp PRJ file as it's not needed anymore.
 
     return PRJ, l_OBS_Lns
 
@@ -227,9 +229,11 @@ def o_with_OBS(Pa_PRJ, return_OBS=False):
     """
 
     Pa_PRJ_temp, l_OBS_Lns = split_OBS(Pa_PRJ)  # Get temp PRJ file path and OBS lines
-
-    PRJ = imod.prj.open_projectfile_data(Pa_PRJ_temp)  # Load the PRJ file without OBS
-    Path(Pa_PRJ_temp).unlink()  # Delete temp PRJ file as it's not needed anymore.
+    try:
+        PRJ = imod.prj.open_projectfile_data(Pa_PRJ_temp)  # Load the PRJ file without OBS
+    finally:
+        with suppress(FileNotFoundError, OSError):  # ensures no error if the file gets deleted by another process
+            Path(Pa_PRJ_temp).unlink()  # Delete temp PRJ file as it's not needed anymore.
 
     # sprint(f'🟢🟢 - PRJ loaded from {Pa_PRJ}')
     if return_OBS:
@@ -624,7 +628,7 @@ def PrSimP(
 
     Returns Sim_MF6 & MSW_Mdl for potential downstream processes.
 
-    Requires M.verbose, Pa.MF6_DLL, M.Pa.MSW_DLL to be imbued to the Mdl_N object/class. Those are not standard Mdl_N properties.
+    Requires M.Sim.verbose, Pa.MF6_DLL, M.Pa.MSW_DLL to be imbued to the Mdl_N object/class. Those are not standard Mdl_N properties.
     """
 
     # %% ----- Load and regrid PRJ -----
@@ -633,7 +637,7 @@ def PrSimP(
         M.Pa.PRJ,
         pre=f'  - Loading {M.Pa.PRJ.name} ...',
         verbose_in=True,
-        verbose_out=M.verbose,
+        verbose_out=M.Sim.verbose,
         post='🟢',
     )
     PRJ, period_data = PRJ_[0], PRJ_[1]
@@ -645,14 +649,14 @@ def PrSimP(
         pre='  - Regridding PRJ ...',
         post='',
         verbose_in=False,
-        verbose_out=M.verbose,
+        verbose_out=M.Sim.verbose,
     )  # Speeds up Mdl load.
 
     # Set outer boundaries to -1. Otherwise CHD won't be loaded properly.
     BND = PRJ_regrid['bnd']['ibound']
     BND.loc[:, [BND.y[0], BND.y[-1]], :] = -1  # Top and bottom rows
     BND.loc[:, :, [BND.x[0], BND.x[-1]]] = -1  # Left and right columns
-    # sprint('🟢', verbose_in=True, verbose_out=M.verbose, print_time=True)
+    # sprint('🟢', verbose_in=True, verbose_out=M.Sim.verbose, print_time=True)
 
     # %% ----- Load MF6 Simulation
     times = pd.date_range(M.SP_1st, M.SP_last, freq='D')
@@ -664,13 +668,13 @@ def PrSimP(
         pre='  - Loading MF6 Simulation ...',
         post='🟢',
         verbose_in=True,
-        verbose_out=M.verbose,
+        verbose_out=M.Sim.verbose,
     )
     # Sim_MF6[f'{M.MdlN}'] = Sim_MF6.pop('imported_model')  # Rename imported_model to MdlN. #666
 
     # Pass the Sim components to objects.
     MF6_Mdl = Sim_MF6['imported_model']
-    MF6_Mdl['oc'] = mf6.OutputControl(save_head='last', save_budget='last')
+    MF6_Mdl['oc'] = mf6.OutputControl(save_head=M.Sim.save_head, save_budget=M.Sim.save_budget)
     Sim_MF6['ims'] = moderate_settings()  # Mimic iMOD5's "Moderate" settings.
     MF6_DIS = MF6_Mdl['dis']
 
@@ -685,7 +689,7 @@ def PrSimP(
         pre='  - Loading MSW Simulation ...',
         post='🟢',
         verbose_in=True,
-        verbose_out=M.verbose,
+        verbose_out=M.Sim.verbose,
     )
     # %% ----- Deactivate first and last row/Col from MSW, RIV, DRN. Assuming that MF has a CHD there. #666 needs to be improved so that it checks the actual CHD and deactivates the cells that have a CHD.
     edge = (
@@ -703,50 +707,50 @@ def PrSimP(
         for Par, A in list(MF6_Mdl[Pkg].dataset.items()):
             if 'x' in A.coords and 'y' in A.coords:
                 MF6_Mdl[Pkg].dataset[Par] = A.where(~edge, np.nan)
-                sprint(f'- {Pkg}|{Par} edge removed', indent=2, verbose_in=True, verbose_out=M.verbose)
+                sprint(f'- {Pkg}|{Par} edge removed', indent=2, verbose_in=True, verbose_out=M.Sim.verbose)
 
     # %% ----- Fix storage coefficient
     # MSW_Mdl['infiltration']['extra_storage_coefficient'][:] = 0.01  # Can't set to -999.9 as only 0.01-1 allowed # Relic. this values has no impact on the Sim.
 
     # %% ----- Clip models
-    sprint('  - Clipping models ...', end='', verbose_in=True, verbose_out=M.verbose, set_time=True)
+    sprint('  - Clipping models ...', end='', verbose_in=True, verbose_out=M.Sim.verbose, set_time=True)
     Sim_MF6_AoI = timed_Exe(Sim_MF6.clip_box, x_min=M.Xmin, x_max=M.Xmax, y_min=M.Ymin, y_max=M.Ymax, pre='')
     MF6_Mdl_AoI = Sim_MF6_AoI['imported_model']
     MSW_Mdl_AoI = timed_Exe(MSW_Mdl.clip_box, x_min=M.Xmin, x_max=M.Xmax, y_min=M.Ymin, y_max=M.Ymax, pre='')
     # clip_box doesn't clip the packages clipped with regrid, but it clips non raster-like packages like WEL and removes packages that are not in the AoI.
-    sprint('🟢', verbose_in=True, verbose_out=M.verbose, print_time=True)
+    sprint('🟢', verbose_in=True, verbose_out=M.Sim.verbose, print_time=True)
 
     # %% ----- Load models into memory
-    sprint('  - Loading models into memory ...', end='', verbose_in=True, verbose_out=M.verbose, set_time=True)
+    sprint('  - Loading models into memory ...', end='', verbose_in=True, verbose_out=M.Sim.verbose, set_time=True)
     for pkg in MF6_Mdl_AoI.values():
         if 'layer' in pkg.dataset.coords and pkg.dataset['layer'].ndim == 1:
             pkg.dataset = pkg.dataset.sortby('layer')
         pkg.dataset.load()
     for pkg in MSW_Mdl_AoI.values():
         pkg.dataset.load()
-    sprint('🟢', verbose_in=True, verbose_out=M.verbose, print_time=True)
+    sprint('🟢', verbose_in=True, verbose_out=M.Sim.verbose, print_time=True)
 
     # %%  ----- Create mask from current regridded model (not the old one)
-    sprint('  - Creating mask ...', end='', verbose_in=True, verbose_out=M.verbose, set_time=True)
+    sprint('  - Creating mask ...', end='', verbose_in=True, verbose_out=M.Sim.verbose, set_time=True)
     mask = MF6_Mdl_AoI.domain
     # 666 mask needs to be checked and potentially updated with -1 values at the edge of the Mdl area.
     Sim_MF6_AoI.mask_all_models(mask)
     DIS_AoI = MF6_Mdl_AoI['dis']
-    sprint('🟢', verbose_in=True, verbose_out=M.verbose, print_time=True)
+    sprint('🟢', verbose_in=True, verbose_out=M.Sim.verbose, print_time=True)
 
     # %% ----- MF6 cleanup
-    sprint('  - Cleaning up MF6 packages ...', end='', verbose_in=True, verbose_out=M.verbose, set_time=True)
+    sprint('  - Cleaning up MF6 packages ...', end='', verbose_in=True, verbose_out=M.Sim.verbose, set_time=True)
     try:
         for Pkg in [i for i in MF6_Mdl_AoI.keys() if ('riv' in i.lower()) or ('drn' in i.lower())]:
             MF6_Mdl_AoI[Pkg].cleanup(DIS_AoI)
     except Exception:
         print('Failed to cleanup packages. Proceeding without cleanup. Fingers crossed!')
-    sprint('🟢', verbose_in=True, verbose_out=M.verbose, print_time=True)
+    sprint('🟢', verbose_in=True, verbose_out=M.Sim.verbose, print_time=True)
 
     # %% ----- MetaSWAP cleanup
-    sprint('  - Cleaning up MSW packages ...', end='', verbose_in=True, verbose_out=M.verbose, set_time=True)
+    sprint('  - Cleaning up MSW packages ...', end='', verbose_in=True, verbose_out=M.Sim.verbose, set_time=True)
     MSW_Mdl_AoI['grid'].dataset['rootzone_depth'] = MSW_Mdl_AoI['grid'].dataset['rootzone_depth'].fillna(1.0)
-    sprint('🟢', verbose_in=True, verbose_out=M.verbose, print_time=True)
+    sprint('🟢', verbose_in=True, verbose_out=M.Sim.verbose, print_time=True)
 
     # %% ----- Coupling
     metamod_coupling = timed_Exe(
@@ -757,7 +761,7 @@ def PrSimP(
         pre='  - Coupling ...',
         post='🟢',
         verbose_in=True,
-        verbose_out=M.verbose,
+        verbose_out=M.Sim.verbose,
     )
     metamod = timed_Exe(primod.MetaMod, MSW_Mdl_AoI, Sim_MF6_AoI, coupling_list=[metamod_coupling], pre='')
     M.Pa.MdlN.mkdir(parents=True, exist_ok=True)  # Create simulation directory if it doesn't exist
@@ -772,8 +776,8 @@ def PrSimP(
         pre='  - Writing model files ...',
         post='🟢',
         verbose_in=True,
-        verbose_out=M.verbose,
-        modflow6_write_kwargs={'binary': M.Bin_Ins},  # If True, writes Ins in Bin format.
+        verbose_out=M.Sim.verbose,
+        modflow6_write_kwargs={'binary': M.Sim.Bin_Ins},  # If True, writes Ins in Bin format.
     )
     add_missing_Cols(M.Pa.Pa_MdlN / 'metaswap/mete_grid.inp')
 

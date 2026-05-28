@@ -17,7 +17,7 @@ os.environ["PYTHONUNBUFFERED"] = "1"        # Set Python to unbuffered mode (out
 # --- Variables ---
 
 ## Options
-MdlN        =   "NBr76"
+MdlN        =   'NBr76'
 MdlN_SFR_GPkg = 'NBr54'
 MdlN_MM_B   =   'NBr13'
 iMOD5       =   False
@@ -26,12 +26,17 @@ iMOD5       =   False
 M           =   Mdl_N(MdlN, iMOD5=iMOD5)
 workdir:        M.Pa.Mdl
 
-Pa_SFR_GPkg = M.Pa.In / f'SFR/{MdlN_SFR_GPkg}/WBD_1ry_SW_NW_cleaned_{MdlN_SFR_GPkg}.gpkg'
-Pa_SW_Cond_A = M.Pa.WS / r"models\NBr\In\RIV\RIV_Cond_DETAILWATERGANGEN_NBr1.IDF"
-Pa_SW_Cond_B = M.Pa.WS / r"models\NBr\In\RIV\RIV_Cond_DRN_NBr1.IDF"
-Pa_SFR_OBS_In = M.Pa.In / 'OBS/SFR/NBr73/NBr73_SFR_OBS_Pnt.csv'
-Pa_Shp_catchment = M.Pa.WS / r'models\NBr\PoP\common\Pgn\Chaamse_beek\catchment_chaamsebeek_ulvenhout.shp'
-SFR_OBS_all = ['downstream-flow', 'inflow', 'stage', 'from-mvr']
+# SFR
+Pa_SFR_GPkg         =   M.Pa.In / f'SFR/{MdlN_SFR_GPkg}/WBD_1ry_SW_NW_cleaned_{MdlN_SFR_GPkg}.gpkg'
+Pa_SW_Cond_A        =   M.Pa.WS / r"models\NBr\In\RIV\RIV_Cond_DETAILWATERGANGEN_NBr1.IDF"
+Pa_SW_Cond_B        =   M.Pa.WS / r"models\NBr\In\RIV\RIV_Cond_DRN_NBr1.IDF"
+Pa_SFR_OBS_In       =   M.Pa.In / 'OBS/SFR/NBr73/NBr73_SFR_OBS_Pnt.csv'
+Pa_Shp_catchment    =   M.Pa.WS / r'models\NBr\PoP\common\Pgn\Chaamse_beek\catchment_chaamsebeek_ulvenhout.shp'
+SFR_OBS_all         =   ['downstream-flow', 'inflow', 'stage', 'from-mvr']
+SFR_options         =   [f'OBS6 FILEIN {M.Pa.Sim_In / (M.MdlN + ".SFR6.obs")}',
+                        f'BUDGET FILEOUT {M.MdlN}.SFR6.cbc', # 666 Remove this if it doesn't contain any useful info
+                        # 'AUXILIARY line_id',
+                        f'PACKAGE_CONVERGENCE FILEOUT SFR_convergence_{M.MdlN}.CSV']
 
 Pa_HD_OBS_Src = M.Pa.In / f"OBS/HD/NBr73/HD_NBr73.OBS6"
 Pa_HD_OBS_Dst = M.Pa.Sim_In / f'GWHD_{MdlN}.OBS6'
@@ -85,16 +90,18 @@ rule Mdl_Prep: # Prepares Sim Ins (from Ins) via BAT file.
     run:
         from WS_Mdl.imod.sfr.prsimp import SFR_settings
         from WS_Mdl.imod.prep import Sim
+        M.Sim.Bin_Ins = False
+        M.Sim.save_head = None # We have OBS for this, which reduced Out size.
         SFR_Cfg = SFR_settings( Pa_Cond_A = Pa_SW_Cond_A,
                                 Pa_Cond_B = Pa_SW_Cond_B,
                                 Pa_Gpkg = Pa_SFR_GPkg,
                                 Pa_OBS_In = Pa_SFR_OBS_In,
                                 connect_Pkgs=('DRN', 'RIV'),
                                 Pa_Shp_connect_Pkgs = Pa_Shp_catchment,
-                                OBS_all = SFR_OBS_all
+                                OBS_all = SFR_OBS_all,
+                                options = SFR_options
                                 )
-        Sim(MdlN = MdlN,
-            verbose=True,
+        Sim(M,
             SFR=SFR_Cfg)
 
 ## -- PrSimP --

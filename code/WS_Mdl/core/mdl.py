@@ -1,5 +1,6 @@
 # ---------- Model Number related Functions ----------
 import re
+from dataclasses import dataclass
 from datetime import datetime as DT
 from functools import cached_property
 
@@ -9,6 +10,14 @@ from .path import MdlN_PaView, imod_V
 from .style import set_verbose
 
 _MdlN_pattern = re.compile(r'^(?P<alias>[A-Za-z]+)(?P<N>\d+)$')
+
+
+@dataclass
+class Sim:
+    verbose: bool = False
+    Bin_Ins: bool = True
+    save_budget: str = 'last'  # 'last', 'all', None, or number specifying frequency
+    save_head: str = 'last'  # 'last', 'all', None, or number specifying frequency
 
 
 class Mdl_N:
@@ -35,6 +44,7 @@ class Mdl_N:
         'N_C': 'int: Number of columns in the model grid',
         'SP_1st': 'str: Start date of the model simulation period (YYYY-MM-DD)',
         'SP_last': 'str: End date of the model simulation period (YYYY-MM-DD)',
+        'Sim': 'Sim settings container for model-specific simulation options',
         '__dict__': 'dict: allow dynamic attributes',
     }
 
@@ -55,8 +65,9 @@ class Mdl_N:
 
         self.V = 'imod5' if iMOD5 is True else ('imod_python' if iMOD5 is False else imod_V(MdlN, iMOD5=iMOD5))
         self.Pa = MdlN_PaView(MdlN, iMOD5=(self.V == 'imod5'))
+        self.Sim = Sim()
 
-        set_verbose(False)
+        set_verbose(False)  # To avoid INI prints
         self.INI = INIView(self.Pa.INI)
         if self.INI:
             self.Dmns = Mdl_Dmns(self.Pa.INI)
