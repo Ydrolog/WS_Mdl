@@ -3,9 +3,7 @@ import tarfile
 from pathlib import Path
 
 from ibridges import IrodsPath as iPa
-from ibridges import Session
-from ibridges import download as Dl
-from ibridges import upload as Upl
+from ibridges import Session, download, upload
 from tqdm import tqdm
 from WS_Mdl.core.style import Sep_2, bold, sprint, style_reset, warn
 
@@ -33,17 +31,36 @@ def l_Fis_Exc(Pa: Path | str, l_exceptions=['.7z', '.aux', '.xml']):
     return l_
 
 
-def Pw(Dir_irods=rf'C:\Users\{os.getlogin()}\.irods', Pw_txt: str = 'Pw.txt', inverse: bool = True):
-    """Reads iRODS password from Pw.txt file."""
-    Pw = open(Path(Dir_irods) / Pw_txt, 'r', encoding='utf-8-sig').read().strip()  # Read password from Pw.txt.
-    return Pw[::-1] if inverse else Pw
+def get_Pw(Dir_irods=rf'C:\Users\{os.getlogin()}\.irods', Pw_txt: str = 'Pw.txt', inverse: bool = True):
+    """Reads iRODS/PAM password from Pw.txt.
+
+    Note: by default this assumes the password is stored reversed in the text file (a light obfuscation).
+    If your Pw.txt contains the real password as-is, pass inverse=False.
+    """
+    pw_path = Path(Dir_irods) / Pw_txt
+    if not pw_path.exists():
+        raise FileNotFoundError(f'Password file not found: {pw_path}')
+    pw = pw_path.read_text(encoding='utf-8-sig').strip()
+    return pw[::-1] if inverse else pw
 
 
 class iB_session(Session):
-    def __init__(self, Dir_irods=rf'C:\Users\{os.getlogin()}\.irods', PW_txt: str = 'Pw.txt'):
-        """Loads an iBridges iRODS session using the irods_environment.json file and password from PW_txt."""
+    def __init__(
+        self,
+        Dir_irods=rf'C:\Users\{os.getlogin()}\.irods',
+        PW_txt: str = 'Pw.txt',
+        inverse: bool | None = None,
+    ):
+        """Loads an iBridges iRODS session.
+
+        Args:
+            Dir_irods: Folder containing `irods_environment.json`.
+            PW_txt: Password file name in Dir_irods.
+            inverse: Whether to reverse the read password (defaults to env var override if provided).
+                Env vars: `IBRIDGES_PW_INVERSE` or `IB_PW_INVERSE` (true/false, 1/0).
+        """
         dir_irods = Path(Dir_irods)
-        Pw = Pw(Dir_irods, Pw_txt=PW_txt)
+        Pw = get_Pw(Dir_irods, Pw_txt=PW_txt)
         super().__init__(irods_env=dir_irods / 'irods_environment.json', password=Pw)
 
     def info(self):
@@ -80,7 +97,7 @@ def Upl(
             if not Target.parent.exists():
                 Target.parent.create_collection()
             print('1/1', Target)
-            Upl(l_Fi_data[0], Target, on_error=on_error)
+            upload(l_Fi_data[0], Target, on_error=on_error)
             sprint(Sep_2, indent=1)
     else:
         CWD_Fo = CWD / F
@@ -93,7 +110,7 @@ def Upl(
             if not Target.parent.exists():
                 Target.parent.create_collection()
             print(f'{i}/{len(l_Fi_data)}', Target)
-            Upl(Pa, Target, on_error=on_error, overwrite=overwrite)
+            upload(Pa, Target, on_error=on_error, overwrite=overwrite)
             sprint(Sep_2, indent=1)
 
 
@@ -107,7 +124,7 @@ def Dl(F: str, S, on_error='warn', overwrite=False, subdir='research-ws-imod', d
         if not Pa_Loc.parent.exists():
             Pa_Loc.parent.mkdir(parents=True, exist_ok=True)
         print('1/1', Pa_Loc)
-        Dl(Pa_Rmt, Pa_Loc, overwrite=overwrite, on_error=on_error)
+        download(Pa_Rmt, Pa_Loc, overwrite=overwrite, on_error=on_error)
 
     elif Pa_Rmt.collection_exists():
         Dest = Pa_Loc.parent
@@ -115,7 +132,7 @@ def Dl(F: str, S, on_error='warn', overwrite=False, subdir='research-ws-imod', d
             Dest.mkdir(parents=True, exist_ok=True)
 
         print(f'Downloading folder: {Pa_Rmt} -> {Pa_Loc}')
-        Dl(Pa_Rmt, Dest, overwrite=overwrite, on_error=on_error)
+        download(Pa_Rmt, Dest, overwrite=overwrite, on_error=on_error)
     else:
         sprint(f'{warn}Remote path not found: {Pa_Rmt}')
         return

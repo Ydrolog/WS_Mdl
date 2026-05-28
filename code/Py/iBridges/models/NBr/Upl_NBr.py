@@ -1,32 +1,31 @@
-import os
+from WS_Mdl.core import Sep
+from WS_Mdl.core.path import Pa_WS
+from WS_Mdl.io.ibridges import Upl, iB_session
 
-import WS_Mdl.utils as U
-
-print(U.Sep)
+print(Sep)
 
 Mdl = 'NBr'
 
 l_In = [
-    f'models/{Mdl}/In/{f}' for f in os.listdir(U.PJ(U.Pa_WS, f'models/{Mdl}/In')) if f != 'CAP' and f != 'CHD'
+    f
+    for f in (Pa_WS / 'models' / Mdl / 'In').glob('*')
+    if (f.name != 'CAP') and (f.name != 'CHD') and (f.name.lower() != 'ss')
 ]  # CAP contains P and PET, which are composed of a very large number of ASCII files. That takes too long, so we'll upload their compressed versions (.tar.gz) instead.
 
-for i in os.listdir(U.PJ(U.Pa_WS, f'models/{Mdl}/In/CAP')):
-    if i != 'P' and i != 'PET':
-        l_In.append(f'models/{Mdl}/In/CAP/{i}')
+for i in (Pa_WS / f'models/{Mdl}/In/CAP').glob('*'):  # Do CAP separetely to exclude 'P' and 'PET'
+    if i.name != 'P' and i.name != 'PET':
+        l_In.append(f'models/{Mdl}/In/CAP/{i.name}')
 
-for i in os.listdir(U.PJ(U.Pa_WS, f'models/{Mdl}/In/CAP/P')):
-    if i.endswith('.tar.gz'):
-        l_In.append(f'models/{Mdl}/In/CAP/P/{i}')
+for i in (Pa_WS / f'models/{Mdl}/In/CAP/P').glob('*.tar.gz'):
+    l_In.append(f'models/{Mdl}/In/CAP/P/{i.name}')
 
-for i in os.listdir(U.PJ(U.Pa_WS, f'models/{Mdl}/In/CAP/PET')):
-    if i.endswith('.tar.gz'):
-        l_In.append(f'models/{Mdl}/In/CAP/PET/{i}')
+for i in (Pa_WS / f'models/{Mdl}/In/CAP/PET').glob('*.tar.gz'):
+    l_In.append(f'models/{Mdl}/In/CAP/PET/{i.name}')
 
-for i in os.listdir(U.PJ(U.Pa_WS, f'models/{Mdl}/In/CHD')):
-    if i.endswith('.tar.gz'):
-        l_In.append(f'models/{Mdl}/In/CHD/{i}')
+for i in (Pa_WS / f'models/{Mdl}/In/CHD').glob('*.tar.gz'):
+    l_In.append(f'models/{Mdl}/In/CHD/{i.name}')
 
-l_In.remove(f'models/{Mdl}/In/DVC_check_Dup.ps1')  # Exclude this script from upload
+l_In.remove(Pa_WS / f'models/{Mdl}/In/DVC_check_Dup.ps1')  # Exclude this script from upload
 
 l_Fo = [
     f'models/{Mdl}/code',
@@ -38,9 +37,10 @@ print(
     f'Uploading:\n{"\n".join([f"{i:2}/{len(l_Fo)} - {j}" for i, j in enumerate(l_Fo, 1)])}\nfolder(s) to iBridges...\n'
 )
 
-S = U.iB_session()
+S = iB_session()
 
 for f in l_Fo:
-    U.Upl(f, S)  # , overwrite=False)
+    Upl(f, S)  # , overwrite=False)
 
-print(U.Sep)
+
+print(Sep)
