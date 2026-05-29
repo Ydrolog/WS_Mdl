@@ -1,12 +1,16 @@
-import WS_Mdl.utils as U
+from WS_Mdl.core import Sep
+from WS_Mdl.io.ibridges import Upl, iB_session
 
-print(U.Sep)
-Fo = 'data/KNMI23'
+print(Sep)
 
-print(f'Uploading "{Fo}" folder to iBridges...\n')
+l_F = ['data/KNMI23']
 
-S = U.iB_session()
+print(f'Uploading "{l_F}" to iBridges...\n')
 
-U.Upl(Fo, S)  # , overwrite=False)
+S = iB_session()
+S.info()
 
-print(U.Sep)
+for F in l_F:
+    Upl(F, S)  # , overwrite=False)
+
+print(Sep)

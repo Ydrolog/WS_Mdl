@@ -1,13 +1,16 @@
-import WS_Mdl.utils as U
+from WS_Mdl.core import Sep
+from WS_Mdl.io.ibridges import Upl, iB_session
 
-print(U.Sep)
+print(Sep)
+
 l_F = ['data/Dates.csv', 'data/.gitignore']
 
-print(f'Uploading "{l_F}" folder to iBridges...\n')
+print(f'Uploading "{l_F}" to iBridges...\n')
 
-S = U.iB_session()
+S = iB_session()
+S.info()
 
 for F in l_F:
-    U.Upl(F, S)  # , overwrite=False)
+    Upl(F, S)  # , overwrite=False)
 
-print(U.Sep)
+print(Sep)

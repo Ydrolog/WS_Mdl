@@ -1,5 +1,4 @@
-from WS_Mdl.core import Sep
-from WS_Mdl.core.path import Pa_WS
+from WS_Mdl.core import Pa_WS, Sep
 from WS_Mdl.io.ibridges import Upl, iB_session
 
 print(Sep)
@@ -7,7 +6,7 @@ print(Sep)
 Mdl = 'NBr'
 
 l_In = [
-    f
+    f.relative_to(Pa_WS)
     for f in (Pa_WS / 'models' / Mdl / 'In').glob('*')
     if (f.name != 'CAP') and (f.name != 'CHD') and (f.name.lower() != 'ss')
 ]  # CAP contains P and PET, which are composed of a very large number of ASCII files. That takes too long, so we'll upload their compressed versions (.tar.gz) instead.
@@ -25,12 +24,12 @@ for i in (Pa_WS / f'models/{Mdl}/In/CAP/PET').glob('*.tar.gz'):
 for i in (Pa_WS / f'models/{Mdl}/In/CHD').glob('*.tar.gz'):
     l_In.append(f'models/{Mdl}/In/CHD/{i.name}')
 
-l_In.remove(Pa_WS / f'models/{Mdl}/In/DVC_check_Dup.ps1')  # Exclude this script from upload
+# l_In.remove(f'models/{Mdl}/In/DVC_check_Dup.ps1')  # Exclude this script from upload
 
 l_Fo = [
     f'models/{Mdl}/code',
     f'models/{Mdl}/doc',
-    f'models/{Mdl}/PrP',
+    f'models/{Mdl}/other',
 ] + l_In
 
 print(
@@ -38,8 +37,10 @@ print(
 )
 
 S = iB_session()
+S.info()
 
 for f in l_Fo:
+    print(f)
     Upl(f, S)  # , overwrite=False)
 
 

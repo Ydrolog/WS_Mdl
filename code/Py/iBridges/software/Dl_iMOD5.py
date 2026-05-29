@@ -1,14 +1,16 @@
-import WS_Mdl.utils as U
+from WS_Mdl.core import Sep
+from WS_Mdl.io.ibridges import Dl, iB_session
 
-print(U.Sep)
+print(Sep)
 
 l_F = ['software/iMOD5']
 
 print(f'Downloading "{l_F}" to from iBridges...\n')
 
-S = U.iB_session()
+S = iB_session()
+S.info()
 
 for F in l_F:
-    U.Dl(F, S)  # , overwrite=False)
+    Dl(F, S)  # , overwrite=False)
 
-print(U.Sep)
+print(Sep)

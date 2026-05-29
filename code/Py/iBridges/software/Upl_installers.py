@@ -1,14 +1,16 @@
-import WS_Mdl.utils as U
+from WS_Mdl.core import Sep
+from WS_Mdl.io.ibridges import Upl, iB_session
 
-print(U.Sep)
+print(Sep)
 
 l_F = ['software/installers']
 
-print(f'Uploading:\n{"\n".join([f"{i:2}/{len(l_F)} - {j}" for i, j in enumerate(l_F, 1)])}\nfolder(s) to iBridges...\n')
+print(f'Uploading "{l_F}" to iBridges...\n')
 
-S = U.iB_session()
+S = iB_session()
+S.info()
 
-for f in l_F:
-    U.Upl(f, S)  # , overwrite=False)
+for F in l_F:
+    Upl(F, S)  # , overwrite=False)
 
-print(U.Sep)
+print(Sep)

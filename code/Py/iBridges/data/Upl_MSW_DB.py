@@ -1,12 +1,16 @@
-import WS_Mdl.utils as U
+from WS_Mdl.core import Sep
+from WS_Mdl.io.ibridges import Upl, iB_session
 
-print(U.Sep)
-Fo = 'data/MSW_DB.tar.gz'
+print(Sep)
 
-print(f'Uploading "{Fo}" folder to iBridges...\n')
+l_F = ['data/MSW_DB.tar.gz']
 
-S = U.iB_session()
+print(f'Uploading "{l_F}" to iBridges...\n')
 
-U.Upl(Fo, S, l_exceptions=[])  # , overwrite=False)
+S = iB_session()
+S.info()
 
-print(U.Sep)
+for F in l_F:
+    Upl(F, S, l_exceptions=[])  # , overwrite=False)
+
+print(Sep)
