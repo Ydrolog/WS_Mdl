@@ -3,7 +3,7 @@ from WS_Mdl.io.ibridges import Dl, iB_session
 
 print(Sep)
 
-l_F = ['models']
+l_F = ['models/NBr/code', 'models/NBr/doc', 'models/NBr/In']
 
 print(f'Downloading "{l_F}" to from iBridges...\n')
 

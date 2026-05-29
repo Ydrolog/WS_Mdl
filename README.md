@@ -5,11 +5,11 @@ This project folder is used for the purposes of [WaterScape](https://waterscape.
 # Knowledge requirements
 - You need to be familiar with Groundwater Modelling concepts, version control/GitHub... TBC
 - For any questions, contact m.karampasis@uu.nl
-- **.\Mng\Acronyms.xlsx** contains acronyms and rules used throughout the project. It also explains how the **naming convention**, used throughout this project, works. You need to be familiar with the principles in this file when working on with this folder/project. New acronyms should be registered there. Make sure you read the instructions sheet/tab to understand the acronym system, and follow the system's rules when adding new shortcuts/abbreviations.
+- **.\Mng\Acronyms.xlsx** contains acronyms and rules used throughout the project. It also describes the **naming convention** used in this project. You need to be familiar with the principles in this file when working on with this folder/project. New acronyms should be registered there. Make sure you read the instructions sheet/tab to understand the acronym system, and follow the system's rules when adding new shortcuts/abbreviations.
 ---
 
 # Project set-up
-- Please read the entire **README.md** file to get up to date with the project before working on it.<br>
+- Read the entire **README.md** before working on the project.<br>
 - Some project software require **Windows** to run, so unfortunately it's only possible to work on this project from a Win machine.
 - Follow the following guide to set-up the project Env.**.\code\Env\how_to_make_Env.md**
 - **Clone** the repo to get the publicly avaialble files:

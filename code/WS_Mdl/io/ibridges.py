@@ -5,7 +5,9 @@ from pathlib import Path
 from ibridges import IrodsPath as iPa
 from ibridges import Session, download, upload
 from tqdm import tqdm
-from WS_Mdl.core.style import Sep_2, bold, sprint, style_reset, warn
+from WS_Mdl.core.style import Sep_2, blue, bold, sprint, style_reset, warn
+
+__all__ = ['get_Pw']
 
 
 def l_Fis_Exc(Pa: Path | str, l_exceptions=['.7z', '.aux', '.xml']):
@@ -26,6 +28,7 @@ def l_Fis_Exc(Pa: Path | str, l_exceptions=['.7z', '.aux', '.xml']):
         *[f'{i} {j.name}' for i, j in enumerate(l_, 1)],
         sep='\n',
         end='\n',
+        style=blue,
     )
     sprint(Sep_2, indent=1)
     return l_
@@ -131,7 +134,7 @@ def Dl(F: str, S, on_error='warn', overwrite=False, subdir='research-ws-imod', d
         if not Dest.exists():
             Dest.mkdir(parents=True, exist_ok=True)
 
-        print(f'Downloading folder: {Pa_Rmt} -> {Pa_Loc}')
+        sprint(f'Downloading folder: {Pa_Rmt} -> {Pa_Loc}', style=blue)
         download(Pa_Rmt, Dest, overwrite=overwrite, on_error=on_error)
     else:
         sprint(f'{warn}Remote path not found: {Pa_Rmt}')

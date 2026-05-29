@@ -76,7 +76,7 @@ pixi add --pypi "rasterio>=1.3"
 
 0. To transfer large files within the scope of this project, we use YoDa [YoDa](https://geo.yoda.uu.nl), which is accessed through iBridges.
 
-1. Use the scripts in code/Py/iBridges, which utilize the iB commands from utils to transfer your files accross.
+1. Use the scripts in code/Py/iBridges, which utilize the iB commands (WS_Mdl.io.ibridges) to transfer your files accross.
 
 2. For folders that contain a large amount of not so big files, it's advised to bundle (.tar) and compress (.gz) them.
 	Use the method below:

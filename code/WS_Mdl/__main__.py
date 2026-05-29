@@ -24,7 +24,7 @@ from pathlib import Path
 PACKAGE_NAME = 'WS_Mdl'
 PACKAGE_ROOT = Path(__file__).resolve().parent
 # Skip directories that should not participate in CLI export discovery.
-SKIP_TOP_LEVEL_DIRS = {'scripts', '__pycache__'}
+SKIP_TOP_LEVEL_DIRS = {'scripts', '__pycache__', 'Auxi'}
 
 
 def _module_name_from_path(Pa: Path) -> str:
