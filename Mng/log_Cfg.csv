@@ -141,20 +141,20 @@ No RIV. Via imod python. PRJ: SS blocks removed, otherwise it wouldn't work with
 - Main RIV Stg set to SFR AVG summer and winter stage from NBr68. This is to isolate the effects of the difference in data - i.e. different stages in the SFR dataset compared to RIV.
 - Then NBr68 Vs NBr70 isolates the Diff the method (SFR vs RIV) have on the system.","Queued","PoPed"
 "71","NBr","71","NBr71","66","NBr66","MK","Test","SURF Test:
-- Attempting to store Outs in different drive than Ins.","Queued","PoPed"
+- Attempting to store Outs in different drive (E:) than Ins.","Queued","PoPed"
 "72","NBr","72","NBr72","68","NBr68","MK","Test","SFRmaker #3.1: SFR for main SW in Chaamse Beek
 - Extra OBS points (real outlet in 1st column)","Cancelled","Running"
 "73","NBr","73","NBr73","68","NBr68","MK","Test","SFRmaker #3.2: SFR for main SW in Chaamse Beek
 - Long Sim","Queued","Removed Output"
 "74","NBr","74","NBr74","70","NBr70","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #4.1
 - RIV Bot set to SFR rtp, so RIV can also infiltrate.","Development",""
-"75","NBr","75","NBr75","68","NBr68","MK","Test","SFRmaker #4.0: SFR for main SW in Chaamse Beek
-- Detailed SW Nw added.","Development",""
+"75","NBr","75","NBr75","76","NBr76","MK","Test","SFRmaker #4.0: Full SFR
+- Detailed SW Nw added.","Queued","Running"
 "76","NBr","76","NBr76","73","NBr73","MK","Test","SFRmaker #3.2.1: SFR for main SW in Chaamse Beek
 - 2000-2004
 - Stopped producing HD Bin Out file.
-- Saved SFR convergence & went over other SFR options and OBS.","Queued",""
-"0","","","","","","","","0","0",""
+- Saved SFR convergence & went over other SFR options and OBS.","Development",""
+"0","","","","","","","","0","",""
 "0","","","","","","","","0","",""
 "0","","","","","","","","0","",""
 "0","","","","","","","","0","",""
