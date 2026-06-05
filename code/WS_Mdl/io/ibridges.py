@@ -5,6 +5,7 @@ from pathlib import Path
 from ibridges import IrodsPath as iPa
 from ibridges import Session, download, upload
 from tqdm import tqdm
+from WS_Mdl.core.path import Pa_WS
 from WS_Mdl.core.style import Sep_2, blue, bold, sprint, style_reset, warn
 
 __all__ = ['get_Pw']
@@ -85,11 +86,12 @@ def Upl(
     l_exceptions=['.dvc', '.7z', '.aux', '.xml'],
     overwrite=False,
     subdir='research-ws-imod',
+    Pa_base: str | Path = Pa_WS,
 ):
     """Uploads an iBridges file/folder."""
 
     CWD = iPa(S, '~') / subdir
-    Pa_Loc = Path(f'G:/{F}/')
+    Pa_Loc = Path(Pa_base) / Path(F)
     l_Fi_data = l_Fis_Exc(Pa_Loc, l_exceptions=l_exceptions)
 
     print(f'Uploading from: {Pa_Loc}')

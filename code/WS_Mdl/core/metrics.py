@@ -2,7 +2,7 @@ import numpy as np
 from sklearn.metrics import mean_squared_error
 
 
-class Vld_Mtc:
+class Vld_Mtc:  # 666 add default units [Vld_Mtc("NSE", "-"), RMSE -> m, MAE -> m, Correlation -> -, Bias Ratio -> -, Variability Ratio -> -, KGE -> -
     formulas = {
         'NSE': lambda obs, sim: 1 - (np.sum((obs - sim) ** 2) / np.sum((obs - np.mean(obs)) ** 2)),
         'RMSE': lambda obs, sim: np.sqrt(mean_squared_error(obs, sim)),

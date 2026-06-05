@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 
@@ -95,10 +97,10 @@ class DFAccessor:
 
         return df_r
 
-    def clip_Mdl_area(self, Pa_INI) -> pd.DataFrame:
+    def clip_Mdl_area(self, Pa_INI: str | Path = None, M: Mdl_N = None) -> pd.DataFrame:
         """Limits the DataFrame to the model area defined in the INI file."""
         set_verbose(False)  # Suppress sprint from Mdl_Dmns
-        Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = Mdl_Dmns(Pa_INI)
+        Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = Mdl_Dmns(Pa_INI) if Pa_INI else M.Dmns
         set_verbose(True)  # Re-enable sprint
 
         n_original = len(self._df)
@@ -163,7 +165,7 @@ class DFAccessor:
         Converts X,Y coordinates to row/column indices based on model dimensions.
         Assumes the DataFrame has 'x' and 'y' columns with coordinates.
         """
-        if M.istype(str):
+        if isinstance(M, str):
             M = Mdl_N(M)
 
         DF = self._df.copy()
