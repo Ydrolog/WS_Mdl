@@ -61,7 +61,7 @@ def Up_log(MdlN: str, d_Up: dict, Pa_log_Out=Pa_log_Out):  # Pa_log_Out=PJ(Pa_WS
         DF = pd.read_csv(Pa_log_Out, index_col=0)  # Assumes log_Out.csv exists.
 
         for key, value in d_Up.items():  # Update the relevant cells
-            DF.at[MdlN, key] = value
+            DF.at[MdlN, key] = str(value)
 
         while True:  # Wait for file to be closed if it's open
             try:

@@ -658,6 +658,17 @@ def PrSimP(
     BND.loc[:, :, [BND.x[0], BND.x[-1]]] = -1  # Left and right columns
     # sprint('🟢', verbose_in=True, verbose_out=M.Sim.verbose, print_time=True)
 
+    # %% ----- WEL fix
+    for key in [k for k in PRJ_regrid.keys() if 'wel-' in k]:
+        if PRJ_regrid[key]['has_associated']:
+            PRJ_regrid[key]['dataframe'] = [
+                df.astype(object).assign(
+                    time=lambda x: pd.to_datetime(x['time']),
+                    rate=lambda x: pd.to_numeric(x['rate']).astype(float),
+                )
+                for df in PRJ_regrid[key]['dataframe']
+            ]
+
     # %% ----- Load MF6 Simulation
     times = pd.date_range(M.SP_1st, M.SP_last, freq='D')
     Sim_MF6 = timed_Exe(

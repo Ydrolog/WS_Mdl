@@ -6,12 +6,12 @@ from ibridges import IrodsPath as iPa
 from ibridges import Session, download, upload
 from tqdm import tqdm
 from WS_Mdl.core.path import Pa_WS
-from WS_Mdl.core.style import Sep_2, blue, bold, sprint, style_reset, warn
+from WS_Mdl.core.style import VERBOSE, Sep_2, blue, bold, sprint, style_reset, warn
 
 __all__ = ['get_Pw']
 
 
-def l_Fis_Exc(Pa: Path | str, l_exceptions=['.7z', '.aux', '.xml']):
+def l_Fis_Exc(Pa: Path | str, l_exceptions=['.7z', '.aux', '.xml'], verbose: bool = True):
     Pa = Path(Pa)
     l_ = []
     if Pa.is_file():
@@ -23,7 +23,7 @@ def l_Fis_Exc(Pa: Path | str, l_exceptions=['.7z', '.aux', '.xml']):
             for f in files:
                 if f not in l_exceptions and Path(f).suffix not in l_exceptions:
                     l_.append(Path(root) / f)
-    sprint(Sep_2, indent=1)
+    sprint(Sep_2, indent=1, verbose_in=verbose)
     sprint(
         f'{len(l_)} files in {Pa.name} excluding exceptions:',
         *[f'{i} {j.name}' for i, j in enumerate(l_, 1)],
@@ -31,7 +31,7 @@ def l_Fis_Exc(Pa: Path | str, l_exceptions=['.7z', '.aux', '.xml']):
         end='\n',
         style=blue,
     )
-    sprint(Sep_2, indent=1)
+    sprint(Sep_2, indent=1, verbose_out=VERBOSE)
     return l_
 
 
@@ -81,7 +81,7 @@ class iB_session(Session):
 
 def Upl(
     F: str,
-    S,
+    S: iB_session,
     on_error='warn',
     l_exceptions=['.dvc', '.7z', '.aux', '.xml'],
     overwrite=False,
@@ -119,7 +119,7 @@ def Upl(
             sprint(Sep_2, indent=1)
 
 
-def Dl(F: str, S, on_error='warn', overwrite=False, subdir='research-ws-imod', decompress: bool = True):
+def Dl(F: str, S: iB_session, on_error='warn', overwrite=False, subdir='research-ws-imod', decompress: bool = True):
     """Downloads an iBridges file/folder."""
 
     Pa_Rmt = iPa(S, '~') / subdir / F
