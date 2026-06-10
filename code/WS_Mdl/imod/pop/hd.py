@@ -1,14 +1,17 @@
+# %% Imports
 import os
 from concurrent.futures import ProcessPoolExecutor as PPE
 from datetime import datetime as DT
 from pathlib import Path
 
 import imod
+import numpy as np
 from WS_Mdl.core.defaults import CRS
 from WS_Mdl.core.mdl import Mdl_N
 from WS_Mdl.core.style import Sep, sprint
 from WS_Mdl.imod.idf import HD_Out_to_DF
-from WS_Mdl.xr.convert import DA_to_TIF
+from WS_Mdl.imod.prj import r_with_OBS
+from WS_Mdl.xr.convert import to_TIF
 
 
 def HD_IDF_Agg_to_TIF(
@@ -70,7 +73,7 @@ def HD_IDF_Agg_to_TIF(
                 }
             }
 
-            DA_to_TIF(DA, Out, d_MtDt, CRS=CRS)
+            to_TIF(DA, Out, d_MtDt, CRS=CRS)
         return f'{base.name} 🟢 '
 
     sprint(Sep)
@@ -170,3 +173,507 @@ def HD_Agg_name(group_keys, grouping):  # 666 could be moved to util
         return quarter
 
     return '_'.join(str(k) for k in group_keys)  # fallback: join all keys with underscore
+
+
+def p_HD_OBS_TS(MdlN, MdlN_B=True):
+    """
+    Reads Mdl Out TS files (CSVs) for S and B (if B not False) and Obs data, then creates HTML plots in the PoP Out folder.
+    """
+    # %% 1. Initial
+    import geopandas as gpd
+    import pandas as pd
+    import WS_Mdl.core.df  # noqa: F401
+    from WS_Mdl.core.metrics import Vld_Mtc
+
+    M = Mdl_N(MdlN)
+    MB = Mdl_N(MdlN_B) if isinstance(MdlN_B, str) else Mdl_N(M.B) if MdlN_B is True else M.copy()
+    PRJ, OBS = r_with_OBS(M.Pa.PRJ)
+
+    # %% 2. Read Obs
+    Pa_OBS_IPF = (
+        M.Pa.PRJ.parent / OBS[-1].split(',')[-1].strip().strip("'")
+    ).resolve()  # Combines PRJ path with OBS relative path
+    DF_OBS = imod.formats.ipf.read(Pa_OBS_IPF)  # Read IPF file containing OBS HDs
+    DF_OBS = DF_OBS.ws.XY_to_RC(M, x='X', y='Y')
+
+    # %% 3. Read modelled HDs
+    DF_M = pd.read_csv(
+        list(M.Pa.MF6.glob('HD_OBS_Pnt*.csv'))[0], index_col='time'
+    )  # Read CSV file containing modelled HDs. Assumes 1 matching file
+    DF_M.index = pd.to_datetime(M.SP_1st) + pd.to_timedelta(DF_M.index, unit='D')
+    if MB:
+        DF_MB = pd.read_csv(
+            list(MB.Pa.MF6.glob('HD_OBS_Pnt*.csv'))[0], index_col='time'
+        )  # Read CSV file containing modelled HDs for B. Assumes 1 matching file
+        DF_MB.index = pd.to_datetime(MB.SP_1st) + pd.to_timedelta(DF_MB.index, unit='D')
+
+    # %% 4. Def HtML plot function + prep folder
+    def Plot1(MdlN_S, MdlN_B, DF, Id, adj_min, adj_max, DF_Pct, DF_Mtc, Pa_Fo_HTML, X, Y, L, R, C_1):
+        import numpy as np
+        import pandas as pd
+        import plotly.graph_objects as go
+        from plotly.subplots import make_subplots
+
+        col_s = '#74c476'  # Scenario = light green
+        col_b = '#005a1b'  # Baseline = dark green
+        col_obs = '#238b45'  # Observed = mid green
+        col_11 = 'darkgrey'
+
+        x_ts = pd.to_datetime(DF['datetime'] if 'datetime' in DF.columns else DF.index)
+        x_ts = pd.Series(x_ts, index=DF.index)
+        x_ts_fmt = x_ts.dt.strftime('%d-%b-%Y')
+
+        def hover_line(label, value, date=None):
+            if pd.isna(value):
+                return None
+
+            date_txt = f' | {date}' if date is not None else ''
+            return f'{label + ":":<10} {value:6.2f} m{date_txt}'
+
+        def hover_box(lines):
+            lines = [line for line in lines if line is not None]
+            return "<span style='font-family:Courier New; white-space:pre;'>" + '<br>'.join(lines) + '</span>'
+
+        obs_mask = DF['head'].notna()
+        DF_Obs_Nearest = pd.merge_asof(
+            pd.DataFrame({'x': x_ts}).sort_values('x'),
+            pd.DataFrame(
+                {
+                    'obs_x': x_ts[obs_mask],
+                    'obs_val': DF.loc[obs_mask, 'head'],
+                }
+            ).sort_values('obs_x'),
+            left_on='x',
+            right_on='obs_x',
+            direction='nearest',
+        )
+
+        ts_hover_text = [
+            hover_box(
+                [
+                    hover_line('Observed', obs_val, obs_x.strftime('%d-%b-%Y') if pd.notna(obs_x) else None),
+                    hover_line(MdlN_S, s, date),
+                    hover_line(MdlN_B, b, date),
+                ]
+            )
+            for obs_val, obs_x, s, b, date in zip(
+                DF_Obs_Nearest['obs_val'],
+                DF_Obs_Nearest['obs_x'],
+                DF[MdlN_S],
+                DF[MdlN_B],
+                x_ts_fmt,
+            )
+        ]
+
+        parity_hover_text = [
+            hover_box(
+                [
+                    hover_line('Observed', obs),
+                    hover_line(MdlN_S, s),
+                    hover_line(MdlN_B, b),
+                ]
+            )
+            for obs, s, b in zip(DF['head'], DF[MdlN_S], DF[MdlN_B])
+        ]
+
+        fig = make_subplots(
+            rows=2,
+            cols=2,
+            column_widths=[0.68, 0.32],
+            row_heights=[0.5, 0.5],
+            vertical_spacing=0.12,
+            horizontal_spacing=0.05,
+            subplot_titles=['Time-Series Plot', 'Parity Plot', 'Percentile Plot'],
+            specs=[[{'rowspan': 2}, {}], [None, {}]],
+        )
+
+        # Time-series plot
+        fig.add_trace(
+            go.Scatter(
+                x=x_ts,
+                y=DF['head'],
+                mode='markers',
+                name='Observed',
+                marker=dict(size=3, color=col_obs),
+                hoverinfo='skip',
+            ),
+            row=1,
+            col=1,
+        )
+
+        fig.add_trace(
+            go.Scatter(
+                x=x_ts,
+                y=DF[MdlN_B],
+                mode='lines',
+                name=MdlN_B,
+                line=dict(color=col_b),
+                connectgaps=False,
+                hoverinfo='skip',
+            ),
+            row=1,
+            col=1,
+        )
+
+        fig.add_trace(
+            go.Scatter(
+                x=x_ts,
+                y=DF[MdlN_S],
+                mode='lines',
+                name=MdlN_S,
+                line=dict(color=col_s),
+                connectgaps=False,
+                hoverinfo='skip',
+            ),
+            row=1,
+            col=1,
+        )
+
+        # TS custom hover trace
+        fig.add_trace(
+            go.Scatter(
+                x=x_ts,
+                y=DF[MdlN_S],
+                mode='markers',
+                marker=dict(size=20, color='rgba(0,0,0,0)'),
+                text=ts_hover_text,
+                hovertemplate='%{text}<extra></extra>',
+                showlegend=False,
+            ),
+            row=1,
+            col=1,
+        )
+
+        # Parity plot
+        fig.add_trace(
+            go.Scatter(
+                x=DF['head'],
+                y=DF[MdlN_B],
+                mode='markers',
+                marker=dict(size=4, color=col_b),
+                name=MdlN_B,
+                hoverinfo='skip',
+            ),
+            row=1,
+            col=2,
+        )
+
+        fig.add_trace(
+            go.Scatter(
+                x=DF['head'],
+                y=DF[MdlN_S],
+                mode='markers',
+                marker=dict(size=4, color=col_s),
+                name=MdlN_S,
+                hoverinfo='skip',
+            ),
+            row=1,
+            col=2,
+        )
+
+        # 1:1 line
+        fig.add_trace(
+            go.Scatter(
+                x=[adj_min, adj_max],
+                y=[adj_min, adj_max],
+                mode='lines',
+                name='1:1',
+                line=dict(color=col_11, dash='dash'),
+                hoverinfo='skip',
+            ),
+            row=1,
+            col=2,
+        )
+
+        # Parity custom hover trace, no observed marker shown
+        fig.add_trace(
+            go.Scatter(
+                x=DF['head'],
+                y=DF[MdlN_S],
+                mode='markers',
+                marker=dict(size=20, color='rgba(0,0,0,0)'),
+                text=parity_hover_text,
+                hovertemplate='%{text}<extra></extra>',
+                showlegend=False,
+            ),
+            row=1,
+            col=2,
+        )
+
+        # Percentile plot
+        fig.add_trace(
+            go.Scatter(
+                x=DF_Pct['Percentile'],
+                y=DF_Pct['Obs'],
+                mode='lines',
+                name='Observed',
+                line=dict(color=col_obs),
+                hovertemplate=f'{"Observed:":<10} %{{y:6.2f}}<extra></extra>',
+            ),
+            row=2,
+            col=2,
+        )
+
+        fig.add_trace(
+            go.Scatter(
+                x=DF_Pct['Percentile'],
+                y=DF_Pct[MdlN_B],
+                mode='lines',
+                name=MdlN_B,
+                line=dict(color=col_b),
+                hovertemplate=f'{MdlN_B + ":":<10} %{{y:6.2f}}<extra></extra>',
+            ),
+            row=2,
+            col=2,
+        )
+
+        fig.add_trace(
+            go.Scatter(
+                x=DF_Pct['Percentile'],
+                y=DF_Pct[MdlN_S],
+                mode='lines',
+                name=MdlN_S,
+                line=dict(color=col_s),
+                hovertemplate=f'{MdlN_S + ":":<10} %{{y:6.2f}}<extra></extra>',
+            ),
+            row=2,
+            col=2,
+        )
+
+        # Metrics annotation
+        stats_text = (
+            "<span style='font-family:Courier New; white-space:pre;'>"
+            f'     {MdlN_S:>7} {MdlN_B:>7}<br>'
+            f'NSE  {DF_Mtc.loc["NSE", "S"]:7.2f} {DF_Mtc.loc["NSE", "B"]:7.2f}<br>'
+            f'RMSE {DF_Mtc.loc["RMSE", "S"]:7.2f} {DF_Mtc.loc["RMSE", "B"]:7.2f}<br>'
+            f'MAE  {DF_Mtc.loc["MAE", "S"]:7.2f} {DF_Mtc.loc["MAE", "B"]:7.2f}<br>'
+            f'Cor  {DF_Mtc.loc["Correlation", "S"]:7.2f} {DF_Mtc.loc["Correlation", "B"]:7.2f}<br>'
+            f'BR   {DF_Mtc.loc["Bias Ratio", "S"]:7.2f} {DF_Mtc.loc["Bias Ratio", "B"]:7.2f}<br>'
+            f'VR   {DF_Mtc.loc["Variability Ratio", "S"]:7.2f} {DF_Mtc.loc["Variability Ratio", "B"]:7.2f}<br>'
+            f'KGE  {DF_Mtc.loc["KGE", "S"]:7.2f} {DF_Mtc.loc["KGE", "B"]:7.2f}'
+            '</span>'
+        ).format(
+            DF_Mtc.loc['NSE', 'S'],
+            DF_Mtc.loc['RMSE', 'S'],
+            DF_Mtc.loc['MAE', 'S'],
+            DF_Mtc.loc['Correlation', 'S'],
+            DF_Mtc.loc['Bias Ratio', 'S'],
+            DF_Mtc.loc['Variability Ratio', 'S'],
+            DF_Mtc.loc['KGE', 'S'],
+            DF_Mtc.loc['NSE', 'B'],
+            DF_Mtc.loc['RMSE', 'B'],
+            DF_Mtc.loc['MAE', 'B'],
+            DF_Mtc.loc['Correlation', 'B'],
+            DF_Mtc.loc['Bias Ratio', 'B'],
+            DF_Mtc.loc['Variability Ratio', 'B'],
+            DF_Mtc.loc['KGE', 'B'],
+        )
+
+        fig.add_annotation(
+            text=stats_text,
+            xref='x2 domain',
+            yref='y2 domain',
+            x=1,
+            y=0,
+            xanchor='left',
+            showarrow=False,
+            font=dict(size=12, family='Courier New'),
+            bgcolor='white',
+            borderwidth=1,
+            borderpad=5,
+            align='left',
+        )
+
+        # Axes
+        fig.update_xaxes(title_text='Date', tickformat='%d-%b-%Y', row=1, col=1)
+        fig.update_yaxes(title_text='Head (mNAP)', tickformat='.2f', row=1, col=1)
+        fig.update_yaxes(title_text='Head (mNAP)', tickformat='.2f', row=2, col=2)
+
+        tick_step = round((adj_max - adj_min) / 10, 1)
+        tick_values = np.round(np.arange(adj_min, adj_max + tick_step, tick_step), 1)
+
+        fig.update_xaxes(
+            title_text='Observed Head (mNAP)',
+            tickformat='.1f',
+            row=1,
+            col=2,
+            range=[adj_min, adj_max],
+            tickvals=tick_values,
+        )
+
+        fig.update_yaxes(
+            title_text='Simulated Head (mNAP)',
+            tickformat='.1f',
+            row=1,
+            col=2,
+            range=[adj_min, adj_max],
+            tickvals=tick_values,
+        )
+
+        fig.update_xaxes(title_text='Percentile (%)', tickformat='.1f', row=2, col=2)
+
+        # Custom legends
+        fig.add_annotation(
+            text=(
+                f"<b>{MdlN_S}</b> <span style='color:{col_s};'>●</span><br>"
+                f"<b>{MdlN_B}</b> <span style='color:{col_b};'>●</span><br>"
+                f"<b>1:1</b> <span style='color:{col_11};'>━ ━ ━</span>"
+            ),
+            xref='x2 domain',
+            yref='y2 domain',
+            x=1,
+            y=1,
+            xanchor='left',
+            showarrow=False,
+            font=dict(size=12),
+            bgcolor='white',
+            borderwidth=1,
+            borderpad=5,
+            align='left',
+        )
+
+        fig.add_annotation(
+            text=(
+                f"<b>{MdlN_S}</b>  <span style='color:{col_s};'>▬▬▬</span><br>"
+                f"<b>{MdlN_B}</b>  <span style='color:{col_b};'>━ ━ ━</span><br>"
+                f"<b>Observed</b> <span style='color:{col_obs};'>▬▬▬</span>"
+            ),
+            xref='x3 domain',
+            yref='y3 domain',
+            x=1,
+            y=1,
+            xanchor='left',
+            showarrow=False,
+            font=dict(size=12),
+            bgcolor='white',
+            borderwidth=1,
+            borderpad=5,
+            align='left',
+        )
+
+        # Layout
+        fig.update_layout(
+            title=dict(
+                text=(
+                    f'<b>Groundwater Head Validation - {MdlN_S} Vs Observed Vs {MdlN_B}</b><br>'
+                    f'<span style="font-size:14px; font-weight:normal;">'
+                    f'Id: {Id} | X: {X}, Y: {Y} | L: {L}, R: {R}, C: {C_1}'
+                    f'</span>'
+                ),
+                font=dict(size=20),
+                y=0.98,
+                x=0.5,
+                xanchor='center',
+            ),
+            margin=dict(t=80, b=40, l=40, r=170),
+            xaxis_showgrid=True,
+            yaxis_showgrid=True,
+            showlegend=False,
+            legend=dict(font=dict(size=10)),
+            hovermode='x',
+            spikedistance=1000,
+            xaxis_showspikes=True,
+            yaxis_showspikes=False,
+            xaxis_spikemode='across',
+            autosize=True,
+            width=None,
+            height=None,
+        )
+
+        fig.update_layout(
+            margin=dict(autoexpand=True),
+            xaxis=dict(automargin=True),
+            yaxis=dict(automargin=True),
+        )
+
+        print(f'Saving {Id} ... ', end='')
+        fig.write_html(Pa_Fo_HTML / f'{Id}.HTML')
+        print('completed!')
+
+    Pa_Fo_HTML_1 = M.Pa.PoP_Out_MdlN / 'GW_HD_OBS'
+    Pa_Fo_HTML_2 = M.Pa.PoP_Out_MdlN / 'GW_HD_OBS/problematic'
+    Pa_Fo_HTML_1.mkdir(parents=True, exist_ok=True)  # Make folder to store HTML files if it doesn't already exist.
+    Pa_Fo_HTML_2.mkdir(parents=True, exist_ok=True)  # Make folder to store HTML files if it doesn't already exist.
+
+    # %% Import and check metrics
+    DF_Mtc = Vld_Mtc.to_DF()
+    DF_Mtc.set_index('Metric', inplace=True)
+
+    # %% 5.1 Make HTML Calibration plots
+    # n = 8
+    d_Mtc = {}
+    for ID in DF_M.columns:  # [n : n + 1]:
+        # Merge OBS with Mdl of S and B
+        DF = DF_OBS.loc[(DF_OBS['Id'] == ID)].merge(right=DF_M[ID], how='outer', left_on='datetime', right_index=True)
+        DF.rename(columns={ID: M.MdlN}, inplace=True)
+        DF = DF.merge(right=DF_MB[ID].rename(index=MB.MdlN), how='outer', left_on='datetime', right_index=True)
+        DF.index = pd.to_datetime(DF['datetime'])  # Set datetime as the index now that it's unique (per ID)
+        DF_notNA = DF.loc[DF['head'].notna() & DF[M.MdlN].notna() & DF[MB.MdlN].notna()]
+
+        # Compute
+        Obs = DF_notNA['head'] if not DF_notNA['head'].empty else np.nan
+        S = DF_notNA[M.MdlN] if not DF_notNA[M.MdlN].empty else np.nan
+        B = DF_notNA[MB.MdlN] if not DF_notNA[MB.MdlN].empty else np.nan
+
+        DF_Mtc_I = Vld_Mtc.compute_all(
+            Obs, S, B
+        )  # .set_index('Metric').loc[DF_Mtc['Metric']].reset_index()  # Compute metrics for this OBS location
+        d_Mtc[ID] = DF_Mtc_I['S']
+        # d_Mtc[f'{ID}_B'] = DF_Mtc_I['B']
+
+        Pctls = np.linspace(0, 100, 101)
+        DF_Pct = pd.DataFrame(
+            {
+                'Percentile': Pctls,
+                'Obs': np.percentile(Obs, Pctls),
+                M.MdlN: np.percentile(S, Pctls),
+                MB.MdlN: np.percentile(B, Pctls),
+            }
+        )
+
+        # Info for plot
+        X, Y, L, R, C_1 = DF_OBS.loc[(DF_OBS['Id'] == ID)].iloc[0][['X', 'Y', 'L', 'R', 'C']]
+        min_val, max_val = (
+            np.floor(min(DF['head'].min(), DF[M.MdlN].min(), DF[MB.MdlN].min()) * 10) / 10,
+            np.ceil(max(DF['head'].max(), DF[M.MdlN].max(), DF[MB.MdlN].max()) * 10) / 10,
+        )
+        buffer = (max_val - min_val) * 0.05
+        adj_min, adj_max = (min_val - buffer, max_val + buffer)
+        Pa_Fo_HTML_ = (
+            Pa_Fo_HTML_2 if (np.isnan(Obs).all()) or (np.isnan(S).all()) or (np.isnan(B).all()) else Pa_Fo_HTML_1
+        )  # Store elsewhere if missing data
+
+        Plot1(
+            M.MdlN,
+            MB.MdlN,
+            DF,
+            ID,
+            adj_min,
+            adj_max,
+            DF_Pct,
+            DF_Mtc_I,
+            Pa_Fo_HTML_,
+            X,
+            Y,
+            L,
+            R,
+            C_1,
+        )  # Create and save HTML plot for the current OBS location)
+
+        # if (np.isnan(Obs).all()) or (np.isnan(S).all() or (np.isnan(B).all())):
+        #     print(f'  X {ID} missing data or no overlap, stored in "problematic" folder.')
+
+    DF_Mtc = pd.concat([DF_Mtc, pd.DataFrame(d_Mtc)], axis=1).copy()
+
+    print('\n----- Finished creating HTML plots! -----')
+
+    # %% 6. Create GPKG
+    DF_Mtc_T = DF_Mtc.round(3).T.drop('unit')
+    DF_GPKG = DF_Mtc_T.merge(
+        right=DF_OBS[['Id', 'X', 'Y', 'L', 'R', 'C', 'path']], how='left', left_index=True, right_on='Id'
+    ).drop_duplicates(subset='Id')
+    DF_GPKG['path'] = DF_GPKG['Id'].apply(
+        lambda x: f'file:///{(M.Pa.PoP_Out_MdlN / "GW_HD_OBS" / f"{x}.HTML").as_posix()}'
+    )
+    GDF_GPKG = gpd.GeoDataFrame(DF_GPKG, geometry=gpd.points_from_xy(DF_GPKG['X'], DF_GPKG['Y']), crs=CRS)
+    GDF_GPKG.to_file(M.Pa.PoP_Out_MdlN / f'GW_HD_OBS/GW_HD_OBS_Pnts_{M.MdlN}.gpkg')
