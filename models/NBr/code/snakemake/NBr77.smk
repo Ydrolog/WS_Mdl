@@ -160,21 +160,9 @@ rule PRJ_to_TIF:
         Up_log(MdlN, {  'PRJ_to_TIF':   1})
         Path(output[0]).touch() # Create the file to mark the rule as done.
 
-rule GXG:
-    input:
-        log_Sim
-    output:
-        temp(log_GXG)
-    run:
-        from WS_Mdl.imod.pop.gxg import HD_Bin_GXG_to_MBTIF
-        HD_Bin_GXG_to_MBTIF(MdlN) # Calculate GXG and save as TIFs
-        Up_log(MdlN, {  'GXG':   '1'})
-        Path(output[0]).touch() # Create the file to mark the rule as done.
-
 rule Up_MM:
     input:
-        log_PRJ_to_TIF,
-        log_GXG
+        log_PRJ_to_TIF
     output:
         log_Up_MM
     run:

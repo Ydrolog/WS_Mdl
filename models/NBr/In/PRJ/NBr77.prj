@@ -524,7 +524,7 @@ winter
 004,005
 1,2,     0,   1.000000    ,   0.000000  , -999.990,  '..\..\In\RIV\RIV_Cond_DETAILWATERGANGEN_NBr1.IDF'
 1,2,     0,   1.000000    ,   0.000000  , -999.990,  '..\..\In\RIV\RIV_Cond_RIV_NBr1.IDF'
-1,2,     0,   1.000000    ,   0.000000  , -999.990,  '..\..\In\RIV\NBr54\RIV_Cond_main_DRN_NBr54.IDF'
+1,2,     0,   1.000000    ,   0.000000  , -999.990,  '..\..\In\RIV\RIV_Cond_DRN_NBr1.IDF'
 1,2,     0,   1.000000    ,   0.000000  , -999.990,  '..\..\In\RIV\RIV_Cond_Maas_NBr1.IDF'
 1,2,     0,   1.000000    ,   0.000000  , -999.990,  '..\..\In\RIV\RIV_Cond_Polderpeil_NBr1.IDF'
 1,2,     0,   1.000000    ,   0.000000  , -999.990,  '..\..\In\RIV\RIV_Stg_Detailwatergangen_NBr1.IDF'
@@ -546,7 +546,7 @@ summer
 004,005
 1,2    0,   1.000000    ,   0.000000  , -999.990  ,'..\..\In\RIV\RIV_Cond_DETAILWATERGANGEN_NBr1.IDF'
 1,2    0,   1.000000    ,   0.000000  , -999.990  ,'..\..\In\RIV\RIV_Cond_RIV_NBr1.IDF'
-1,2    0,   1.000000    ,   0.000000  , -999.990  ,'..\..\In\RIV\NBr54\RIV_Cond_main_DRN_NBr54.IDF'
+1,2    0,   1.000000    ,   0.000000  , -999.990  ,'..\..\In\RIV\RIV_Cond_DRN_NBr1.IDF'
 1,2    0,   1.000000    ,   0.000000  , -999.990  ,'..\..\In\RIV\RIV_Cond_Maas_NBr1.IDF'
 1,2    0,   1.000000    ,   0.000000  , -999.990  ,'..\..\In\RIV\RIV_Cond_Polderpeil_NBr1.IDF'
 1,2    0,   1.000000    ,   0.000000  , -999.990  ,'..\..\In\RIV\RIV_Stg_Detailwatergangen_NBr1.IDF'

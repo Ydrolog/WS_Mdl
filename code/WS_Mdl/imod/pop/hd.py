@@ -13,6 +13,8 @@ from WS_Mdl.imod.idf import HD_Out_to_DF
 from WS_Mdl.imod.prj import r_with_OBS
 from WS_Mdl.xr.convert import to_TIF
 
+__all__ = ['HD_IDF_Agg_to_TIF', 'p_HD_OBS_TS']
+
 
 def HD_IDF_Agg_to_TIF(
     MdlN: str,
@@ -44,7 +46,7 @@ def HD_IDF_Agg_to_TIF(
         Which DataFrame columns to group by. Common examples:
         - ['year','month']        → monthly aggregates
         - ['season_year','season']→ seasonal aggregates
-        - ['Hy_year']             → hydrological‐year aggregates
+        - ['Hy_year']             → hydrological-year aggregates
         - ['year','quarter']      → quarterly aggregates
     agg_func : str
         Name of the aggregation method to call on the xarray.DataArray (e.g. 'mean','min','max','median').
@@ -251,7 +253,11 @@ def p_HD_OBS_TS(MdlN, MdlN_B=True):
         ts_hover_text = [
             hover_box(
                 [
-                    hover_line('Observed', obs_val, obs_x.strftime('%d-%b-%Y') if pd.notna(obs_x) else None),
+                    hover_line(
+                        'Observed',
+                        obs_val,
+                        obs_x.strftime('%d-%b-%Y') if pd.notna(obs_x) else None,
+                    ),
                     hover_line(MdlN_S, s, date),
                     hover_line(MdlN_B, b, date),
                 ]
@@ -644,20 +650,7 @@ def p_HD_OBS_TS(MdlN, MdlN_B=True):
         )  # Store elsewhere if missing data
 
         Plot1(
-            M.MdlN,
-            MB.MdlN,
-            DF,
-            ID,
-            adj_min,
-            adj_max,
-            DF_Pct,
-            DF_Mtc_I,
-            Pa_Fo_HTML_,
-            X,
-            Y,
-            L,
-            R,
-            C_1,
+            M.MdlN, MB.MdlN, DF, ID, adj_min, adj_max, DF_Pct, DF_Mtc_I, Pa_Fo_HTML_, X, Y, L, R, C_1
         )  # Create and save HTML plot for the current OBS location)
 
         # if (np.isnan(Obs).all()) or (np.isnan(S).all() or (np.isnan(B).all())):
