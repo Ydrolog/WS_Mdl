@@ -162,8 +162,7 @@ rule PRJ_to_TIF:
 
 rule Up_MM:
     input:
-        log_PRJ_to_TIF,
-        log_GXG
+        log_PRJ_to_TIF
     output:
         log_Up_MM
     run:
