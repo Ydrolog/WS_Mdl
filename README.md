@@ -11,7 +11,7 @@ This project folder is used for the purposes of [WaterScape](https://waterscape.
 # Project set-up
 - Read the entire **README.md** before working on the project.<br>
 - Some project software require **Windows** to run, so unfortunately it's only possible to work on this project from a Win machine.
-- Follow the following guide to set-up the project Env.**.\code\Env\how_to_make_Env.md**
+- Follow the following guide to set-up the project Env: **.\code\Env\how_to_make_Env.md**
 - **Clone** the repo to get the publicly avaialble files:
 git clone https://github.com/Ydrolog/WS_Mdl
 The model files are shared only upon request. 
@@ -52,11 +52,13 @@ All model sub-folders contain the same folder structure for consistency. Files i
 
 # Guide to install SW for this project
 (optional software starts with "Opt:", the rest is mandatory)
+Use g:\code\build\install_MSI.ps1 to install everything via MSI after cloning repo and downloading files from YoDa.
 
 1. Opt:	Double Commander
 cd "C:\Users\mkarampasi\OneDrive - Universiteit Utrecht\Software\InstalledOutsideSoftwareCenter"
 .\doublecmd-1.1.22.x86_64-win64.exe <br>
 Opt: replace files in C:\Users\<User>\AppData\Roaming\doublecmd\ with files in C:\OD\Software\Settings\Double Commander\ (might need to enable view Hidden files)
+	Might need to copy configuration to start PS script (g:\code\build\launch_PS_pixi_noWT.bat)
 
 2. **pixi Env** (with snakmake)
 Install the pixi env, necessary for this project, following this guide:

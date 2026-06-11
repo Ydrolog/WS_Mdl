@@ -1,13 +1,13 @@
 # pixi Env guide
 -----------------------------------------
 This project uses **pixi** for managing dependencies. Why? So that Sims are reproducible and old code works.
-It would be possible to use other package managers, but we chose pixi because they use it at Deltares for locking specific imod python hashes.
-For more details check: https://pixi.sh/latest/
+It would be possible to use other package managers, but pixi was chosen because it is used Deltares in imod_python, which this project is heavil based on.
+For more on pixi: https://pixi.sh/latest/
 
 This guide explains how to use **pixi** to create, reproduce, and share the software environment for the *WS_Mdl* project.
 
 ## 1. Download and install pixi.
-- either follow their instructions on the website (https://pixi.sh/latest/installation/)
+- either follow these instructions: (https://pixi.sh/latest/installation/)
 	for Win, you can run the following command in PowerShell.
 	powershell -ExecutionPolicy ByPass -c "irm -useb https://pixi.sh/install.ps1 | iex"
 - or if you have/prefer conda (I haven't tried this, but it should work):
@@ -16,20 +16,21 @@ This guide explains how to use **pixi** to create, reproduce, and share the soft
 ## 2. Clone env.
 If you don't have the files for this project, you'll need to **clone** the repo.
 git clone https://github.com/Ydrolog/WS_Mdl G:
-G: is the default location. If you want it somewhere else, feel free to change the path, but that may make things more complicated later.
-Not all files are public, you'll need to request the rest from the project owner(s).
+You're strongly advised to create a drive (G:) for this project, as it makes paths shorter and guarantees they you won't have to make any path fixes in configuration files later on.
+Relative paths used in this or other guides start from the repo root (G:) unless specified otherwise.
 
-## 3. (re)create previous pixi env.
-(This can be replaced by a script that only requires the Run to reproduce as input)
+## 3. (re)create (previous) pixi env.
+(This can be replaced by a script that only requires the MdlN as input to reproduce the env)
+If you want to update to the latest version of the repo, skip steps 2-4 (inclussive).
 The main reason to recreate a pixi env is to reproduce an older Sim.
 Most of the time, a Sim should run on most versions of the repo. But recreating the env ensures identical results, so you're advised to do so.
 
 1. Ensure you've committed any work before doing this. (git add, git commit etc.)
 
-2. Register new/repeat Sims in the RunLog. It's safer and simpler to have more Sims than to remove the old ones. "Sim numbers are free, the pain of Sim confusion is priceless"
-Make sure you write in the descriptio which Sims you're repeating and how you're recreating them (could be a reference to this file...)
+2. Register new/repeat Sims in ./Mng/RunLog. It's safer and simpler to make new Sims than to remove/overwrite the old ones. "Sim numbers are free, the pain of Sim confusion is priceless"
+Make sure you write in the description which Sims you're repeating and how you're recreating them (could be a reference to this file...)
 
-3. **Copy** tag or hash of the Sim you want to recreate.
+3. **Copy** the hash (or tag) of the Sim you want to recreate.
    *Open* `./Mng/RunLog.xlsx` and copy the *Tag* or *Hash* column for the Sim you want to re-run.
 
 4. **Restore** env defining files:
@@ -47,7 +48,7 @@ pixi install # Will install dependencies, but won't ensure identical package ver
 
 7. Optional: **WS_Mdl refresh**:
 pixi run --manifest-path G:/pixi.toml --frozen --no-install pip install -e G:/ # (pip install -e G:\code (--use-pep517 --no-build-isolation) could also work) # This might be redundant, i.e. updates are reflected imedeately.
-Run this whenever you want to update WS_Mdl. It's in edit mode, so any small changes (e.g. code in exiting files) are updated automatically. I use this when I make a new terminal tool and I want to add it to path.
+Run this whenever you want to update WS_Mdl. It's in edit mode, so any small changes (e.g. code in exiting files) are updated automatically. I use this when I make a new terminal tool and I want to add it to path. If you're adding a new function (e.g. to be accessed via WS_Mdl <function> <args>, or in scripts), you don't need to update WS_Mdl.
 
 This will give you an environment identical to the Sim's.
 To activate it run:
