@@ -97,7 +97,7 @@ def Upl(
     print(f'Uploading from: {Pa_Loc}')
     if Pa_Loc.is_file():
         if l_Fi_data:
-            Target = CWD / F
+            Target = CWD / Path(F).relative_to(Pa_base)
             print(f'Uploading to:   {Target}')
             if not Target.parent.exists():
                 Target.parent.create_collection()
