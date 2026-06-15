@@ -43,6 +43,7 @@ def Sim(
         M.Pa_Cond_B = Path(SFR.Pa_Cond_B) if SFR.Pa_Cond_B is None else Path(SFR.Pa_Cond_A)
         M.SFR_OBS_all = SFR.OBS_all
         M.SFR_options = SFR.options
+        M.SFR_minimum_reach_length = SFR.minimum_reach_length
         M.DF_reach = timed_Exe(
             connect_SFR_lines_to_MF6,
             M,

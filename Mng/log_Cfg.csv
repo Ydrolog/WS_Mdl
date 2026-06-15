@@ -156,10 +156,11 @@ No RIV. Via imod python. PRJ: SS blocks removed, otherwise it wouldn't work with
 - Stopped producing HD Bin Out file.
 - Saved SFR convergence & went over other SFR options and OBS.","Queued","Completed"
 "77","NBr","77","NBr77","69","NBr69","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #5.2
-- 2000-2004","Queued",""
+- 2000-2004","Queued","Running"
 "78","NBr","78","NBr78","77","NBr77","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #6.2
-- 2000-2004","Queued",""
-"0","","","","","","","","0","",""
+- 2000-2004","Queued","Running"
+"79","NBr","79","NBr79","76","NBr76","MK","Test","SFRmaker #3.2.2: SFR for main SW in Chaamse Beek
+- minimum_reach_length default set to 5.","Queued","Running"
 "0","","","","","","","","0","",""
 "0","","","","","","","","0","",""
 "0","","","","","","","","0","",""

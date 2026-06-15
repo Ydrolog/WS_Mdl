@@ -27,6 +27,7 @@ class SFR_settings:
         default_factory=list
     )  # Pars to report for all reaches as OBS. E.g. 'stage', 'downstream-flow'. Search for "Observation type" in MF6 I/O guide for other options.
     options: list[str] = None
+    minimum_reach_length: float = 5.0
 
 
 def create_SFR_lines(Pa_GPkg: str | Path, verbose: bool, debug_sfr: bool = True):
@@ -353,7 +354,9 @@ def connect_SFR_lines_to_MF6(M: Mdl_N, debug_sfr: bool = True):
     sprint('🟢', verbose_in=True, verbose_out=M.Sim.verbose, print_time=True)
 
     # %% Assign and Review SFRdata
-    SFR_data = M.lines.to_sfr(grid=SFR_grid_L1, one_reach_per_cell=True)
+    SFR_data = M.lines.to_sfr(
+        grid=SFR_grid_L1, one_reach_per_cell=True, minimum_reach_length=M.SFR_minimum_reach_length
+    )
 
     SFR_data.reach_data.sort_values(by=['i', 'j'])
     DF_reach = SFR_data.reach_data.copy()

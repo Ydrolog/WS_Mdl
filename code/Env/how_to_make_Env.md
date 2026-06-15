@@ -80,9 +80,15 @@ pixi add --pypi "rasterio>=1.3"
 1. Use the scripts in code/Py/iBridges, which utilize the iB commands (WS_Mdl.io.ibridges) to transfer your files accross.
 
 2. For folders that contain a large amount of not so big files, it's advised to bundle (.tar) and compress (.gz) them.
-	Use the method below:
-	wsl # requires WSL installation
-	tar -cf - <folder_name> | pv | gzip -1 > <compressed_name>.tar.gz
 	
+	WSL/.tar.gz method:
+		wsl # requires WSL installation
+		tar -cf - <folder_name> | pv | gzip -1 > <compressed_name>.tar.gz
+	
+	7z method:
+		install 7z from G:/software/installers. The follwing command installs it with an exit code and adds it to path. Alternatively, you can use g:\code\build\install_MSI.ps1
+			$p=Start-Process msiexec -Wait -PassThru -ArgumentList '/i "G:\software\installers\7z2601-x64.msi" /qn /norestart'; if($p.ExitCode -in 0,3010){$z="C:\Program Files\7-Zip"; $old=[Environment]::GetEnvironmentVariable("Path","User"); if($old -notlike "*$z*"){[Environment]::SetEnvironmentVariable("Path", "$old;$z", "User")}; $env:Path += ";$z"; "Installed. ExitCode: $($p.ExitCode). 7z added to user PATH."} else {"Install failed. ExitCode: $($p.ExitCode)"}
+		7z a -t7z e:\models\NBr\Sim\NBr77.7z e:\models\NBr\Sim\NBr77_ -mx=1 -mmt=on
+
 3. It's possible to connect YoDa as a drive (right click This PC -> Map Network Drive -> Folder: https://geo.yoda.uu.nl, password: get one from https://geo.yoda.uu.nl/user/data_access and copy it to C:\Users\<User>\.irods\Pw.txt (reverse the Pw string, iB_get_Pw will reverse it back by default - small safety feature), or remember it some other way.
 -----------------------------------------
