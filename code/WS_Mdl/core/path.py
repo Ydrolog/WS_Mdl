@@ -3,12 +3,12 @@
 import sys
 from pathlib import Path
 
-__all__ = ['REPO_ROOT', 'Pa_WS', 'Pa_RunLog', 'Pa_log_Out', 'Pa_log_Cfg', 'MdlN_Pa', 'imod_V', 'get_Mdl']
+from WS_Mdl.core.defaults import Pa_WS
+from WS_Mdl.core.style import sprint
+
+__all__ = ['Pa_WS', 'Pa_RunLog', 'Pa_log_Out', 'Pa_log_Cfg', 'MdlN_Pa', 'imod_V', 'get_Mdl']
 
 
-REPO_ROOT = Path(__file__).absolute().parents[3]
-
-Pa_WS = REPO_ROOT
 Pa_RunLog = Pa_WS / 'Mng/RunLog.xlsm'
 Pa_log_Out = Pa_WS / 'Mng/log_Out.csv'
 Pa_log_Cfg = Pa_WS / 'Mng/log_Cfg.csv'
@@ -36,13 +36,13 @@ def imod_V(MdlN: str, iMOD5: bool | None = None):
         elif 'GWF_1' in names:
             return 'imod5'
         else:
-            print(
+            sprint(
                 f"\n  - Could not determine imod version from Sim/{MdlN} folder. Proceeding with the assumption it's imod_python.\n",
-                file=sys.stderr,
+                file=sys.stderr
             )
             return 'imod_python'
     except FileNotFoundError:
-        print(
+        sprint(
             f"\n  - Could not determine imod version from Sim/{MdlN} folder. Proceeding with the assumption that it's imod_python.\n",
             file=sys.stderr,
         )

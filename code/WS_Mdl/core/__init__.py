@@ -15,6 +15,7 @@ import importlib
 _MOD_STYLE = 'WS_Mdl.core.style'
 _MOD_PATH = 'WS_Mdl.core.path'
 _MOD_LOG = 'WS_Mdl.core.log'
+_MOD_DEFAULTS = 'WS_Mdl.core.defaults'
 
 # Map exported public names to (module_path, attribute_name).
 # Keeping this explicit makes the public contract stable and easy to audit.
@@ -34,7 +35,7 @@ _EXPORTS_TO_MODULES = {
     'blue': (_MOD_STYLE, 'blue'),
     # Path/model-location utilities
     'REPO_ROOT': (_MOD_PATH, 'REPO_ROOT'),
-    'Pa_WS': (_MOD_PATH, 'Pa_WS'),
+    'Pa_WS': (_MOD_DEFAULTS, 'Pa_WS'),
     'Pa_RunLog': (_MOD_PATH, 'Pa_RunLog'),
     'Pa_log_Out': (_MOD_PATH, 'Pa_log_Out'),
     'Pa_log_Cfg': (_MOD_PATH, 'Pa_log_Cfg'),

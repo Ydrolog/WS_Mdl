@@ -8,12 +8,13 @@ import imod
 import numpy as np
 from WS_Mdl.core.defaults import CRS
 from WS_Mdl.core.mdl import Mdl_N
-from WS_Mdl.core.style import Sep, sprint
+from WS_Mdl.core.runtime import timed_Exe
+from WS_Mdl.core.style import Sep, green, sprint
 from WS_Mdl.imod.idf import HD_Out_to_DF
 from WS_Mdl.imod.prj import r_with_OBS
 from WS_Mdl.xr.convert import to_TIF
 
-__all__ = ['HD_IDF_Agg_to_TIF', 'p_HD_OBS_TS']
+__all__ = ['HD_IDF_Agg_to_TIF', 'p_HD_OBS_TS', 'c_HD_Pctls', 'HD_Pctl_Diffs']
 
 
 def HD_IDF_Agg_to_TIF(
@@ -177,11 +178,16 @@ def HD_Agg_name(group_keys, grouping):  # 666 could be moved to util
     return '_'.join(str(k) for k in group_keys)  # fallback: join all keys with underscore
 
 
-def p_HD_OBS_TS(MdlN, MdlN_B=True):
+def p_HD_OBS_TS(MdlN, MdlN_B=True, MdlN_Pa_MF6=None, MdlN_B_Pa_MF6=None):
     """
     Reads Mdl Out TS files (CSVs) for S and B (if B not False) and Obs data, then creates HTML plots in the PoP Out folder.
     """
+    sprint(Sep)
+    sprint('----- p_HD_OBS_TS initiated -----', style=green)
+
     # %% 1. Initial
+    sprint('--- Loading data...')
+    sprint(' -- Creating Mdl_N instances.', end='')
     import geopandas as gpd
     import pandas as pd
     import WS_Mdl.core.df  # noqa: F401
@@ -189,9 +195,15 @@ def p_HD_OBS_TS(MdlN, MdlN_B=True):
 
     M = Mdl_N(MdlN)
     MB = Mdl_N(MdlN_B) if isinstance(MdlN_B, str) else Mdl_N(M.B) if MdlN_B is True else M.copy()
+    if MdlN_Pa_MF6:
+        M.Pa.MF6 = Path(MdlN_Pa_MF6)
+    if MdlN_B_Pa_MF6:
+        MB.Pa.MF6 = Path(MdlN_B_Pa_MF6)
     PRJ, OBS = r_with_OBS(M.Pa.PRJ)
+    sprint('🟢')
 
     # %% 2. Read Obs
+    sprint(' -- Loading OBS.', end='')
     Pa_OBS_IPF = (
         M.Pa.PRJ.parent / OBS[-1].split(',')[-1].strip().strip("'")
     ).resolve()  # Combines PRJ path with OBS relative path
@@ -208,8 +220,11 @@ def p_HD_OBS_TS(MdlN, MdlN_B=True):
             list(MB.Pa.MF6.glob('HD_OBS_Pnt*.csv'))[0], index_col='time'
         )  # Read CSV file containing modelled HDs for B. Assumes 1 matching file
         DF_MB.index = pd.to_datetime(MB.SP_1st) + pd.to_timedelta(DF_MB.index, unit='D')
+    sprint('🟢')
 
     # %% 4. Def HtML plot function + prep folder
+    sprint('--- Plotting...')
+
     def Plot1(MdlN_S, MdlN_B, DF, Id, adj_min, adj_max, DF_Pct, DF_Mtc, Pa_Fo_HTML, X, Y, L, R, C_1):
         import numpy as np
         import pandas as pd
@@ -541,7 +556,7 @@ def p_HD_OBS_TS(MdlN, MdlN_B=True):
         fig.add_annotation(
             text=(
                 f"<b>{MdlN_S}</b>  <span style='color:{col_s};'>▬▬▬</span><br>"
-                f"<b>{MdlN_B}</b>  <span style='color:{col_b};'>━ ━ ━</span><br>"
+                f"<b>{MdlN_B}</b>  <span style='color:{col_b};'>▬▬▬</span><br>"
                 f"<b>Observed</b> <span style='color:{col_obs};'>▬▬▬</span>"
             ),
             xref='x3 domain',
@@ -592,9 +607,9 @@ def p_HD_OBS_TS(MdlN, MdlN_B=True):
             yaxis=dict(automargin=True),
         )
 
-        print(f'Saving {Id} ... ', end='')
+        print(f'Saving {Id:<20}', end='')
         fig.write_html(Pa_Fo_HTML / f'{Id}.HTML')
-        print('completed!')
+        print('🟢')
 
     Pa_Fo_HTML_1 = M.Pa.PoP_Out_MdlN / 'GW_HD_OBS'
     Pa_Fo_HTML_2 = M.Pa.PoP_Out_MdlN / 'GW_HD_OBS/problematic'
@@ -658,8 +673,6 @@ def p_HD_OBS_TS(MdlN, MdlN_B=True):
 
     DF_Mtc = pd.concat([DF_Mtc, pd.DataFrame(d_Mtc)], axis=1).copy()
 
-    print('\n----- Finished creating HTML plots! -----')
-
     # %% 6. Create GPKG
     DF_Mtc_T = DF_Mtc.round(3).T.drop('unit')
     DF_GPKG = DF_Mtc_T.merge(
@@ -669,4 +682,170 @@ def p_HD_OBS_TS(MdlN, MdlN_B=True):
         lambda x: f'file:///{(M.Pa.PoP_Out_MdlN / "GW_HD_OBS" / f"{x}.HTML").as_posix()}'
     )
     GDF_GPKG = gpd.GeoDataFrame(DF_GPKG, geometry=gpd.points_from_xy(DF_GPKG['X'], DF_GPKG['Y']), crs=CRS)
-    GDF_GPKG.to_file(M.Pa.PoP_Out_MdlN / f'GW_HD_OBS/GW_HD_OBS_Pnts_{M.MdlN}.gpkg')
+    metadata = {
+        'MdlN': str(M.MdlN),
+        'MdlN_B': str(MB.MdlN),
+        'Created by': 'p_HD_OBS_TS (WS_Mdl.imod.pop.hd.py/p_HD_OBS_TS)',
+        'CRS': str(CRS),
+        'Description': 'Groundwater head observation point time-series plots',
+        'Date': DT.now().isoformat(),
+    }
+    GDF_GPKG.to_file(
+        M.Pa.PoP_Out_MdlN / f'GW_HD_OBS/GW_HD_OBS_Pnts_{M.MdlN}.gpkg',
+        driver='GPKG',
+        layer=f'GW_HD_OBS_Pnts_{M.MdlN}',
+        metadata=metadata,
+    )
+
+    # %% 7. Write metadata and finish
+    with open(M.Pa.PoP_Out_MdlN / 'GW_HD_OBS/metadata.txt', 'w') as f:
+        for k, v in metadata.items():
+            f.write(f'{k}: {v}\n')
+    sprint(Sep)
+
+
+def c_HD_Pctls(
+    MdlN: str,
+    full_years: bool = True,
+    l_Pct: list = [0.05, 0.10, 0.50, 0.90, 0.95],
+    l_L: list = [1, 3, 5],  # List of layers to include in the analysis (1-based indexing)
+    Pa_CSV: str | Path = None,
+):
+    """
+    Calculate specified Pctls of GW HD data from a CSV file (MF6 OBS Out) and save the results as single-band TIFF files.
+    """
+    # %% Imports
+    import pandas as pd
+    import rioxarray  # Noqa: F401 # activates the .rio accessor
+    import xarray as xra
+
+    # %% Options
+    sprint('----- c_Pctl_HD_OBS_L initiated -----', style=green)
+    sprint('--- Loading data...')
+    sprint(' -- Creating Mdl_N instance.', end='', verbose_out=False)
+    M = Mdl_N(MdlN)
+    Pa_CSV = M.Pa.MF6.glob('HD_OBS_L*.csv')[0] if Pa_CSV is None else Pa_CSV  # Assumes only one HD_OBS_L*.csv
+    sprint('🟢', verbose_in=True)
+
+    # %%
+    # DF = pd.read_csv(list(M.Pa.MF6.rglob('HD_OBS_L*.csv'))[0], engine='c', dtype='float32', sep=',' low_memory=False) # Assumes only one HD_OBS_L*.csv
+    DF = timed_Exe(
+        pd.read_csv,
+        Pa_CSV,
+        engine='c',
+        dtype='float32',
+        sep=',',
+        low_memory=False,
+        pre=' -- Reading CSV ...',
+        post='🟢',
+    )
+    # DF_ = DF.copy()  # For testing
+
+    # %% Time operations
+    # DF['time'] = DT.strptime(M.SP_1st, '%Y-%m-%d') + pd.to_timedelta(DF['time'], unit='D')
+    sprint(' -- Performing time operations.', end='')
+    DF['time'] = M.SP_1st_DT + pd.to_timedelta(DF['time'] - 1, unit='D')
+
+    if full_years:
+        Y0 = DF['time'].dt.year.min() + (DF['time'].min() > pd.Timestamp(DF['time'].dt.year.min(), 1, 1))
+        Y1 = DF['time'].dt.year.max() - (DF['time'].max() < pd.Timestamp(DF['time'].dt.year.max(), 12, 31))
+        DF = DF[DF['time'].dt.year.between(Y0, Y1)]
+
+    DF.set_index('time', inplace=True)
+    sprint('🟢')
+
+    # %% Load to DA
+    sprint('--- Calculating...')
+    sprint(' -- Converting to DA.', end='')
+
+    A = DF.columns.str.extract(r'HD_(\d+)_(\d+)_(\d+)').astype('int16')
+    A.columns = ['L', 'R', 'C']
+
+    Ls = np.sort(A['L'].unique())
+
+    l_i = pd.Index(Ls).get_indexer(A['L'])
+    r_i = A['R'].to_numpy() - 1
+    c_i = A['C'].to_numpy() - 1
+
+    Arr = np.full((len(DF), len(Ls), len(M.Ys), len(M.Xs)), np.nan, dtype='float32')
+    Arr[:, l_i, r_i, c_i] = DF.to_numpy(copy=False)
+
+    DA = xra.DataArray(
+        Arr,
+        dims=('time', 'L', 'Y', 'X'),
+        coords={
+            'time': DF.index.to_numpy(),
+            'L': Ls,
+            'Y': M.Ys,
+            'X': M.Xs,
+        },
+        name='HD',
+    )
+
+    sprint('🟢')
+
+    # %% Calculate percentiles
+    DA_q = timed_Exe(
+        DA.quantile,
+        l_Pct,
+        dim='time',
+        pre=' -- Calculating percentiles...',
+        post='🟢',
+    )
+
+    # %% Saving to TIF
+    Pa_Dir = M.Pa.PoP_Out_MdlN / 'GW_HD_Pct'
+    sprint(f' -- Saving to TIF in {Pa_Dir}')
+    Pa_Dir.mkdir(parents=True, exist_ok=True)
+    DA_q = DA_q.rio.set_spatial_dims(x_dim='X', y_dim='Y').rio.write_crs('EPSG:28992')
+    metadata = {
+        'model': M.MdlN,
+        'created from:': str(Pa_CSV),
+        'created by': f'c_HD_Pctl_HD_OBS_L( MdlN={MdlN}, full_years={full_years}, l_Pct={l_Pct}, l_L = {l_L}, Pa_CSV = {Pa_CSV})',
+    }
+
+    for q in l_Pct:
+        for L in l_L:
+            Pa_Out = Pa_Dir / f'GW_HD_L{L}_P{int(q * 100):02d}_{MdlN}.tif'
+
+            sprint(f'  - {Pa_Out.name} ', end='')
+            DA_i = DA_q.sel(quantile=q, L=L).rio.set_spatial_dims(x_dim='X', y_dim='Y')
+            DA_i.rio.to_raster(
+                Pa_Out,
+                tags={
+                    'percentile': f'P{int(q * 100):02d}',
+                    'layer': str(L),
+                }
+                | metadata,
+            )
+            sprint('🟢')
+
+    # %% 7. Write metadata and finish
+    with open(Pa_Dir / 'metadata.txt', 'w') as f:
+        for k, v in metadata.items():
+            f.write(f'{k}: {v}\n')
+    print(Sep)
+
+
+def HD_Pctl_Diffs(MdlN_S: str, MdlN_B: str):
+    """
+    Calculate percentiles of the differences in GW HD between two models (S and B) and save as single-band TIFF files.
+    """  # 666 needs progress reportng.
+    import rioxarray
+
+    M = Mdl_N(MdlN_S)
+    MB = Mdl_N(MdlN_B)
+
+    for F in (M.Pa.PoP_Out_MdlN / 'GW_HD_Pct').glob('GW_HD_L*_P*.tif'):
+        DA_S = rioxarray.open_rasterio(F)
+        Pa_B = str(F).replace(M.MdlN, MB.MdlN)
+        print(Pa_B)
+        DA_B = rioxarray.open_rasterio(Pa_B)
+        DA_Diff = DA_S - DA_B
+
+        Pa_Out = F.parent / F.name.replace(M.MdlN, f'{M.MdlN}m{MB.N}')
+        Pa_Out.parent.mkdir(parents=True, exist_ok=True)
+
+        print(f'Saving {Pa_Out.name} ', end='')
+        DA_Diff.rio.to_raster(Pa_Out)
+        print('🟢')

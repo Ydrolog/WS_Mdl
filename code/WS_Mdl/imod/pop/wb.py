@@ -4,8 +4,8 @@ from pathlib import Path
 import flopy as fp
 import numpy as np
 import pandas as pd
+from WS_Mdl.core.defaults import Pa_WS
 from WS_Mdl.core.mdl import Mdl_N
-from WS_Mdl.core.path import Pa_WS
 from WS_Mdl.core.style import Sep, set_verbose, sprint
 
 Pa_template = Pa_WS / r'code\WS_Mdl\Auxi\WB_Diff_NET_sum_Pkg_TEMPLATExlsx.xlsx'

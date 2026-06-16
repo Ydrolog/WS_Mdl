@@ -5,7 +5,7 @@ from pathlib import Path
 from ibridges import IrodsPath as iPa
 from ibridges import Session, download, upload
 from tqdm import tqdm
-from WS_Mdl.core.path import Pa_WS
+from WS_Mdl.core.defaults import Pa_WS
 from WS_Mdl.core.style import VERBOSE, Sep_2, blue, bold, sprint, style_reset, warn
 
 __all__ = ['get_Pw']

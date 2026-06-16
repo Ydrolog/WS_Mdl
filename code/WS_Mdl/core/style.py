@@ -5,7 +5,7 @@ import time
 
 from colored import attr, fg
 
-from .path import Pa_WS
+from WS_Mdl.core.defaults import Pa_WS
 
 __all__ = [
     'Sep',

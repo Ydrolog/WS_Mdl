@@ -17,9 +17,8 @@ import imod
 import pandas as pd
 import plotly.graph_objects as go
 
-from WS_Mdl.core.defaults import CRS
+from WS_Mdl.core.defaults import CRS, Pa_WS
 from WS_Mdl.core.mdl import Mdl_N
-from WS_Mdl.core.path import Pa_WS
 from WS_Mdl.core.style import sprint
 from WS_Mdl.imod.msw.mete_grid import to_DF
 from WS_Mdl.imod.msw.meteo import to_XA
@@ -31,13 +30,13 @@ Pa_clip = (
     Pa_WS / r'models\NBr\PoP\common\Pgn\Chaamse_beek\catchment_chaamsebeek_ulvenhout.shp'
 )  # Area to clip MSW qrun to; this should be the catchment boundary of the outlet we're analyzing.
 
-l_Sims = ['NBr59', 'NBr68', 'NBr69', 'NBr70', 'NBr72']
+l_Sims = ['NBr76', 'NBr77', 'NBr78']
 
 X_outlet, Y_outlet = 114213.79, 394950.96  # To get P for correct cell.
 
 Pa_OBS_TS_xlsx = r'g:\models\NBr\other\BrabantseDelta\TS\Totaaldebiet-54689042-WNS2367_2025-07-31_11-18-44_02-00.xlsx'  # s/s where OBS TS is stored.
 
-Pa_Out = Pa_WS / r'models\NBr\PoP\TS\Chaamse Beek Outlet Validaion'  # Output folder for CSVs and plot.
+Pa_Out = Pa_WS / r'models\NBr\PoP\TS\Chaamse Beek Outlet Validation'  # Output folder for CSVs and plot.
 
 
 # %% Define function
@@ -160,7 +159,9 @@ def stack_Out_TS(Pa_OBS_TS_xlsx: Path, Pa_clip_Shp: Path, l_Sims: list, X_outlet
 
     # %% Save individual component CSVs
     for i in ['DRN', 'RIV', 'SFR', 'qrun']:
+        print(d_DF[i].columns)
         d_DF[i].set_index('date', inplace=True)
+        print(Pa_Out / f'Chaamse_Beek_Outlet-{i}_flows.csv')
         d_DF[i].to_csv(Pa_Out / f'Chaamse_Beek_Outlet-{i}_flows.csv')
 
     # %% SUM for MdlN

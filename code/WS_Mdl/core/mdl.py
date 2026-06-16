@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from datetime import datetime as DT
 from functools import cached_property
 
-from WS_Mdl.imod.ini import INIView, Mdl_area, Mdl_Dmns
+from WS_Mdl.imod.ini import CeCes, INIView, Mdl_area, Mdl_Dmns
 
 from .path import MdlN_PaView, imod_V
 from .style import set_verbose
@@ -39,11 +39,15 @@ class Mdl_N:
         'Ymin': 'float: Minimum Y coordinate',
         'Xmax': 'float: Maximum X coordinate',
         'Ymax': 'float: Maximum Y coordinate',
+        'Xs': 'float: X coordinates of the model grid',
+        'Ys': 'float: Y coordinates of the model grid',
         'cellsize': 'float: Model cell size',
         'N_R': 'int: Number of rows in the model grid',
         'N_C': 'int: Number of columns in the model grid',
         'SP_1st': 'str: Start date of the model simulation period (YYYY-MM-DD)',
         'SP_last': 'str: End date of the model simulation period (YYYY-MM-DD)',
+        'SP_1st_DT': 'datetime: Start date as datetime object',
+        'SP_last_DT': 'datetime: End date as datetime object',
         'Sim': 'Sim settings container for model-specific simulation options',
         '__dict__': 'dict: allow dynamic attributes',
     }
@@ -73,10 +77,15 @@ class Mdl_N:
             self.Dmns = Mdl_Dmns(self.Pa.INI)
             self.Mdl_area = Mdl_area(self.Pa.INI)
             self.Xmin, self.Ymin, self.Xmax, self.Ymax, self.cellsize, self.N_R, self.N_C = Mdl_Dmns(self.Pa.INI)
+            self.Xs, self.Ys = CeCes(self.MdlN)
             self.N_L_cells = self.N_R * self.N_C
             self.SP_1st, self.SP_last = [
                 DT.strftime(DT.strptime(self.INI[f'{i}'], '%Y%m%d'), '%Y-%m-%d') for i in ['SDATE', 'EDATE']
             ]
+            self.SP_1st_DT, self.SP_last_DT = (
+                DT.strptime(self.SP_1st, '%Y-%m-%d'),
+                DT.strptime(self.SP_last, '%Y-%m-%d'),
+            )
             self.cell_area = self.cellsize**2
         set_verbose(True)
 

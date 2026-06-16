@@ -10,9 +10,8 @@ import pandas as pd
 import primod
 import xarray as xra
 from imod import mf6, msw
-from WS_Mdl.core.defaults import CRS
+from WS_Mdl.core.defaults import CRS, Pa_WS
 from WS_Mdl.core.mdl import Mdl_N
-from WS_Mdl.core.path import Pa_WS
 from WS_Mdl.core.runtime import timed_Exe
 from WS_Mdl.core.style import Sep, set_verbose, sprint
 from WS_Mdl.imod.ini import CeCes, Mdl_Dmns
