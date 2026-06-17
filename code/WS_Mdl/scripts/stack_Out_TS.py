@@ -56,7 +56,7 @@ def stack_Out_TS(Pa_OBS_TS_xlsx: Path, Pa_clip_Shp: Path, l_Sims: list, X_outlet
     d_DF = {}
     for i in ['DRN', 'RIV', 'SFR', 'qrun']:
         try:
-            d_DF[i] = pd.read_csv(f'./Chaamse_Beek_Outlet-{i}_flows.csv', parse_dates=['date'])
+            d_DF[i] = pd.read_csv(Pa_Out / f'Chaamse_Beek_Outlet-{i}_flows.csv', parse_dates=['date'])
             d_DF[i]['date'] = pd.to_datetime(d_DF[i]['date'], format='%d/%m/%Y', errors='coerce')
             sprint(f'🟢 - Initialized {i} DataFrame with OBS dates')
         except Exception:
@@ -105,9 +105,11 @@ def stack_Out_TS(Pa_OBS_TS_xlsx: Path, Pa_clip_Shp: Path, l_Sims: list, X_outlet
         # SFR
         if MdlN not in d_DF['SFR'].columns:
             try:
-                DF = pd.read_csv(M.Pa.Sim_In / f'{MdlN}.SFR6.obs.output.csv', usecols=[0, 1])
+                DF = pd.read_csv(M.Pa.Sim_In / f'{MdlN}.SFR6.obs.output.csv', usecols=range(100))[
+                    ['time', 'OUTLET_DOWNSTREAM-FLOW']
+                ]  # Assumes 'time' and 'OUTLET_DOWNSTREAM-FLOW' are the first 100 columns
                 DF['date'] = DT.strptime(str(M.INI.SDATE), '%Y%m%d') + pd.to_timedelta(DF['time'] - 1, unit='D')
-                DF.rename(columns={'1': MdlN}, inplace=True)
+                DF.rename(columns={'OUTLET_DOWNSTREAM-FLOW': MdlN}, inplace=True)
                 DF[MdlN] = DF[MdlN] * (-1)
                 DF = DF[['date', MdlN]]
                 if d_DF['SFR'].empty:
@@ -180,6 +182,8 @@ def stack_Out_TS(Pa_OBS_TS_xlsx: Path, Pa_clip_Shp: Path, l_Sims: list, X_outlet
         .add(d_DF['qrun'].fillna(0), fill_value=0)
     )
     date_min, date_max = DF_Agg.index.min(), DF_Agg.index.max()
+    print(date_min, date_max)
+    print(type(date_min), type(date_max))
 
     # %% Load Precipitation
     PRJ, OBS = r_with_OBS(M.Pa.PRJ)
@@ -367,7 +371,7 @@ def stack_Out_TS(Pa_OBS_TS_xlsx: Path, Pa_clip_Shp: Path, l_Sims: list, X_outlet
         barmode='overlay',
     )
 
-    Pa_Htm = Path(Pa_Out / f'Outlet_TS_{date_min}-{date_max}.html')
+    Pa_Htm = Path(Pa_Out / f'Outlet_TS_{date_min.strftime("%Y%m%d")}-{date_max.strftime("%Y%m%d")}.html')
     fig.write_html(Pa_Htm, include_plotlyjs='cdn', full_html=True)
     fig.show()
 
