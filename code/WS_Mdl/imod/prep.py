@@ -26,13 +26,26 @@ def Sim(
         )
 
     # %% Load PRJ & regrid it to Mdl area
-    sprint('--- imod PrSimP from PRJ file.', verbose_in=True, verbose_out=M.Sim.verbose)
-    M.Sim_MF6, M.MSW_Mdl = timed_Exe(PrSimP, M)
+    M.Sim_MF6, M.MSW_Mdl = timed_Exe(
+        PrSimP,
+        M,
+        pre='--- imod PrSimP from PRJ file.',
+        verbose_in=True,
+        verbose_out=M.Sim.verbose,
+        post='',
+    )
 
     if SFR:
         # %% Create SFR Lines
-        sprint('--- SFRmaker\n -- Creating SFR lines.', verbose_in=True, verbose_out=M.Sim.verbose)
-        M.lines = timed_Exe(create_SFR_lines, Pa_GPkg=SFR.Pa_Gpkg, verbose=M.Sim.verbose)
+        M.lines = timed_Exe(
+            create_SFR_lines,
+            Pa_GPkg=SFR.Pa_Gpkg,
+            verbose=M.Sim.verbose,
+            pre='--- SFRmaker\n -- Creating SFR lines.',
+            verbose_in=True,
+            verbose_out=M.Sim.verbose,
+            post='',
+        )
 
         # %% Connect SFR Lines to MF6 (writes files and connects them to NAM)
         sprint(' -- Connecting SFR lines to MF6.', verbose_in=True, verbose_out=M.Sim.verbose)
@@ -52,14 +65,15 @@ def Sim(
 
         # %% Connect DRN to SFR via MVR
         if SFR.connect_Pkgs:
-            sprint(
-                f' -- Connecting Pkgs ({SFR.connect_Pkgs}) to SFR via MVR.', verbose_in=True, verbose_out=M.Sim.verbose
-            )
             timed_Exe(
                 Pkgs_to_SFR_via_MVR,
                 M,
                 Pkgs=SFR.connect_Pkgs,
                 Pa_Shp=SFR.Pa_Shp_connect_Pkgs,
+                pre='--- Connecting Pkgs to SFR via MVR.',
+                verbose_in=True,
+                verbose_out=M.Sim.verbose,
+                post='',
             )
 
     sprint(f'----- Mdl_Prep: {M.MdlN} COMPLETED -----', style=bold, verbose_out=M.Sim.verbose)

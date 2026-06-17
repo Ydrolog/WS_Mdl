@@ -17,7 +17,7 @@ def timed_import(module):
     return mod
 
 
-def timed_Exe(func, *args, pre=None, post='', verbose_in=True, verbose_out=True, **kwargs):
+def timed_Exe(func, *args, pre=None, post='🟢', verbose_in=True, verbose_out=True, **kwargs):
     """
     e.g. from WS_Mdl import core as C; C.timed_Exe(C.get_Mdl, MdlN)
     Trick: use pre='' if you only want to get the time in brackets.

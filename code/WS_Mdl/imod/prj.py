@@ -637,7 +637,6 @@ def PrSimP(
         pre=f'  - Loading {M.Pa.PRJ.name} ...',
         verbose_in=True,
         verbose_out=M.Sim.verbose,
-        post='🟢',
     )
     PRJ, period_data = PRJ_[0], PRJ_[1]
 
@@ -676,7 +675,6 @@ def PrSimP(
         period_data,
         times,
         pre='  - Loading MF6 Simulation ...',
-        post='🟢',
         verbose_in=True,
         verbose_out=M.Sim.verbose,
     )
@@ -697,7 +695,6 @@ def PrSimP(
         MF6_DIS,
         times,
         pre='  - Loading MSW Simulation ...',
-        post='🟢',
         verbose_in=True,
         verbose_out=M.Sim.verbose,
     )
@@ -769,7 +766,6 @@ def PrSimP(
         mf6_recharge_package='msw-rch',
         mf6_wel_package='msw-sprinkling',
         pre='  - Coupling ...',
-        post='🟢',
         verbose_in=True,
         verbose_out=M.Sim.verbose,
     )
@@ -784,7 +780,6 @@ def PrSimP(
         metaswap_dll=M.Pa.MSW_DLL,
         metaswap_dll_dependency=M.Pa.MF6_DLL.parent,
         pre='  - Writing model files ...',
-        post='🟢',
         verbose_in=True,
         verbose_out=M.Sim.verbose,
         modflow6_write_kwargs={'binary': M.Sim.Bin_Ins},  # If True, writes Ins in Bin format.

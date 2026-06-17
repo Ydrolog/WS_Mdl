@@ -715,16 +715,19 @@ def c_HD_Pctls(
     Calculate specified Pctls of GW HD data from a CSV file (MF6 OBS Out) and save the results as single-band TIFF files.
     """
     # %% Imports
+    sprint('----- c_Pctl_HD_OBS_L initiated -----', style=green)
+    sprint(' -- Loading extra packages.', end='', verbose_out=False)
     import pandas as pd
     import rioxarray  # Noqa: F401 # activates the .rio accessor
     import xarray as xra
 
+    sprint('🟢', verbose_in=True)
+
     # %% Options
-    sprint('----- c_Pctl_HD_OBS_L initiated -----', style=green)
     sprint('--- Loading data...')
     sprint(' -- Creating Mdl_N instance.', end='', verbose_out=False)
     M = Mdl_N(MdlN)
-    Pa_CSV = M.Pa.MF6.glob('HD_OBS_L*.csv')[0] if Pa_CSV is None else Pa_CSV  # Assumes only one HD_OBS_L*.csv
+    Pa_CSV = list(M.Pa.MF6.glob('HD_OBS_L*.csv'))[0] if Pa_CSV is None else Pa_CSV  # Assumes only one HD_OBS_L*.csv
     sprint('🟢', verbose_in=True)
 
     # %%
@@ -736,8 +739,7 @@ def c_HD_Pctls(
         dtype='float32',
         sep=',',
         low_memory=False,
-        pre=' -- Reading CSV ...',
-        post='🟢',
+        pre=f' -- Reading CSV ({Pa_CSV})...',
     )
     # DF_ = DF.copy()  # For testing
 
@@ -790,7 +792,6 @@ def c_HD_Pctls(
         l_Pct,
         dim='time',
         pre=' -- Calculating percentiles...',
-        post='🟢',
     )
 
     # %% Saving to TIF
