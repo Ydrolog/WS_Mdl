@@ -645,7 +645,7 @@ def PrSimP(
         PRJ,
         M.MdlN,
         pre='  - Regridding PRJ ...',
-        post='',
+        post='\n',
         verbose_in=False,
         verbose_out=M.Sim.verbose,
     )  # Speeds up Mdl load.
@@ -721,9 +721,9 @@ def PrSimP(
 
     # %% ----- Clip models
     sprint('  - Clipping models ...', end='', verbose_in=True, verbose_out=M.Sim.verbose, set_time=True)
-    Sim_MF6_AoI = timed_Exe(Sim_MF6.clip_box, x_min=M.Xmin, x_max=M.Xmax, y_min=M.Ymin, y_max=M.Ymax, pre='')
+    Sim_MF6_AoI = Sim_MF6.clip_box(x_min=M.Xmin, x_max=M.Xmax, y_min=M.Ymin, y_max=M.Ymax)
     MF6_Mdl_AoI = Sim_MF6_AoI['imported_model']
-    MSW_Mdl_AoI = timed_Exe(MSW_Mdl.clip_box, x_min=M.Xmin, x_max=M.Xmax, y_min=M.Ymin, y_max=M.Ymax, pre='')
+    MSW_Mdl_AoI = MSW_Mdl.clip_box(x_min=M.Xmin, x_max=M.Xmax, y_min=M.Ymin, y_max=M.Ymax)
     # clip_box doesn't clip the packages clipped with regrid, but it clips non raster-like packages like WEL and removes packages that are not in the AoI.
     sprint('🟢', verbose_in=True, verbose_out=M.Sim.verbose, print_time=True)
 
@@ -760,17 +760,18 @@ def PrSimP(
     sprint('🟢', verbose_in=True, verbose_out=M.Sim.verbose, print_time=True)
 
     # %% ----- Coupling
+    sprint('  - Coupling ...', end='', verbose_in=True, verbose_out=M.Sim.verbose, set_time=True)
     metamod_coupling = timed_Exe(
         primod.MetaModDriverCoupling,
         mf6_model='imported_model',
         mf6_recharge_package='msw-rch',
         mf6_wel_package='msw-sprinkling',
-        pre='  - Coupling ...',
         verbose_in=True,
         verbose_out=M.Sim.verbose,
     )
     metamod = timed_Exe(primod.MetaMod, MSW_Mdl_AoI, Sim_MF6_AoI, coupling_list=[metamod_coupling], pre='')
     M.Pa.MdlN.mkdir(parents=True, exist_ok=True)  # Create simulation directory if it doesn't exist
+    sprint('🟢', verbose_in=True, verbose_out=M.Sim.verbose, print_time=True)
 
     # %% ----- Write Mdl Files
     timed_Exe(

@@ -1,4 +1,4 @@
-d_Pkg_Cols = {
+d_Pkg_Specs = {
     'DRN': [('k', '<i4'), ('i', '<i4'), ('j', '<i4'), ('elev', '<f8'), ('cond', '<f8')],
     'RIV': [('k', '<i4'), ('i', '<i4'), ('j', '<i4'), ('stage', '<f8'), ('cond', '<f8'), ('rbot', '<f8')],
     'GHB': [('k', '<i4'), ('i', '<i4'), ('j', '<i4'), ('bhead', '<f8'), ('cond', '<f8')],
@@ -6,7 +6,9 @@ d_Pkg_Cols = {
     'CHD': [('k', '<i4'), ('i', '<i4'), ('j', '<i4'), ('head', '<f8')],
 }
 
-# d_Pkg_Cols = {
+d_Pkg_Cols = {i: [c[0] for c in d_Pkg_Specs[i]] for i in d_Pkg_Specs.keys()}  # Trim extra Cols + rename
+
+# d_Pkg_Specs = {
 #     'DRN': {'PERIOD': [('k', '<i4'), ('i', '<i4'), ('j', '<i4'), ('elev', '<f8'), ('cond', '<f8')]},
 #     'RIV': {'PERIOD': [('k', '<i4'), ('i', '<i4'), ('j', '<i4'), ('stage', '<f8'), ('cond', '<f8'), ('rbot', '<f8')]},
 #     'GHB': {'PERIOD': [('k', '<i4'), ('i', '<i4'), ('j', '<i4'), ('bhead', '<f8'), ('cond', '<f8')]},

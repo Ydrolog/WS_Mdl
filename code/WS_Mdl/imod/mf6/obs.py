@@ -88,11 +88,11 @@ def add_within_polygon(
     from WS_Mdl.imod.mf6.bin import to_DF
     from WS_Mdl.imod.mf6.write import add_OBS_to_MF_In
 
-    from .headers import d_Pkg_Cols
+    from .headers import d_Pkg_Specs
 
     M = Mdl_N(MdlN)
 
-    pkg_cols = [c[0] for c in d_Pkg_Cols[Pkg.upper()]]
+    pkg_cols = [c[0] for c in d_Pkg_Specs[Pkg.upper()]]
 
     def _read_pkg_table(
         path: Path, skiprows: int = 0, skipfooter: int = 0

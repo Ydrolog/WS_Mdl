@@ -3,7 +3,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from .headers import d_Pkg_Cols
+from .headers import d_Pkg_Specs
 
 
 def to_DF(Pa_Bin: str | Path, Pkg: str = 'DRN') -> pd.DataFrame:
@@ -14,10 +14,10 @@ def to_DF(Pa_Bin: str | Path, Pkg: str = 'DRN') -> pd.DataFrame:
     # 666 I've tested it for DRN, not yet for other Pkgs. Remove this when tested for all.
 
     Pkg = Pkg.upper()
-    if Pkg not in d_Pkg_Cols:
-        raise ValueError(f'Unsupported package type: {Pkg}. Supported: {list(d_Pkg_Cols.keys())}')
+    if Pkg not in d_Pkg_Specs:
+        raise ValueError(f'Unsupported package type: {Pkg}. Supported: {list(d_Pkg_Specs.keys())}')
 
-    dtype = np.dtype(d_Pkg_Cols[Pkg])
+    dtype = np.dtype(d_Pkg_Specs[Pkg])
     Pa_Bin = Path(Pa_Bin)
 
     if not Pa_Bin.exists():

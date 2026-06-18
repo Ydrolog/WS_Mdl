@@ -18,7 +18,7 @@ class SFR_settings:
     Pa_Cond_B: str | Path | None = (
         None  # Optional secondary conductance file for SFR. If not specified, only the primary conductance file will be used.
     )
-    Pa_OBS_In: str | Path | None = None  # OBS for SFR
+    Pa_OBS_In: str | Path | None = None  # OBS for SFR (CSV file). Example: g:\code\WS_Mdl\Auxi\examples\SFR_OBS_Pnt_CSV
     connect_Pkgs: tuple = ()  # Option to connect DRN to SFR via MVR.
     Pa_Shp_connect_Pkgs: str | Path | None = (
         None  # Shapefile containing the outer boundaries of the DRN package cells to be connected to the nearest SFR cells.
@@ -570,17 +570,26 @@ def Pkgs_to_SFR_via_MVR(M: Mdl_N, Pkgs: list | str, Pa_Shp: str | Path):  # 666 
     if isinstance(Pkgs, str):
         Pkgs = tuple(Pkgs)
 
+    if M.Sim.Bin_Ins:
+        In_ending = '.bin'
+    else:
+        In_ending = '.dat'
+        from WS_Mdl.imod.mf6.headers import d_Pkg_Cols
+
     d_DF = {}
 
     for Pkg in Pkgs:
         l_Pa = [
-            p for p in M.Pa.Sim_In.rglob(f'*{Pkg.lower()}*') if p.suffix.lower() in ['.bin', f'.{Pkg.lower()}']
+            p for p in M.Pa.Sim_In.rglob(f'*{Pkg.lower()}*') if p.suffix.lower() == In_ending
         ]  # Works with either M.Sim.Bin_Ins = False/True
 
         for Pa in l_Pa:
             PkgN = Pa.parent.name
-
-            DF = to_DF(Pa, Pkg=Pkg)  # Load
+            # print(Pa)
+            DF = (
+                to_DF(Pa, Pkg=Pkg) if M.Sim.Bin_Ins else pd.read_csv(Pa, skiprows=1, names=d_Pkg_Cols[Pkg], sep='\s+')
+            )  # Load
+            # print(DF)
             DF = DF.loc[~DF['i'].isin([1, M.N_R]) & ~DF['j'].isin([1, M.N_C]), ['k', 'i', 'j']]  # Remove boundary cells
             DF = DF.ws.Calc_XY(M.Xmin, M.Ymax, M.cellsize)
             DF['Pkg1'] = PkgN
@@ -678,8 +687,8 @@ MAXPACKAGES {len(DF_match['Pkg1'].unique()) + 1}
 END DIMENSIONS
 
 BEGIN PACKAGES
-{'\n  '.join([k for k in DF_match['Pkg1'].unique()])}
-sfr
+  {'\n  '.join([k for k in DF_match['Pkg1'].unique()])}
+  sfr
 END PACKAGES
 
 BEGIN PERIOD 1""")

@@ -29,22 +29,23 @@ def Sim(
     M.Sim_MF6, M.MSW_Mdl = timed_Exe(
         PrSimP,
         M,
-        pre='--- imod PrSimP from PRJ file.',
+        pre='--- imod PrSimP from PRJ file.\n',
         verbose_in=True,
         verbose_out=M.Sim.verbose,
-        post='',
+        post='--- 🟢🟢🟢',
     )
 
+    # %% SFR
     if SFR:
         # %% Create SFR Lines
         M.lines = timed_Exe(
             create_SFR_lines,
             Pa_GPkg=SFR.Pa_Gpkg,
             verbose=M.Sim.verbose,
-            pre='--- SFRmaker\n -- Creating SFR lines.',
+            pre='--- SFRmaker\n -- Creating SFR lines.\n',
             verbose_in=True,
             verbose_out=M.Sim.verbose,
-            post='',
+            post=' -- 🟢🟢',
         )
 
         # %% Connect SFR Lines to MF6 (writes files and connects them to NAM)
@@ -61,7 +62,9 @@ def Sim(
             connect_SFR_lines_to_MF6,
             M,
             debug_sfr=True,
+            post=' -- Connecting SFR lines to MF6.🟢🟢\n',
         )
+        sprint('--- 🟢🟢🟢', verbose_in=True, verbose_out=M.Sim.verbose)
 
         # %% Connect DRN to SFR via MVR
         if SFR.connect_Pkgs:
@@ -70,10 +73,10 @@ def Sim(
                 M,
                 Pkgs=SFR.connect_Pkgs,
                 Pa_Shp=SFR.Pa_Shp_connect_Pkgs,
-                pre='--- Connecting Pkgs to SFR via MVR.',
+                pre='--- Connecting Pkgs to SFR via MVR.\n',
                 verbose_in=True,
                 verbose_out=M.Sim.verbose,
-                post='',
+                post='--- 🟢🟢🟢',
             )
 
     sprint(f'----- Mdl_Prep: {M.MdlN} COMPLETED -----', style=bold, verbose_out=M.Sim.verbose)
