@@ -33,6 +33,7 @@ _EXPORTS_TO_MODULES = {
     'set_verbose': (_MOD_STYLE, 'set_verbose'),
     'green': (_MOD_STYLE, 'green'),
     'blue': (_MOD_STYLE, 'blue'),
+    'RED': (_MOD_STYLE, 'RED'),
     # Path/model-location utilities
     'REPO_ROOT': (_MOD_PATH, 'REPO_ROOT'),
     'Pa_WS': (_MOD_DEFAULTS, 'Pa_WS'),

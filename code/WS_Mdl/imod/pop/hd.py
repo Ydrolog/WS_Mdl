@@ -826,6 +826,7 @@ def c_HD_Pctls(
         for k, v in metadata.items():
             f.write(f'{k}: {v}\n')
     print(Sep)
+    return DF, DA_q
 
 
 def HD_Pctl_Diffs(MdlN_S: str, MdlN_B: str):

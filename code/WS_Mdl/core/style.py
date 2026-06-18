@@ -20,6 +20,7 @@ __all__ = [
     'sinput',
     'green',
     'blue',
+    'RED',
 ]
 
 style_reset = f'{attr("reset")}\033[0m'
@@ -28,6 +29,7 @@ dim = '\033[2m'
 warn = f'\033[1m{fg("indian_red_1c")}'
 green = f'{bold}{fg("green")}'
 blue = f'{bold}{fg("blue")}'
+RED = f'{bold}{fg(52)}'
 Sep_N = 100  # Number of characters in a separator line.
 Sep = f'{fg(52)}{"-" * Sep_N}{attr("reset")}\n'  # Main separator - for script start and end.
 Sep_2 = f'{dim}{"-" * Sep_N}{attr("reset")}\n'  # Secondary separator - for sections within a script.

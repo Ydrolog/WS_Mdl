@@ -154,14 +154,14 @@ No RIV. Via imod python. PRJ: SS blocks removed, otherwise it wouldn't work with
 "76","NBr","76","NBr76","73","NBr73","MK","Test","SFRmaker #3.2.1: SFR for main SW in Chaamse Beek
 - 2000-2004
 - Stopped producing HD Bin Out file.
-- Saved SFR convergence & went over other SFR options and OBS.","Queued","Completed"
+- Saved SFR convergence & went over other SFR options and OBS.","Queued","Stopped Manually"
 "77","NBr","77","NBr77","69","NBr69","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #5.2 (RIV Stg)
-- 2000-2004","Queued","Running"
+- 2000-2004","Queued","Stopped Manually"
 "78","NBr","78","NBr78","77","NBr77","MK","Test","B (RIV) for Chaamse Beek Outflow comparissons #6.2 (SFR Stg)
-- 2000-2004 ","Queued","Running"
+- 2000-2004 ","Queued","Stopped Manually"
 "79","NBr","79","NBr79","76","NBr76","MK","Test","SFRmaker #3.2.2: SFR for main SW in Chaamse Beek
-- minimum_reach_length default set to 5.","Queued","Running"
-"0","","","","","","","","0","",""
+- minimum_reach_length default set to 5.","Queued","Stopped Manually"
+"80","NBr","80","NBr80","76","NBr76","MK","Test","SFRmaker #4.1: Fix MVR: Ensure DRN and RIV are connected to SFR.","Development",""
 "0","","","","","","","","0","",""
 "0","","","","","","","","0","",""
 "0","","","","","","","","0","",""
