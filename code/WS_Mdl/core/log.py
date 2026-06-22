@@ -18,7 +18,7 @@ def DF_match_MdlN(DF: pd.DataFrame, MdlN: str, Col_name='MdlN', case_insensitive
 def to_Se(MdlN: str):
     """Returns RunLog line that corresponds to MdlN as a S."""
 
-    DF = pd.read_csv(Pa_log_Cfg)
+    DF = pd.read_csv(Pa_log_Cfg, encoding='cp1252')
     Se_match = DF.loc[DF_match_MdlN(DF, MdlN)]  # Match MdlN, case insensitive.
 
     if Se_match.empty:

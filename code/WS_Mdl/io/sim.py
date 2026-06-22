@@ -136,7 +136,7 @@ def RunMng(cores=None, DAG: bool = True, Cct_Sims=None, no_temp: bool = True, fr
     )
 
     sprint('Reading RunLog ...', end='')
-    DF = pd.read_csv(Pa_log_Cfg)
+    DF = pd.read_csv(Pa_log_Cfg, encoding='cp1252')
     DF_q = DF.loc[
         ((DF['Start Status'] == 'Queued') & ((DF['End Status'].isna()) | (DF['End Status'] == 'Failed')))
     ]  # _q for queued. Only Run Queued runs that aren't running or have finished.

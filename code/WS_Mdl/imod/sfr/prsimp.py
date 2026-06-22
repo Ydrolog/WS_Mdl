@@ -587,7 +587,7 @@ def Pkgs_to_SFR_via_MVR(M: Mdl_N, Pkgs: list | str, Pa_Shp: str | Path):  # 666 
             PkgN = Pa.parent.name
             # print(Pa)
             DF = (
-                to_DF(Pa, Pkg=Pkg) if M.Sim.Bin_Ins else pd.read_csv(Pa, skiprows=1, names=d_Pkg_Cols[Pkg], sep='\s+')
+                to_DF(Pa, Pkg=Pkg) if M.Sim.Bin_Ins else pd.read_csv(Pa, skiprows=1, names=d_Pkg_Cols[Pkg], sep=r'\s+')
             )  # Load
             # print(DF)
             DF = DF.loc[~DF['i'].isin([1, M.N_R]) & ~DF['j'].isin([1, M.N_C]), ['k', 'i', 'j']]  # Remove boundary cells
