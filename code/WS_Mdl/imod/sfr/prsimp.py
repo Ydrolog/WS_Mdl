@@ -50,7 +50,7 @@ def create_SFR_lines(Pa_GPkg: str | Path, verbose: bool, debug_sfr: bool = True)
                 GDF[['ID', 'Elv_UStr', 'Elv_DStr']].describe(include='all'),
                 headers='keys',
                 tablefmt='grid',
-                showindex=False,
+                showindex=True,
             ),
             verbose_in=True,
             verbose_out=verbose,
@@ -160,11 +160,11 @@ def create_SFR_lines(Pa_GPkg: str | Path, verbose: bool, debug_sfr: bool = True)
         end='',
     )
     GDF_Elv = GDF_Elv.merge(
-        GDF[['ID', 'Elv_UStr', 'Elv_DStr']], left_on='DStr_ID', right_on='ID', suffixes=('', '_DStr'), how='left'
+        GDF[['ID', 'Elv_UStr', 'Elv_DStr']], left_on='DStr_ID', right_on='ID', suffixes=('', '_DStrSeg'), how='left'
     )
-    GDF_Elv[['A', 'B']] = GDF_Elv[['Elv_UStr_DStr', 'Elv_DStr_DStr']].copy()
-    GDF_Elv[['C', 'D']] = GDF_Elv[['Elv_UStr', 'Elv_DStr']].copy()
-    GDF_Elv[GDF_Elv['B'].isna()]
+    GDF_Elv[['A', 'B']] = GDF_Elv[['Elv_DStr_DStrSeg', 'Elv_UStr_DStrSeg']].copy()
+    GDF_Elv[['C', 'D']] = GDF_Elv[['Elv_DStr', 'Elv_UStr']].copy()
+    # GDF_Elv[GDF_Elv['B'].isna()]
 
     def adjust_elevations(row):
         if row['C'] <= row['D']:  # If UStr Elv <= DStr Elv, no adjustment needed
@@ -214,7 +214,7 @@ def create_SFR_lines(Pa_GPkg: str | Path, verbose: bool, debug_sfr: bool = True)
         GDF_Elv['segment_drop'] = GDF_Elv['D'] - GDF_Elv['C_']
         GDF_Elv['DStr_drop'] = GDF_Elv['C_'] - GDF_Elv['B']
         sprint(
-            'Segments where the adjusted DStr Elv (C_) is still greater than the UStr Elv of the DStr segment (B). Those might cause problems later:',
+            'Segments where the adjusted DStr Elv (C_) is still smaller than the UStr Elv of the DStr segment (B). Those might cause problems later:',
             verbose_in=True,
             verbose_out=verbose,
             indent=3,
@@ -240,7 +240,7 @@ def create_SFR_lines(Pa_GPkg: str | Path, verbose: bool, debug_sfr: bool = True)
 
     # %% Generate SFRmaker lines
 
-    GDF['width2'] = GDF['width'].copy()
+    GDF['width2'] = GDF['width'].copy()  # sfr.Lines.from_dataframe requires width 2 Col
     lines = sfr.Lines.from_dataframe(
         df=GDF.copy(),  # .copy() to avoid GDF columns being renamed by function (this feels like a bug to me)
         id_column='ID',
@@ -255,6 +255,7 @@ def create_SFR_lines(Pa_GPkg: str | Path, verbose: bool, debug_sfr: bool = True)
         crs=GDF.crs,
         #    shapefile=Pa_GPkg_1ry_SHP_SFR,
     )
+    # %% Return lines
     return lines
 
 
