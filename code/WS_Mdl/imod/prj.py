@@ -768,8 +768,16 @@ def PrSimP(
         mf6_wel_package='msw-sprinkling',
         verbose_in=True,
         verbose_out=M.Sim.verbose,
+        post='',
     )
-    metamod = timed_Exe(primod.MetaMod, MSW_Mdl_AoI, Sim_MF6_AoI, coupling_list=[metamod_coupling], pre='')
+    metamod = timed_Exe(
+        primod.MetaMod,
+        MSW_Mdl_AoI,
+        Sim_MF6_AoI,
+        coupling_list=[metamod_coupling],
+        pre='',
+        post='',
+    )
     M.Pa.MdlN.mkdir(parents=True, exist_ok=True)  # Create simulation directory if it doesn't exist
     sprint('🟢', verbose_in=True, verbose_out=M.Sim.verbose, print_time=True)
 

@@ -42,6 +42,7 @@ SFR_options         =   [f'OBS6 FILEIN {M.Pa.Sim_In / (M.MdlN + ".SFR6.obs")}',
                         f'BUDGET FILEOUT {M.MdlN}.SFR6.cbc', # 666 Remove this if it doesn't contain any useful info
                         # 'AUXILIARY line_id',
                         f'PACKAGE_CONVERGENCE FILEOUT SFR_convergence_{M.MdlN}.CSV']
+SFR_one_reach_per_cell = False
 
 
 MdlN_HD_OBS   =   'NBr77'

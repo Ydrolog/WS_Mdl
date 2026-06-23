@@ -17,7 +17,7 @@ os.environ["PYTHONUNBUFFERED"] = "1"        # Set Python to unbuffered mode (out
 # --- Variables ---
 
 ## Options
-MdlN        =   'NBr92'
+MdlN        =   'NBr94'
 MdlN_SFR_GPkg = 'NBr92'
 MdlN_MM_B   =   'NBr13'
 iMOD5       =   False
@@ -42,6 +42,7 @@ SFR_options         =   [f'OBS6 FILEIN {M.Pa.Sim_In / (M.MdlN + ".SFR6.obs")}',
                         f'BUDGET FILEOUT {M.MdlN}.SFR6.cbc', # 666 Remove this if it doesn't contain any useful info
                         # 'AUXILIARY line_id',
                         f'PACKAGE_CONVERGENCE FILEOUT SFR_convergence_{M.MdlN}.CSV']
+SFR_minimum_reach_length: float = M.cellsize/10
 SFR_one_reach_per_cell: bool = True
 
 
@@ -106,6 +107,7 @@ rule Mdl_Prep: # Prepares Sim Ins (from Ins) via BAT file.
                                 Pa_Shp_connect_Pkgs = Pa_Shp_catchment,
                                 OBS_all             = SFR_OBS_all,
                                 options             = SFR_options,
+                                minimum_reach_length = SFR_minimum_reach_length,
                                 one_reach_per_cell  = SFR_one_reach_per_cell
                                 )
         Sim(M,
