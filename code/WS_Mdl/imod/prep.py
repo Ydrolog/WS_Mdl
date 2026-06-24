@@ -59,6 +59,7 @@ def Sim(
         M.SFR_options = SFR.options
         M.SFR_minimum_reach_length = SFR.minimum_reach_length
         M.SFR_one_reach_per_cell = SFR.one_reach_per_cell
+        M.SFR_consolidate_conductance = SFR.consolidate_conductance
         M.DF_reach = timed_Exe(
             connect_SFR_lines_to_MF6,
             M,

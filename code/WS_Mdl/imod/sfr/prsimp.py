@@ -29,6 +29,7 @@ class SFR_settings:
     options: list[str] = None
     minimum_reach_length: float = 5.0
     one_reach_per_cell: bool = False
+    consolidate_conductance: bool = False  # cIf True, the conductance of multiple reaches in the same cell will be consolidated into a single reach.
 
 
 def create_SFR_lines(Pa_GPkg: str | Path, verbose: bool, debug_sfr: bool = True):
@@ -357,7 +358,10 @@ def connect_SFR_lines_to_MF6(M: Mdl_N, debug_sfr: bool = True):
 
     # %% Assign and Review SFRdata
     SFR_data = M.lines.to_sfr(
-        grid=SFR_grid_L1, one_reach_per_cell=M.SFR_one_reach_per_cell, minimum_reach_length=M.SFR_minimum_reach_length
+        grid=SFR_grid_L1,
+        one_reach_per_cell=M.SFR_one_reach_per_cell,
+        minimum_reach_length=M.SFR_minimum_reach_length,
+        consolidate_conductane=M.SFR_consolidate_conductance,
     )
 
     SFR_data.reach_data.sort_values(by=['i', 'j'])
