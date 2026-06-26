@@ -565,7 +565,7 @@ def connect_SFR_lines_to_MF6(M: Mdl_N, debug_sfr: bool = True):
         DF_Stg_Init = pd.read_csv(M.SFR_Stg_Init)
         with open(M.Pa.SFR, 'a') as f:
             f.write('\nBEGIN INITIALSTAGES\n')
-            f.write(DF_Stg_Init.ws.to_MF_block(maxdeximals=3))
+            f.write(DF_Stg_Init.ws.to_MF_block(Max_decimals=3))
             f.write('END INITIALSTAGES\n')
 
     add_Pkg(M.MdlN, f'  sfr6 imported_model/{M.Pa.SFR.name} sfr')  # Add to NAM
