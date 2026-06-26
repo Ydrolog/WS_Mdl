@@ -5,6 +5,7 @@ from pathlib import Path
 import geopandas as gpd
 import numpy as np
 import pandas as pd
+import WS_Mdl.core.df  # noqa: F401
 from WS_Mdl.core.defaults import CRS
 from WS_Mdl.core.mdl import Mdl_N
 from WS_Mdl.core.style import sprint
@@ -30,6 +31,9 @@ class SFR_settings:
     minimum_reach_length: float = 5.0
     one_reach_per_cell: bool = False
     consolidate_conductance: bool = False  # cIf True, the conductance of multiple reaches in the same cell will be consolidated into a single reach.
+    Stg_Init: Path | None = (
+        None  # Optional CSV file containing initial stage values for SFR. If not specified, the initial stage are set to the top of the streambed by MF6 by default.
+    )
 
 
 def create_SFR_lines(Pa_GPkg: str | Path, verbose: bool, debug_sfr: bool = True):
@@ -271,6 +275,7 @@ def connect_SFR_lines_to_MF6(M: Mdl_N, debug_sfr: bool = True):
     - Pa_Cond_A: Path to primary conductance IDF file.
     - Pa_Cond_B: Path to secondary conductance IDF file. Used wherever primary Cond file has no values.
     - Pa_SFR_OBS_In: Path to SFR OBS csv file, used for adding SFR OBS to the model.
+    - Stg_Init: Path to CSV file containing initial stage values for SFR.
     """  # 666 fill with more info
 
     import imod
@@ -556,6 +561,13 @@ def connect_SFR_lines_to_MF6(M: Mdl_N, debug_sfr: bool = True):
     print('SFR_data type:', type(SFR_data))
     SFR_data.write_package(str(M.Pa.SFR), version='mf6', options=M.SFR_options, run_diagnostics=False)
 
+    if M.SFR_Stg_Init is not None:
+        DF_Stg_Init = pd.read_csv(M.SFR_Stg_Init)
+        with open(M.Pa.SFR, 'a') as f:
+            f.write('\nBEGIN INITIALSTAGES\n')
+            f.write(DF_Stg_Init.ws.to_MF_block(maxdeximals=3))
+            f.write('END INITIALSTAGES\n')
+
     add_Pkg(M.MdlN, f'  sfr6 imported_model/{M.Pa.SFR.name} sfr')  # Add to NAM
 
     return DF_reach
@@ -568,7 +580,6 @@ def Pkgs_to_SFR_via_MVR(M: Mdl_N, Pkgs: list | str, Pa_Shp: str | Path):  # 666 
     - Pa_Shp: shapefile containing the outer boundaries to clip the Pkg elements within, e.g. if only elements in a catchment need to be connected.
     """
 
-    import WS_Mdl.core.df  # noqa: F401
     from scipy.spatial.distance import cdist
     from shapely.geometry import LineString
 
