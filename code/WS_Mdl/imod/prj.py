@@ -683,7 +683,7 @@ def PrSimP(
     # Pass the Sim components to objects.
     MF6_Mdl = Sim_MF6['imported_model']
     MF6_Mdl['oc'] = mf6.OutputControl(save_head=M.Sim.save_head, save_budget=M.Sim.save_budget)
-    Sim_MF6['ims'] = moderate_settings()  # Mimic iMOD5's "Moderate" settings.
+    Sim_MF6['ims'] = moderate_settings() if getattr(M, 'IMS_settings', None) is None else M.IMS_settings
     MF6_DIS = MF6_Mdl['dis']
 
     # %% ----- Load MSW Simulation

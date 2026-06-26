@@ -554,7 +554,7 @@ def connect_SFR_lines_to_MF6(M: Mdl_N, debug_sfr: bool = True):
     SFR_data.reach_data = DF_reach
     print(f'SFR options: {M.SFR_options}')
     print('SFR_data type:', type(SFR_data))
-    SFR_data.write_package(str(M.Pa.SFR), version='mf6', options=M.SFR_options)
+    SFR_data.write_package(str(M.Pa.SFR), version='mf6', options=M.SFR_options, run_diagnostics=False)
 
     add_Pkg(M.MdlN, f'  sfr6 imported_model/{M.Pa.SFR.name} sfr')  # Add to NAM
 
