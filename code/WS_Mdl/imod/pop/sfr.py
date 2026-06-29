@@ -453,3 +453,47 @@ def stage_TS(
                 print('\n'.join(err_lines))
                 print('Please try again.')
     sprint('🟢🟢🟢 - Finished SFR stage TS plotting.')
+
+
+def c_Stg_Pctl(MdlN: str, Pctls: list = [5, 10, 50, 90, 95]):  # 666 Finish it off and add to Smk procedure
+    # %% Prep
+    M = Mdl_N(MdlN)
+
+    # %% Load + Prep DF
+    Pa_SFR_Out = M.Pa.Sim_In / f'{M.MdlN}.SFR6.obs.output.csv'
+    DF_ = pd.read_csv(Pa_SFR_Out)
+
+    date = M.SP_1st_DT + pd.to_timedelta(DF_['time'] - 1, unit='D')
+
+    DF = pd.concat(
+        [
+            pd.DataFrame({'date': date, 'month': date.dt.month}, index=DF_.index),
+            DF_.filter(like='STAGE_L'),
+        ],
+        axis=1,
+    )
+
+    # %% Calc Pctls
+    # Cols = [c for c in DF.columns if c.startswith('STAGE_L')]
+    # DF_AVG = pd.DataFrame(
+    #     {
+    #         'AVG_Stg_summer': DF.loc[(DF['month'] > 3) & (DF['month'] < 10)].copy()[Cols].mean(axis='index'),
+    #         'AVG_Stg_winter': DF.loc[(DF['month'] >= 10) | (DF['month'] <= 3)].copy()[Cols].mean(axis='index'),
+    #     }
+    # )
+    # DF_AVG['AVG_Stg_winter_m_summer'] = DF_AVG['AVG_Stg_winter'] - DF_AVG['AVG_Stg_summer']
+
+    # # %% Calc XY
+    # DF_AVG[['L', 'R', 'C']] = DF_AVG.index.to_series().str.extract(r'L(\d+)_R(\d+)_C(\d+)').astype(int)
+    # DF_AVG = DF_AVG.ws.Calc_XY(M.Xmin, M.Ymax, M.cellsize)
+
+    # # %% Convert to DA
+    # DA = DF_AVG.set_index(['y', 'x'])[['AVG_Stg_summer', 'AVG_Stg_winter', 'AVG_Stg_winter_m_summer']].to_xarray()
+
+    # # %% Save stage .IDFs
+    # (M.Pa.PoP_Out_MdlN / 'SFR/Stg').mkdir(parents=True, exist_ok=True)
+    # for Par in DA.data_vars:
+    #     DA_ = DA[Par].rio.write_crs('EPSG:28992')
+    #     DA_.rio.to_raster(M.Pa.PoP_Out_MdlN / f'SFR/Stg/SFR_{Par}_{M.MdlN}.TIF')
+
+    # return DA

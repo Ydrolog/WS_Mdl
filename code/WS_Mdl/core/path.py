@@ -38,7 +38,7 @@ def imod_V(MdlN: str, iMOD5: bool | None = None):
         else:
             sprint(
                 f"\n  - Could not determine imod version from Sim/{MdlN} folder. Proceeding with the assumption it's imod_python.\n",
-                file=sys.stderr
+                file=sys.stderr,
             )
             return 'imod_python'
     except FileNotFoundError:
@@ -49,7 +49,9 @@ def imod_V(MdlN: str, iMOD5: bool | None = None):
         return 'imod_python'
 
 
-def MdlN_Pa(MdlN: str, MdlN_B: str | bool | None = None, iMOD5: bool = None):
+def MdlN_Pa(
+    MdlN: str, MdlN_B: str | bool | None = None, iMOD5: bool = False
+):  # iMOD5 set to false as we've moved to imod_python as default.
     """
     Returns a dictionary of paths related to the model number.
     - MdlN: model name string, e.g. 'NBr50'

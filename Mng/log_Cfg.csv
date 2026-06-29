@@ -181,10 +181,12 @@ No RIV. Via imod python. PRJ: SS blocks removed, otherwise it wouldn't work with
 "97","NBr","97","NBr97","96","NBr96","MK","Test","SFRmaker #4.5: COMPLEXITY SIMPLE -> Fails to converge, defiinitely not the route we want to go.","Queued","Stopped Manually"
 "98","NBr","98","NBr98","97","NBr97","MK","Test","SFRmaker #4.6: COMPLEXITY COMPLEX -> Converges much faster - 15 iter_outer instead of 55!!!","Queued","Stopped Manually"
 "99","NBr","99","NBr99","98","NBr98","MK","Test","SFRmaker #4.6.1: Changed HD_Out_L to Bin","Queued","Stopped Manually"
-"100","NBr","100","NBr100","99","NBr99","MK","Test","SFRmaker #4.7: CSV OBS for every reach replaced with budget. Wanted to add SFR STORAGE option, but it's not compatible with MF6.5, it requres >=6.6…","Queued",""
-"101","NBr","101","NBr101","100","NBr100","MK","Test","0","Development",""
-"102","NBr","102","NBr102","101","NBr101","MK","Test","0","Development",""
-"0","","","","","","","","0","",""
+"100","NBr","100","NBr100","99","NBr99","MK","Test","SFRmaker #4.7: CSV OBS for every reach replaced with budget. Wanted to add SFR STORAGE option, but it's not compatible with MF6.5, it requres >=6.6…","Queued","Running"
+"101","NBr","101","NBr101","77","NBr77","MK","Test","RIV #5.3 (RIV Stg): To compare against NBr102.
+- 2000-2002","Development",""
+"102","NBr","102","NBr102","101","NBr101","MK","Test","RIV #6.3 (SFR Stg): Compare against NBr101 -> Differences in data. Compare against 100 -> Differences in methods.
+- 2000-2002","Development",""
+"103","NBr","103","NBr103","100","NBr100","MK","Test","SFRmaker #4.7.1: Streamlining: Outs + Running + PoP on SURF.","Development",""
 "0","","","","","","","","0","",""
 "0","","","","","","","","0","",""
 "0","","","","","","","","0","",""

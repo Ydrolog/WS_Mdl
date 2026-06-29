@@ -17,10 +17,9 @@ os.environ["PYTHONUNBUFFERED"] = "1"        # Set Python to unbuffered mode (out
 # --- Variables ---
 
 ## Options
-MdlN        =   'NBr100'
-MdlN_SFR_GPkg = 'NBr96'
-MdlN_MM_B   =   'NBr13'
+MdlN        =   'NBr101'
 iMOD5       =   False
+MdlN_MM_B   =   'NBr13'
 
 ## Paths
 M           =   Mdl_N(MdlN, iMOD5=iMOD5)
@@ -30,28 +29,11 @@ workdir:        M.Pa.Mdl
 M.Sim.Bin_Ins = False
 M.Sim.save_head = None # We have OBS for this, which reduced Out size.
 
-# SFR Options
-Pa_SFR_GPkg         =   M.Pa.In / f'SFR/{MdlN_SFR_GPkg}/WBD_1ry_SW_NW_cleaned_{MdlN_SFR_GPkg}.gpkg'
-Pa_SW_Cond_A        =   M.Pa.WS / r"models\NBr\In\RIV\RIV_Cond_DETAILWATERGANGEN_NBr1.IDF"
-Pa_SW_Cond_B        =   M.Pa.WS / r"models\NBr\In\RIV\RIV_Cond_DRN_NBr1.IDF"
-Pa_SFR_OBS_In       =   M.Pa.In / 'OBS/SFR/NBr73/NBr73_SFR_OBS_Pnt.csv'
-SFR_connect_Pkgs    =   ('DRN', 'RIV')
-Pa_Shp_catchment    =   M.Pa.WS / r'models\NBr\PoP\common\Pgn\Chaamse_beek\catchment_chaamsebeek_ulvenhout.shp'
-SFR_OBS_all         =   ['stage'] # ['downstream-flow', 'inflow', 'stage', 'from-mvr']
-SFR_options         =   [f'OBS6 FILEIN {M.Pa.Sim_In / (M.MdlN + ".SFR6.obs")}',
-                        f'BUDGET FILEOUT {M.MdlN}.SFR6.cbc', # 666 Remove this if it doesn't contain any useful info
-                        # 'AUXILIARY line_id',
-                        f'STAGE FILEOUT SFR_Stg_{M.MdlN}.bin',
-                        f'PACKAGE_CONVERGENCE FILEOUT SFR_convergence_{M.MdlN}.CSV']
-SFR_one_reach_per_cell: bool = True
-# Pa_SFR_Stg_Init = M.Pa.In / f'SFR/Stg_Init/{MdlN}/Stg_Init_{MdlN}.csv'
-
-
 MdlN_HD_OBS   =   'NBr99'
 Pa_HD_OBS_Src =   M.Pa.In / f'OBS/HD/{MdlN_HD_OBS}/GWHD_{MdlN_HD_OBS}.OBS6'
 Pa_HD_OBS_Dst = M.Pa.Sim_In / f'GWHD_{MdlN}.OBS6'
 
-## Temp files - for completion validation. If you want to re-run a rule, delete the coresponding temp file.
+## Temp files (for completion validation)
 Pa_temp             =   M.Pa.Smk.parent / 'temp'
 log_Init            =   Pa_temp / f"Log_init_{MdlN}"
 log_RIV_OBS         =   Pa_temp / f"Log_RIV_OBS_{MdlN}"
@@ -81,12 +63,12 @@ rule log_Init: # Sets status to running, and writes other info about therun. Has
     run:
         import socket
         device = socket.gethostname()
-        Up_log(MdlN, {  'End Status':       'Running',
-                        'PrP start DT':     DT.now().strftime("%Y-%m-%d %H:%M:%S"),
-                        'Sim device name':  device,
-                        'Sim Dir':          M.Pa.MdlN,
-                        '1st SP date':      DT.strptime(M.INI.SDATE, "%Y%m%d").strftime("%Y-%m-%d"),
-                        'last SP date':     DT.strptime(M.INI.EDATE, "%Y%m%d").strftime("%Y-%m-%d")})
+        Up_log(MdlN, {  'End Status'        :   'Running',
+                        'PrP start DT'      :   DT.now().strftime("%Y-%m-%d %H:%M:%S"),
+                        'Sim device name'   :   device,
+                        'Sim Dir'           :   M.Pa.MdlN,
+                        '1st SP date'       :   DT.strptime(M.INI.SDATE, "%Y%m%d").strftime("%Y-%m-%d"),
+                        'last SP date'      :   DT.strptime(M.INI.EDATE, "%Y%m%d").strftime("%Y-%m-%d")})
         Path(output[0]).touch() # Create the file to mark the rule as done.
 
 rule Mdl_Prep: # Prepares Sim Ins (from Ins) via BAT file.
@@ -98,22 +80,8 @@ rule Mdl_Prep: # Prepares Sim Ins (from Ins) via BAT file.
     output:
         M.Pa.NAM_Sim
     run:
-        from imod.mf6.ims import SolutionPresetComplex
-        M.IMS_settings = SolutionPresetComplex(['imported_model']) # Set the IMS settings to a simple preset.
-        from WS_Mdl.imod.sfr.prsimp import SFR_settings
         from WS_Mdl.imod.prep import Sim
-        SFR_Cfg = SFR_settings( Pa_Cond_A           = Pa_SW_Cond_A,
-                                Pa_Cond_B           = Pa_SW_Cond_B,
-                                Pa_Gpkg             = Pa_SFR_GPkg,
-                                Pa_OBS_In           = Pa_SFR_OBS_In,
-                                connect_Pkgs        = SFR_connect_Pkgs,
-                                Pa_Shp_connect_Pkgs = Pa_Shp_catchment,
-                                OBS_all             = SFR_OBS_all,
-                                options             = SFR_options,
-                                one_reach_per_cell  = SFR_one_reach_per_cell,
-                                # Stg_Init            = Pa_SFR_Stg_Init
-                                )
-        Sim(M, SFR=SFR_Cfg)
+        Sim(M, SFR=False)
 
 ## -- PrSimP --
 rule add_HD_OBS_copy: # Copying so I can manually make a file that contains OBS for both OBS Pnts and whole layers.
@@ -125,6 +93,33 @@ rule add_HD_OBS_copy: # Copying so I can manually make a file that contains OBS 
         from WS_Mdl.imod.mf6.nam import add_Pkg
         sh.copy2(Pa_HD_OBS_Src, Pa_HD_OBS_Dst) # Copy the file to create a new one with the same content.
         add_Pkg(M.MdlN, fr'  OBS6 .\imported_model\GWHD_{MdlN}.OBS6 GWHD_OBS')  # Add to NAM
+
+
+rule add_RIV_OBS:
+    input:
+        M.Pa.NAM_Sim,
+    output:
+        log_RIV_OBS
+    run:
+        from WS_Mdl.imod.mf6.obs import add_within_polygon
+        add_within_polygon(Pa_Shp =  r'G:\models\NBr\PoP\common\Pgn\Chaamse_beek\catchment_chaamsebeek_ulvenhout.shp',
+            MdlN = MdlN,
+            Pkg = 'RIV',
+            Opt = """BEGIN OPTIONS\n  DIGITS 4\n  PRINT_INPUT\nEND OPTIONS\n\n""")
+        Path(output[0]).touch() # Create the file to mark the rule as done.
+
+rule add_DRN_OBS:
+    input:
+        M.Pa.NAM_Sim
+    output:
+        log_DRN_OBS
+    run:
+        from WS_Mdl.imod.mf6.obs import add_within_polygon
+        add_within_polygon(Pa_Shp =  r'G:\models\NBr\PoP\common\Pgn\Chaamse_beek\catchment_chaamsebeek_ulvenhout.shp',
+            MdlN = MdlN,
+            Pkg = 'DRN',
+            Opt = """BEGIN OPTIONS\n DIGITS 4\n  PRINT_INPUT\nEND OPTIONS\n\n""")
+        Path(output[0]).touch() # Create the file to mark the rule as done.
 
 rule fix_MSW_area:
     input:
@@ -139,6 +134,8 @@ rule fix_MSW_area:
 rule Sim: # Runs the simulation via BAT file.
     input:
         Pa_HD_OBS_Dst,
+        log_RIV_OBS,
+        log_DRN_OBS,
         log_fix_MSW_area
     output:
         temp(log_Sim)
@@ -164,21 +161,9 @@ rule PRJ_to_TIF:
         Up_log(MdlN, {  'PRJ_to_TIF':   1})
         Path(output[0]).touch() # Create the file to mark the rule as done.
 
-rule GXG:
-    input:
-        log_Sim
-    output:
-        temp(log_GXG)
-    run:
-        from WS_Mdl.imod.pop.gxg import HD_Bin_GXG_to_MBTIF
-        HD_Bin_GXG_to_MBTIF(MdlN) # Calculate GXG and save as TIFs
-        Up_log(MdlN, {  'GXG':   '1'})
-        Path(output[0]).touch() # Create the file to mark the rule as done.
-
 rule Up_MM:
     input:
-        log_PRJ_to_TIF,
-        log_GXG
+        log_PRJ_to_TIF
     output:
         log_Up_MM
     run:

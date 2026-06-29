@@ -187,7 +187,7 @@ def Diff_to_xlsx(
     DF_closing['MSW SUM % error'] = DF_closing['MSW SUM'] / DF_closing['MSW ABS SUM'] * 100
 
     if sum_Pkg and net_only:  # This is the most common use case. The template is designed for this.
-        WB_save_with_template(DF, Pa_template, 'Diff', Pa.with_suffix('.xlsx'), date=date)
+        _WB_save_with_template(DF, Pa_template, 'Diff', Pa.with_suffix('.xlsx'), date=date)
     else:  # In other cases, just save as CSV.
         DF.to_csv(Pa.with_suffix('.csv'), index=True)
 
@@ -212,7 +212,7 @@ def Diff_to_xlsx(
     return DF
 
 
-def WB_save_with_template(DF, Pa_template, tab, Pa_Out, date=None):
+def _WB_save_with_template(DF, Pa_template, tab, Pa_Out, date=None):
     """Saves the provided DataFrame to an Excel file using the provided template."""
     from openpyxl import load_workbook
 
