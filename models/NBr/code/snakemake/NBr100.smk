@@ -37,16 +37,17 @@ Pa_SW_Cond_B        =   M.Pa.WS / r"models\NBr\In\RIV\RIV_Cond_DRN_NBr1.IDF"
 Pa_SFR_OBS_In       =   M.Pa.In / 'OBS/SFR/NBr73/NBr73_SFR_OBS_Pnt.csv'
 SFR_connect_Pkgs    =   ('DRN', 'RIV')
 Pa_Shp_catchment    =   M.Pa.WS / r'models\NBr\PoP\common\Pgn\Chaamse_beek\catchment_chaamsebeek_ulvenhout.shp'
-SFR_OBS_all         =   [] # ['downstream-flow', 'inflow', 'stage', 'from-mvr']
+SFR_OBS_all         =   ['stage'] # ['downstream-flow', 'inflow', 'stage', 'from-mvr']
 SFR_options         =   [f'OBS6 FILEIN {M.Pa.Sim_In / (M.MdlN + ".SFR6.obs")}',
                         f'BUDGET FILEOUT {M.MdlN}.SFR6.cbc', # 666 Remove this if it doesn't contain any useful info
                         # 'AUXILIARY line_id',
+                        f'STAGE FILEOUT SFR_Stg_{M.MdlN}.bin',
                         f'PACKAGE_CONVERGENCE FILEOUT SFR_convergence_{M.MdlN}.CSV']
 SFR_one_reach_per_cell: bool = True
-Pa_SFR_Stg_Init = M.Pa.In / f'SFR/Stg_Init/{MdlN}/Stg_Init_{MdlN}.csv'
+# Pa_SFR_Stg_Init = M.Pa.In / f'SFR/Stg_Init/{MdlN}/Stg_Init_{MdlN}.csv'
 
 
-MdlN_HD_OBS   =   'NBr100'
+MdlN_HD_OBS   =   'NBr99'
 Pa_HD_OBS_Src =   M.Pa.In / f'OBS/HD/{MdlN_HD_OBS}/GWHD_{MdlN_HD_OBS}.OBS6'
 Pa_HD_OBS_Dst = M.Pa.Sim_In / f'GWHD_{MdlN}.OBS6'
 
@@ -110,7 +111,8 @@ rule Mdl_Prep: # Prepares Sim Ins (from Ins) via BAT file.
                                 OBS_all             = SFR_OBS_all,
                                 options             = SFR_options,
                                 one_reach_per_cell  = SFR_one_reach_per_cell,
-                                Stg_Init            = Pa_SFR_Stg_Init)
+                                # Stg_Init            = Pa_SFR_Stg_Init
+                                )
         Sim(M, SFR=SFR_Cfg)
 
 ## -- PrSimP --

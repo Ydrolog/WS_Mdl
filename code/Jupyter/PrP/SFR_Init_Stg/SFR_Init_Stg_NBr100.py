@@ -34,7 +34,7 @@ DF_Out = DF_ID.merge(DF, on='ID', how='outer').drop(columns=['ID'])
 date = MB.SP_1st_DT + pd.Timedelta(days=SP)
 
 # %% Save
-Pa = M.Pa.In / f'SFR/Stg_Init/{MdlN}/Stg_Init_{date.strftime("%Y%m%d")}_{MdlN}.csv'
+Pa = M.Pa.In / f'SFR/Stg_Init/{MdlN}/Stg_Init_{MdlN}.csv'
 Pa.parent.mkdir(parents=True, exist_ok=True)
 DF_Out.to_csv(Pa, index=False)
 

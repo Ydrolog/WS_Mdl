@@ -35,7 +35,7 @@ _EXPORTS_TO_MODULES = {
     'blue': (_MOD_STYLE, 'blue'),
     'RED': (_MOD_STYLE, 'RED'),
     # Path/model-location utilities
-    'REPO_ROOT': (_MOD_PATH, 'REPO_ROOT'),
+    # 'REPO_ROOT': (_MOD_PATH, 'REPO_ROOT'),
     'Pa_WS': (_MOD_DEFAULTS, 'Pa_WS'),
     'Pa_RunLog': (_MOD_PATH, 'Pa_RunLog'),
     'Pa_log_Out': (_MOD_PATH, 'Pa_log_Out'),
