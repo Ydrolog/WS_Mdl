@@ -242,3 +242,118 @@ def add_L_HD_OBS(MdlN: str, l_L: int, Opt: str = 'BEGIN OPTIONS\n  DIGITS 5\nEND
 
     Pa_OBS_Rel = Path(Pa_OBS).relative_to(M.Pa.NAM_Sim.parent)
     add_Pkg(M.MdlN, f'  OBS6 .\\{Pa_OBS_Rel} GWHD_OBS_L')  # Add to NAM
+
+
+def open_HD_OBS_L_bin(
+    MdlN: str | None = None,
+    Pa_Bin: str | Path = None,
+    M: Mdl_N | None = None,
+    l_L: list[int] | None = None,
+    start_time=None,
+    time_unit: str = 'D',
+    dtype: str = 'float32',
+    time_chunk: int = 25,
+):
+    """
+    Read MF6 continuous binary observation output written for HD_L_R_C observations.
+
+    This is for files such as ``HD_OBS_L.bin`` written from an OBS6 block, not for
+    regular MODFLOW head-save files. Regular head-save files should still be read
+    with ``imod.mf6.open_hds``.
+    """
+    import xarray as xra
+
+    # %% Resolve model and file paths
+    if M is None:
+        if MdlN is None:
+            raise ValueError('Provide either M or MdlN.')
+        M = Mdl_N(MdlN)
+
+    # If no binary path is given, assume the model folder has one HD_OBS_L*.bin.
+    Pa_Bin = list(M.Pa.MF6.glob('HD_OBS_L*.bin'))[0] if Pa_Bin is None else Path(Pa_Bin)
+
+    # %% Read MF6 observation binary header
+    with Pa_Bin.open('rb') as f:
+        # MF6 continuous observation binaries start with a 100-byte descriptor,
+        # for example: "cont double 40".
+        descriptor = f.read(100).decode('ascii', errors='ignore').strip().lower()
+        if not descriptor.startswith('cont '):
+            raise ValueError(f'{Pa_Bin} does not look like an MF6 continuous observation binary file.')
+
+        parts = descriptor.split()
+        if len(parts) < 3:
+            raise ValueError(f'Could not parse MF6 observation binary descriptor: {descriptor!r}')
+
+        precision = parts[1]
+        name_width = int(parts[2])
+        value_dtype = np.dtype('<f8' if precision == 'double' else '<f4')
+
+        # After the descriptor, MF6 stores n_obs as int32 and then n_obs
+        # fixed-width observation names.
+        n_obs = int(np.frombuffer(f.read(4), dtype='<i4', count=1)[0])
+
+        raw_names = np.frombuffer(f.read(n_obs * name_width), dtype=f'S{name_width}', count=n_obs)
+        obs_names = pd.Index(name.decode('ascii').strip() for name in raw_names)
+
+    # %% Memory-map the time/value table
+    # The table starts after 100 descriptor bytes, 4 n_obs bytes, and all names.
+    # Each row is: time, obs_1, obs_2, ..., obs_n.
+    data_offset = 104 + n_obs * name_width
+    row_size = (n_obs + 1) * value_dtype.itemsize
+    payload_size = Pa_Bin.stat().st_size - data_offset
+    if payload_size < 0 or payload_size % row_size != 0:
+        raise ValueError(
+            f'{Pa_Bin} has an incomplete binary observation payload. Check whether MODFLOW is still writing the file.'
+        )
+
+    n_time = payload_size // row_size
+    data = np.memmap(Pa_Bin, dtype=value_dtype, mode='r', offset=data_offset, shape=(n_time, n_obs + 1))
+
+    # %% Parse observation names to layer/row/column indices
+    # Names are expected to be written as HD_<layer>_<row>_<column>.
+    lrc = obs_names.str.extract(r'^HD_(\d+)_(\d+)_(\d+)$')
+    lrc.columns = ['L', 'R', 'C']
+    valid = lrc.notna().all(axis=1)
+    if not valid.all():
+        raise ValueError('Expected all observation names to match HD_<layer>_<row>_<column>.')
+    lrc = lrc.astype('int32')
+
+    if l_L is not None:
+        keep = lrc['L'].isin(l_L).to_numpy()
+        lrc = lrc.loc[keep].reset_index(drop=True)
+        data_cols = np.flatnonzero(keep) + 1
+    else:
+        data_cols = np.arange(1, n_obs + 1)
+
+    # Convert 1-based MODFLOW L/R/C indices to xarray/numpy indices.
+    layers = np.sort(lrc['L'].unique())
+    layer_i = pd.Index(layers).get_indexer(lrc['L'])
+    row_i = lrc['R'].to_numpy() - 1
+    col_i = lrc['C'].to_numpy() - 1
+
+    # %% Fill dense DataArray with sparse observation values
+    # Start as NaN everywhere; only observed active cells are filled.
+    arr = np.full((n_time, len(layers), len(M.Ys), len(M.Xs)), np.nan, dtype=dtype)
+    for i0 in range(0, n_time, time_chunk):
+        i1 = min(i0 + time_chunk, n_time)
+        arr[i0:i1, layer_i, row_i, col_i] = np.asarray(data[i0:i1, data_cols], dtype=dtype)
+
+    # %% Build time coordinate
+    time = np.asarray(data[:, 0])
+    if start_time is not None:
+        # MODFLOW observation time is numeric; for this workflow day 1 maps to
+        # start_time, so subtract 1 before converting to timedeltas.
+        time = pd.to_datetime(start_time) + pd.to_timedelta(time - 1, unit=time_unit)
+
+    # %% Return xarray object
+    return xra.DataArray(
+        arr,
+        dims=('time', 'layer', 'y', 'x'),
+        coords={
+            'time': time,
+            'layer': layers,
+            'y': M.Ys,
+            'x': M.Xs,
+        },
+        name='head',
+    )
