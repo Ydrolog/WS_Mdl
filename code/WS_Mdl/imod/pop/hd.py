@@ -14,7 +14,7 @@ from WS_Mdl.imod.idf import HD_Out_to_DF
 from WS_Mdl.imod.prj import r_with_OBS
 from WS_Mdl.xr.convert import to_TIF
 
-__all__ = ['HD_IDF_Agg_to_TIF', 'p_HD_OBS_TS', 'c_HD_Pctls', 'HD_Pctl_Diffs']
+__all__ = ['HD_IDF_Agg_to_TIF', 'p_HD_OBS_TS', 'c_HD_Pctls', 'HD_Pctl_Diffs', 'c_HD_Bin_Pctls']
 
 
 def HD_IDF_Agg_to_TIF(
@@ -716,19 +716,19 @@ def c_HD_Pctls(
     """
     # %% Imports
     sprint('----- c_Pctl_HD_OBS_L initiated -----', style=green)
-    sprint(' -- Loading extra packages.', end='', verbose_out=False)
+    sprint('--- Loading extra packages...', end='', verbose_out=False)
     import pandas as pd
     import rioxarray  # Noqa: F401 # activates the .rio accessor
     import xarray as xra
 
-    sprint('🟢', verbose_in=True)
+    sprint('🟢')
 
     # %% Options
     sprint('--- Loading data...')
     sprint(' -- Creating Mdl_N instance.', end='', verbose_out=False)
     M = Mdl_N(MdlN)
     Pa_CSV = list(M.Pa.MF6.glob('HD_OBS_L*.csv'))[0] if Pa_CSV is None else Pa_CSV  # Assumes only one HD_OBS_L*.csv
-    sprint('🟢', verbose_in=True)
+    sprint('🟢')
 
     # %%
     # DF = pd.read_csv(list(M.Pa.MF6.rglob('HD_OBS_L*.csv'))[0], engine='c', dtype='float32', sep=',' low_memory=False) # Assumes only one HD_OBS_L*.csv
@@ -825,6 +825,8 @@ def c_HD_Pctls(
     with open(Pa_Dir / 'metadata.txt', 'w') as f:
         for k, v in metadata.items():
             f.write(f'{k}: {v}\n')
+
+    sprint('🟢🟢🟢')
     print(Sep)
     return DF, DA_q
 
@@ -851,3 +853,77 @@ def HD_Pctl_Diffs(MdlN_S: str, MdlN_B: str):
         print(f'Saving {Pa_Out.name} ', end='')
         DA_Diff.rio.to_raster(Pa_Out)
         print('🟢')
+
+
+def c_HD_Bin_Pctls(
+    MdlN: str,
+    full_years: bool = True,  # 666 This is not used properly.
+    l_Pct: list = [0.05, 0.10, 0.50, 0.90, 0.95],
+    l_Ls: list = [1, 3, 5],  # List of layers to include in the analysis (1-based indexing)
+    Pa_Bin: str | Path = None,
+    start_year: str = 'from_INI',
+    end_year: str = 'from_INI',
+    IDT: str = 'from_INI',
+):
+    sprint('----- c_Pctl_HD_OBS_L initiated -----', style=green)
+    sprint('--- Loading extra packages...', end='', verbose_out=False)
+    import rioxarray  # Noqa: F401 # activates the .rio accessor
+    from WS_Mdl.imod.mf6.obs import o_HD_OBS_L_Bin
+
+    sprint('🟢')
+
+    # %% Basics
+    sprint('--- Loading data...', end='')
+    M = Mdl_N(MdlN)
+    start_year = M.SP_1st_DT.year if start_year == 'from_INI' else int(start_year)
+    end_year = M.SP_last_DT.year if end_year == 'from_INI' else int(end_year)
+    IDT = int(M.INI.IDT) if IDT == 'from_INI' else int(IDT)
+    l_years = [i for i in range(start_year, end_year + 1)]
+
+    # %% Load Bin
+    DA = o_HD_OBS_L_Bin(MdlN, l_L=l_Ls, start_time=M.SP_1st_DT)
+    DA = DA.where(DA.time.dt.year.isin(l_years), drop=True).sel(layer=l_Ls)  # Select specific years and layers
+    sprint('🟢')
+
+    # %% Calculate percentiles
+    DA_q = timed_Exe(
+        DA.quantile,
+        l_Pct,
+        dim='time',
+        pre=' -- Calculating percentiles...',
+    )
+
+    # %% Saving to TIF
+    Pa_Dir = M.Pa.PoP_Out_MdlN / 'GW_HD_Pct'
+    sprint(f' -- Saving to TIF in {Pa_Dir}')
+    Pa_Dir.mkdir(parents=True, exist_ok=True)
+    DA_q = DA_q.rio.set_spatial_dims(x_dim='x', y_dim='y').rio.write_crs('EPSG:28992')
+    metadata = {
+        'model': M.MdlN,
+        'created from:': str(Pa_Bin),
+        'created by': f'c_HD_Bin_Pctls( MdlN={MdlN}, start_year={start_year}, end_year={end_year}, full_years={full_years}, IDT={IDT}, Pa_Bin={Pa_Bin}, l_Pct={l_Pct}, l_Ls={l_Ls})',
+    }
+
+    for q in l_Pct:
+        for L in l_Ls:
+            Pa_Out = Pa_Dir / f'GW_HD_L{L}_P{int(q * 100):02d}_{MdlN}.tif'
+
+            sprint(f'  - {Pa_Out.name} ', end='')
+            DA_i = DA_q.sel(quantile=q, layer=L)
+            DA_i.rio.to_raster(
+                Pa_Out,
+                tags={
+                    'percentile': f'P{int(q * 100):02d}',
+                    'layer': str(L),
+                }
+                | metadata,
+            )
+            sprint('🟢')
+
+    # %% 7. Write metadata and finish
+    with open(Pa_Dir / 'metadata.txt', 'w') as f:
+        for k, v in metadata.items():
+            f.write(f'{k}: {v}\n')
+    sprint('🟢🟢🟢')
+    print(Sep)
+    return DA_q

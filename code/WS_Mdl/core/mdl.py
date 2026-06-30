@@ -52,7 +52,7 @@ class Mdl_N:
         '__dict__': 'dict: allow dynamic attributes',
     }
 
-    def __init__(self, MdlN: str, iMOD5: bool | None = None):
+    def __init__(self, MdlN: str, iMOD5: bool | None = False):
         # MdlN format validation and extraction of alias and number using regex
         m = _MdlN_pattern.match(MdlN)
         if not m:

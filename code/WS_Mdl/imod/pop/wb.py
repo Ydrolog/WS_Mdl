@@ -57,8 +57,9 @@ def Diff_to_xlsx(
         date = min(DF_1.index[-1], DF_2.index[-1]).strftime('%Y-%m-%d')
 
     # Combine DFs + Drop extra rows.
-    S_1 = DF_1.loc[DF_1.index == date].squeeze()
-    S_2 = DF_2.loc[DF_2.index == date].squeeze()
+    date = pd.to_datetime(date).normalize()
+    S_1 = _select_wb_date(DF_1, date, MdlN, MdlN_B)
+    S_2 = _select_wb_date(DF_2, date, MdlN_B, MdlN)
     S_1.index = S_1.index.astype(str).str.upper()
     S_2.index = S_2.index.astype(str).str.upper()
 
@@ -167,7 +168,7 @@ def Diff_to_xlsx(
     if net_only:
         DF = DF.reindex(d_Par.keys())  # Reorder rows based on d_Par keys.
 
-    date_ = date.replace('-', '')
+    date_ = date.strftime('%Y%m%d')
     Pa = (
         (M.Pa.PoP_Out_MdlN / f'WB/WB_Diff_{MdlN}_m_{MdlN_B}_{date_}{"_cumulative" if cumulative else ""}')
         if Pa_Out is None
@@ -187,7 +188,7 @@ def Diff_to_xlsx(
     DF_closing['MSW SUM % error'] = DF_closing['MSW SUM'] / DF_closing['MSW ABS SUM'] * 100
 
     if sum_Pkg and net_only:  # This is the most common use case. The template is designed for this.
-        _WB_save_with_template(DF, Pa_template, 'Diff', Pa.with_suffix('.xlsx'), date=date)
+        _WB_save_with_template(DF, Pa_template, 'Diff', Pa.with_suffix('.xlsx'), date=date.strftime('%Y-%m-%d'))
     else:  # In other cases, just save as CSV.
         DF.to_csv(Pa.with_suffix('.csv'), index=True)
 
@@ -210,6 +211,24 @@ def Diff_to_xlsx(
         os.startfile(f'{Pa}.xlsx' if sum_Pkg and net_only else f'{Pa}.csv')
 
     return DF
+
+
+def _select_wb_date(DF, date, MdlN, other_MdlN):
+    date_index = pd.DatetimeIndex(DF.index).normalize()
+    row = DF.loc[date_index == date]
+    if row.empty:
+        latest = date_index.max()
+        first = date_index.min()
+        if pd.isna(first) or pd.isna(latest):
+            raise ValueError(f'No MF6 water-budget dates found for {MdlN}.')
+
+        raise ValueError(
+            f'MF6 water budget for {MdlN} has no row for {date:%Y-%m-%d}. '
+            f'Available range is {first:%Y-%m-%d} to {latest:%Y-%m-%d}. '
+            f'Try date={latest:%Y-%m-%d}, or run WB_Diff without a date to use the latest common date with {other_MdlN}.'
+        )
+
+    return row.iloc[0]
 
 
 def _WB_save_with_template(DF, Pa_template, tab, Pa_Out, date=None):

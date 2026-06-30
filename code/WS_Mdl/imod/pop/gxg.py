@@ -11,12 +11,12 @@ import numpy as np
 import pandas as pd
 import xarray as xra
 from WS_Mdl.core.mdl import Mdl_N
-from WS_Mdl.core.style import Sep, set_verbose, sprint
+from WS_Mdl.core.style import Sep, green, set_verbose, sprint
 from WS_Mdl.imod.idf import HD_Out_to_DF
 from WS_Mdl.xr.compare import Diff_MBTIF
 from WS_Mdl.xr.convert import to_MBTIF, to_TIF
 
-__all__ = ['HD_Bin_GXG_to_MBTIF', 'GXG_Diff', 'HD_IDF_GXG_to_TIF']
+__all__ = ['HD_Bin_GXG_to_MBTIF', 'GXG_Diff', 'HD_IDF_GXG_to_TIF', 'HD_Bin_L_GXG_to_MBTIF']
 
 
 def HD_Bin_GXG_to_MBTIF(
@@ -39,8 +39,8 @@ def HD_Bin_GXG_to_MBTIF(
     # Load standard imod paths and variables
     M = Mdl_N(MdlN)
 
-    start_year = int(M.INI.SDATE[:4]) if start_year == 'from_INI' else int(start_year)
-    end_year = int(M.INI.EDATE[:4]) if end_year == 'from_INI' else int(end_year)
+    start_year = M.SP_1st_DT.year if start_year == 'from_INI' else int(start_year)
+    end_year = M.SP_last_DT.year if end_year == 'from_INI' else int(end_year)
     IDT = int(M.INI.IDT) if IDT == 'from_INI' else int(IDT)
 
     l_years = [i for i in range(start_year, end_year + 1)]
@@ -201,4 +201,90 @@ def HD_IDF_GXG_to_TIF(MdlN: str, N_cores: int = None, CRS: str = None, rules: st
             sprint('\t', f.result(), '- Elapsed time (from start):', DT.now() - start)
 
     sprint('🟢🟢🟢 | Total elapsed:', DT.now() - start)
+    sprint(Sep)
+
+
+def HD_Bin_L_GXG_to_MBTIF(
+    MdlN: str,
+    start_year: str = 'from_INI',
+    end_year: str = 'from_INI',
+    IDT: str = 'from_INI',
+    GVG: bool = False,
+    l_Ls: list = [1, 3, 5, 7, 9],
+):
+    """
+    - start_year: 'YYYY' (inclusive) or 'from_INI' to read from INI file
+    - end_year: 'YYYY' (inclusive) or 'from_INI' to read from INI file
+    - IDT: Number of days per SP. #666 this should be upgraded to use ITT too, to allow for other time units (e.g. hour).
+    - GVG: Boolean, whether to include GVG in the output
+    """
+    sprint('----- c_Pctl_HD_OBS_L initiated -----', style=green)
+    sprint('--- Loading extra packages...', end='', verbose_out=False)
+    import rioxarray  # Noqa: F401 # activates the .rio accessor
+    from WS_Mdl.imod.mf6.obs import o_HD_OBS_L_Bin
+
+    sprint('🟢')
+
+    # %% Basics
+    sprint('--- Loading data...', end='')
+    M = Mdl_N(MdlN)
+    start_year = M.SP_1st_DT.year if start_year == 'from_INI' else int(start_year)
+    end_year = M.SP_last_DT.year if end_year == 'from_INI' else int(end_year)
+    IDT = int(M.INI.IDT) if IDT == 'from_INI' else int(IDT)
+    l_years = [i for i in range(start_year, end_year + 1)]
+
+    # %% Load Bin
+    DA = o_HD_OBS_L_Bin(MdlN, l_L=l_Ls, start_time=M.SP_1st_DT)
+    DA_HD = DA.where(DA.time.dt.year.isin(l_years), drop=True).sel(layer=l_Ls)  # Select specific years and layers
+    sprint('🟢')
+
+    # 2. GXG
+    ##  Calculate GXG
+    d_GXG = {}
+    for L in l_Ls:
+        DA_HD_L = DA_HD.sel(layer=L)
+        GXG = imod.evaluate.calculate_gxg(DA_HD_L).load()
+        GXG = GXG.rename_vars({var: var.upper() for var in GXG.data_vars})
+
+        # Get N_years
+        N_years_GXG = np.unique(GXG.N_YEARS_GXG.values).max()
+        N_years_GVG = np.unique(GXG.N_YEARS_GVG.values).max()
+
+        # Calculate GW range: GHG-GLG
+        GXG['GHG_m_GLG'] = GXG['GHG'] - GXG['GLG']
+        GXG = GXG[['GHG', 'GLG', 'GHG_m_GLG', 'GVG']] if GVG else GXG[['GHG', 'GLG', 'GHG_m_GLG']]
+
+        # Collect results
+        for var in GXG.data_vars:
+            if var not in d_GXG:
+                d_GXG[var] = []
+            d_GXG[var].append(GXG[var])
+    ## Concatenate
+    for var in d_GXG:
+        if isinstance(d_GXG[var], list):
+            d_GXG[var] = xra.concat(d_GXG[var], dim=pd.Index(l_Ls, name='layer'))
+    sprint(f' 🟢🟢 - Calculated GXG for {MdlN}')
+
+    # 3. Save to MBTIF
+    (M.Pa.PoP_Out_MdlN / 'GXG').mkdir(parents=True, exist_ok=True)
+
+    for K, GXG in d_GXG.items():
+        L_min, L_max = GXG.layer.values.min(), GXG.layer.values.max()
+
+        Pa_Out = M.Pa.PoP_Out_MdlN / 'GXG' / f'{K}_L{L_min}-{L_max}_{MdlN}.tif'
+
+        d_MtDt = {
+            f'{K}_L{L_min}-{L_max}_{MdlN}': {
+                'AVG': float(GXG.mean().values),
+                'coordinates': GXG.coords,
+                'period': f'{start_year}-{end_year}',
+                'N_years': N_years_GVG if K == 'GVG' else N_years_GXG,
+                'variable': Pa_Out.name[0],
+                'details': f'{MdlN} {K} calculated from (path: {M.Pa.HD_Out_Bin}), via function described in: https://deltares.github.io/imod-python/api/generated/evaluate/imod.evaluate.calculate_gxg.html',
+            }
+        }
+
+        to_MBTIF(GXG, Pa_Out, d_MtDt, _print=False)
+        sprint(f'  🟢 - Saved {K} to {Pa_Out}')
+    sprint(f'🟢🟢🟢 - HD_Bin_GXG_to_MBTIF finished successfully for {MdlN}.')
     sprint(Sep)

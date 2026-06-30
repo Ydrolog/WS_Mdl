@@ -7,11 +7,14 @@ MdlN = 'NBr102'
 MdlN_B = 'NBr100'
 M = Mdl_N(MdlN)
 MB = Mdl_N(MdlN_B)  # B just for stages.
+start_year = M.SP_1st_DT.year
+end_year = 2001
 
 # %% Load + Prep DF
 Pa_SFR_Out = MB.Pa.Sim_In / f'{MB.MdlN}.SFR6.obs.output.csv'
 DF_ = pd.read_csv(Pa_SFR_Out)
 
+# %%
 date = MB.SP_1st_DT + pd.to_timedelta(DF_['time'] - 1, unit='D')
 
 DF = pd.concat(
@@ -21,6 +24,7 @@ DF = pd.concat(
     ],
     axis=1,
 )
+DF = DF.loc[DF.date.dt.year <= end_year]
 
 # %% Calc AVGs
 Cols = [c for c in DF.columns if c.startswith('STAGE_L')]

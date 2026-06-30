@@ -244,10 +244,9 @@ def add_L_HD_OBS(MdlN: str, l_L: int, Opt: str = 'BEGIN OPTIONS\n  DIGITS 5\nEND
     add_Pkg(M.MdlN, f'  OBS6 .\\{Pa_OBS_Rel} GWHD_OBS_L')  # Add to NAM
 
 
-def open_HD_OBS_L_bin(
-    MdlN: str | None = None,
+def o_HD_OBS_L_Bin(
+    MdlN: str,
     Pa_Bin: str | Path = None,
-    M: Mdl_N | None = None,
     l_L: list[int] | None = None,
     start_time=None,
     time_unit: str = 'D',
@@ -264,13 +263,10 @@ def open_HD_OBS_L_bin(
     import xarray as xra
 
     # %% Resolve model and file paths
-    if M is None:
-        if MdlN is None:
-            raise ValueError('Provide either M or MdlN.')
-        M = Mdl_N(MdlN)
-
-    # If no binary path is given, assume the model folder has one HD_OBS_L*.bin.
-    Pa_Bin = list(M.Pa.MF6.glob('HD_OBS_L*.bin'))[0] if Pa_Bin is None else Path(Pa_Bin)
+    M = Mdl_N(MdlN)
+    Pa_Bin = (
+        list(M.Pa.MF6.glob('HD_OBS_L*.bin'))[0] if Pa_Bin is None else Path(Pa_Bin)
+    )  # Assumes 1 file fits the bill.
 
     # %% Read MF6 observation binary header
     with Pa_Bin.open('rb') as f:
