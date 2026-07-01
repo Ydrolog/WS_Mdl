@@ -73,6 +73,7 @@ def Par_to_Rst(
 
     sprint(f'🟢🟢🟢 - Saved to {Pa_Out}')
     print(Sep)
+    return Arr
 
 
 def SFR_to_GPkg(MdlN: str, CRS: str = CRS, Pa_SFR=None, radius: float = None, iMOD5=False, verbose: bool = True):
