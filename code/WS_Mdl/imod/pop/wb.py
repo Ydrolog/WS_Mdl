@@ -157,11 +157,11 @@ def Diff_to_xlsx(
 
     # Calc Diff --------------------------------------------------------------------------------------------------------------------
     DF['Diff'] = DF[MdlN] - DF[MdlN_B]
-    DF['Diff_%'] = DF.apply(
+    DF['Diff %'] = DF.apply(
         lambda x: x['Diff'] / x[MdlN_B] * 100 if pd.notnull(x['Diff']) and x[MdlN_B] != 0 else np.nan, axis=1
     )
-    DF[f'%_Pm_{MdlN}'] = DF[MdlN] / DF.loc['Pm', MdlN] * 100
-    DF[f'%_Pm_{MdlN_B}'] = DF[MdlN_B] / DF.loc['Pm', MdlN_B] * 100
+    DF[f'% Pm {MdlN}'] = DF[MdlN] / DF.loc['Pm', MdlN] * 100
+    DF[f'% Pm {MdlN_B}'] = DF[MdlN_B] / DF.loc['Pm', MdlN_B] * 100
 
     # Final touches + save
     DF.insert(len(DF.columns) - 1, 'Parameter', DF.pop('Parameter'))  # Move Parameter to last column
@@ -195,7 +195,7 @@ def Diff_to_xlsx(
     # Write to CSV
     # Reformatting values manually before saving, so CSV retains comma separators
     # for col in DF.columns:
-    #     if col not in ['Diff_%', 'Parameter']:
+    #     if col not in ['Diff %', 'Parameter']:
     #         DF[col] = DF[col].map(lambda x: f'{x:,.0f}' if pd.notna(x) else '')
     #     elif '%' in col:
     #         DF[col] = DF[col].map(lambda x: f'{x:.1f}' if pd.notna(x) else '')
