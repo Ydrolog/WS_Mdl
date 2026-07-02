@@ -14,9 +14,10 @@ from WS_Mdl.imod.idf import HD_Out_to_DF
 from WS_Mdl.imod.prj import r_with_OBS
 from WS_Mdl.xr.convert import to_TIF
 
-__all__ = ['HD_IDF_Agg_to_TIF', 'p_HD_OBS_TS', 'c_HD_Pctls', 'HD_Pctl_Diffs', 'c_HD_Bin_Pctls']
+__all__ = ['HD_IDF_Agg_to_TIF', 'p_HD_OBS_TS', 'c_HD_Pctls', 'HD_Pctl_Diffs', 'c_HD_Bin_Pctls', 'c_HD_Bin_AVGs']
 
 
+# %%
 def HD_IDF_Agg_to_TIF(
     MdlN: str,
     rules=None,
@@ -855,7 +856,7 @@ def HD_Pctl_Diffs(MdlN_S: str, MdlN_B: str):
         print('🟢')
 
 
-def c_HD_Bin_Pctls(
+def c_HD_Bin_Pctls(  # 666 date and layer selection should be moved to the o_HD_OBS_L_Bin function. Do the same for c_HD_Bin_AVGs.
     MdlN: str,
     full_years: bool = True,  # 666 This is not used properly.
     l_Pct: list = [0.05, 0.10, 0.50, 0.90, 0.95],
@@ -901,7 +902,7 @@ def c_HD_Bin_Pctls(
     metadata = {
         'model': M.MdlN,
         'created from:': str(Pa_Bin),
-        'created by': f'c_HD_Bin_Pctls( MdlN={MdlN}, start_year={start_year}, end_year={end_year}, full_years={full_years}, IDT={IDT}, Pa_Bin={Pa_Bin}, l_Pct={l_Pct}, l_Ls={l_Ls})',
+        'created by': f'c_HD_Bin_Pctls(MdlN={MdlN}, start_year={start_year}, end_year={end_year}, full_years={full_years}, IDT={IDT}, Pa_Bin={Pa_Bin}, l_Pct={l_Pct}, l_Ls={l_Ls})',
     }
 
     for q in l_Pct:
@@ -927,3 +928,80 @@ def c_HD_Bin_Pctls(
     sprint('🟢🟢🟢')
     print(Sep)
     return DA_q
+
+
+# %%
+def c_HD_Bin_AVGs(
+    MdlN: str,
+    full_years: bool = True,  # 666 This is not used properly.
+    l_Ls: list = [1, 3, 5],  # List of layers to include in the analysis (1-based indexing)
+    Pa_Bin: str | Path = None,
+    start_year: str = 'from_INI',
+    end_year: str = 'from_INI',  # inclussive
+    IDT: str = 'from_INI',
+):
+    # %%
+    sprint('----- c_Pctl_HD_OBS_L initiated -----', style=green)
+    sprint('--- Loading extra packages...', end='', verbose_out=False)
+    import rioxarray  # Noqa: F401 # activates the .rio accessor
+    from WS_Mdl.imod.mf6.obs import o_HD_OBS_L_Bin
+
+    sprint('🟢')
+
+    # %% Basics
+    sprint('--- Loading data...', end='')
+    M = Mdl_N(MdlN)
+    start_year = M.SP_1st_DT.year if start_year == 'from_INI' else int(start_year)
+    end_year = M.SP_last_DT.year if end_year == 'from_INI' else int(end_year)
+    IDT = int(M.INI.IDT) if IDT == 'from_INI' else int(IDT)
+    l_years = [i for i in range(start_year, end_year + 1)]
+
+    # %% Load Bin
+    DA = o_HD_OBS_L_Bin(MdlN, l_L=l_Ls, start_time=M.SP_1st_DT)
+    DA = DA.where(DA.time.dt.year.isin(l_years), drop=True).sel(layer=l_Ls)  # Select specific years and layers
+    sprint('🟢')
+
+    # %% Saving to TIF
+    Pa_Dir = M.Pa.PoP_Out_MdlN / 'GW_HD_AVGs'
+    sprint(f' -- Calculating AVGs & Saving to TIF in {Pa_Dir}')
+    Pa_Dir.mkdir(parents=True, exist_ok=True)
+    metadata = {
+        'model': M.MdlN,
+        'created from:': str(Pa_Bin),
+        'created by': f'c_HD_Bin_AVGs(MdlN={MdlN}, start_year={start_year}, end_year={end_year}, full_years={full_years}, IDT={IDT}, Pa_Bin={Pa_Bin}, l_Ls={l_Ls})',
+    }
+
+    summer = (3 < DA.time.dt.month) & (DA.time.dt.month < 10)
+    winter = ~summer
+    for L in l_Ls:
+        d_DAs = {
+            'winter_AVG': DA.sel(layer=L).where(winter, drop=True).mean(dim='time'),
+            'summer_AVG': DA.sel(layer=L).where(summer, drop=True).mean(dim='time'),
+            'AVG': DA.sel(layer=L).mean(dim='time'),
+            **{
+                f'{y}_AVG': DA.sel(layer=L).where(DA.time.dt.year == y, drop=True).mean(dim='time')
+                for y in np.unique(DA.time.dt.year)
+            },
+        }
+
+        for k, DA_i in d_DAs.items():
+            Pa_Out = Pa_Dir / f'GW_HD_L{L}_{k}_{MdlN}.tif'
+            sprint(f'  - {Pa_Out.name} ', end='')
+            # DA = DA.rio.set_spatial_dims(x_dim='x', y_dim='y').rio.write_crs('EPSG:28992')
+            DA_i.rio.to_raster(
+                Pa_Out,
+                tags={
+                    'variable': k,
+                    'layer': str(L),
+                }
+                | metadata,
+            )
+            sprint('🟢')
+
+    # %% 7. Write metadata and finish
+    with open(Pa_Dir / 'metadata.txt', 'w') as f:
+        for k, v in metadata.items():
+            f.write(f'{k}: {v}\n')
+    sprint('🟢🟢🟢')
+    print(Sep)
+    return DA
