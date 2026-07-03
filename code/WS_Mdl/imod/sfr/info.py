@@ -18,7 +18,7 @@ def SFR_PkgD_to_DF(MdlN: str, Pa_SFR: str = None, Calc_Cond=True, iMOD5: bool = 
     if Pa_SFR is None:
         Pa_SFR = M.Pa.SFR
 
-    l_Lns = r_Txt_Lns(Pa_SFR)
+    l_Lns = r_Txt_Lns(Pa_SFR)  # 666 replace with WS_Mdl.imod.mf6.read.py/MF6_block_to_DF
 
     PkgDt_start = next(i for i, ln in enumerate(l_Lns) if 'BEGIN PACKAGEDATA' in ln.upper()) + 2
     PkgDt_end = next(i for i, ln in enumerate(l_Lns) if 'END PACKAGEDATA' in ln.upper())

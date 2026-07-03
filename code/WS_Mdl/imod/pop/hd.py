@@ -964,7 +964,6 @@ def c_HD_Bin_AVGs(
     # %% Saving to TIF
     Pa_Dir = M.Pa.PoP_Out_MdlN / 'GW_HD_AVGs'
     sprint(f' -- Calculating AVGs & Saving to TIF in {Pa_Dir}')
-    Pa_Dir.mkdir(parents=True, exist_ok=True)
     metadata = {
         'model': M.MdlN,
         'created from:': str(Pa_Bin),
@@ -985,12 +984,18 @@ def c_HD_Bin_AVGs(
         }
 
         for k, DA_i in d_DAs.items():
-            Pa_Out = Pa_Dir / f'GW_HD_L{L}_{k}_{MdlN}.tif'
+            Pa_Out = (
+                Pa_Dir / f'L{L}/GW_HD_L{L}_{k}_{MdlN}.tif'
+                if k in ['winter_AVG', 'summer_AVG', 'AVG']
+                else Pa_Dir / f'yearly_AVGs/L{L}/GW_HD_L{L}_{k}_{MdlN}.tif'
+            )
+            Pa_Out.parent.mkdir(parents=True, exist_ok=True)
+
             sprint(f'  - {Pa_Out.name} ', end='')
             # DA = DA.rio.set_spatial_dims(x_dim='x', y_dim='y').rio.write_crs('EPSG:28992')
             DA_i.rio.to_raster(
                 Pa_Out,
-                tags={
+                tags={  # 666 add statistics with proper amount of decimals. Check how QGIS fucks them up to understand what I mean.
                     'variable': k,
                     'layer': str(L),
                 }

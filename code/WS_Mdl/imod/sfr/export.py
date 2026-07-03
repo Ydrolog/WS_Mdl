@@ -42,6 +42,9 @@ def Par_to_Rst(
     # --- Load PACKAGEDATA DF ---
     DF_PkgDt = SFR_PkgD_to_DF(MdlN, Pa_SFR=Pa_SFR, iMOD5=iMOD5)
 
+    if Par not in DF_PkgDt.columns:
+        raise ValueError(f"🔴 '{Par}' not DF Cols: {DF_PkgDt.columns}. Cannot proceed.")
+
     Pa_Out = PJ(M.Pa.PoP, f'In/SFR/{MdlN}/SFR_{Par}_{MdlN}.tif')
 
     # --- Create & Fill Array ---
