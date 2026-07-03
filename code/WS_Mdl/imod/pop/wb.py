@@ -157,8 +157,13 @@ def Diff_to_xlsx(
 
     # Calc Diff --------------------------------------------------------------------------------------------------------------------
     DF['Diff'] = DF[MdlN] - DF[MdlN_B]
-    DF['Diff %'] = DF.apply(
-        lambda x: x['Diff'] / x[MdlN_B] * 100 if pd.notnull(x['Diff']) and x[MdlN_B] != 0 else np.nan, axis=1
+    DF['Diff Abs %'] = DF.apply(
+        lambda x: (
+            (abs(x[MdlN]) - abs(x[MdlN_B])) / abs(x[MdlN_B]) * 100
+            if pd.notnull(x['Diff']) and x[MdlN_B] != 0
+            else np.nan
+        ),
+        axis=1,
     )
     DF[f'% Pm {MdlN}'] = DF[MdlN] / DF.loc['Pm', MdlN] * 100
     DF[f'% Pm {MdlN_B}'] = DF[MdlN_B] / DF.loc['Pm', MdlN_B] * 100
