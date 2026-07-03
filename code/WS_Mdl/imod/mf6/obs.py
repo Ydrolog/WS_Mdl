@@ -346,7 +346,7 @@ def o_HD_OBS_L_Bin(
         arr,
         dims=('time', 'layer', 'y', 'x'),
         coords={
-            'time': time,
+            'time': np.datetime64(M.SP_1st_DT) + (time - 1).astype('timedelta64[D]'),
             'layer': layers,
             'y': M.Ys,
             'x': M.Xs,
