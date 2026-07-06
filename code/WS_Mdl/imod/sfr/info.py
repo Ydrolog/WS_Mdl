@@ -42,7 +42,7 @@ def SFR_PkgD_to_DF(MdlN: str, Pa_SFR: str = None, Calc_Cond=True, iMOD5: bool = 
     DF = DF.convert_dtypes()  # 3. optional: get nullable ints/floats
 
     if ('x' not in PkgDt_Cols) or ('y' not in PkgDt_Cols):
-        sprint('🟡 - Coordinates (X, Y columns) not found in PACKAGEDATA. Calculating coordinates from INI file info.')
+        sprint('🟡 - X, Y calculated from INI cause not found in PACKAGEDATA.')
         Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = M.Dmns
         DF = DF.ws.Calc_XY(Xmin, Ymax, cellsize)
 

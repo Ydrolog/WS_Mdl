@@ -15,6 +15,7 @@ __all__ = [
     'dim',
     'warn',
     'CuCh',
+    'get_verbose',
     'set_verbose',
     'sprint',
     'sinput',
@@ -51,6 +52,11 @@ def set_verbose(v: bool):
     """Sets the VERBOSE variable to True or False."""
     global VERBOSE
     VERBOSE = v
+
+
+def get_verbose() -> bool:
+    """Returns the current VERBOSE value."""
+    return VERBOSE
 
 
 l_Mdl = [i.name for i in (Pa_WS / 'models').iterdir()]

@@ -8,7 +8,7 @@ import plotly.graph_objects as go
 from WS_Mdl.core.style import sprint
 
 
-def SFR_reach_TS(sub_title, X_axis, d_plot, Pa_Out):
+def SFR_reach_TS(sub_title, X_axis, d_plot, Pa_Out, include_plotlyjs='directory', auto_open=True):
     fig = go.Figure()
 
     y_vals = []
@@ -127,7 +127,7 @@ def SFR_reach_TS(sub_title, X_axis, d_plot, Pa_Out):
         ),
     )
 
-    fig.write_html(Pa_Out, auto_open=True)
+    fig.write_html(Pa_Out, auto_open=auto_open, include_plotlyjs=include_plotlyjs, full_html=True)
 
 
 def range(l_Pa, ending='IDF', date_format='%Y%m%d', Out_Fi='TS_range.png'):

@@ -7,7 +7,7 @@ from functools import cached_property
 from WS_Mdl.imod.ini import CeCes, INIView, Mdl_area, Mdl_Dmns
 
 from .path import MdlN_PaView, imod_V
-from .style import set_verbose
+from .style import get_verbose, set_verbose
 
 _MdlN_pattern = re.compile(r'^(?P<alias>[A-Za-z]+)(?P<N>\d+)$')
 
@@ -71,23 +71,26 @@ class Mdl_N:
         self.Pa = MdlN_PaView(MdlN, iMOD5=(self.V == 'imod5'))
         self.Sim = Sim()
 
+        verbose = get_verbose()
         set_verbose(False)  # To avoid INI prints
-        self.INI = INIView(self.Pa.INI)
-        if self.INI:
-            self.Dmns = Mdl_Dmns(self.Pa.INI)
-            self.Mdl_area = Mdl_area(self.Pa.INI)
-            self.Xmin, self.Ymin, self.Xmax, self.Ymax, self.cellsize, self.N_R, self.N_C = Mdl_Dmns(self.Pa.INI)
-            self.Xs, self.Ys = CeCes(self.MdlN)
-            self.N_L_cells = self.N_R * self.N_C
-            self.SP_1st, self.SP_last = [
-                DT.strftime(DT.strptime(self.INI[f'{i}'], '%Y%m%d'), '%Y-%m-%d') for i in ['SDATE', 'EDATE']
-            ]
-            self.SP_1st_DT, self.SP_last_DT = (
-                DT.strptime(self.SP_1st, '%Y-%m-%d'),
-                DT.strptime(self.SP_last, '%Y-%m-%d'),
-            )
-            self.cell_area = self.cellsize**2
-        set_verbose(True)
+        try:
+            self.INI = INIView(self.Pa.INI)
+            if self.INI:
+                self.Dmns = Mdl_Dmns(self.Pa.INI)
+                self.Mdl_area = Mdl_area(self.Pa.INI)
+                self.Xmin, self.Ymin, self.Xmax, self.Ymax, self.cellsize, self.N_R, self.N_C = Mdl_Dmns(self.Pa.INI)
+                self.Xs, self.Ys = CeCes(self.MdlN)
+                self.N_L_cells = self.N_R * self.N_C
+                self.SP_1st, self.SP_last = [
+                    DT.strftime(DT.strptime(self.INI[f'{i}'], '%Y%m%d'), '%Y-%m-%d') for i in ['SDATE', 'EDATE']
+                ]
+                self.SP_1st_DT, self.SP_last_DT = (
+                    DT.strptime(self.SP_1st, '%Y-%m-%d'),
+                    DT.strptime(self.SP_last, '%Y-%m-%d'),
+                )
+                self.cell_area = self.cellsize**2
+        finally:
+            set_verbose(verbose)
 
     @cached_property
     def B(self):

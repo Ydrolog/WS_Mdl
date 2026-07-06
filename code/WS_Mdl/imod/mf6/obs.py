@@ -249,6 +249,8 @@ def o_HD_OBS_L_Bin(
     Pa_Bin: str | Path = None,
     l_L: list[int] | None = None,
     start_time=None,
+    min_date=None,
+    max_date=None,
     time_unit: str = 'D',
     dtype: str = 'float32',
     time_chunk: int = 25,
@@ -305,6 +307,21 @@ def o_HD_OBS_L_Bin(
     n_time = payload_size // row_size
     data = np.memmap(Pa_Bin, dtype=value_dtype, mode='r', offset=data_offset, shape=(n_time, n_obs + 1))
 
+    # %% Build and optionally filter time coordinate before filling the dense array
+    obs_time = np.asarray(data[:, 0])
+    if start_time is None:
+        start_time = M.SP_1st_DT
+    time = pd.DatetimeIndex(pd.to_datetime(start_time) + pd.to_timedelta(obs_time - 1, unit=time_unit))
+
+    keep_time = np.ones(n_time, dtype=bool)
+    if min_date is not None:
+        keep_time &= time >= pd.to_datetime(min_date)
+    if max_date is not None:
+        keep_time &= time <= pd.to_datetime(max_date)
+
+    time_rows = np.flatnonzero(keep_time)
+    time = time[keep_time]
+
     # %% Parse observation names to layer/row/column indices
     # Names are expected to be written as HD_<layer>_<row>_<column>.
     lrc = obs_names.str.extract(r'^HD_(\d+)_(\d+)_(\d+)$')
@@ -329,24 +346,18 @@ def o_HD_OBS_L_Bin(
 
     # %% Fill dense DataArray with sparse observation values
     # Start as NaN everywhere; only observed active cells are filled.
-    arr = np.full((n_time, len(layers), len(M.Ys), len(M.Xs)), np.nan, dtype=dtype)
-    for i0 in range(0, n_time, time_chunk):
-        i1 = min(i0 + time_chunk, n_time)
-        arr[i0:i1, layer_i, row_i, col_i] = np.asarray(data[i0:i1, data_cols], dtype=dtype)
-
-    # %% Build time coordinate
-    time = np.asarray(data[:, 0])
-    if start_time is not None:
-        # MODFLOW observation time is numeric; for this workflow day 1 maps to
-        # start_time, so subtract 1 before converting to timedeltas.
-        time = pd.to_datetime(start_time) + pd.to_timedelta(time - 1, unit=time_unit)
+    arr = np.full((len(time_rows), len(layers), len(M.Ys), len(M.Xs)), np.nan, dtype=dtype)
+    for i0 in range(0, len(time_rows), time_chunk):
+        i1 = min(i0 + time_chunk, len(time_rows))
+        rows = time_rows[i0:i1]
+        arr[i0:i1, layer_i, row_i, col_i] = np.asarray(data[np.ix_(rows, data_cols)], dtype=dtype)
 
     # %% Return xarray object
     return xra.DataArray(
         arr,
         dims=('time', 'layer', 'y', 'x'),
         coords={
-            'time': np.datetime64(M.SP_1st_DT) + (time - 1).astype('timedelta64[D]'),
+            'time': time.to_numpy(),
             'layer': layers,
             'y': M.Ys,
             'x': M.Xs,

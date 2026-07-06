@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 from WS_Mdl.core.mdl import Mdl_N
-from WS_Mdl.core.style import set_verbose, sprint
+from WS_Mdl.core.style import get_verbose, set_verbose, sprint
 from WS_Mdl.imod.ini import Mdl_Dmns
 
 
@@ -99,9 +99,12 @@ class DFAccessor:
 
     def clip_Mdl_area(self, Pa_INI: str | Path = None, M: Mdl_N = None) -> pd.DataFrame:
         """Limits the DataFrame to the model area defined in the INI file."""
+        verbose = get_verbose()
         set_verbose(False)  # Suppress sprint from Mdl_Dmns
-        Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = Mdl_Dmns(Pa_INI) if Pa_INI else M.Dmns
-        set_verbose(True)  # Re-enable sprint
+        try:
+            Xmin, Ymin, Xmax, Ymax, cellsize, N_R, N_C = Mdl_Dmns(Pa_INI) if Pa_INI else M.Dmns
+        finally:
+            set_verbose(verbose)
 
         n_original = len(self._df)
 

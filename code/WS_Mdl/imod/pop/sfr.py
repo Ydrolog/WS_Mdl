@@ -115,8 +115,7 @@ def c_Stg_AVGs(MdlN, start_year: str = 'from_INI', end_year: str = 'from_INI'):
 
     # %% Load rtp (for depth Calcs)
     sprint('--- Loading rtp...', end='', set_time=True)
-    set_verbose(False)  # 666 This is not working, but I don't have time to fix it now.
-    A_rtp = Par_to_Rst(M.MdlN, 'rtp')
+    A_rtp = Par_to_Rst(M.MdlN, 'rtp', verbose=False)
     set_verbose(True)
     DA_rtp = xra.DataArray(
         A_rtp,
@@ -154,6 +153,8 @@ def stage_TS(
     MdlN_RIV: str,
     N_system_RIV: int = None,
     N_system_DRN: int = None,
+    min_date: str = None,
+    max_date: str = None,
     load_HD: bool = True,
     load_HD_RIV: bool = True,
     load_P: bool = True,
@@ -168,6 +169,8 @@ def stage_TS(
     MdlN_RIV = 'NBr102'
     N_system_RIV: int = 3
     N_system_DRN: int = 1
+    min_date = None
+    max_date = '2001-12-31'
     load_HD: bool = True
     load_HD_RIV: bool = True
     load_P: bool = True
@@ -190,7 +193,7 @@ def stage_TS(
     from WS_Mdl.imod.msw.mete_grid import to_DF
     from WS_Mdl.imod.msw.meteo import to_XA
     from WS_Mdl.imod.prj import r_with_OBS
-    from WS_Mdl.imod.sfr.info import SFR_PkgD_to_DF, get_SFR_OBS_Out_Pas, reach_to_cell_id, reach_to_XY
+    from WS_Mdl.imod.sfr.info import SFR_PkgD_to_DF, get_SFR_OBS_Out_Pas
     from WS_Mdl.imod.xr import clip_Mdl_area
     from WS_Mdl.viz.ts import SFR_reach_TS
     from WS_Mdl.xr.spatial import get_value
@@ -223,16 +226,28 @@ def stage_TS(
     sprint('🟢', print_time=True)
 
     # %% Load SFR data
-    sprint(' -- Loading SFR data ... ', end='', set_time=True)
+    sprint(' -- Loading SFR data ... ', end='', set_time=True, verbose_out=False)
     DF_ = pd.read_csv(get_SFR_OBS_Out_Pas(MdlN))  # 666 replace 1. This needs to be standardized.
     DF = DF_[[i for i in DF_.columns if i == 'time' or 'L' in i]].copy()
     DF['time'] = pd.to_datetime(SP_date_1st) + pd.to_timedelta(DF['time'] - 1, unit='D')
+    if min_date is not None:
+        DF = DF.loc[DF['time'] >= pd.to_datetime(min_date)]
+    if max_date is not None:
+        DF = DF.loc[DF['time'] <= pd.to_datetime(max_date)]
+    DF = DF.reset_index(drop=True)
 
     GDF_SFR = SFR_PkgD_to_DF(MdlN)
-    sprint('🟢', print_time=True)
+    reach_col = 'rno' if 'rno' in GDF_SFR.columns else 'reach'
+    sfr_by_reach = GDF_SFR.set_index(reach_col, drop=False)
+    sfr_by_cell = GDF_SFR.set_index(['k', 'i', 'j'], drop=False)
+
+    def _first_sfr_row(row):
+        return row.iloc[0] if isinstance(row, pd.DataFrame) else row
+
+    sprint('🟢', print_time=True, verbose_in=True)
 
     # %% Load RIV data
-    sprint(' -- Loading RIV data...', end='', set_time=True)
+    sprint(' -- Loading RIV data...', end='', set_time=True, verbose_out=False)
     RIV_params = ['conductance', 'stage', 'bottom_elevation', 'infiltration_factor']
     PRJ_RIV, PRJ_OBS_RIV = prj.r_with_OBS(Pa_RIV.PRJ)
 
@@ -250,7 +265,7 @@ def stage_TS(
     str_N_system_RIV_print = '\n'.join(l_N_system_RIV_print)
 
     if N_system_RIV is None:
-        sprint(
+        print(
             f'  - You need to choose one of {PRJ_RIV["(riv)"]["n_system"]} river systems.\nHere is some information about the RIV systems:\n{str_N_system_RIV_print}\n'
         )
         N_system_RIV = int(input('Select the number of the RIV system you want to plot (1-indexed).'))
@@ -264,12 +279,12 @@ def stage_TS(
     )
     # A_RIV_Btm = clip_Mdl_area(idf.open(PRJ_RIV['(riv)']['bottom_elevation'][N_system_RIV - 1]['path']), MdlN=MdlN)
 
-    sprint('🟢', print_time=True)
+    sprint('🟢', print_time=True, verbose_in=True)
     # if A_RIV_Btm.notnull().sum().values == (A_RIV_Btm == A_RIV_Stg_winter).sum().values:
     #     sprint('\tAll river bottom elevations are equal to stage elevations.')
 
     # %% Load DRN data
-    sprint(' -- Loading DRN data...', end='', set_time=True)
+    sprint(' -- Loading DRN data...', end='', set_time=True, verbose_out=False)
     DRN_params = ['conductance', 'elevation', 'n_system', 'active']
     l_N_system_DRN_print = []
     for i in range(PRJ['(drn)']['n_system']):
@@ -295,17 +310,16 @@ def stage_TS(
         # return
 
     A_DRN_Elv = clip_Mdl_area(idf.open(PRJ['(drn)']['elevation'][N_system_DRN - 1]['path']), MdlN=MdlN)
-    sprint('🟢')
+    sprint('🟢', print_time=True, verbose_in=True)
 
     # %% Load TOP and BOT data
-    sprint(' -- Loading TOP BOT data...', end='', set_time=True)
+    sprint(' -- Loading TOP BOT data...', end='', set_time=True, verbose_out=False)
     l_Pa_TOP = [i['path'] for i in PRJ['(top)']['top']]
     A_TOP = clip_Mdl_area(
         idf.open(l_Pa_TOP, pattern=r'TOP_L{layer}_{name}'), MdlN=MdlN
     )  # We're just doing this to avoid errors - using {name} to capture the model number part - idf will use it for the DataArray name.
     l_Pa_BOT = [i['path'] for i in PRJ['(bot)']['bottom']]
     A_BOT = clip_Mdl_area(idf.open(l_Pa_BOT, pattern=r'BOT_L{layer}_{name}'), MdlN=MdlN)
-    sprint('🟢')
 
     # Get layers relevant for SFR (HDS output can be too big to load to memory, and it's also efficient to just save the relevant layers)
     DF_ = pd.DataFrame({'L': GDF_SFR.k.value_counts().index, 'count': GDF_SFR.k.value_counts()})
@@ -314,38 +328,39 @@ def stage_TS(
     sprint(
         f'  - Only layers containing >=1% of SFR reaches were loaded: {l_SFR_Ls}.\n\t You can still request for a TS from the other layers, but it may take a while to load the data if you do.'
     )
+    sprint('🟢', print_time=True, verbose_in=True)
 
     # %% meteo
-    DF_meteo = timed_Exe(to_DF, PRJ, pre=' -- Loading precipitation data ... ', post='🟢')
+    DF_meteo = timed_Exe(to_DF, PRJ, pre=' -- Listing P files in a DF... ', post='🟢')
 
     set_verbose(True)
 
     # %% Load HD data
-    sprint(' -- Reading HD data ... ', end='', set_time=True)
+    sprint(f' -- Reading {MdlN} HD data ... ', end='', set_time=True)
     if load_HD:
         try:
-            A_HD_ = o_HD_OBS_L_Bin(MdlN)  # .astype('float32')
-            # open_hds(
-            #     hds_path=Pa.HD_Out_Bin,
-            #     grb_path=Pa.GRB,
-            #     simulation_start_time=pd.to_datetime(SP_date_1st),
-            #     time_unit='d',
-            # ).astype('float32')
+            A_HD_ = o_HD_OBS_L_Bin(
+                MdlN,
+                l_L=l_SFR_Ls,
+                min_date=DF['time'].min(),
+                max_date=DF['time'].max(),
+            ).astype('float32')
         except Exception as e:
             print(f'🔴🔴🔴 - An error occurred while loading HD data: {e}')
+    sprint('🟢', print_time=True, verbose_in=True)
 
+    sprint(f' -- Reading {MdlN_RIV} HD data ... ', end='', set_time=True)
     if load_HD_RIV:
         try:
-            A_HD_RIV_ = o_HD_OBS_L_Bin(MdlN_RIV)  # .astype('float32')
-            # open_hds(
-            #     hds_path=Pa_RIV.HD_Out_Bin,
-            #     grb_path=Pa_RIV.GRB,
-            #     simulation_start_time=pd.to_datetime(SP_date_1st_RIV),
-            #     time_unit='d',
-            # ).astype('float32')
+            A_HD_RIV_ = o_HD_OBS_L_Bin(
+                MdlN_RIV,
+                l_L=l_SFR_Ls,
+                min_date=DF['time'].min(),
+                max_date=DF['time'].max(),
+            ).astype('float32')
         except Exception as e:
             print(f'🔴🔴🔴 - An error occurred while loading HD data: {e}')
-    sprint('🟢', print_time=True)
+    sprint('🟢', print_time=True, verbose_in=True)
     sprint()
     # endregion ---------- Load data ----------
 
@@ -366,6 +381,9 @@ def stage_TS(
             if In1.upper() == 'Y'
             else DF.copy()
         )
+        X_axis = DF_trim['time'].to_numpy(copy=False)
+        month = DF_trim['time'].dt.month.to_numpy(copy=False)
+        n_times = len(DF_trim)
 
         if load_P:
             DF_meteo_DT_trim = DF_meteo.loc[(DF_meteo['DT'] >= start_date) & (DF_meteo['DT'] <= end_date)].copy()
@@ -397,12 +415,15 @@ def stage_TS(
 
                 elif In2.upper().startswith('R'):
                     reach = int(In2.upper().replace('R', ''))
-                    L, R, C = reach_to_cell_id(reach, GDF_SFR)
+                    sfr_row = _first_sfr_row(sfr_by_reach.loc[reach])
+                    L, R, C = int(sfr_row.k), int(sfr_row.i), int(sfr_row.j)
                 else:
                     parts = re.split(r'[,\s]+', In2.strip())  # Split by commas and/or whitespace
                     L, R, C = [int(j) for j in parts]
-                    reach = GDF_SFR.loc[(GDF_SFR.k == L) & (GDF_SFR.i == R) & (GDF_SFR.j == C), 'reach'].values[0]
-                X, Y = reach_to_XY(reach, GDF_SFR)
+                    sfr_row = _first_sfr_row(sfr_by_cell.loc[(L, R, C)])
+                    reach = int(sfr_row[reach_col])
+                X, Y = float(sfr_row.x), float(sfr_row.y)
+                rtp = float(sfr_row.rtp)
 
                 if load_P:
                     P_ts = get_value(A_P, X, Y, dx, dy)
@@ -418,7 +439,7 @@ def stage_TS(
                         print('Attempting to load full head data for the specified layer...')
                         A_HD_L = A_HD_.sel(layer=L)
                         HD_ts = get_value(A_HD_L.sel(time=slice(start_date, end_date)), X, Y, dx, dy)
-                    HD = pd.DataFrame({'time': HD_ts.time.values, 'head': HD_ts.values})
+                    HD_values = HD_ts.values
 
                 if load_HD_RIV:
                     try:
@@ -430,11 +451,9 @@ def stage_TS(
                         print('Attempting to load full head data for the specified layer...')
                         A_HD_L_RIV = A_HD_RIV_.sel(layer=L)
                         HD_ts_RIV = get_value(A_HD_L_RIV.sel(time=slice(start_date, end_date)), X, Y, dx, dy)
-                    HD_RIV = pd.DataFrame({'time': HD_ts_RIV.time.values, 'head': HD_ts_RIV.values})
+                    HD_RIV_values = HD_ts_RIV.values
 
                     # required keys: plot_type, y. Rest are kwargs for the plot type (e.g., line dict for scatter, marker dict for bar, etc.)
-
-                X_axis = DF_trim['time']
 
                 # region - Design dictionary for plotting. Mandatory keys: plot_type, y. Rest are kwargs for the plot type (e.g., line dict for scatter, marker dict for bar, etc.)
                 d_plot = {}
@@ -457,7 +476,7 @@ def stage_TS(
                     {
                         f'{"Head " + MdlN:<17}': {
                             'plot_type': go.Scatter,
-                            'y': HD['head'],
+                            'y': HD_values,
                             'kwargs': {
                                 'mode': 'lines',
                                 'line': dict(color='#b63a3a', width=3),
@@ -471,7 +490,7 @@ def stage_TS(
                     {
                         f'{"Head " + MdlN_RIV:<17}': {
                             'plot_type': go.Scatter,
-                            'y': HD_RIV['head'],
+                            'y': HD_RIV_values,
                             'kwargs': {
                                 'mode': 'lines',
                                 'line': dict(color='#3a7fb8', width=3),
@@ -485,7 +504,7 @@ def stage_TS(
                     {
                         f'{"SFR stage":<17}': {
                             'plot_type': go.Scatter,
-                            'y': DF_trim[f'{SFR_Out_Col_prefix}L{L}_R{R}_C{C}'],
+                            'y': DF_trim[f'{SFR_Out_Col_prefix}L{L}_R{R}_C{C}'].to_numpy(copy=False),
                             'kwargs': {
                                 'mode': 'lines',
                                 'line': dict(color='#ff0000', width=3),
@@ -500,7 +519,7 @@ def stage_TS(
                     {
                         f'{"SFR riverbet top":<17}': {
                             'plot_type': go.Scatter,
-                            'y': [GDF_SFR.loc[GDF_SFR['rno'] == reach, 'rtp'].values[0]] * len(DF_trim),
+                            'y': np.full(n_times, rtp),
                             'kwargs': {
                                 'mode': 'lines',
                                 'line': dict(color='#ff0000', width=2, dash='dash'),
@@ -512,7 +531,7 @@ def stage_TS(
 
                 RIV_Stg_winter = round(float(get_value(A_RIV_Stg_winter, X, Y, dx, dy)), 3)
                 RIV_Stg_summer = round(float(get_value(A_RIV_Stg_summer, X, Y, dx, dy)), 3)
-                RIV_Stg = np.where(DF_trim['time'].dt.month.isin([10, 11, 12, 1, 2, 3]), RIV_Stg_winter, RIV_Stg_summer)
+                RIV_Stg = np.where(np.isin(month, [10, 11, 12, 1, 2, 3]), RIV_Stg_winter, RIV_Stg_summer)
 
                 d_plot.update(
                     {
@@ -544,7 +563,7 @@ def stage_TS(
                     {
                         f'{"DRN elevation":<17}': {
                             'plot_type': go.Scatter,
-                            'y': [round(float(get_value(A_DRN_Elv, X, Y, dx, dy)), 3)] * len(DF_trim),
+                            'y': np.full(n_times, round(float(get_value(A_DRN_Elv, X, Y, dx, dy)), 3)),
                             'kwargs': {
                                 'mode': 'lines',
                                 'line': dict(color='#d000ff', width=2, dash='dot'),
@@ -558,7 +577,7 @@ def stage_TS(
                     {
                         f'{"top":<17}': {
                             'plot_type': go.Scatter,
-                            'y': [round(float(get_value(A_TOP, X, Y, dx, dy, L=L)), 3)] * len(DF_trim),
+                            'y': np.full(n_times, round(float(get_value(A_TOP, X, Y, dx, dy, L=L)), 3)),
                             'kwargs': {
                                 'mode': 'lines',
                                 'line': dict(color='#a47300', width=2, dash='dash'),
@@ -572,7 +591,7 @@ def stage_TS(
                     {
                         f'{"bottom":<17}': {
                             'plot_type': go.Scatter,
-                            'y': [round(float(get_value(A_BOT, X, Y, dx, dy, L=L)), 3)] * len(DF_trim),
+                            'y': np.full(n_times, round(float(get_value(A_BOT, X, Y, dx, dy, L=L)), 3)),
                             'kwargs': {
                                 'mode': 'lines',
                                 'line': dict(color='#a47300', width=2, dash='dash'),
@@ -587,7 +606,7 @@ def stage_TS(
 
                 sprint('  - Plotting...')
 
-                Pa_Out = Pa.PoP_Out_MdlN / f'SFR/stage_TS/reach{reach}.html'
+                Pa_Out = Pa.PoP_Out_MdlN / f'SFR/Stg/TS/r{reach}.html'
                 Pa_Out.parent.mkdir(parents=True, exist_ok=True)
 
                 plot_SFR_reach_TS(sub_title=r_info, X_axis=X_axis, d_plot=d_plot, Pa_Out=Pa_Out)

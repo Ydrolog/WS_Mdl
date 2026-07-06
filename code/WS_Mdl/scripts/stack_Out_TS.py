@@ -188,7 +188,7 @@ def stack_Out_TS(
         .add(d_DF['SFR'].fillna(0), fill_value=0)
         .add(d_DF['qrun'].fillna(0), fill_value=0)
     )
-    date_min, date_max = DF_Agg.index.min(), DF_Agg.index.max()
+    date_min, date_max = DF_Agg.index.min(), DT.strptime('2001-12-31', '%Y-%m-%d')
     print(date_min, date_max)
     print(type(date_min), type(date_max))
 

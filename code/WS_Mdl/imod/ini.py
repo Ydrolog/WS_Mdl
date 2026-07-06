@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from WS_Mdl.core.path import MdlN_Pa
-from WS_Mdl.core.style import VERBOSE, sprint
+from WS_Mdl.core.style import get_verbose, sprint
 
 
 def as_d(Pa_INI: Path | str, verbose=False) -> dict:
@@ -28,7 +28,7 @@ def as_d(Pa_INI: Path | str, verbose=False) -> dict:
     sprint(
         f'🟢 - INI file {Pa_INI} read successfully. Dictionary created with {len(d_INI)} keys.',
         verbose_in=verbose,
-        verbose_out=VERBOSE,
+        verbose_out=get_verbose(),
     )
     return d_INI
 

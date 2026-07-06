@@ -75,7 +75,7 @@ def Par_to_Rst(
         dst.write(Arr, 1)
 
     sprint(f'🟢🟢🟢 - Saved to {Pa_Out}')
-    print(Sep)
+    sprint(Sep)
     return Arr
 
 
