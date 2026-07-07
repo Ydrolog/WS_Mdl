@@ -6,7 +6,7 @@ import rioxarray  # Noqa: F401
 import xarray as xra
 from WS_Mdl.core.mdl import Mdl_N
 from WS_Mdl.core.runtime import timed_Exe
-from WS_Mdl.core.style import Sep, green, set_verbose, sprint
+from WS_Mdl.core.style import Sep, Sep_2, green, set_verbose, sprint, style_reset
 
 # %% End of default imports
 
@@ -64,13 +64,13 @@ def c_Stg_AVGs(MdlN, start_year: str = 'from_INI', end_year: str = 'from_INI'):
     sprint(Sep)
     sprint(f'----- SFR stage & depth AVGs - {MdlN} -----\n', style=green)
     # Imports
-    sprint('--- Importing...', end='', set_time=True)
+    sprint('--- Importing ... ', end='', set_time=True)
     from WS_Mdl.imod.sfr.export import Par_to_Rst
 
     sprint('🟢', print_time=True)
 
     # %% Prep
-    sprint('--- Loading SFR Out to DF...', end='')
+    sprint('--- Loading SFR Out to DF ... ', end='')
     M = Mdl_N(MdlN)
     start_year = M.SP_1st_DT.year if start_year == 'from_INI' else int(start_year)
     end_year = M.SP_last_DT.year if end_year == 'from_INI' else int(end_year)
@@ -92,7 +92,7 @@ def c_Stg_AVGs(MdlN, start_year: str = 'from_INI', end_year: str = 'from_INI'):
     sprint('🟢', print_time=True)
 
     # %% Calc AVGs
-    sprint('--- Calculating AVGs & converting to DA...', end='', set_time=True)
+    sprint('--- Calculating AVGs & converting to DA ... ', end='', set_time=True)
     Cols = [c for c in DF.columns if c.startswith('STAGE_L')]
     DF_AVG = pd.DataFrame(
         {
@@ -114,7 +114,7 @@ def c_Stg_AVGs(MdlN, start_year: str = 'from_INI', end_year: str = 'from_INI'):
     sprint('🟢', print_time=True)
 
     # %% Load rtp (for depth Calcs)
-    sprint('--- Loading rtp...', end='', set_time=True)
+    sprint('--- Loading rtp ... ', end='', set_time=True)
     A_rtp = Par_to_Rst(M.MdlN, 'rtp', verbose=False)
     set_verbose(True)
     DA_rtp = xra.DataArray(
@@ -128,11 +128,11 @@ def c_Stg_AVGs(MdlN, start_year: str = 'from_INI', end_year: str = 'from_INI'):
     sprint('🟢', print_time=True)
 
     # %% Save stage TIFs, then depth TIFs
-    sprint('--- Saving stage TIFs...', set_time=True)
+    sprint('--- Saving stage TIFs ... ', set_time=True)
     (M.Pa.PoP_Out_MdlN / 'SFR/Stg').mkdir(parents=True, exist_ok=True)
     (M.Pa.PoP_Out_MdlN / 'SFR/depth').mkdir(parents=True, exist_ok=True)
     for Par in DA.data_vars:
-        print(f'  - {Par}...', end='', flush=True)
+        print(f'  - {Par} ... ', end='', flush=True)
         DA_ = DA[Par].rio.write_crs('EPSG:28992')
         DA_.rio.to_raster(M.Pa.PoP_Out_MdlN / f'SFR/Stg/SFR_{Par}_{M.MdlN}.TIF')
         if '_m_' not in Par:  # depth winter_m_summer is the same as Stg, thus unnecessary.
@@ -159,29 +159,30 @@ def stage_TS(
     load_HD_RIV: bool = True,
     load_P: bool = True,
     SFR_Out_Col_prefix: str = 'STAGE_',
+    extra_verbose=False,
 ):
     """
     Generates time series plots of SFR stage data from model output.
     """
 
     # %% Inputs for testing
-    MdlN = 'NBr100'
-    MdlN_RIV = 'NBr102'
-    N_system_RIV: int = 3
-    N_system_DRN: int = 1
-    min_date = None
-    max_date = '2001-12-31'
-    load_HD: bool = True
-    load_HD_RIV: bool = True
-    load_P: bool = True
-    SFR_Out_Col_prefix: str = 'STAGE_'
+    # MdlN = 'NBr100'
+    # MdlN_RIV = 'NBr102'
+    # N_system_RIV: int = 3
+    # N_system_DRN: int = 1
+    # min_date = None
+    # max_date = '2001-12-31'
+    # load_HD: bool = True
+    # load_HD_RIV: bool = True
+    # load_P: bool = True
+    # SFR_Out_Col_prefix: str = 'STAGE_'
 
     # %% Extra imports
     sprint(Sep)
     sprint(
-        f'----- Generating SFR stage time series plots for model: {MdlN} and RIV model: {MdlN_RIV}, system: {N_system_RIV} -----\n'
+        f'----- Generating SFR stage TS plots for: {MdlN} (SFR) & {MdlN_RIV} (RIV). RIV & DRN systems: {N_system_RIV} & {N_system_DRN} -----\n'
     )
-    sprint('--- Extra imports...', end='', set_time=True)
+    sprint('--- Extra imports ... ', end='', set_time=True)
     import re
     from datetime import datetime as DT
 
@@ -226,7 +227,7 @@ def stage_TS(
     sprint('🟢', print_time=True)
 
     # %% Load SFR data
-    sprint(' -- Loading SFR data ... ', end='', set_time=True, verbose_out=False)
+    sprint(' -- Loading SFR data ... ', end='', set_time=True, verbose_out=extra_verbose)
     DF_ = pd.read_csv(get_SFR_OBS_Out_Pas(MdlN))  # 666 replace 1. This needs to be standardized.
     DF = DF_[[i for i in DF_.columns if i == 'time' or 'L' in i]].copy()
     DF['time'] = pd.to_datetime(SP_date_1st) + pd.to_timedelta(DF['time'] - 1, unit='D')
@@ -247,7 +248,7 @@ def stage_TS(
     sprint('🟢', print_time=True, verbose_in=True)
 
     # %% Load RIV data
-    sprint(' -- Loading RIV data...', end='', set_time=True, verbose_out=False)
+    sprint(' -- Loading RIV data ... ', end='', set_time=True, verbose_out=extra_verbose)
     RIV_params = ['conductance', 'stage', 'bottom_elevation', 'infiltration_factor']
     PRJ_RIV, PRJ_OBS_RIV = prj.r_with_OBS(Pa_RIV.PRJ)
 
@@ -256,11 +257,11 @@ def stage_TS(
         l_N_system_RIV_print.append(f'System {i + 1}:')
         for j in RIV_params:
             if 'path' in PRJ_RIV['(riv)'][j][i]:
-                l_N_system_RIV_print.append(f'\t{j:<20}: {PRJ_RIV["(riv)"][j][i]["path"].name}')
+                l_N_system_RIV_print.append(f'    {j:<20}: {PRJ_RIV["(riv)"][j][i]["path"].name}')
             elif 'constant' in PRJ_RIV['(riv)'][j][i]:
-                l_N_system_RIV_print.append(f'\t{j:<20}: {PRJ_RIV["(riv)"][j][i]["constant"]}')
+                l_N_system_RIV_print.append(f'    {j:<20}: {PRJ_RIV["(riv)"][j][i]["constant"]}')
             else:
-                l_N_system_RIV_print.append(f'\t{j:<20}: N/A')
+                l_N_system_RIV_print.append(f'    {j:<20}: N/A')
 
     str_N_system_RIV_print = '\n'.join(l_N_system_RIV_print)
 
@@ -281,10 +282,10 @@ def stage_TS(
 
     sprint('🟢', print_time=True, verbose_in=True)
     # if A_RIV_Btm.notnull().sum().values == (A_RIV_Btm == A_RIV_Stg_winter).sum().values:
-    #     sprint('\tAll river bottom elevations are equal to stage elevations.')
+    #     sprint('    All river bottom elevations are equal to stage elevations.')
 
     # %% Load DRN data
-    sprint(' -- Loading DRN data...', end='', set_time=True, verbose_out=False)
+    sprint(' -- Loading DRN data ... ', end='', set_time=True, verbose_out=extra_verbose)
     DRN_params = ['conductance', 'elevation', 'n_system', 'active']
     l_N_system_DRN_print = []
     for i in range(PRJ['(drn)']['n_system']):
@@ -292,11 +293,11 @@ def stage_TS(
         if i in PRJ['(drn)'][i]:
             for j in DRN_params:
                 if 'path' in PRJ['(drn)'][j][i]:
-                    l_N_system_DRN_print.append(f'\t{j:<20}: {PRJ["(drn)"][j][i]["path"].name}')
+                    l_N_system_DRN_print.append(f'    {j:<20}: {PRJ["(drn)"][j][i]["path"].name}')
                 elif 'constant' in PRJ['(drn)'][j][i]:
-                    l_N_system_DRN_print.append(f'\t{j:<20}: {PRJ["(drn)"][j][i]["constant"]}')
+                    l_N_system_DRN_print.append(f'    {j:<20}: {PRJ["(drn)"][j][i]["constant"]}')
                 else:
-                    l_N_system_DRN_print.append(f'\t{j:<20}: N/A')
+                    l_N_system_DRN_print.append(f'    {j:<20}: N/A')
 
     str_N_system_DRN_print = '\n'.join(l_N_system_DRN_print)
 
@@ -313,7 +314,7 @@ def stage_TS(
     sprint('🟢', print_time=True, verbose_in=True)
 
     # %% Load TOP and BOT data
-    sprint(' -- Loading TOP BOT data...', end='', set_time=True, verbose_out=False)
+    sprint(' -- Loading TOP BOT data ... ', end='', set_time=True, verbose_out=extra_verbose)
     l_Pa_TOP = [i['path'] for i in PRJ['(top)']['top']]
     A_TOP = clip_Mdl_area(
         idf.open(l_Pa_TOP, pattern=r'TOP_L{layer}_{name}'), MdlN=MdlN
@@ -326,12 +327,12 @@ def stage_TS(
     DF_['percentage'] = (GDF_SFR.k.value_counts(normalize=True) * 100).apply(lambda x: round(x, 2))
     l_SFR_Ls = [int(i) for i in sorted(DF_.loc[DF_['percentage'] >= 1, 'L'].unique())]
     sprint(
-        f'  - Only layers containing >=1% of SFR reaches were loaded: {l_SFR_Ls}.\n\t You can still request for a TS from the other layers, but it may take a while to load the data if you do.'
+        f'  - Only layers containing >=1% of SFR reaches were loaded: {l_SFR_Ls}.\n     You can still request for a TS from the other layers, but it may take a while to load the data if you do.'
     )
     sprint('🟢', print_time=True, verbose_in=True)
 
     # %% meteo
-    DF_meteo = timed_Exe(to_DF, PRJ, pre=' -- Listing P files in a DF... ', post='🟢')
+    DF_meteo = timed_Exe(to_DF, PRJ, pre=' -- Listing P files in a DF ... ', post='🟢')
 
     set_verbose(True)
 
@@ -367,15 +368,27 @@ def stage_TS(
     # %% Iteration loop
     while True:
         In1 = input(
-            f'Start date is {DF["time"].min()} to {DF["time"].max()} for model {MdlN}.\n\nPress any key except Y and E to continue using this temporal extent.\nPress Y to set another temporal extent.\nPress E to exit.\n'
+            f'    Start date is {DF["time"].min()} to {DF["time"].max()} for model {MdlN}.\n\n    Press any key except Y and E to continue using this temporal extent.\n    Press Y to set another temporal extent.\n    Press E to exit.\n    {green}'
         )
         if In1.upper() == 'E':
+            sprint('🟢🟢🟢 - Finished SFR stage TS plotting.')
+            sprint(Sep)
             break
+        sprint(style_reset)
 
         start_date = (
-            pd.to_datetime(input('Enter start date (YYYY-MM-DD):\n')) if In1.upper() == 'Y' else DF['time'].min()
+            pd.to_datetime(input(f'    Enter start date (YYYY-MM-DD):\n    {green}'))
+            if In1.upper() == 'Y'
+            else DF['time'].min()
         )
-        end_date = pd.to_datetime(input('Enter end date (YYYY-MM-DD):\n')) if In1.upper() == 'Y' else DF['time'].max()
+        sprint(style_reset)
+        end_date = (
+            pd.to_datetime(input(f'    Enter end date (YYYY-MM-DD):\n    {green}'))
+            if In1.upper() == 'Y'
+            else DF['time'].max()
+        )
+        sprint(style_reset)
+
         DF_trim = (
             DF.copy().loc[(DF['time'] >= start_date) & (DF['time'] <= end_date)].reset_index(drop=True)
             if In1.upper() == 'Y'
@@ -388,8 +401,9 @@ def stage_TS(
         if load_P:
             DF_meteo_DT_trim = DF_meteo.loc[(DF_meteo['DT'] >= start_date) & (DF_meteo['DT'] <= end_date)].copy()
             A_P = to_XA(DF_meteo_DT_trim, 'P', MdlN, clip=True)
+            print('\n')
 
-        with TqdmCallback(desc=' -- Loading HD data for SFR-relevant layers and specified time range ...'):
+        with TqdmCallback(desc=' -- Loading HD data for SFR-relevant layers and specified time range ... '):
             if load_HD:
                 l_union = [i for i in l_SFR_Ls if i in A_HD_.layer.values]
                 A_HD = A_HD_.sel(layer=l_union).sel(time=slice(start_date, end_date)).compute()
@@ -401,14 +415,15 @@ def stage_TS(
         while True:
             try:
                 In2 = input(
-                    "Provide a cell ID (L R C) (with spaces or commas as separators) or a reach number. If you're providing a reach number, prefix it with 'R' (e.g., R15). Type 'E' to quit:\n"
+                    f"    Provide a cell ID (L R C) (with spaces or commas as separators) or a reach number. If you're providing a reach number, prefix it with 'R' (e.g., R15). Type 'E' to quit:\n    {green}"
                 )
+                sprint(style_reset)
 
                 # IL.reload(plot_SFR) # Relic. For development so it doesn't need to reload big files.
                 # Re-bind the function from the reloaded module
                 plot_SFR_reach_TS = SFR_reach_TS
 
-                sprint('  - Loading data for specified reach/cell...')
+                sprint('  - Loading data for specified reach/cell ... ', verbose_out=extra_verbose)
 
                 if In2.upper() == 'E':
                     break
@@ -434,9 +449,9 @@ def stage_TS(
                         HD_ts = get_value(A_HD.sel(time=slice(start_date, end_date)), X, Y, dx, dy, L=L)
                     except Exception as e:
                         print(
-                            f"L {L} probably contains less than 1% of the SFR reaches, so its HD wasn't loaded.\nAn error occurred while extracting head time series: {e}"
+                            f"    L {L} probably contains less than 1% of the SFR reaches, so its HD wasn't loaded.\nAn error occurred while extracting head time series: {e}"
                         )
-                        print('Attempting to load full head data for the specified layer...')
+                        print('    Attempting to load full head data for the specified layer ... ')
                         A_HD_L = A_HD_.sel(layer=L)
                         HD_ts = get_value(A_HD_L.sel(time=slice(start_date, end_date)), X, Y, dx, dy)
                     HD_values = HD_ts.values
@@ -446,9 +461,9 @@ def stage_TS(
                         HD_ts_RIV = get_value(A_HD_RIV.sel(time=slice(start_date, end_date)), X, Y, dx, dy, L=L)
                     except Exception as e:
                         print(
-                            f"L {L} probably contains less than 1% of the SFR reaches, so its HD wasn't loaded.\nAn error occurred while extracting head time series: {e}"
+                            f"    L {L} probably contains less than 1% of the SFR reaches, so its HD wasn't loaded.\nAn error occurred while extracting head time series: {e}"
                         )
-                        print('Attempting to load full head data for the specified layer...')
+                        print('    Attempting to load full head data for the specified layer ... ')
                         A_HD_L_RIV = A_HD_RIV_.sel(layer=L)
                         HD_ts_RIV = get_value(A_HD_L_RIV.sel(time=slice(start_date, end_date)), X, Y, dx, dy)
                     HD_RIV_values = HD_ts_RIV.values
@@ -604,14 +619,15 @@ def stage_TS(
 
                 r_info = f'reach: {reach}, L: {L}, R: {R}, C: {C}, X: {X}, Y: {Y}, MdlN: {MdlN}, MdlN_RIV: {MdlN_RIV}'
 
-                sprint('  - Plotting...')
+                sprint('  - Plotting ... ', end='', set_time=True, verbose_in=True)
 
                 Pa_Out = Pa.PoP_Out_MdlN / f'SFR/Stg/TS/r{reach}.html'
                 Pa_Out.parent.mkdir(parents=True, exist_ok=True)
 
                 plot_SFR_reach_TS(sub_title=r_info, X_axis=X_axis, d_plot=d_plot, Pa_Out=Pa_Out)
-                sprint('  🟢🟢 - Success!')
-            except Exception as e:  # probubly redundant to ploy that much
+                sprint('  🟢', print_time=True)
+                sprint(f'\n {Sep_2}')
+            except Exception as e:  # probably redundant to plot that much
                 err_lines = [f' 🔴🔴 - Error type: {type(e).__name__}', f' - Details: {e}']
 
                 if isinstance(e, KeyError):
@@ -642,9 +658,4 @@ def stage_TS(
                     )
 
                 sprint('\n'.join(err_lines))
-                sprint('Please try again.')
-    sprint('🟢🟢🟢 - Finished SFR stage TS plotting.')
-    sprint(Sep)
-
-
-# %%
+                sprint('    Please try again.')
