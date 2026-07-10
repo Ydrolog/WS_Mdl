@@ -940,6 +940,9 @@ def c_HD_Bin_AVGs(
     end_year: str = 'from_INI',  # inclussive
     IDT: str = 'from_INI',
 ):
+    """
+    Loads Bin OBS Out data (usually all HDs per L). Calculates summer/winter AVG, yearly AVG, etc. Saves to TIF files. Returns the DA with all data.
+    """
     # %%
     sprint('----- c_Pctl_HD_OBS_L initiated -----', style=green)
     sprint('--- Loading extra packages...', end='', verbose_out=False)

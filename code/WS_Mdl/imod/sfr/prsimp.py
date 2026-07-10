@@ -261,6 +261,11 @@ def create_SFR_lines(Pa_GPkg: str | Path, verbose: bool, debug_sfr: bool = True)
         crs=GDF.crs,
         #    shapefile=Pa_GPkg_1ry_SHP_SFR,
     )
+
+    # %% Remove IDs that cause loops.
+    bad_ids = [i for i, p in lines.paths.items() if int(p[-1]) != 0]
+    lines.df = lines.df[~lines.df['id'].isin(bad_ids)].copy()
+
     # %% Return lines
     return lines
 

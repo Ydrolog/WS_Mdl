@@ -60,6 +60,7 @@ def c_Stg_Pctl(MdlN: str, Pctls: list = [5, 10, 50, 90, 95]):  # 666 Finish it o
 def c_Stg_AVGs(MdlN, start_year: str = 'from_INI', end_year: str = 'from_INI'):
     """
     Calculated Stg and depth AVGs and saves them as TIFs.
+    start/end_year: inclusive
     """
     sprint(Sep)
     sprint(f'----- SFR stage & depth AVGs - {MdlN} -----\n', style=green)

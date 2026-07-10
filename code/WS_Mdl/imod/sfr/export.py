@@ -12,20 +12,21 @@ from rasterio.transform import from_bounds
 from shapely.geometry import LineString, Point
 from WS_Mdl.core.defaults import CRS
 from WS_Mdl.core.mdl import Mdl_N
-from WS_Mdl.core.style import Sep, set_verbose, sprint
+from WS_Mdl.core.style import Sep, get_verbose, set_verbose, sprint
 from WS_Mdl.imod.sfr.info import SFR_ConnD_to_DF, SFR_PkgD_to_DF
 
 __all__ = ['SFR_to_GPkg']
 
 
-def Par_to_Rst(
-    MdlN: str, Par: str, CRS: str = CRS, Pa_SFR=None, radius: float = None, iMOD5=False, verbose: bool = True
-):
+def Par_to_Rst(MdlN: str, Par: str | list, CRS: str = CRS, Pa_SFR=None, iMOD5=False, verbose: bool = True):
     """
     Creates a raster out of a parameter of an SFR file. Parameter needs to be typed exactly as in the PACKAGEDATA DF header (1st commented out line in PACKAGEDATA)
     """
 
-    # --- Prep ---
+    # %% Prep
+    sprint(Sep)
+    sprint(f'--- Creating raster(s) for SFR parameter(s) {Par} for {MdlN}.')
+    verbose_init = get_verbose()
     set_verbose(verbose)
     M = Mdl_N(MdlN)
 
@@ -39,44 +40,67 @@ def Par_to_Rst(
     cellsize = float(M.INI.CELLSIZE)
     N_R, N_C = int(-(Ymin - Ymax) / cellsize), int((Xmax - Xmin) / cellsize)
 
-    # --- Load PACKAGEDATA DF ---
+    # %% Load PACKAGEDATA DF
+    sprint(' -- Loading DF', set_time=True)
     DF_PkgDt = SFR_PkgD_to_DF(MdlN, Pa_SFR=Pa_SFR, iMOD5=iMOD5)
+    Cols = list(DF_PkgDt.columns) + ['cond', 'conductance']
 
-    if Par not in DF_PkgDt.columns:
-        raise ValueError(f"🔴 '{Par}' not DF Cols: {DF_PkgDt.columns}. Cannot proceed.")
-
-    Pa_Out = PJ(M.Pa.PoP, f'In/SFR/{MdlN}/SFR_{Par}_{MdlN}.tif')
-
-    # --- Create & Fill Array ---
-    Arr = np.full((N_R, N_C), np.nan)  # Create empty array
-    if Par.lower() == 'cond' or Par.lower() == 'conductance':  # allows for the calc of conductance
-        Arr[DF_PkgDt['i'].astype(int) - 1, DF_PkgDt['j'].astype(int) - 1] = round(
-            (DF_PkgDt['rwid'] * DF_PkgDt['rlen'] * DF_PkgDt['rhk'] / DF_PkgDt['rbth']), 2
-        )
+    # %% Check if Par is in DF_PkgDt columns
+    if isinstance(Par, str):
+        if Par.lower() == 'all':
+            l_Par = Cols
+        else:
+            if Par not in Cols:
+                raise ValueError(f"🔴 '{Par}' not DF Cols: {DF_PkgDt.columns}. Cannot proceed.")
+            l_Par = [Par]
     else:
-        Arr[DF_PkgDt['i'].astype(int) - 1, DF_PkgDt['j'].astype(int) - 1] = DF_PkgDt[Par]  # Populate array using i, j
+        l_Par = list(Par)
+        for Par in l_Par:
+            if Par not in Cols:
+                raise ValueError(f"🔴 '{Par}' (in {l_Par}) not DF Cols: {DF_PkgDt.columns}. Cannot proceed.")
+    sprint('🟢', print_time=True)
 
-    # --- Save ---
-    MDs(PDN(Pa_Out), exist_ok=True)
-    transform = from_bounds(Xmin, Ymin, Xmax, Ymax, N_C, N_R)
+    # %% Iterate over params and save rasters
+    sprint(f' -- Creating rasters for {len(l_Par)} parameter(s): {l_Par}')
+    d_A = {}
+    for Par in l_Par:
+        sprint(f' - {Par} ... ', set_time=True)
+        Pa_Out = PJ(M.Pa.PoP, f'In/SFR/{MdlN}/SFR_{Par}_{MdlN}.tif')
 
-    with rasterio.open(
-        Pa_Out,
-        'w',
-        driver='GTiff',
-        height=N_R,
-        width=N_C,
-        count=1,
-        dtype=Arr.dtype,
-        CRS=CRS,
-        transform=transform,
-        nodata=np.nan,
-    ) as dst:
-        dst.write(Arr, 1)
+        # %% Create & Fill Array
+        A = np.full((N_R, N_C), np.nan)  # Create empty array
+        if Par.lower() == 'cond' or Par.lower() == 'conductance':  # allows for the calc of conductance
+            A[DF_PkgDt['i'].astype(int) - 1, DF_PkgDt['j'].astype(int) - 1] = round(
+                (DF_PkgDt['rwid'] * DF_PkgDt['rlen'] * DF_PkgDt['rhk'] / DF_PkgDt['rbth']), 2
+            )
+        else:
+            A[DF_PkgDt['i'].astype(int) - 1, DF_PkgDt['j'].astype(int) - 1] = DF_PkgDt[Par]  # Populate array using i, j
 
-    sprint(f'🟢🟢🟢 - Saved to {Pa_Out}')
+        # --- Save ---
+        MDs(PDN(Pa_Out), exist_ok=True)
+        transform = from_bounds(Xmin, Ymin, Xmax, Ymax, N_C, N_R)
+
+        with rasterio.open(
+            Pa_Out,
+            'w',
+            driver='GTiff',
+            height=N_R,
+            width=N_C,
+            count=1,
+            dtype=A.dtype,
+            CRS=CRS,
+            transform=transform,
+            nodata=np.nan,
+        ) as dst:
+            dst.write(A, 1)
+
+        d_A[Par] = A
+        sprint(f'🟢 (Saved to {Pa_Out})', print_time=True)
+
+    sprint('🟢🟢🟢')
     sprint(Sep)
-    return Arr
+    set_verbose(verbose_init)
+    return A if len(l_Par) == 1 else d_A
 
 
 def SFR_to_GPkg(MdlN: str, CRS: str = CRS, Pa_SFR=None, radius: float = None, iMOD5=False, verbose: bool = True):
