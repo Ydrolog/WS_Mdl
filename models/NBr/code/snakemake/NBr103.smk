@@ -57,21 +57,21 @@ MdlN_RIV_Vs = 'NBr101'
 Pa_RIV_Stg_Vs_winter = Path(r'G:/models/NBr/In/RIV/NBr49/RIV_Stg_main_winter_NBr49.IDF')
 Pa_RIV_Stg_Vs_summer = Path(r'G:/models/NBr/In/RIV/NBr49/RIV_Stg_main_summer_NBr49.IDF')
     # start_year
-SFR_PoP_Out_end_year = 2001
-Diff_PoP_Param = ['SFR/Stg', 'GW_HD_AVGs/L1']
+PoP_end_year = 2001
+l_Diff_PoP_Param = ['SFR/Stg', 'GW_HD_AVGs/L1']
 
 ## Completion validation. If you want to re-run a rule, delete the coresponding temp file.
 Pa_temp             =   M.Pa.Smk.parent / 'temp'
 log_Init            =   Pa_temp / f"Log_init_{MdlN}"
 log_fix_MSW_area    =   Pa_temp / f"Log_fix_MSW_area_{MdlN}"
-log_add_SFR_OBS_all_reaches =   Pa_temp / f"Log_add_SFR_OBS_all_reaches_{MdlN}"
+log_add_SFR_OBS     =   Pa_temp / f"Log_add_SFR_OBS_all_reaches_{MdlN}"
 log_Sim             =   Pa_temp / f"Log_Sim_{MdlN}"
 log_PRJ_to_TIF      =   Pa_temp / f"Log_PRJ_to_TIF_{MdlN}"
 log_HD_AVGs         =   Pa_temp / f"Log_HD_AVGs_{MdlN}"
 log_Up_MM           =   Pa_temp / f"Log_Up_MM_{MdlN}"
 log_SFR_Out         =   Pa_temp / f"Log_SFR_Out_{MdlN}"
-log_Diff_PoP_Param  =   Pa_temp / f"Log_Diff_PoP_Param_{MdlN}"
-
+log_Diff            =   Pa_temp / f"Log_Diff_PoP_Param_{MdlN}"
+log_upload          =   M.Pa.Smk.parent / f"Log_upload_{MdlN}"
 
 # --- Rules ---
 
@@ -83,7 +83,7 @@ onerror: fail
 
 rule all: # Final rule
     input:
-        log_Up_MM
+        log_upload
 
 ## -- PrP --
 rule log_Init: # Sets status to running, and writes other info about therun. Has to complete before anything else.
@@ -141,9 +141,10 @@ rule add_SFR_OBS_all_reaches: # Add OBS for all reaches to the NAM file. This sh
     input:
         M.Pa.NAM_Sim
     output:
-        log_add_SFR_OBS_all_reaches
+        log_add_SFR_OBS
     run:
         from WS_Mdl.imod.sfr.info import SFR_PkgD_to_DF
+        import pandas as pd
         DF_SFR_PkgD = SFR_PkgD_to_DF(MdlN) # Load PkgD DF 
 
         for Par in SFR_OBS_all:
@@ -157,7 +158,7 @@ rule add_SFR_OBS_all_reaches: # Add OBS for all reaches to the NAM file. This sh
                 f.write(DF_SFR_PkgD_w.ws.to_MF_block())
                 f.write('END CONTINUOUS\n')
                 
-        Path(output[0]).touch() # Create the file to mark the rule as done.
+        Path(output[0]).touch()
 
 rule fix_MSW_area:
     input:
@@ -166,14 +167,14 @@ rule fix_MSW_area:
         log_fix_MSW_area
     run:
         sh.copy2(r"g:\code\Jupyter\PoP\compare_Ins\area_svat_NBr61.inp", M.Pa.MSW / "area_svat.inp")
-        Path(output[0]).touch() # Create the file to mark the rule as done.
+        Path(output[0]).touch()
 
 ## -- Sim ---
 rule Sim: # Runs the simulation via BAT file.
     input:
         Pa_HD_OBS_Dst,
         log_fix_MSW_area,
-        log_add_SFR_OBS_all_reaches
+        log_add_SFR_OBS
     output:
         temp(log_Sim)
     run:
@@ -196,7 +197,7 @@ rule PRJ_to_TIF:
         from WS_Mdl.imod.prj import to_TIF as PRJ_to_TIF
         PRJ_to_TIF(MdlN, iMOD5=iMOD5) # Convert PRJ to TIFs
         Up_log(MdlN, {  'PRJ_to_TIF':   1})
-        Path(output[0]).touch() # Create the file to mark the rule as done.
+        Path(output[0]).touch()
 
 rule p_SFR_In:
     input:
@@ -214,28 +215,32 @@ rule p_SFR_Out:
     output:
         log_SFR_Out
     run:
-        # c_ Stg_AVGs & depth AVGs
+        # calcyulate Stg_AVGs & depth AVGs
         from WS_Mdl.imod.pop.sfr import c_Stg_AVGs
-        c_Stg_AVGs(MdlN, end_year=SFR_PoP_Out_end_year)
+        c_Stg_AVGs(MdlN, end_year=PoP_end_year)
 
-        # c_ Vs RIV
+        # calculate Diff Vs RIV
         import imod
         from WS_Mdl.xr.spatial import clip_Mdl_area
+
+        ## Load RIV
         RIV_summer = clip_Mdl_area(imod.idf.open(Pa_RIV_Stg_Vs_summer), MdlN)
         RIV_winter = clip_Mdl_area(imod.idf.open(Pa_RIV_Stg_Vs_winter), MdlN)
         RIV_AVG = (RIV_summer + RIV_winter) / 2
 
+        ## Load SFR
         import rioxarray as rxr
         SFR_summer = rxr.open_rasterio(M.Pa.PoP_Out_MdlN / f'SFR/Stg/SFR_Stg_summer_AVG_{MdlN}.tif', masked=True)
         SFR_winter = rxr.open_rasterio(M.Pa.PoP_Out_MdlN / f'SFR/Stg/SFR_Stg_winter_AVG_{MdlN}.tif', masked=True)
         SFR_AVG = rxr.open_rasterio(M.Pa.PoP_Out_MdlN / f'SFR/Stg/SFR_Stg_AVG_{MdlN}.tif', masked=True)
 
+        ## Diff & Save
         Pa_Diff = M.Pa.PoP_Out_MdlN / f'SFR/Stg/Diff'
         Pa_Diff.mkdir(parents=True, exist_ok=True)
         (SFR_summer - RIV_summer).rio.to_raster(Pa_Diff / f'SFR_Stg_summer_AVG_{MdlN}_m_{Pa_RIV_Stg_Vs_summer.stem}.tif')
         (SFR_winter - RIV_winter).rio.to_raster(Pa_Diff / f'SFR_Stg_winter_AVG_{MdlN}_m_{Pa_RIV_Stg_Vs_winter.stem}.tif')
         (SFR_AVG - RIV_AVG).rio.to_raster(Pa_Diff / f'SFR_Stg_AVG_{MdlN}_m_RIV_Stg_AVG_{Pa_RIV_Stg_Vs_winter.stem.split('_')[-1]}.tif')
-
+        Path(output[0]).touch()
 
 rule p_HD_AVGs: # Process HD OBS Out Bin data into TIF files with AVG heads. Then Calc Diff to B
     input:
@@ -244,9 +249,9 @@ rule p_HD_AVGs: # Process HD OBS Out Bin data into TIF files with AVG heads. The
         log_HD_AVGs
     run:
         from WS_Mdl.imod.pop.hd import c_HD_Bin_AVGs
-        c_HD_Bin_AVGs(MdlN)
+        c_HD_Bin_AVGs(MdlN, end_year=PoP_end_year)
         Up_log(MdlN, {'p_HD_AVGs' :   1})
-        Path(output[0]).touch() # Create the file to mark the rule as done.
+        Path(output[0]).touch()
 
 
 rule p_HD_OBS_TS:
@@ -258,7 +263,7 @@ rule p_HD_OBS_TS:
         from WS_Mdl.imod.pop.hd import p_HD_OBS_TS
         p_HD_OBS_TS(MdlN)
         Up_log(MdlN, {'p_HD_OBS_TS' :   1})
-        Path(output[0]).touch() # Create the file to mark the rule as done.
+        Path(output[0]).touch()
 
 
 rule Diff_PoP_Param:
@@ -266,19 +271,19 @@ rule Diff_PoP_Param:
         log_SFR_Out,
         log_HD_AVGs
     output:
-        log_Diff_PoP_Param
+        log_Diff
     run:
-        from WS_Mdl.imod.pop.hd import c_HD_Diff_PoP_Param
-        for P in Diff_PoP_Param:
-            c_HD_Diff_PoP_Param(MdlN, M.B, P)
+        from WS_Mdl.xr.compare import Diff_PoP_Param
+        for P in l_Diff_PoP_Param:
+            Diff_PoP_Param(MdlN, M.B, P)
         Up_log(MdlN, {'Diff_PoP_Param' :   1})
-        Path(output[0]).touch() # Create the file to mark the rule as done.
+        Path(output[0]).touch()
 
 rule Up_MM:    
     input:
         log_HD_AVGs,
         log_PRJ_to_TIF,
-        log_Diff_PoP_Param,
+        log_Diff,
         M.Pa.PoP_Out_MdlN / f'GW_HD_OBS_TS/metadata.txt'
     output:
         log_Up_MM
@@ -288,4 +293,14 @@ rule Up_MM:
         Up_log(MdlN, {  'PoP end DT':   DT.now().strftime("%Y-%m-%d %H:%M:%S"),
                         'End Status':   'PoPed',
                         'Up_MM'     :   1}) # Update log
-        Path(output[0]).touch()     # Create the file to mark the rule as done.
+        Path(output[0]).touch()
+
+rule Upl_MdlN_PoP_Out: # Uploads the PoP Out files to iBridges. This is the final step of the workflow.
+    input:
+        log_Up_MM
+    output:
+        log_upload
+    run:
+        from WS_Mdl.io.ibridges import Upl_MdlN_PoP_Out
+        Upl_MdlN_PoP_Out(MdlN)
+        Path(output[0]).touch()

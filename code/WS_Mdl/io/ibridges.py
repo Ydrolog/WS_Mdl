@@ -6,7 +6,7 @@ from ibridges import IrodsPath as iPa
 from ibridges import Session, download, upload
 from tqdm import tqdm
 from WS_Mdl.core.defaults import Pa_WS
-from WS_Mdl.core.style import VERBOSE, Sep_2, blue, bold, sprint, style_reset, warn
+from WS_Mdl.core.style import VERBOSE, Sep, Sep_2, blue, bold, green, sprint, style_reset, warn
 
 __all__ = ['get_Pw']
 
@@ -167,3 +167,28 @@ def Dl(F: str, S: iB_session, on_error='warn', overwrite=False, subdir='research
                 for file in files:
                     decompress_and_clean(Path(root) / file)
     sprint(Sep_2, indent=1)
+
+
+def Upl_MdlN_PoP_Out(MdlN):
+    """
+    To be used after RunMng has finished running a Smk file. Uploads only PoPed Out and Smk related files (log, temp files, DAG)
+    """
+
+    sprint(Sep)
+    sprint(f'--- Upl_MdlN_PoP_Out({MdlN}) ... ', style=green)
+    S = iB_session()
+
+    # PoP files
+    sprint(' -- Uploading PoP Out files ...', set_time=True, end='')
+    Upl(f'models/{MdlN}/PoP/Out/{MdlN}', S, overwrite=True)  # PoP Out (most important)
+    Upl(f'models/{MdlN}/PoP/In', S, overwrite=True)  # PoP Out (most important)
+    sprint('🟢', print_time=True)
+
+    # Smk files
+    sprint(' -- Uploading Smk files ...', set_time=True, end='')
+    Upl(f'models/{MdlN}/code/snakemake/log', S, overwrite=True)
+    Upl(f'models/{MdlN}/code/snakemake/DAG', S, overwrite=True)
+    Upl(f'models/{MdlN}/code/snakemake/temp', S, overwrite=True)
+    sprint('🟢', print_time=True)
+
+    sprint(Sep)

@@ -11,7 +11,7 @@ __all__ = ['Diff_MBTIF', 'Diff_PoP_Param']
 def Diff_MBTIF(Pa_TIF1, Pa_TIF2, Pa_TIF_Out=None, verbose=True):
     """
     Calculates the difference between two Multi-band TIF files (TIF1 - TIF2).
-    Assumes both files have the same number of bands and dimensions.
+    Aligns both files by their labelled coordinates before subtraction.
     """
 
     Pa_TIF1, Pa_TIF2 = Path(Pa_TIF1), Path(Pa_TIF2)
@@ -28,8 +28,13 @@ def Diff_MBTIF(Pa_TIF1, Pa_TIF2, Pa_TIF_Out=None, verbose=True):
         da1 = ds1['band_data']
         da2 = ds2['band_data']
 
-        if da1.shape != da2.shape:
-            raise ValueError(f'Shapes do not match: {da1.shape} vs {da2.shape}')
+        if set(da1.dims) != set(da2.dims):
+            raise ValueError(f'Dimensions do not match: {da1.dims} vs {da2.dims}')
+
+        da1, da2 = xra.align(da1, da2, join='inner')
+        empty_dims = [dim for dim, size in da1.sizes.items() if size == 0]
+        if empty_dims:
+            raise ValueError(f'No overlapping coordinates for dimension(s): {empty_dims}')
 
         da_diff = da1 - da2
 
