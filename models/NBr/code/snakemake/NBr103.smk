@@ -71,6 +71,7 @@ log_HD_AVGs         =   Pa_temp / f"Log_HD_AVGs_{MdlN}"
 log_Up_MM           =   Pa_temp / f"Log_Up_MM_{MdlN}"
 log_SFR_Out         =   Pa_temp / f"Log_SFR_Out_{MdlN}"
 log_Diff            =   Pa_temp / f"Log_Diff_PoP_Param_{MdlN}"
+log_WB              =   Pa_temp / f"Log_WB_{MdlN}"
 log_upload          =   M.Pa.Smk.parent / f"Log_upload_{MdlN}"
 
 # --- Rules ---
@@ -279,7 +280,7 @@ rule Diff_PoP_Param:
         Up_log(MdlN, {'Diff_PoP_Param' :   1})
         Path(output[0]).touch()
 
-rule Up_MM:    
+rule Up_MM:
     input:
         log_HD_AVGs,
         log_PRJ_to_TIF,
@@ -295,9 +296,20 @@ rule Up_MM:
                         'Up_MM'     :   1}) # Update log
         Path(output[0]).touch()
 
+rule WB:
+    input:
+        log_Sim
+    output:
+        log_WB
+    run:
+        from WS_Mdl.imod.pop.wb import Diff_to_xlsx
+        Diff_to_xlsx(MdlN, M.B)
+        Path(output[0]).touch()
+
 rule Upl_MdlN_PoP_Out: # Uploads the PoP Out files to iBridges. This is the final step of the workflow.
     input:
-        log_Up_MM
+        log_Up_MM,
+        log_WB
     output:
         log_upload
     run:
