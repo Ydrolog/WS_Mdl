@@ -10,6 +10,7 @@ from WS_Mdl.core.defaults import CRS
 from WS_Mdl.core.mdl import Mdl_N
 from WS_Mdl.core.runtime import timed_Exe
 from WS_Mdl.core.style import Sep, green, sprint
+from WS_Mdl.core.text import replace_MdlN
 from WS_Mdl.imod.idf import HD_Out_to_DF
 from WS_Mdl.imod.prj import r_with_OBS
 from WS_Mdl.xr.convert import to_TIF
@@ -676,9 +677,13 @@ def p_HD_OBS_TS(MdlN, MdlN_B=True, MdlN_Pa_MF6=None, MdlN_B_Pa_MF6=None):
 
     # %% 6. Create GPKG
     DF_Mtc_T = DF_Mtc.round(3).T.drop('unit')
-    DF_GPKG = DF_Mtc_T.merge(
-        right=DF_OBS[['Id', 'X', 'Y', 'L', 'R', 'C', 'path']], how='left', left_index=True, right_on='Id'
-    ).drop_duplicates(subset='Id')
+    DF_GPKG = (
+        DF_Mtc_T.merge(
+            right=DF_OBS[['Id', 'X', 'Y', 'L', 'R', 'C', 'path']], how='left', left_index=True, right_on='Id'
+        )
+        .drop_duplicates(subset='Id')
+        .dropna(subset=['NSE'])
+    )
     DF_GPKG['path'] = DF_GPKG['Id'].apply(
         lambda x: f'file:///{(M.Pa.PoP_Out_MdlN / "GW_HD_OBS" / f"{x}.HTML").as_posix()}'
     )
@@ -843,12 +848,12 @@ def HD_Pctl_Diffs(MdlN_S: str, MdlN_B: str):
 
     for F in (M.Pa.PoP_Out_MdlN / 'GW_HD_Pct').glob('GW_HD_L*_P*.tif'):
         DA_S = rioxarray.open_rasterio(F)
-        Pa_B = str(F).replace(M.MdlN, MB.MdlN)
+        Pa_B = replace_MdlN(F, M.MdlN, MB.MdlN)
         print(Pa_B)
         DA_B = rioxarray.open_rasterio(Pa_B)
         DA_Diff = DA_S - DA_B
 
-        Pa_Out = F.parent / F.name.replace(M.MdlN, f'{M.MdlN}m{MB.N}')
+        Pa_Out = F.parent / replace_MdlN(F.name, M.MdlN, f'{M.MdlN}m{MB.N}')
         Pa_Out.parent.mkdir(parents=True, exist_ok=True)
 
         print(f'Saving {Pa_Out.name} ', end='')

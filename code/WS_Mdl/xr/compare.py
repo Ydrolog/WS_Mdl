@@ -3,12 +3,13 @@ from pathlib import Path
 import xarray as xra
 
 from WS_Mdl.core.style import set_verbose, sprint
+from WS_Mdl.core.text import replace_MdlN
 from WS_Mdl.xr.convert import to_MBTIF
 
 __all__ = ['Diff_MBTIF', 'Diff_PoP_Param']
 
 
-def Diff_MBTIF(Pa_TIF1, Pa_TIF2, Pa_TIF_Out=None, verbose=True):
+def Diff_MBTIF(Pa_TIF1, Pa_TIF2, band_name=None, Pa_TIF_Out=None, verbose=True):
     """
     Calculates the difference between two Multi-band TIF files (TIF1 - TIF2).
     Aligns both files by their labelled coordinates before subtraction.
@@ -38,7 +39,10 @@ def Diff_MBTIF(Pa_TIF1, Pa_TIF2, Pa_TIF_Out=None, verbose=True):
 
         da_diff = da1 - da2
 
-        d_MtDt = {f'Diff_Band_{i + 1}': {'description': f'Difference Band {i + 1}'} for i in range(da_diff.shape[0])}
+        band_name = band_name if band_name is not None else 'Diff'
+        d_MtDt = {
+            f'{band_name}_Band_{i + 1}': {'description': f'{band_name} Band {i + 1}'} for i in range(da_diff.shape[0])
+        }
 
         set_verbose(False)
         try:
@@ -76,10 +80,12 @@ def Diff_PoP_Param(
         raise FileNotFoundError(f"🔴 - No .tif files found for '{MdlN}' in: {Pa_PoP}")
 
     for Fi in l_Fi:
-        Fi_2 = Pa_PoP / Path(str(Fi).replace(MdlN, B))
-        Pa_Out = Fi.parent / Fi.name.replace(MdlN, f'{MdlN}m{"".join(i for i in B if i.isdigit())}')
+        Fi_2 = Pa_PoP / replace_MdlN(Fi, MdlN, B)
+        Pa_Out = Fi.parent / replace_MdlN(
+            Fi.name, MdlN, f'{MdlN}m{"".join(i for i in B if i.isdigit())}'
+        )
         # print(Pa_TIF_1, Pa_TIF_2, Pa_Out, end='\n---------------\n', sep='\n')
         try:
-            Diff_MBTIF(Fi, Fi_2, Pa_Out)
+            Diff_MBTIF(Fi, Fi_2, band_name=f'{MdlN}m{B}', Pa_TIF_Out=Pa_Out)
         except (FileNotFoundError, OSError) as e:
             print(f'🔴 - Missing/unreadable file(s) for:\n{Fi}:\n {e}', end='------------\n')

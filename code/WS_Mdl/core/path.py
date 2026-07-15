@@ -5,6 +5,7 @@ from pathlib import Path
 
 from WS_Mdl.core.defaults import Pa_WS
 from WS_Mdl.core.style import sprint
+from WS_Mdl.core.text import replace_MdlN
 
 __all__ = ['Pa_WS', 'Pa_RunLog', 'Pa_log_Out', 'Pa_log_Cfg', 'MdlN_Pa', 'imod_V', 'get_Mdl']
 
@@ -64,15 +65,6 @@ def MdlN_Pa(
     # 666 If load time of MdlN_B is minimal, it should be don by default.
     if iMOD5 is None:
         iMOD5 = imod_V(MdlN, iMOD5=iMOD5) == 'imod5'
-
-    def _replace_mdl_name(value, old_mdl: str, new_mdl: str):
-        if value is None:
-            return None
-        if isinstance(value, Path):
-            return Path(str(value).replace(old_mdl, new_mdl))
-        if isinstance(value, str):
-            return value.replace(old_mdl, new_mdl)
-        return value
 
     def _MdlN_Pa_maker(MdlN):
         ## Non paths + General paths
@@ -148,7 +140,10 @@ def MdlN_Pa(
 
         for k in list(d_Pa.keys()):
             if f'{k}_B' not in d_Pa:
-                d_Pa[f'{k}_B'] = _replace_mdl_name(d_Pa[k], MdlN, MdlN_B_str)
+                value = d_Pa[k]
+                d_Pa[f'{k}_B'] = (
+                    replace_MdlN(value, MdlN, MdlN_B_str) if isinstance(value, (str, Path)) else value
+                )
 
     return d_Pa
 

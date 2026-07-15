@@ -12,6 +12,7 @@ import pandas as pd
 import xarray as xra
 from WS_Mdl.core.mdl import Mdl_N
 from WS_Mdl.core.style import Sep, green, set_verbose, sprint
+from WS_Mdl.core.text import replace_MdlN
 from WS_Mdl.imod.idf import HD_Out_to_DF
 from WS_Mdl.xr.compare import Diff_MBTIF
 from WS_Mdl.xr.convert import to_MBTIF, to_TIF
@@ -120,9 +121,11 @@ def GXG_Diff(MdlN_1, MdlN_2):
 
     for Fi in l_GXG_Fi:
         Pa_TIF_1 = Pa_PoP_GXG / Fi.name
-        Pa_TIF_2 = Pa_PoP_GXG / Path(str(Fi).replace(MdlN_1, MdlN_2))
-        Pa_Out = Pa_TIF_1.parent / Pa_TIF_1.name.replace(
-            MdlN_1, f'{MdlN_1}m{"".join(i for i in MdlN_2 if i.isdigit())}'
+        Pa_TIF_2 = Pa_PoP_GXG / replace_MdlN(Fi, MdlN_1, MdlN_2)
+        Pa_Out = Pa_TIF_1.parent / replace_MdlN(
+            Pa_TIF_1.name,
+            MdlN_1,
+            f'{MdlN_1}m{"".join(i for i in MdlN_2 if i.isdigit())}',
         )
         # print(Pa_TIF_1, Pa_TIF_2, Pa_Out, end='\n---------------\n', sep='\n')
         try:

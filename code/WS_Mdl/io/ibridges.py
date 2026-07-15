@@ -6,6 +6,7 @@ from ibridges import IrodsPath as iPa
 from ibridges import Session, download, upload
 from tqdm import tqdm
 from WS_Mdl.core.defaults import Pa_WS
+from WS_Mdl.core.mdl import Mdl_N
 from WS_Mdl.core.style import VERBOSE, Sep, Sep_2, blue, bold, green, sprint, style_reset, warn
 
 __all__ = ['get_Pw']
@@ -178,17 +179,19 @@ def Upl_MdlN_PoP_Out(MdlN):
     sprint(f'--- Upl_MdlN_PoP_Out({MdlN}) ... ', style=green)
     S = iB_session()
 
+    M = Mdl_N(MdlN)
+
     # PoP files
     sprint(' -- Uploading PoP Out files ...', set_time=True, end='')
-    Upl(f'models/{MdlN}/PoP/Out/{MdlN}', S, overwrite=True)  # PoP Out (most important)
-    Upl(f'models/{MdlN}/PoP/In', S, overwrite=True)  # PoP Out (most important)
+    Upl(f'models/{M.alias}/PoP/Out/{MdlN}', S, overwrite=True)  # PoP Out (most important)
+    Upl(f'models/{M.alias}/PoP/In', S, overwrite=True)  # PoP Out (most important)
     sprint('🟢', print_time=True)
 
     # Smk files
     sprint(' -- Uploading Smk files ...', set_time=True, end='')
-    Upl(f'models/{MdlN}/code/snakemake/log', S, overwrite=True)
-    Upl(f'models/{MdlN}/code/snakemake/DAG', S, overwrite=True)
-    Upl(f'models/{MdlN}/code/snakemake/temp', S, overwrite=True)
+    Upl(f'models/{M.alias}/code/snakemake/log', S, overwrite=True)
+    Upl(f'models/{M.alias}/code/snakemake/DAG', S, overwrite=True)
+    Upl(f'models/{M.alias}/code/snakemake/temp', S, overwrite=True)
     sprint('🟢', print_time=True)
 
     sprint(Sep)

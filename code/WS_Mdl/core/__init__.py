@@ -16,6 +16,7 @@ _MOD_STYLE = 'WS_Mdl.core.style'
 _MOD_PATH = 'WS_Mdl.core.path'
 _MOD_LOG = 'WS_Mdl.core.log'
 _MOD_DEFAULTS = 'WS_Mdl.core.defaults'
+_MOD_TEXT = 'WS_Mdl.core.text'
 
 # Map exported public names to (module_path, attribute_name).
 # Keeping this explicit makes the public contract stable and easy to audit.
@@ -53,7 +54,8 @@ _EXPORTS_TO_MODULES = {
     'r_RunLog': (_MOD_LOG, 'r_RunLog'),
     'get_B': (_MOD_LOG, 'get_B'),
     # Text/IO helpers
-    'r_Txt_Lns': ('WS_Mdl.core.text', 'r_Txt_Lns'),
+    'r_Txt_Lns': (_MOD_TEXT, 'r_Txt_Lns'),
+    'replace_MdlN': (_MOD_TEXT, 'replace_MdlN'),
     # DataFrame accessor and runtime helpers
     'DFAccessor': ('WS_Mdl.core.df', 'DFAccessor'),
     # Timing utilities

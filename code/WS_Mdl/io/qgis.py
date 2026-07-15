@@ -1,58 +1,85 @@
-# import os
 import re
 import shutil as sh
 import sys
 import xml.etree.ElementTree as ET
 import zipfile as ZF
-from pathlib import Path
 
 from WS_Mdl.core.mdl import Mdl_N
 from WS_Mdl.core.style import Sep, sprint
+from WS_Mdl.core.text import replace_MdlN
 
 sys.excepthook = sys.__excepthook__
 
 
+def _update_layer_references(root, maplayer, replace_reference, datasource):
+    """Update the names and cached datasource of one layer throughout the QGIS XML."""
+
+    layer_id = maplayer.findtext('id')
+    layer_name = maplayer.find('layername')
+    if layer_name is not None and layer_name.text:
+        layer_name.text = replace_reference(layer_name.text)
+
+    if not layer_id:
+        return
+
+    for tree_layer in root.iter('layer-tree-layer'):
+        if tree_layer.get('id') == layer_id:
+            if tree_layer.get('name'):
+                tree_layer.set('name', replace_reference(tree_layer.get('name')))
+            # QGIS stores a second copy of the datasource in the layer tree.
+            tree_layer.set('source', datasource)
+
+    # Older QGIS project sections can also cache the display name.
+    for legend_layer in root.iter('legendlayer'):
+        if any(layer_file.get('layerid') == layer_id for layer_file in legend_layer.iter('legendlayerfile')):
+            if legend_layer.get('name'):
+                legend_layer.set('name', replace_reference(legend_layer.get('name')))
+
+
 def update_MM(MdlN, MdlN_MM_B=None):
-    """Updates the MM (QGIS projct containing model data)."""
+    """Copy a source MM project and update its resolvable layer references."""
 
     sprint(Sep)
     sprint(f' *****   Creating MM for {MdlN}   ***** ')
 
-    M = Mdl_N(
-        MdlN,
-    )
-    Pa_QGZ, Pa_QGZ_B = M.Pa.MM, M.Pa_B.MM
-    Mdl = M.alias
-
+    M = Mdl_N(MdlN)
     if MdlN_MM_B is not None:  # Replace MdlN_B with another MdlN if requested.
-        Pa_QGZ_B = Path(str(Pa_QGZ_B).replace(M.B, MdlN_MM_B))
+        M.Pa_B.MM = replace_MdlN(M.Pa_B.MM, M.B, MdlN_MM_B)
+    MdlN_MM_B = MdlN_MM_B or M.B
 
-    Pa_QGZ.parent.mkdir(parents=True, exist_ok=True)  # Ensure destination folder exists
-    print(Pa_QGZ_B, Pa_QGZ)
-    sh.copy(Pa_QGZ_B, Pa_QGZ)  # Copy the QGIS file
-    sprint(f'Copied QGIS project from {Pa_QGZ_B} to {Pa_QGZ}.\nUpdating layer path ...')
+    M_MM_B = Mdl_N(MdlN_MM_B)
+    comparison_pattern = re.compile(rf'{re.escape(MdlN_MM_B)}m(?:{re.escape(M_MM_B.alias)})?\d+(?!\d)')
+    comparison_replacement = f'{MdlN}m{M_MM_B.N}'
 
-    Pa_temp = Pa_QGZ.parent / 'temp'  # Path to temporarily extract QGZ contents
+    def replace_reference(value):
+        value = comparison_pattern.sub(lambda _: comparison_replacement, value)  # f"{Mdl}m{M_MM_B.N}" -> f"{Mdl}m{M.N}"
+        return replace_MdlN(value, MdlN_MM_B, MdlN)  # M.B -> MdlN
+
+    M.Pa.MM.parent.mkdir(parents=True, exist_ok=True)  # Ensure destination folder exists
+    print(M.Pa_B.MM, M.Pa.MM)
+    sh.copy(M.Pa_B.MM, M.Pa.MM)  # Copy the QGIS file
+    sprint(f'Copied QGIS project from {M.Pa_B.MM} to {M.Pa.MM}.\nUpdating layer path ...')
+
+    Pa_temp = M.Pa.MM.parent / 'temp'  # Path to temporarily extract QGZ contents
     Pa_temp.mkdir(parents=True, exist_ok=True)
 
-    with ZF.ZipFile(Pa_QGZ_B, 'r') as zip_ref:  # Unzip .qgz
+    with ZF.ZipFile(M.Pa_B.MM, 'r') as zip_ref:  # Unzip .qgz
         zip_ref.extractall(Pa_temp)
 
-    Pa_QGS = Pa_temp / Pa_QGZ_B.name.replace('.qgz', '.qgs')
+    Pa_QGS = Pa_temp / M.Pa_B.MM.name.replace('.qgz', '.qgs')
     # PJ(
     #     Pa_temp, LD(Pa_temp)[0]
-    # )  # Path to the unzipped QGIS project file. This used to be: Pa_QGS = PJ(Pa_temp, PBN(Pa_QGZ).replace('.qgz', '.qgs')), but the extracted file name may vary.
+    # )  # Path to the unzipped QGIS project file. This used to be: Pa_QGS = PJ(Pa_temp, PBN(M.Pa.MM).replace('.qgz', '.qgs')), but the extracted file name may vary.
     tree = ET.parse(Pa_QGS)
     root = tree.getroot()
 
-    # Update datasource paths
-    for i, DS in enumerate(root.iter('datasource')):
+    parent_by_child = {child: parent for parent in root.iter() for child in parent}
+
+    # Update datasource paths, suffixes, and linked QGIS layer names.
+    for DS in root.iter('datasource'):
         DS_text = DS.text
-        # sprint(i, DS_text)
 
         if not DS_text:
-            # sprint(' - X - Not text')
-            # sprint('-'*50)
             continue
 
         if '|' in DS_text:
@@ -60,29 +87,22 @@ def update_MM(MdlN, MdlN_MM_B=None):
         else:
             path, suffix = DS_text, ''
 
-        if Mdl in path:
-            matches = re.findall(rf'{re.escape(Mdl)}(\d+)', path)
-            if len(set(matches)) > 1:
-                sprint(f'🔴 ERROR: multiple non-identical {Mdl}Ns found in path: {path}\nmatches: {matches}')
-                # sys.exit('Fix the path containing non-identical MdlNs, then re-run me.')
-                continue
-            else:
-                MdlX = f'{Mdl}{matches[0]}'
+        Pa_X = replace_reference(path)
+        suffix_X = replace_reference(suffix)
+        if (Pa_X, suffix_X) == (path, suffix):
+            continue
 
-                Pa_full = (Pa_QGZ.parent / path.replace(MdlX, MdlN)).absolute()
-                if (MdlX != MdlN) and (Pa_full.exists()):
-                    Pa_X = path.replace(MdlX, MdlN)
-                    DS.text = f'{Pa_X}|{suffix}' if suffix else Pa_X
-                    sprint(f'  - 🟢 Updated {MdlX} → {MdlN} in {Pa_full}')
-                # else:
-                # sprint(" - OK (no change)")
-        # else:
-        #     sprint(" - No Mdl in path")
-        # sprint('-'*50)
+        Pa_full = (M.Pa.MM.parent / Pa_X).absolute()
+        if Pa_full.exists():
+            DS.text = f'{Pa_X}|{suffix_X}' if suffix_X else Pa_X
+            maplayer = parent_by_child.get(DS)
+            if maplayer is not None and maplayer.tag == 'maplayer':
+                _update_layer_references(root, maplayer, replace_reference, DS.text)
+            sprint(f'  - 🟢 Updated {MdlN_MM_B} → {MdlN} in {Pa_full}')
 
     tree.write(Pa_QGS, encoding='utf-8', xml_declaration=True)  # Save the modified .qgs file
 
-    with ZF.ZipFile(Pa_QGZ, 'w', ZF.ZIP_DEFLATED) as zipf:  # Zip back into .qgz
+    with ZF.ZipFile(M.Pa.MM, 'w', ZF.ZIP_DEFLATED) as zipf:  # Zip back into .qgz
         # Mirror the old os.walk behavior: include every file under temp with relative arcname.
         for filepath in Pa_temp.rglob('*'):
             if filepath.is_file():

@@ -12,6 +12,7 @@ from WS_Mdl.core.log import DF_match_MdlN, Up_log, get_B
 from WS_Mdl.core.mdl import Mdl_N
 from WS_Mdl.core.path import Pa_log_Cfg, Pa_log_Out, Pa_WS
 from WS_Mdl.core.style import Sep, bold, dim, sprint, style_reset, warn
+from WS_Mdl.core.text import replace_MdlN
 
 __all__ = ['RunMng']
 
@@ -32,7 +33,7 @@ def S_from_B(MdlN: str, iMOD5=False):
                 with open(Pa_S, 'r') as f1:
                     contents = f1.read()
                 with open(Pa_S, 'w') as f2:
-                    contents = contents.replace(MdlN_B, MdlN) if Pa_S.suffix.lower() != '.prj' else contents
+                    contents = replace_MdlN(contents, MdlN_B, MdlN) if Pa_S.suffix.lower() != '.prj' else contents
                     f2.write(contents)
                 if Pa_S.suffix.lower() == '.smk':
                     sp.Popen(['code', str(Pa_S)], shell=True)

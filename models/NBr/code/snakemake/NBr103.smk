@@ -68,7 +68,6 @@ log_add_SFR_OBS     =   Pa_temp / f"Log_add_SFR_OBS_all_reaches_{MdlN}"
 log_Sim             =   Pa_temp / f"Log_Sim_{MdlN}"
 log_PRJ_to_TIF      =   Pa_temp / f"Log_PRJ_to_TIF_{MdlN}"
 log_HD_AVGs         =   Pa_temp / f"Log_HD_AVGs_{MdlN}"
-log_Up_MM           =   Pa_temp / f"Log_Up_MM_{MdlN}"
 log_SFR_Out         =   Pa_temp / f"Log_SFR_Out_{MdlN}"
 log_Diff            =   Pa_temp / f"Log_Diff_PoP_Param_{MdlN}"
 log_WB              =   Pa_temp / f"Log_WB_{MdlN}"
@@ -84,7 +83,8 @@ onerror: fail
 
 rule all: # Final rule
     input:
-        log_upload
+        log_upload,
+        M.Pa.MM
 
 ## -- PrP --
 rule log_Init: # Sets status to running, and writes other info about therun. Has to complete before anything else.
@@ -287,14 +287,13 @@ rule Up_MM:
         log_Diff,
         M.Pa.PoP_Out_MdlN / f'GW_HD_OBS_TS/metadata.txt'
     output:
-        log_Up_MM
+        M.Pa.MM
     run:
         from WS_Mdl.io.qgis import update_MM
         update_MM(MdlN, MdlN_MM_B=MdlN_MM_B)      # Update MM 
         Up_log(MdlN, {  'PoP end DT':   DT.now().strftime("%Y-%m-%d %H:%M:%S"),
                         'End Status':   'PoPed',
                         'Up_MM'     :   1}) # Update log
-        Path(output[0]).touch()
 
 rule WB:
     input:
@@ -308,7 +307,7 @@ rule WB:
 
 rule Upl_MdlN_PoP_Out: # Uploads the PoP Out files to iBridges. This is the final step of the workflow.
     input:
-        log_Up_MM,
+        M.Pa.MM,
         log_WB
     output:
         log_upload
