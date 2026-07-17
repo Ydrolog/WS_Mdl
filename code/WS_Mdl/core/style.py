@@ -46,6 +46,7 @@ CuCh = {  # Stands for Custom Characters.
 
 VERBOSE = True  # Use set_verbose to change this to False and get no information printed to the console.
 START_TIME = 0.0
+START_TIME2 = 0.0
 
 
 def set_verbose(v: bool):
@@ -74,16 +75,26 @@ def sprint(
     verbose_in: bool = None,
     verbose_out: bool = None,
     set_time: bool = False,
+    set_time2: bool = False,
     print_time: bool = False,
+    print_time2: bool = False,
     print_time_first: bool = False,
     **kwargs,
 ):
     """
-    Special print function. Allows easy indentation (2 spaces per 1 indent level) and easy styling.
-    Allows for setting VERBOSE prior and after printing, so set_verbose doesn't have to be used all the time separately.
-    Can also track and print elapsed time using set_time and print_time.
+    ----- Special print function. -----
+    indent: Allows easy indentation (2 spaces per 1 indent level) and easy styling.
+    style: Style in which the text is printed. e.g. bold, dim, red, green, blue, etc. (as defined above), or any ANSI style code.
+    verbose_in: Sets VERBOSE prior to printing, so that the print can be suppressed if desired.
+    verbose_out: Sets VERBOSE after printing, so that the print can be suppressed if desired.
+    set_time: Sets a timer to track elapsed time for subsequent prints.
+    set_time2: Sets a second timer to track elapsed time for subsequent prints. e.g. when use set_time to plot time for each file processed, and set_time2 to plot time for all together.
+    print_time: Prints the elapsed time since the last set_time.
+    print_time2: Prints the elapsed time since the last set_time2.
+    print_time_first: Prints the elapsed time since the last set_time, before printing the message.
     """
     global START_TIME
+    global START_TIME2
 
     if verbose_in is not None:
         globals()['set_verbose'](verbose_in)
@@ -99,6 +110,13 @@ def sprint(
 
     if set_time:
         START_TIME = time.time()
+
+    if print_time2:
+        elapsed = time.time() - START_TIME2
+        time_str += f' [{elapsed:.1f} s]'
+
+    if set_time2:
+        START_TIME2 = time.time()
 
     if VERBOSE:
         args_fmt = tuple(_highlight_MdlN(str(arg), style) for arg in args)  # Highlights Mdl_N instances.

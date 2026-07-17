@@ -64,7 +64,7 @@ def Par_to_Rst(MdlN: str, Par: str | list, CRS: str = CRS, Pa_SFR=None, iMOD5=Fa
     sprint(f' -- Creating rasters for {len(l_Par)} parameter(s): {l_Par}')
     d_A = {}
     for Par in l_Par:
-        sprint(f' - {Par} ... ', set_time=True)
+        sprint(f'  - {Par} ... ', set_time=True)
         Pa_Out = PJ(M.Pa.PoP, f'In/SFR/{MdlN}/SFR_{Par}_{MdlN}.tif')
 
         # %% Create & Fill Array

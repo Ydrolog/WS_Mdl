@@ -10,7 +10,7 @@ from WS_Mdl.core.style import Sep, Sep_2, green, set_verbose, sprint, style_rese
 
 # %% End of default imports
 
-__all__ = ['c_Stg_AVGs']
+__all__ = ['c_Stg_AVGs', 'SFR_CBC_to_DS', 'SFR_CBC_Param_to_TIF']
 
 
 def c_Stg_Pctl(MdlN: str, Pctls: list = [5, 10, 50, 90, 95]):  # 666 Finish it off and add to Smk procedure
@@ -660,3 +660,195 @@ def stage_TS(
 
                 sprint('\n'.join(err_lines))
                 sprint('    Please try again.')
+
+
+def _read_SFR_CBC_timestep(
+    Pa_CBC,
+    header,
+    dtype,
+    shape,
+    reach_to_cell,
+    downstream_pair_codes=None,
+    pair_stride=None,
+):  # vibe-coded
+    """Read one SFR budget record and aggregate its reaches onto the model grid."""
+    from imod.mf6.out.cbc import read_imeth6_budgets
+
+    table = read_imeth6_budgets(Pa_CBC, header.nlist, dtype, header.pos)
+    reach = table['id1'].astype(np.int64, copy=False)
+    valid = (reach >= 0) & (reach < reach_to_cell.size)
+    values = table['budget']
+    if downstream_pair_codes is not None:
+        pair_codes = reach * pair_stride + table['id2']
+        valid &= np.isin(pair_codes, downstream_pair_codes)
+        values = -values
+
+    indices = np.full(reach.shape, -1, dtype=np.int64)
+    indices[valid] = reach_to_cell[reach[valid]]
+    valid &= indices >= 0
+
+    out = np.full(np.prod(shape), np.nan, dtype=np.float64)
+    indices = indices[valid]
+    out[np.unique(indices)] = 0.0
+    np.add.at(out, indices, values[valid])
+    return out.reshape(shape)
+
+
+def SFR_CBC_to_DS(MdlN: str, Pa_CBC: str = None) -> xra.Dataset:
+    """
+    Lazily read all SFR CBC parameters into a model-grid Dataset.
+
+    Values are summed when multiple reaches or connections occur in one cell.
+    For ``flow-ja-face``, each connection is assigned to its source reach cell.
+    CBC elapsed times are converted to dates relative to the model start date.
+    """
+    import dask.array as dsa
+    from dask import delayed
+    from imod.mf6.out.cbc import Imeth6Header, read_cbc_headers
+    from WS_Mdl.imod.sfr.info import SFR_ConnD_to_DF, SFR_PkgD_to_DF
+
+    M = Mdl_N(MdlN)
+    Pa_CBC = M.Pa.MF6 / f'{M.MdlN}.SFR6.cbc' if Pa_CBC is None else Pa_CBC
+    headers = read_cbc_headers(Pa_CBC)
+
+    DF_SFR = SFR_PkgD_to_DF(MdlN, Calc_Cond=False)
+    cell_data = DF_SFR[['rno', 'k', 'i', 'j']].dropna().astype(np.int64)
+    shape = (M.N_L, M.N_R, M.N_C)
+    reach_to_cell = np.full(int(DF_SFR['rno'].max()) + 1, -1, dtype=np.int64)
+    reach_to_cell[cell_data['rno']] = (
+        (cell_data['k'] - 1) * M.N_R * M.N_C + (cell_data['i'] - 1) * M.N_C + cell_data['j'] - 1
+    )
+
+    pair_stride = reach_to_cell.size
+    DF_Conn = SFR_ConnD_to_DF(MdlN)
+    downstream_pair_codes = np.array(
+        [
+            reach * pair_stride - connection
+            for reach, connections in DF_Conn[['reach_N', 'connections']].itertuples(index=False)
+            for connection in connections
+            if connection < 0
+        ],
+        dtype=np.int64,
+    )
+
+    data_vars = {}
+    time = None
+    for Par, header_list in headers.items():
+        if not all(isinstance(header, Imeth6Header) for header in header_list):
+            continue
+
+        Par_time = np.array([header.totim for header in header_list])
+        if time is None:
+            time = Par_time
+        elif not np.array_equal(time, Par_time):
+            raise ValueError(f'Time coordinates differ for SFR CBC parameter {Par!r}.')
+
+        dtype = np.dtype(
+            [('id1', np.int32), ('id2', np.int32), ('budget', np.float64)]
+            + [(name, np.float64) for name in header_list[0].auxtxt]
+        )
+        data_vars[Par] = (
+            ('time', 'layer', 'y', 'x'),
+            dsa.stack(
+                [
+                    dsa.from_delayed(
+                        delayed(_read_SFR_CBC_timestep)(str(Pa_CBC), header, dtype, shape, reach_to_cell),
+                        shape=shape,
+                        dtype=np.float64,
+                    )
+                    for header in header_list
+                ]
+            ),
+        )
+        if Par == 'flow-ja-face_sfr':
+            data_vars['downstream-flow_sfr'] = (
+                ('time', 'layer', 'y', 'x'),
+                dsa.stack(
+                    [
+                        dsa.from_delayed(
+                            delayed(_read_SFR_CBC_timestep)(
+                                str(Pa_CBC),
+                                header,
+                                dtype,
+                                shape,
+                                reach_to_cell,
+                                downstream_pair_codes,
+                                pair_stride,
+                            ),
+                            shape=shape,
+                            dtype=np.float64,
+                        )
+                        for header in header_list
+                    ]
+                ),
+            )
+
+    if not data_vars:
+        raise ValueError(f'No IMETH=6 SFR budget parameters found in {Pa_CBC}.')
+
+    time = M.SP_1st_DT + pd.to_timedelta(time - 1, unit='D')
+    return xra.Dataset(
+        data_vars,
+        coords={
+            'time': time,
+            'layer': np.arange(1, M.N_L + 1),
+            'y': M.Ys,
+            'x': M.Xs,
+        },
+        attrs={
+            'source': str(Pa_CBC),
+            'aggregation': 'sum per model cell; flow-ja-face assigned by source reach',
+        },
+    ).rio.write_crs('EPSG:28992')
+
+
+def SFR_CBC_Param_to_TIF(MdlN, Par='all'):
+
+    # %% Read CBC
+    sprint(Sep)
+    sprint('----- Exporting SFR CBC parameters to TIFs -----', style=green)
+    sprint(f'--- Reading {MdlN} CBC DS ... ', end='', set_time=True, verbose_out=False)
+    M = Mdl_N(MdlN)
+
+    DS = SFR_CBC_to_DS(MdlN)
+
+    if isinstance(Par, str):
+        if Par.lower() == 'all':
+            l_Par = list(DS.data_vars)
+        else:
+            if Par not in DS.data_vars:
+                sprint('🔴', print_time=True)
+                raise ValueError(f"'{Par}' not in DS data vars: {list(DS.data_vars)}. Cannot proceed.")
+            l_Par = [Par]
+    else:
+        l_Par = list(Par)
+        for Par in l_Par:
+            if Par not in DS.data_vars:
+                sprint('🔴', print_time=True)
+                raise ValueError(f"'{Par}' (in {l_Par}) not in DS data vars: {list(DS.data_vars)}. Cannot proceed.")
+
+    summer = (3 < DS.time.dt.month) & (DS.time.dt.month < 10)
+    winter = ~summer
+    sprint('🟢', print_time=True, verbose_in=True)
+
+    # %%
+    sprint('--- Exporting SFR CBC parameters to TIFs ... ', set_time2=True)
+    for V in DS.data_vars:
+        if (
+            DS[V].isel(time=0, layer=0).min().values != DS[V].isel(time=0, layer=0).max().values
+        ) and V in l_Par:  # Assumes As with no meaningful values are constant across time and layer (min==0.0==max)
+            sprint(f'  - Exporting {V: >20} to TIF ... ', end='', set_time=True)
+            Par = V.split('_')[0]
+            Pa_Out = M.Pa.PoP_Out_MdlN / f'SFR/{Par}'
+            Pa_Out.mkdir(parents=True, exist_ok=True)
+
+            DS[V].sel(time=summer).mean(dim=['time', 'layer']).rio.to_raster(Pa_Out / f'{Par}_summer_AVG_{MdlN}.tif')
+            DS[V].sel(time=winter).mean(dim=['time', 'layer']).rio.to_raster(Pa_Out / f'{Par}_winter_AVG_{MdlN}.tif')
+            DS[V].mean(dim=['time', 'layer']).rio.to_raster(Pa_Out / f'{Par}_AVG_{MdlN}.tif')
+
+            # 666 quantiles can be added
+
+            sprint('🟢', print_time=True)
+
+    sprint('--- 🟢🟢🟢', print_time2=True)
+    sprint(Sep)
