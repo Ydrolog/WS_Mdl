@@ -30,7 +30,7 @@ Pa_clip = (
     Pa_WS / r'models\NBr\PoP\common\Pgn\Chaamse_beek\catchment_chaamsebeek_ulvenhout.shp'
 )  # Area to clip MSW qrun to; this should be the catchment boundary of the outlet we're analyzing.
 
-l_Sims = ['NBr100', 'NBr101', 'NBr102']
+l_Sims = ['NBr100', 'NBr101', 'NBr102', 'NBr103']
 
 X_outlet, Y_outlet = 114213.79, 394950.96  # To get P for correct cell.
 

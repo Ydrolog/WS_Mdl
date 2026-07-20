@@ -129,7 +129,7 @@ def GXG_Diff(MdlN_1, MdlN_2):
         )
         # print(Pa_TIF_1, Pa_TIF_2, Pa_Out, end='\n---------------\n', sep='\n')
         try:
-            Diff_MBTIF(Pa_TIF_1, Pa_TIF_2, Pa_Out)
+            Diff_MBTIF(Pa_TIF_1, Pa_TIF_2, Pa_TIF_Out=Pa_Out)
         except (FileNotFoundError, OSError) as e:
             print(f'🔴 - Missing/unreadable file(s) for {Fi}: {e}')
 

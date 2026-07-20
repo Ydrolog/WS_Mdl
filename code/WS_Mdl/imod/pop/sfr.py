@@ -3,6 +3,7 @@
 import numpy as np
 import pandas as pd
 import rioxarray  # Noqa: F401
+import WS_Mdl.core.df  # noqa: F401
 import xarray as xra
 from WS_Mdl.core.mdl import Mdl_N
 from WS_Mdl.core.runtime import timed_Exe
@@ -10,7 +11,7 @@ from WS_Mdl.core.style import Sep, Sep_2, green, set_verbose, sprint, style_rese
 
 # %% End of default imports
 
-__all__ = ['c_Stg_AVGs', 'SFR_CBC_to_DS', 'SFR_CBC_Param_to_TIF']
+__all__ = ['c_Stg_AVGs', 'SFR_CBC_to_DS', 'SFR_CBC_Par_to_TIF']
 
 
 def c_Stg_Pctl(MdlN: str, Pctls: list = [5, 10, 50, 90, 95]):  # 666 Finish it off and add to Smk procedure
@@ -109,9 +110,18 @@ def c_Stg_AVGs(MdlN, start_year: str = 'from_INI', end_year: str = 'from_INI'):
     DF_AVG = DF_AVG.ws.Calc_XY(M.Xmin, M.Ymax, M.cellsize)
 
     # %% Convert to DA
+    Rmin, Rmax = DF_AVG['R'].min(), DF_AVG['R'].max()
+    Cmin, Cmax = DF_AVG['C'].min(), DF_AVG['C'].max()
     DA = DF_AVG.set_index(['y', 'x'])[
         ['Stg_summer_AVG', 'Stg_winter_AVG', 'Stg_winter_m_summer_AVG', 'Stg_AVG']
     ].to_xarray()
+
+    # Entire rows or columns can be absent when no SFR reaches occur in them.
+    # Restore those cells as NaN so rioxarray sees a regular model grid and
+    # writes the requested model cell size instead of averaging coordinate gaps.
+    x = M.Xmin + (np.arange(Cmin, Cmax + 1) - 0.5) * M.cellsize
+    y = M.Ymax - (np.arange(Rmin, Rmax + 1) - 0.5) * M.cellsize
+    DA = DA.reindex(x=x, y=y)
     sprint('🟢', print_time=True)
 
     # %% Load rtp (for depth Calcs)
@@ -802,7 +812,7 @@ def SFR_CBC_to_DS(MdlN: str, Pa_CBC: str = None) -> xra.Dataset:
     ).rio.write_crs('EPSG:28992')
 
 
-def SFR_CBC_Param_to_TIF(MdlN, Par='all'):
+def SFR_CBC_Par_to_TIF(MdlN, Par='all'):
 
     # %% Read CBC
     sprint(Sep)

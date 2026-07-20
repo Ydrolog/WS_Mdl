@@ -58,7 +58,7 @@ Pa_RIV_Stg_Vs_winter = Path(r'G:/models/NBr/In/RIV/NBr49/RIV_Stg_main_winter_NBr
 Pa_RIV_Stg_Vs_summer = Path(r'G:/models/NBr/In/RIV/NBr49/RIV_Stg_main_summer_NBr49.IDF')
     # start_year
 PoP_end_year = 2001
-l_Diff_PoP_Param = ['SFR/Stg', 'SFR/from-mvr', 'SFR/downstream-flow', 'GW_HD_AVGs/L1']
+l_Diff_PoP_Param = ['SFR/Stg', 'SFR/from-mvr', 'SFR/downstream-flow', 'SFR/gwf', 'GW_HD_AVGs/L1']
 
 ## Completion validation. If you want to re-run a rule, delete the coresponding temp file.
 Pa_temp             =   M.Pa.Smk.parent / 'temp'
@@ -279,7 +279,7 @@ rule Diff_PoP_Param:
         from WS_Mdl.xr.compare import Diff_PoP_Param
         for P in l_Diff_PoP_Param:
             Diff_PoP_Param(MdlN, M.B, P)
-        Up_log(MdlN, {'Diff_PoP_Param' :   1})
+        Up_log(MdlN, {'Diff_PoP_Param' :   l_Diff_PoP_Param})
 
 rule Up_MM:
     input:

@@ -1,12 +1,112 @@
 from pathlib import Path
 
+import numpy as np
+import rasterio
 import xarray as xra
+from rasterio.enums import Resampling
+from rasterio.transform import from_origin
+from rasterio.warp import reproject, transform_bounds
 
 from WS_Mdl.core.style import set_verbose, sprint
 from WS_Mdl.core.text import replace_MdlN
 from WS_Mdl.xr.convert import to_MBTIF
 
-__all__ = ['Diff_MBTIF', 'Diff_PoP_Param']
+__all__ = ['Diff_TIF', 'Diff_MBTIF', 'Diff_PoP_Par']
+
+
+def Diff_TIF(Pa_TIF1, Pa_TIF2, Pa_TIF_Out=None, band_name='Diff', resampling='nearest', verbose=True):
+    """Calculate ``TIF1 - TIF2`` for two single-band GeoTIFFs.
+
+    The output covers the union of both extents and is aligned to the grid of
+    the raster with the larger spatial extent. The other raster is reprojected
+    onto that grid. Cells not covered by both inputs are written as NoData.
+
+    Parameters
+    ----------
+    resampling : str
+        A name from :class:`rasterio.enums.Resampling`. ``'nearest'`` avoids
+        inventing intermediate values; ``'bilinear'`` can be useful for
+        continuous surfaces such as groundwater heads.
+    """
+    Pa_TIF1, Pa_TIF2 = Path(Pa_TIF1), Path(Pa_TIF2)
+    Pa_TIF_Out = Path(Pa_TIF_Out) if Pa_TIF_Out is not None else Pa_TIF1.with_name(f'{Pa_TIF1.stem}_diff.tif')
+
+    try:
+        resampling_method = Resampling[resampling]
+    except KeyError as e:
+        choices = ', '.join(Resampling.__members__)
+        raise ValueError(f'Unknown resampling method {resampling!r}. Choose from: {choices}') from e
+
+    if verbose:
+        sprint(f'Calculating difference: {Pa_TIF1.name} - {Pa_TIF2.name}')
+
+    with rasterio.open(Pa_TIF1) as src1, rasterio.open(Pa_TIF2) as src2:
+        if src1.count != 1 or src2.count != 1:
+            raise ValueError(f'Diff_TIF requires single-band inputs; got {src1.count} and {src2.count} bands.')
+        if src1.crs is None or src2.crs is None:
+            raise ValueError('Both input TIFFs must have a CRS.')
+
+        bounds2 = transform_bounds(src2.crs, src1.crs, *src2.bounds, densify_pts=21)
+        area1 = (src1.bounds.right - src1.bounds.left) * (src1.bounds.top - src1.bounds.bottom)
+        area2 = (bounds2[2] - bounds2[0]) * (bounds2[3] - bounds2[1])
+        template = src1 if area1 >= area2 else src2
+        target_crs = template.crs
+
+        bounds1 = transform_bounds(src1.crs, target_crs, *src1.bounds, densify_pts=21)
+        bounds2 = transform_bounds(src2.crs, target_crs, *src2.bounds, densify_pts=21)
+        left = min(bounds1[0], bounds2[0])
+        bottom = min(bounds1[1], bounds2[1])
+        right = max(bounds1[2], bounds2[2])
+        top = max(bounds1[3], bounds2[3])
+
+        xres, yres = abs(template.transform.a), abs(template.transform.e)
+        anchor_x, anchor_y = template.transform.c, template.transform.f
+        left = anchor_x + np.floor((left - anchor_x) / xres) * xres
+        right = anchor_x + np.ceil((right - anchor_x) / xres) * xres
+        top = anchor_y + np.ceil((top - anchor_y) / yres) * yres
+        bottom = anchor_y + np.floor((bottom - anchor_y) / yres) * yres
+        width = int(round((right - left) / xres))
+        height = int(round((top - bottom) / yres))
+        transform = from_origin(left, top, xres, yres)
+
+        aligned = []
+        for src in (src1, src2):
+            data = np.full((height, width), np.nan, dtype=np.float32)
+            reproject(
+                source=rasterio.band(src, 1),
+                destination=data,
+                src_transform=src.transform,
+                src_crs=src.crs,
+                src_nodata=src.nodata,
+                dst_transform=transform,
+                dst_crs=target_crs,
+                dst_nodata=np.nan,
+                resampling=resampling_method,
+            )
+            aligned.append(data)
+
+        diff = aligned[0] - aligned[1]
+        profile = template.profile.copy()
+        profile.update(
+            driver='GTiff',
+            height=height,
+            width=width,
+            count=1,
+            dtype='float32',
+            crs=target_crs,
+            transform=transform,
+            nodata=np.nan,
+        )
+        Pa_TIF_Out.parent.mkdir(parents=True, exist_ok=True)
+        with rasterio.open(Pa_TIF_Out, 'w', **profile) as dst:
+            dst.write(diff, 1)
+            dst.set_band_description(1, band_name)
+            dst.update_tags(1, description=band_name)
+
+    if verbose:
+        sprint(f'🟢 - Difference saved to {Pa_TIF_Out}')
+
+    return Pa_TIF_Out
 
 
 def Diff_MBTIF(Pa_TIF1, Pa_TIF2, band_name=None, Pa_TIF_Out=None, verbose=True):
@@ -57,7 +157,7 @@ def Diff_MBTIF(Pa_TIF1, Pa_TIF2, band_name=None, Pa_TIF_Out=None, verbose=True):
         ds2.close()
 
 
-def Diff_PoP_Param(
+def Diff_PoP_Par(
     MdlN,
     B: str = None,
     Param: str = 'all',
@@ -81,11 +181,13 @@ def Diff_PoP_Param(
 
     for Fi in l_Fi:
         Fi_2 = Pa_PoP / replace_MdlN(Fi, MdlN, B)
-        Pa_Out = Fi.parent / replace_MdlN(
-            Fi.name, MdlN, f'{MdlN}m{"".join(i for i in B if i.isdigit())}'
-        )
+        Pa_Out = Fi.parent / replace_MdlN(Fi.name, MdlN, f'{MdlN}m{"".join(i for i in B if i.isdigit())}')
         # print(Pa_TIF_1, Pa_TIF_2, Pa_Out, end='\n---------------\n', sep='\n')
         try:
-            Diff_MBTIF(Fi, Fi_2, band_name=f'{MdlN}m{B}', Pa_TIF_Out=Pa_Out)
+            try:
+                Diff_TIF(Fi, Fi_2, band_name=f'{MdlN}m{B}', Pa_TIF_Out=Pa_Out)
+            except Exception as e:
+                print(type(e), e)
+                Diff_MBTIF(Fi, Fi_2, band_name=f'{MdlN}m{B}', Pa_TIF_Out=Pa_Out)
         except (FileNotFoundError, OSError) as e:
             print(f'🔴 - Missing/unreadable file(s) for:\n{Fi}:\n {e}', end='------------\n')
