@@ -90,5 +90,5 @@ pixi add --pypi "rasterio>=1.3"
 			$p=Start-Process msiexec -Wait -PassThru -ArgumentList '/i "G:\software\installers\7z2601-x64.msi" /qn /norestart'; if($p.ExitCode -in 0,3010){$z="C:\Program Files\7-Zip"; $old=[Environment]::GetEnvironmentVariable("Path","User"); if($old -notlike "*$z*"){[Environment]::SetEnvironmentVariable("Path", "$old;$z", "User")}; $env:Path += ";$z"; "Installed. ExitCode: $($p.ExitCode). 7z added to user PATH."} else {"Install failed. ExitCode: $($p.ExitCode)"}
 		7z a -t7z e:\models\NBr\Sim\NBr77.7z e:\models\NBr\Sim\NBr77_ -mx=1 -mmt=on
 
-3. It's possible to connect YoDa as a drive (right click This PC -> Map Network Drive -> Folder: https://geo.yoda.uu.nl, password: get one from https://geo.yoda.uu.nl/user/data_access and copy it to C:\Users\<User>\.irods\Pw.txt (reverse the Pw string, iB_get_Pw will reverse it back by default - small safety feature), or remember it some other way.
+3. It's possible to connect YoDa as a drive (right click This PC -> Map Network Drive -> Folder: https://geo.data.uu.nl/, password: get one from https://geo.yoda.uu.nl/user/data_access and copy it to C:\Users\<User>\.irods\Pw.txt (reverse the Pw string, iB_get_Pw will reverse it back by default - small safety feature), or remember it some other way.
 -----------------------------------------

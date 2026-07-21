@@ -1,6 +1,6 @@
 import xarray as xra
 from WS_Mdl.core.mdl import Mdl_N
-from WS_Mdl.core.style import sprint
+from WS_Mdl.core.style import get_verbose, sprint
 from WS_Mdl.imod.ini import Mdl_Dmns
 
 
@@ -14,6 +14,7 @@ def clip_Mdl_area(
     x_dim: str = 'x',
     y_dim: str = 'y',
     L_dim: str = 'layer',
+    verbose: bool = False,
 ) -> xra.DataArray | xra.Dataset:
     """
     Clips an xarray DataArray or Dataset to the model area defined in an INI file, with optional layer subsetting.
@@ -49,6 +50,7 @@ def clip_Mdl_area(
     ValueError
         If neither MdlN nor Pa_INI is provided, or if required dimensions are missing
     """
+    verbose_init = get_verbose()
 
     # Get INI file path
     if Pa_INI is None:
@@ -66,7 +68,7 @@ def clip_Mdl_area(
     if y_dim not in xr_data.coords:
         raise ValueError(f"Y dimension '{y_dim}' not found in data coordinates: {list(xr_data.coords.keys())}")
 
-    sprint(f'Clipping xarray data to model area: X=[{Xmin}, {Xmax}], Y=[{Ymin}, {Ymax}]')
+    sprint(f'Clipping xarray data to model area: X=[{Xmin}, {Xmax}], Y=[{Ymin}, {Ymax}]', verbose=verbose)
 
     # Check y-coordinate order and adjust slice accordingly
     y_coords = xr_data.coords[y_dim].values
@@ -93,5 +95,5 @@ def clip_Mdl_area(
     elif l_L is not None or Lmin is not None or Lmax is not None:
         sprint(f"Warning: Layer subsetting requested but dimension '{L_dim}' not found in data")
 
-    sprint('🟢🟢 - Successfully clipped xarray data to model area')
+    sprint('🟢🟢 - Successfully clipped xarray data to model area', verbose_out=verbose_init)
     return clipped
