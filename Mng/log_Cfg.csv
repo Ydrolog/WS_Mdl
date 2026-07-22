@@ -188,9 +188,10 @@ Realised budget doesn't contain stages, so I tried to produce both CSV OBS and B
 "102","NBr","102","NBr102","101","NBr101","MK","Test","RIV #6.3 (SFR Stg): Compare against NBr101 -> Differences in data. Compare against 100 -> Differences in methods.
 - 2000-2002","Queued","Completed"
 "103","NBr","103","NBr103","100","NBr100","MK","Test","SFRmaker #5.1: Detailed SFR Nw","Queued","PoPed"
-"104","NBr","104","NBr104","103","NBr103","MK","Test","SFRmaker #5.1.1: Detailed SFR Nw - RIV 3ry removed this time…","Development",""
-"0","","","","","","","","0","",""
-"0","","","","","","","","0","",""
+"104","NBr","104","NBr104","100","NBr100","MK","Test","SFRmaker #5.1.1: Detailed SFR Nw - RIV 3ry removed this time…","Queued",""
+"105","NBr","105","NBr105","104","NBr104","MK","Test","SFRmaker #4.7: SFR Main + RIV detail with NBr104 detail stages.","Development",""
+"106","NBr","106","NBr106","101","NBr101","MK","Test","RIV #5.3.1 (RIV Stg): Long Sim
+- 2010-2019","Development",""
 "0","","","","","","","","0","",""
 "0","","","","","","","","0","",""
 "0","","","","","","","","0","",""

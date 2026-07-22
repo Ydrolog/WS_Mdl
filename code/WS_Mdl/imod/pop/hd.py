@@ -225,7 +225,7 @@ def p_HD_OBS_TS(MdlN, MdlN_B=True, MdlN_Pa_MF6=None, MdlN_B_Pa_MF6=None):
     sprint('🟢')
 
     # %% 4. Def HtML plot function + prep folder
-    sprint('--- Plotting...')
+    sprint('--- Plotting ...')
 
     def Plot1(MdlN_S, MdlN_B, DF, Id, adj_min, adj_max, DF_Pct, DF_Mtc, Pa_Fo_HTML, X, Y, L, R, C_1):
         import numpy as np
@@ -609,9 +609,9 @@ def p_HD_OBS_TS(MdlN, MdlN_B=True, MdlN_Pa_MF6=None, MdlN_B_Pa_MF6=None):
             yaxis=dict(automargin=True),
         )
 
-        print(f'Saving {Id:<20}', end='')
+        sprint(f'Saving {Id:<20}', end='', indent=2)
         fig.write_html(Pa_Fo_HTML / f'{Id}.HTML')
-        print('🟢')
+        sprint('🟢')
 
     Pa_Fo_HTML_1 = M.Pa.PoP_Out_MdlN / 'GW_HD_OBS'
     Pa_Fo_HTML_2 = M.Pa.PoP_Out_MdlN / 'GW_HD_OBS/problematic'

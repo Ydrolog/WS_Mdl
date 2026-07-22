@@ -40,7 +40,7 @@ SFR_OBS_all         =   ['stage'] # ['sfr', 'downstream-flow', 'inflow', 'stage'
 SFR_options         =   [f'OBS6 FILEIN {M.Pa.Sim_In / (MdlN + ".SFR6.obs")}',
                         f'BUDGET FILEOUT {MdlN}.SFR6.cbc', # 666 Remove this if it doesn't contain any useful info
                         # 'AUXILIARY line_id',
-                        f'STAGE FILEOUT SFR_Stg_{MdlN}.bin',
+                        # f'STAGE FILEOUT SFR_Stg_{MdlN}.bin', # unnecessary because we have OBS for all reaches
                         f'PACKAGE_CONVERGENCE FILEOUT SFR_convergence_{MdlN}.CSV']
 SFR_one_reach_per_cell: bool = True
 # Pa_SFR_Stg_Init = M.Pa.In / f'SFR/Stg_Init/{MdlN}/Stg_Init_{MdlN}.csv'
@@ -58,7 +58,7 @@ Pa_RIV_Stg_Vs_winter = Path(r'G:/models/NBr/In/RIV/NBr49/RIV_Stg_main_winter_NBr
 Pa_RIV_Stg_Vs_summer = Path(r'G:/models/NBr/In/RIV/NBr49/RIV_Stg_main_summer_NBr49.IDF')
     # start_year
 PoP_end_year = 2001
-l_Diff_PoP_Param = ['SFR/Stg', 'SFR/from-mvr', 'SFR/downstream-flow', 'SFR/gwf', 'GW_HD_AVGs/L1']
+l_Diff_PoP_Par = ['SFR/Stg', 'SFR/from-mvr', 'SFR/downstream-flow', 'SFR/gwf', 'GW_HD_AVGs/L1']
 
 ## Completion validation. If you want to re-run a rule, delete the coresponding temp file.
 Pa_temp             =   M.Pa.Smk.parent / 'temp'
@@ -70,9 +70,9 @@ log_PRJ_to_TIF      =   Pa_temp / f"Log_PRJ_to_TIF_{MdlN}"
 log_HD_AVGs         =   Pa_temp / f"Log_HD_AVGs_{MdlN}"
 log_SFR_CBC         =   Pa_temp / f"Log_SFR_CBC_{MdlN}"
 log_SFR_Stg         =   Pa_temp / f"Log_SFR_Stg_{MdlN}"
-log_Diff            =   Pa_temp / f"Log_Diff_PoP_Param_{MdlN}"
+log_Diff            =   Pa_temp / f"Log_Diff_PoP_Par_{MdlN}"
 log_WB              =   Pa_temp / f"Log_WB_{MdlN}"
-log_upload          =   M.Pa.Smk.parent / f"Log_upload_{MdlN}"
+log_upload          =   Pa_temp / f"Log_upload_{MdlN}"
 
 # --- Rules ---
 
@@ -153,7 +153,7 @@ rule add_SFR_OBS_all_reaches: # Add OBS for all reaches to the NAM file. This sh
                                             'rno': DF_SFR_PkgD['rno']}) # Prepare for writing to OBS file's CONTINUOUTS FILOUT BLOCK
 
             with open(list(M.Pa.Sim_In.glob('*sfr*obs'))[0], 'a') as f: # Append to the OBS file (assumes 1)
-                f.write(f"\nBEGIN CONTINUOUS FILEOUT G:/models/NBr/Sim/{MdlN}/modflow6/Stg_{MdlN}.SFR6.bin BINARY")
+                f.write(f"\nBEGIN CONTINUOUS FILEOUT ../Stg_{MdlN}.SFR6.bin BINARY")
                 f.write('\n# --- Added by Snakemake ---\n')
                 f.write(DF_SFR_PkgD_w.ws.to_MF_block())
                 f.write('END CONTINUOUS\n')
@@ -266,7 +266,7 @@ rule p_HD_OBS_TS:
         p_HD_OBS_TS(MdlN)
         Up_log(MdlN, {'p_HD_OBS_TS' :   1})
 
-rule Diff_PoP_Param:
+rule Diff_PoP_Par:
     input:
         log_SFR_Stg,
         log_SFR_CBC,
@@ -274,10 +274,10 @@ rule Diff_PoP_Param:
     output:
         touch(log_Diff)
     run:
-        from WS_Mdl.xr.compare import Diff_PoP_Param
-        for P in l_Diff_PoP_Param:
-            Diff_PoP_Param(MdlN, M.B, P)
-        Up_log(MdlN, {'Diff_PoP_Param' :   l_Diff_PoP_Param})
+        from WS_Mdl.xr.compare import Diff_PoP_Par
+        for P in l_Diff_PoP_Par:
+            Diff_PoP_Par(MdlN, M.B, P)
+        Up_log(MdlN, {'Diff_PoP_Par' :   ", ".join(l_Diff_PoP_Par)})
 
 rule Up_MM:
     input:

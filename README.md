@@ -5,22 +5,22 @@ This project folder is used for the purposes of [WaterScape](https://waterscape.
 # Knowledge requirements
 - You need to be familiar with Groundwater Modelling concepts, version control/GitHub... TBC
 - For any questions, contact m.karampasis@uu.nl
-- **.\Mng\Acronyms.xlsx** contains acronyms and rules used throughout the project. It also describes the **naming convention** used in this project. You need to be familiar with the principles in this file when working on with this folder/project. New acronyms should be registered there. Make sure you read the instructions sheet/tab to understand the acronym system, and follow the system's rules when adding new shortcuts/abbreviations.
+- **.\Mng\Acronyms.xlsx** contains acronyms and rules used throughout the project. It also describes the **naming convention** used in this project. You need to be familiar with the principles described in this file when working with this folder/project. New acronyms should be registered there. Make sure you read the instructions sheet/tab to understand the acronym system, and follow the system's rules when adding new shortcuts/abbreviations.
 ---
 
 # Project set-up
 - Read the entire **README.md** before working on the project.<br>
 - Some project software require **Windows** to run, so unfortunately it's only possible to work on this project from a Win machine.
 - Follow the following guide to set-up the project Env: **.\code\Env\how_to_make_Env.md**
-- **Clone** the repo to get the publicly avaialble files:
-git clone https://github.com/Ydrolog/WS_Mdl
-The model files are shared only upon request. 
+	If you're using SURF, create a workspace as per the guide below. Select catalogue item "Win_TOTP_git_iBridges_pixi" when creating a workspace, as it'll give you acces to a lot of tools you need (git, pixi, iBridges)
+		https://utrechtuniversity.github.io/vre-docs/docs/first-steps.html
+		Then connect to the workspace.
+- You'll get the model code and the configuration files via git when you follow the guide above, but the model files are only shared upon request. 
 ---
 
-
 # Rules and Tips
-- The folder is version controlled through **GitHub** (smaller files, e.g. **code**) and **DVC**. You can use "`git ls-files`" to print all Git tracked files, and "`dvc list . --dvc-only --recursive`" (warning, it's very slow), to print the files tracked with each of the two methods. Make sure you push at frequent intervals.
-- For good **data management**, it's advised to include **metadata** in data folders, where the origin of the data isn't self-explanatory. E.g. a README file in a folder with IDFs (IDFs may contain spatial data, units etc. but oftentimes their origin/method of production, which can be very useful, is missing from the metadata).
+- The folder is version controlled through **GitHub** (smaller files, e.g. **code**) and **DVC**. You can use "`git ls-files`" to print all Git tracked files, and "`dvc list . --dvc-only --recursive`" (warning, it's very slow), to print the files tracked with each of the two methods. Make sure you git push at frequent intervals.
+- For good **data management**, it's advised to include **metadata** in data folders, where the origin of the data isn't self-explanatory. E.g. a README file in a folder with IDFs (IDFs may contain spatial data, units etc. but oftentimes their origin/method of production, which is usually needed to understand what they are, is missing from the metadata).
 ---
 
 # Folder structure/description
@@ -50,30 +50,13 @@ All model sub-folders contain the same folder structure for consistency. Files i
 - **Sim**:	**Simulation** folders. 1 for each Sim. Unfortunately, the way iMOD is designed, Mdl Output needs to be saved here. Organized by Sim.
 ---
 
-# Guide to install SW for this project
-(optional software starts with "Opt:", the rest is mandatory)
-Use g:\code\build\install_MSI.ps1 to install everything via MSI after cloning repo and downloading files from YoDa.
-
-1. Opt:	Double Commander
-cd "C:\Users\mkarampasi\OneDrive - Universiteit Utrecht\Software\InstalledOutsideSoftwareCenter"
-.\doublecmd-1.1.22.x86_64-win64.exe <br>
-Opt: replace files in C:\Users\<User>\AppData\Roaming\doublecmd\ with files in C:\OD\Software\Settings\Double Commander\ (might need to enable view Hidden files)
-	Might need to copy configuration to start PS script (g:\code\build\launch_PS_pixi_noWT.bat)
-
-2. **pixi Env** (with snakmake)
-Install the pixi env, necessary for this project, following this guide:
-./code/Env/how_to_make_Env.md
-(G:\code\Env\How_to_make_env.md)
-
-3. (Opt: **PS7** - #666 I should make a guide later)
-
-4. (Opt: **QGIS** - #666 I should make a guide later. This is only needed on the PC used for reviewing outputs) 
-
-5. Opt: **Notepad++** - https://notepad-plus-plus.org/downloads
----
-
 ## Terminal tools
 There is a list of **terminal tools** that facilitate common tasks for this project. Those are listed in G:/code/setup.py, with a brief description.<br>
 To add another terminal command, you need to add it to the setup file (similar to the other commands), and make a script. Then you need to install WS_Mdl (as explained in the Python Env installation guide above).<br>
-It's also possible to run Python functions from G:\code\WS_Mdl\ modules via "`WS_Mdl.module` <function> <arg1> <arg2> ...".
+It's also possible to run Python functions from G:\code\WS_Mdl\ modules via:
+WS_Mdl <function> <arg1> <arg2>
+or if the function is not exposed via __all__ = [...] (in the same module), this might work:
+"`WS_Mdl.module` <function> <arg1> <arg2> ...".
+
+<args> can be regular terminal commands, e.g. NBr100, or kwargs, e.g. verbose=True, Pkgs=['DRN', 'RIV'] etc.
 ---
