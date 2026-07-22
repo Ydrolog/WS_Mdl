@@ -237,7 +237,7 @@ How to use:
 
 ## io/qgis.py
 - [ ] FILE io/qgis.py <!-- id:file:io/qgis.py -->
-  - [ ] FUNCTION update_MM (L15) <!-- id:func:io/qgis.py:update_MM -->
+  - [ ] FUNCTION Up_MM (L15) <!-- id:func:io/qgis.py:Up_MM -->
 
 ## io/sim.py
 - [ ] FILE io/sim.py <!-- id:file:io/sim.py -->

@@ -8,4 +8,4 @@
 
 
 
-- In `WS_Mdl/io/qgis.py` (`update_MM`), `Path.rglob()` must be called with a pattern (e.g. `rglob('*')`); when replacing `os.walk`, iterate paths and filter `is_file()` before writing to zip.
+- In `WS_Mdl/io/qgis.py` (`Up_MM`), `Path.rglob()` must be called with a pattern (e.g. `rglob('*')`); when replacing `os.walk`, iterate paths and filter `is_file()` before writing to zip.

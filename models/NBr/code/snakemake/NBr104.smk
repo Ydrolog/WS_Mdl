@@ -288,8 +288,8 @@ rule Up_MM:
     output:
         M.Pa.MM
     run:
-        from WS_Mdl.io.qgis import update_MM
-        update_MM(MdlN, MdlN_MM_B=MdlN_MM_B)      # Update MM 
+        from WS_Mdl.io.qgis import Up_MM
+        Up_MM(MdlN, MdlN_MM_B=MdlN_MM_B)      # Update MM 
         Up_log(MdlN, {  'PoP end DT':   DT.now().strftime("%Y-%m-%d %H:%M:%S"),
                         'End Status':   'PoPed',
                         'Up_MM'     :   1}) # Update log

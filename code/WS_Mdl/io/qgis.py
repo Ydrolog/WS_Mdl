@@ -10,8 +10,10 @@ from WS_Mdl.core.text import replace_MdlN
 
 sys.excepthook = sys.__excepthook__
 
+__all__ = ['Up_MM']
 
-def _update_layer_references(root, maplayer, replace_reference, datasource):
+
+def _Up_L_references(root, maplayer, replace_reference, datasource):
     """Update the names and cached datasource of one layer throughout the QGIS XML."""
 
     layer_id = maplayer.findtext('id')
@@ -36,37 +38,43 @@ def _update_layer_references(root, maplayer, replace_reference, datasource):
                 legend_layer.set('name', replace_reference(legend_layer.get('name')))
 
 
-def update_MM(MdlN, MdlN_MM_B=None):
-    """Copy a source MM project and update its resolvable layer references."""
+def Up_MM(MdlN, MdlN_B=None, MdlN_MM_B=None):
+    """
+    Copy an MM project and update its resolvable layer references.
+
+    MdlN_B: MdlN for comparison layer names
+    MdlN_MM_B: MdlN for the QGIS project to copy and defaults to ``MdlN_B``
+    The only case where you need MdlN_MM_B is when you want to copy the QGIS project from a MdlN, but compare it to another MdlN.
+    """
 
     sprint(Sep)
     sprint(f' *****   Creating MM for {MdlN}   ***** ')
 
     M = Mdl_N(MdlN)
-    if MdlN_MM_B is not None:  # Replace MdlN_B with another MdlN if requested.
-        M.Pa_B.MM = replace_MdlN(M.Pa_B.MM, M.B, MdlN_MM_B)
-    MdlN_MM_B = MdlN_MM_B or M.B
+    MdlN_B = MdlN_B or M.B
+    MdlN_MM_B = MdlN_MM_B or MdlN_B
 
+    M_B = Mdl_N(MdlN_B)
     M_MM_B = Mdl_N(MdlN_MM_B)
     comparison_pattern = re.compile(rf'{re.escape(MdlN_MM_B)}m(?:{re.escape(M_MM_B.alias)})?\d+(?!\d)')
-    comparison_replacement = f'{MdlN}m{M_MM_B.N}'
+    comparison_replacement = f'{MdlN}m{M_B.N}'
 
     def replace_reference(value):
-        value = comparison_pattern.sub(lambda _: comparison_replacement, value)  # f"{Mdl}m{M_MM_B.N}" -> f"{Mdl}m{M.N}"
-        return replace_MdlN(value, MdlN_MM_B, MdlN)  # M.B -> MdlN
+        value = comparison_pattern.sub(lambda _: comparison_replacement, value)
+        return replace_MdlN(value, MdlN_MM_B, MdlN)
 
     M.Pa.MM.parent.mkdir(parents=True, exist_ok=True)  # Ensure destination folder exists
-    print(M.Pa_B.MM, M.Pa.MM)
-    sh.copy(M.Pa_B.MM, M.Pa.MM)  # Copy the QGIS file
-    sprint(f'Copied QGIS project from {M.Pa_B.MM} to {M.Pa.MM}.\nUpdating layer path ...')
+    print(M_MM_B.Pa.MM, M.Pa.MM)
+    sh.copy(M_MM_B.Pa.MM, M.Pa.MM)  # Copy the QGIS file
+    sprint(f'Copied QGIS project from {M_MM_B.Pa.MM} to {M.Pa.MM}.\nUpdating layer path ...')
 
     Pa_temp = M.Pa.MM.parent / 'temp'  # Path to temporarily extract QGZ contents
     Pa_temp.mkdir(parents=True, exist_ok=True)
 
-    with ZF.ZipFile(M.Pa_B.MM, 'r') as zip_ref:  # Unzip .qgz
+    with ZF.ZipFile(M_MM_B.Pa.MM, 'r') as zip_ref:  # Unzip .qgz
         zip_ref.extractall(Pa_temp)
 
-    Pa_QGS = Pa_temp / M.Pa_B.MM.name.replace('.qgz', '.qgs')
+    Pa_QGS = Pa_temp / M_MM_B.Pa.MM.name.replace('.qgz', '.qgs')
     # PJ(
     #     Pa_temp, LD(Pa_temp)[0]
     # )  # Path to the unzipped QGIS project file. This used to be: Pa_QGS = PJ(Pa_temp, PBN(M.Pa.MM).replace('.qgz', '.qgs')), but the extracted file name may vary.
@@ -97,7 +105,7 @@ def update_MM(MdlN, MdlN_MM_B=None):
             DS.text = f'{Pa_X}|{suffix_X}' if suffix_X else Pa_X
             maplayer = parent_by_child.get(DS)
             if maplayer is not None and maplayer.tag == 'maplayer':
-                _update_layer_references(root, maplayer, replace_reference, DS.text)
+                _Up_L_references(root, maplayer, replace_reference, DS.text)
             sprint(f'  - 🟢 Updated {MdlN_MM_B} → {MdlN} in {Pa_full}')
 
     tree.write(Pa_QGS, encoding='utf-8', xml_declaration=True)  # Save the modified .qgs file

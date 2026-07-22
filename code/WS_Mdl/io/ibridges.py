@@ -9,7 +9,7 @@ from WS_Mdl.core.defaults import Pa_WS
 from WS_Mdl.core.mdl import Mdl_N
 from WS_Mdl.core.style import VERBOSE, Sep, Sep_2, blue, bold, green, sprint, style_reset, warn
 
-__all__ = ['get_Pw']
+__all__ = ['get_Pw', 'Dl', 'Dl_MdlN_PoP_Out']
 
 
 def l_Fis_Exc(Pa: Path | str, l_exceptions=['.7z', '.aux', '.xml'], verbose: bool = True):
@@ -121,7 +121,9 @@ def Upl(
 
 
 def Dl(F: str, S: iB_session, on_error='warn', overwrite=False, subdir='research-ws-imod', decompress: bool = True):
-    """Downloads an iBridges file/folder."""
+    """
+    Downloads an iBridges file/folder, e.g.: Dl('models/NBr/code/snakemake/log', S, overwrite=True)
+    """
 
     Pa_Rmt = iPa(S, '~') / subdir / F
     Pa_Loc = Path(f'G:/{F}')
@@ -137,7 +139,7 @@ def Dl(F: str, S: iB_session, on_error='warn', overwrite=False, subdir='research
         if not Dest.exists():
             Dest.mkdir(parents=True, exist_ok=True)
 
-        sprint(f'Downloading folder: {Pa_Rmt} -> {Pa_Loc}', style=blue)
+        sprint(f'Downloading folder:\n{Pa_Rmt} -> {Pa_Loc}')
         download(Pa_Rmt, Dest, overwrite=overwrite, on_error=on_error)
     else:
         sprint(f'{warn}Remote path not found: {Pa_Rmt}')
@@ -193,5 +195,32 @@ def Upl_MdlN_PoP_Out(MdlN):
     Upl(f'models/{M.alias}/code/snakemake/DAG', S, overwrite=True)
     Upl(f'models/{M.alias}/code/snakemake/temp', S, overwrite=True)
     sprint('🟢', print_time=True)
+
+    sprint(Sep)
+
+
+def Dl_MdlN_PoP_Out(MdlN):
+    """
+    Downloads PoPed Out and Smk related files (log, temp files, DAG) for a given MdlN.
+    """
+
+    sprint(Sep)
+    sprint(f'--- Dl_MdlN_PoP_Out({MdlN}) ... ', style=green)
+
+    S = iB_session()
+    M = Mdl_N(MdlN)
+
+    # PoP files
+    sprint(' -- Downloading PoP Out files ...', set_time=True)
+    Dl(f'models/{M.alias}/PoP/Out/{MdlN}', S, overwrite=True)
+    Dl(f'models/{M.alias}/PoP/In', S, overwrite=True)
+    sprint(' -- 🟢', print_time=True)
+
+    # Smk files
+    sprint(' -- Downloading Smk files ...', set_time=True)
+    Dl(f'models/{M.alias}/code/snakemake/log', S, overwrite=True)
+    Dl(f'models/{M.alias}/code/snakemake/DAG', S, overwrite=True)
+    Dl(f'models/{M.alias}/code/snakemake/temp', S, overwrite=True)
+    sprint(' -- 🟢', print_time=True)
 
     sprint(Sep)
