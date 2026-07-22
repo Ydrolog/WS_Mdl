@@ -72,3 +72,4 @@ $RECYCLE.BIN/
 
 # System Volume Information - Windows system folder
 **/System Volume Information/
+**/pagefile.sys
