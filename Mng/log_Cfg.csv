@@ -185,14 +185,15 @@ No RIV. Via imod python. PRJ: SS blocks removed, otherwise it wouldn't work with
 Realised budget doesn't contain stages, so I tried to produce both CSV OBS and Bin OBS for Stg, so I can remove one later (ideally keep Bin cause it's faster).","Queued","Completed"
 "101","NBr","101","NBr101","77","NBr77","MK","Test","RIV #5.3 (RIV Stg): To compare against NBr102.
 - 2000-2002","Queued","Completed"
-"102","NBr","102","NBr102","101","NBr101","MK","Test","RIV #6.3 (SFR Stg): Compare against NBr101 -> Differences in data. Compare against 100 -> Differences in methods.
+"102","NBr","102","NBr102","101","NBr101","MK","Test","RIV #6.1 (SFR Stg (NBr100)): Compare against NBr101 -> Differences in data. Compare against 100 -> Differences in methods.
 - 2000-2002","Queued","Completed"
 "103","NBr","103","NBr103","100","NBr100","MK","Test","SFRmaker #5.1: Detailed SFR Nw","Queued","PoPed"
-"104","NBr","104","NBr104","100","NBr100","MK","Test","SFRmaker #5.1.1: Detailed SFR Nw - RIV 3ry removed this time…","Queued",""
-"105","NBr","105","NBr105","104","NBr104","MK","Test","SFRmaker #4.7: SFR Main + RIV detail with NBr104 detail stages.","Development",""
-"106","NBr","106","NBr106","101","NBr101","MK","Test","RIV #5.3.1 (RIV Stg): Long Sim
-- 2010-2019","Development",""
-"0","","","","","","","","0","",""
+"104","NBr","104","NBr104","100","NBr100","MK","Test","SFRmaker #5.1.1: Detailed SFR Nw - RIV 3ry removed this time…","Queued","PoPed"
+"105","NBr","105","NBr105","100","NBr100","MK","Test","SFRmaker #4.7: SFR Main + RIV detail with NBr104 detail stages.","Development",""
+"106","NBr","106","NBr106","102","NBr102","MK","Test","RIV #6.2 (SFR Stg (NBr104)): Compare against NBr101 -> Differences in data. Compare against 104 -> Differences in methods.","Development",""
+"107","NBr","107","NBr107","101","NBr101","MK","Test","RIV #5.3.1 (RIV Stg): Long Sim
+- 2010-2019
+- CBC Out included. Running only for 1 year the first time, to gauge size of CBC.","Queued",""
 "0","","","","","","","","0","",""
 "0","","","","","","","","0","",""
 "0","","","","","","","","0","",""
