@@ -172,16 +172,21 @@ def Dl(F: str, S: iB_session, on_error='warn', overwrite=False, subdir='research
     sprint(Sep_2, indent=1)
 
 
-def Upl_MdlN_PoP_Out(MdlN):
+def Upl_Sim_Out(MdlN):
     """
     To be used after RunMng has finished running a Smk file. Uploads only PoPed Out and Smk related files (log, temp files, DAG)
     """
 
     sprint(Sep)
-    sprint(f'--- Upl_MdlN_PoP_Out({MdlN}) ... ', style=green)
+    sprint(f'--- Upl_Sim_Out({MdlN}) ... ', style=green)
     S = iB_session()
 
     M = Mdl_N(MdlN)
+
+    # MF6 important Ins #666 finish up
+    l_Fi = []
+    for F in l_Fi:
+        Upl(f'models/{M.alias}/Sim/{MdlN}/modflow6/{F}', S, overwrite=True)
 
     # PoP files
     sprint(' -- Uploading PoP Out files ...', set_time=True, end='')
@@ -199,7 +204,7 @@ def Upl_MdlN_PoP_Out(MdlN):
     sprint(Sep)
 
 
-def Dl_MdlN_PoP_Out(MdlN):
+def Dl_Sim_Out(MdlN):
     """
     Downloads PoPed Out and Smk related files (log, temp files, DAG) for a given MdlN.
     """

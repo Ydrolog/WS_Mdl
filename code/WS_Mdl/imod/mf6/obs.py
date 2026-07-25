@@ -63,7 +63,7 @@ def add_GWL_OBS(MdlN: str = None, M: Mdl_N = None, Opt: str = 'BEGIN OPTIONS\nEN
             # sprint(M.Pa.MdlN, path, Pa_OBS_IPF, sep='\n')
             f.write(f'# created from {Pa_OBS_IPF}\n')
             f.write(Opt.encode().decode('unicode_escape'))  # write optional block
-            f.write(f'\n\nBEGIN CONTINUOUS FILEOUT GWL_OBS_{M.MdlN}({OBS_IPF_Fi.split(".")[0]}).csv\n')
+            f.write(f'\n\nBEGIN CONTINUOUS FILEOUT ./Out/GWL_OBS_{M.MdlN}({OBS_IPF_Fi.split(".")[0]}).csv\n')
 
             for _, row in DF_OBS_IPF_Mdlarea.drop_duplicates(subset=['Id', 'L', 'R', 'C']).iterrows():
                 f.write(f' {row["Id"]} HEAD {row["L"]} {row["R"]} {row["C"]}\n')
@@ -177,7 +177,7 @@ def add_within_polygon(
             Fi = f'{MdlN}.{S}.OBS6'
             with open(M.Pa.Sim_In / Fi, 'w') as f:
                 f.write(Opt)
-                f.write(f'BEGIN CONTINUOUS FILEOUT {Pkg}_OBS_Sys_{Sys}.CSV\n')
+                f.write(f'BEGIN CONTINUOUS FILEOUT ./Out/{Pkg}_OBS_Sys_{Sys}.CSV\n')
                 f.write(DF_w.ws.to_MF_block())
                 f.write('END CONTINUOUS FILEOUT\n')
 
@@ -236,7 +236,7 @@ def add_L_HD_OBS(MdlN: str, l_L: int, Opt: str = 'BEGIN OPTIONS\n  DIGITS 5\nEND
     with open(Pa_OBS, 'w') as f:
         f.write(f'# created with {M.Pa_B.GRB}\n')
         f.write(Opt)  # write optional block
-        f.write(f'BEGIN CONTINUOUS FILEOUT L_HD_OBS_{MdlN}.csv\n')
+        f.write(f'BEGIN CONTINUOUS FILEOUT ./Out/L_HD_OBS_{MdlN}.csv\n')
         f.write(DF.ws.to_MF_block())
         f.write('END CONTINUOUS\n')
 

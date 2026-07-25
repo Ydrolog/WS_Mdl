@@ -114,7 +114,7 @@ def MdlN_Pa(
         )  # Mdl LST file
         d_Pa['NAM_Sim'] = d_Pa['MF6'] / 'mfsim.nam' if not iMOD5 else d_Pa['MdlN'] / 'MFSIM.NAM'  # Sim NAM file
         d_Pa['NAM_Mdl'] = d_Pa['Sim_In'] / 'imported_model.NAM' if not iMOD5 else d_Pa['MdlN'] / f'GWF_1/{MdlN}.NAM'
-        d_Pa['Sim_Out'] = None if not iMOD5 else d_Pa['MdlN'] / 'GWF_1/MODELOUTPUT'
+        d_Pa['Sim_Out'] = d_Pa['MF6'] / 'Out' if not iMOD5 else d_Pa['MdlN'] / 'GWF_1/MODELOUTPUT'
         d_Pa['SFR'] = d_Pa['Sim_In'] / f'{MdlN}.SFR6' if not iMOD5 else d_Pa['MdlN'] / f'GWF_1/MODELINPUT/{MdlN}.SFR6'
 
         # Post-run
@@ -141,9 +141,7 @@ def MdlN_Pa(
         for k in list(d_Pa.keys()):
             if f'{k}_B' not in d_Pa:
                 value = d_Pa[k]
-                d_Pa[f'{k}_B'] = (
-                    replace_MdlN(value, MdlN, MdlN_B_str) if isinstance(value, (str, Path)) else value
-                )
+                d_Pa[f'{k}_B'] = replace_MdlN(value, MdlN, MdlN_B_str) if isinstance(value, (str, Path)) else value
 
     return d_Pa
 
