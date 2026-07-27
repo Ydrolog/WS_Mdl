@@ -19,6 +19,7 @@ os.environ["PYTHONUNBUFFERED"] = "1"        # Set Python to unbuffered mode (out
 ## Options
 MdlN        =   'NBr107'
 iMOD5       =   False
+MdlN_MM_B   =   'NBr104'
 
 ## Paths
 M           =   Mdl_N(MdlN, iMOD5=iMOD5)
@@ -44,6 +45,8 @@ log_fix_MSW_area    =   Pa_temp / f"Log_fix_MSW_area_{MdlN}"
 log_Sim             =   Pa_temp / f"Log_Sim_{MdlN}"
 log_PRJ_to_TIF      =   Pa_temp / f"Log_PRJ_to_TIF_{MdlN}"
 log_HD_AVGs         =   Pa_temp / f"Log_HD_AVGs_{MdlN}"
+log_GXG             =   Pa_temp / f"Log_GXG_{MdlN}"
+log_HD_Pctls        =   Pa_temp / f"Log_HD_Pctls_{MdlN}"
 log_Diff            =   Pa_temp / f"Log_Diff_PoP_Par_{MdlN}"
 log_WB              =   Pa_temp / f"Log_WB_{MdlN}"
 log_upload          =   Pa_temp / f"Log_upload_{MdlN}"
@@ -181,6 +184,27 @@ rule p_HD_OBS_TS:
         p_HD_OBS_TS(MdlN)
         Up_log(MdlN, {'p_HD_OBS_TS' :   1})
 
+rule GXG:
+    input:
+        log_Sim
+    output:
+        touch(log_GXG)
+    run:
+        from WS_Mdl.imod.pop.gxg import HD_Bin_GXG_to_MBTIF
+        HD_Bin_GXG_to_MBTIF(MdlN) # Calculate GXG and save as TIFs
+        Up_log(MdlN, {  'GXG':   1})
+
+rule p_HD_Pctls:
+    input:
+        log_Sim
+    output:
+        touch(log_HD_Pctls)
+    run:
+        from WS_Mdl.imod.pop.hd import c_HD_Bin_Pctls
+        c_HD_Bin_Pctls(MdlN)
+        Up_log(MdlN, {  'HD_Pctls':   1})
+
+
 rule Diff_PoP_Par:
     input:
         log_HD_AVGs
@@ -197,6 +221,8 @@ rule Up_MM:
         log_PRJ_to_TIF,
         log_HD_AVGs,
         M.Pa.PoP_Out_MdlN / f'GW_HD_OBS/metadata.txt',
+        log_GXG,
+        log_HD_Pctls,
         log_Diff,
     output:
         touch(M.Pa.MM)

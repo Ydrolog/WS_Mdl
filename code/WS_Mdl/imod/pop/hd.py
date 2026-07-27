@@ -15,7 +15,7 @@ from WS_Mdl.imod.idf import HD_Out_to_DF
 from WS_Mdl.imod.prj import r_with_OBS
 from WS_Mdl.xr.convert import to_TIF
 
-__all__ = ['HD_IDF_Agg_to_TIF', 'p_HD_OBS_TS', 'c_HD_Pctls', 'HD_Pctl_Diffs', 'c_HD_Bin_Pctls', 'c_HD_Bin_AVGs']
+__all__ = ['HD_IDF_Agg_to_TIF', 'HD_Pctl_Diffs', 'c_HD_Bin_AVGs', 'c_HD_Bin_Pctls', 'c_HD_Pctls', 'p_HD_OBS_TS']
 
 
 # %%
@@ -141,7 +141,7 @@ def HD_IDF_Agg_to_TIF(
     sprint(Sep)
 
 
-def HD_Agg_name(group_keys, grouping):  # 666 could be moved to util
+def HD_Agg_name(group_keys, grouping):
     if not isinstance(group_keys, (tuple, list)):
         group_keys = (group_keys,)
 
@@ -214,12 +214,12 @@ def p_HD_OBS_TS(MdlN, MdlN_B=True, MdlN_Pa_MF6=None, MdlN_B_Pa_MF6=None):
 
     # %% 3. Read modelled HDs
     DF_M = pd.read_csv(
-        list(M.Pa.MF6.glob('HD_OBS_Pnt*.csv'))[0], index_col='time'
+        list(M.Pa.MF6.rglob('HD_OBS_Pnt*.csv'))[0], index_col='time'
     )  # Read CSV file containing modelled HDs. Assumes 1 matching file
     DF_M.index = pd.to_datetime(M.SP_1st) + pd.to_timedelta(DF_M.index, unit='D')
     if MB:
         DF_MB = pd.read_csv(
-            list(MB.Pa.MF6.glob('HD_OBS_Pnt*.csv'))[0], index_col='time'
+            list(MB.Pa.MF6.rglob('HD_OBS_Pnt*.csv'))[0], index_col='time'
         )  # Read CSV file containing modelled HDs for B. Assumes 1 matching file
         DF_MB.index = pd.to_datetime(MB.SP_1st) + pd.to_timedelta(DF_MB.index, unit='D')
     sprint('🟢')
@@ -705,8 +705,7 @@ def p_HD_OBS_TS(MdlN, MdlN_B=True, MdlN_Pa_MF6=None, MdlN_B_Pa_MF6=None):
 
     # %% 7. Write metadata and finish
     with open(M.Pa.PoP_Out_MdlN / 'GW_HD_OBS/metadata.txt', 'w') as f:
-        for k, v in metadata.items():
-            f.write(f'{k}: {v}\n')
+        f.writelines(f'{k}: {v}\n' for k, v in metadata.items())
     sprint(Sep)
 
 
@@ -829,8 +828,7 @@ def c_HD_Pctls(
 
     # %% 7. Write metadata and finish
     with open(Pa_Dir / 'metadata.txt', 'w') as f:
-        for k, v in metadata.items():
-            f.write(f'{k}: {v}\n')
+        f.writelines(f'{k}: {v}\n' for k, v in metadata.items())
 
     sprint('🟢🟢🟢')
     print(Sep)
@@ -864,8 +862,8 @@ def HD_Pctl_Diffs(MdlN_S: str, MdlN_B: str):
 def c_HD_Bin_Pctls(  # 666 date and layer selection should be moved to the o_HD_OBS_L_Bin function. Do the same for c_HD_Bin_AVGs.
     MdlN: str,
     full_years: bool = True,  # 666 This is not used properly.
-    l_Pct: list = [0.05, 0.10, 0.50, 0.90, 0.95],
-    l_Ls: list = [1, 3, 5],  # List of layers to include in the analysis (1-based indexing)
+    l_Pct: list = [0.01, 0.05, 0.10, 0.25, 0.50, 0.75, 0.90, 0.95, 0.99],
+    l_Ls: list = 'all',  # List of layers to include in the analysis (1-based indexing)
     Pa_Bin: str | Path = None,
     start_year: str = 'from_INI',
     end_year: str = 'from_INI',
@@ -928,8 +926,7 @@ def c_HD_Bin_Pctls(  # 666 date and layer selection should be moved to the o_HD_
 
     # %% 7. Write metadata and finish
     with open(Pa_Dir / 'metadata.txt', 'w') as f:
-        for k, v in metadata.items():
-            f.write(f'{k}: {v}\n')
+        f.writelines(f'{k}: {v}\n' for k, v in metadata.items())
     sprint('🟢🟢🟢')
     print(Sep)
     return DA_q
@@ -939,7 +936,7 @@ def c_HD_Bin_Pctls(  # 666 date and layer selection should be moved to the o_HD_
 def c_HD_Bin_AVGs(
     MdlN: str,
     full_years: bool = True,  # 666 This is not used properly.
-    l_Ls: list = [1, 3, 5],  # List of layers to include in the analysis (1-based indexing)
+    l_Ls: list = 'all',  # [1, 3, 5],  # List of layers to include in the analysis (1-based indexing)
     Pa_Bin: str | Path = None,
     start_year: str = 'from_INI',
     end_year: str = 'from_INI',  # inclussive

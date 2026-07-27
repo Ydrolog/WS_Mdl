@@ -193,7 +193,7 @@ Realised budget doesn't contain stages, so I tried to produce both CSV OBS and B
 "106","NBr","106","NBr106","102","NBr102","MK","Test","RIV #6.2 (SFR Stg (NBr104)): Compare against NBr101 -> Differences in data. Compare against 104 -> Differences in methods.","Development",""
 "107","NBr","107","NBr107","101","NBr101","MK","Test","RIV #5.3.1 (RIV Stg): Long Sim
 - 2010-2019
-- CBC Out included. Running only for 1 year the first time, to gauge size of CBC.","Queued",""
+- CBC Out included. Running only for 1 year the first time, to gauge size of CBC.","Queued","PoPed"
 "0","","","","","","","","0","",""
 "0","","","","","","","","0","",""
 "0","","","","","","","","0","",""

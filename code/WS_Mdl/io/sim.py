@@ -8,7 +8,7 @@ from multiprocessing import Pool, cpu_count
 import pandas as pd
 from colored import attr, fg
 from send2trash import send2trash
-from WS_Mdl.core.log import DF_match_MdlN, Up_log, get_B
+from WS_Mdl.core.log import DF_match_MdlN, Up_log, get_B, read_log_csv
 from WS_Mdl.core.mdl import Mdl_N
 from WS_Mdl.core.path import Pa_log_Cfg, Pa_log_Out, Pa_WS
 from WS_Mdl.core.style import Sep, bold, dim, sprint, style_reset, warn
@@ -243,7 +243,7 @@ def reset_Sim(MdlN: str, ask_permission: bool = True, Pa_log_Out=Pa_log_Out, per
     if permission == 'y':
         M = Mdl_N(MdlN)
         Pa_MdlN = M.Pa.MdlN
-        DF = pd.read_csv(Pa_log_Out)  # Read the log file
+        DF = read_log_csv(Pa_log_Out)  # Read without turning nullable integers into floats
         Pa_Smk_temp = M.Pa.Smk_temp
         l_temp = [p for p in Pa_Smk_temp.iterdir() if MdlN.lower() in p.name.lower()]
 
@@ -391,7 +391,7 @@ def remove_Sim_Out(
     if permission == 'y':
         Pa = M.Pa
         Pa_MdlN = Pa.Pa_MdlN
-        DF = pd.read_csv(Pa_log)  # Read the log file
+        DF = read_log_csv(Pa_log)  # Read without turning nullable integers into floats
 
         if Pa_MdlN.exists():
             i = 0

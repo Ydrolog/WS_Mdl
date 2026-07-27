@@ -7,6 +7,17 @@ from .path import Pa_log_Cfg, Pa_log_Out, Pa_RunLog
 from .style import sprint, warn
 
 
+def read_log_csv(path, **kwargs) -> pd.DataFrame:
+    """Read a log CSV using nullable numeric types where possible.
+
+    Pandas normally reads an integer column containing empty cells as float,
+    causing values such as ``1`` to be written back as ``1.0``. Converting to
+    nullable dtypes restores such columns to ``Int64``, keeps actual decimal
+    columns numeric, and leaves non-numeric columns as strings.
+    """
+    return pd.read_csv(path, **kwargs).convert_dtypes()
+
+
 def DF_match_MdlN(DF: pd.DataFrame, MdlN: str, Col_name='MdlN', case_insensitive: bool = True):
     """Returns a boolean Series indicating which rows in the DataFrame match the given MdlN in the specified column."""
     if case_insensitive:

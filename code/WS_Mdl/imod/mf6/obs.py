@@ -65,8 +65,10 @@ def add_GWL_OBS(MdlN: str = None, M: Mdl_N = None, Opt: str = 'BEGIN OPTIONS\nEN
             f.write(Opt.encode().decode('unicode_escape'))  # write optional block
             f.write(f'\n\nBEGIN CONTINUOUS FILEOUT ./Out/GWL_OBS_{M.MdlN}({OBS_IPF_Fi.split(".")[0]}).csv\n')
 
-            for _, row in DF_OBS_IPF_Mdlarea.drop_duplicates(subset=['Id', 'L', 'R', 'C']).iterrows():
-                f.write(f' {row["Id"]} HEAD {row["L"]} {row["R"]} {row["C"]}\n')
+            f.writelines(
+                f' {row["Id"]} HEAD {row["L"]} {row["R"]} {row["C"]}\n'
+                for _, row in DF_OBS_IPF_Mdlarea.drop_duplicates(subset=['Id', 'L', 'R', 'C']).iterrows()
+            )
 
             f.write('END CONTINUOUS\n')
 
@@ -247,7 +249,7 @@ def add_L_HD_OBS(MdlN: str, l_L: int, Opt: str = 'BEGIN OPTIONS\n  DIGITS 5\nEND
 def o_HD_OBS_L_Bin(
     MdlN: str,
     Pa_Bin: str | Path = None,
-    l_L: list[int] | None = None,
+    l_L: list[int] | str = 'all',
     start_time=None,
     min_date=None,
     max_date=None,
@@ -267,7 +269,7 @@ def o_HD_OBS_L_Bin(
     # %% Resolve model and file paths
     M = Mdl_N(MdlN)
     Pa_Bin = (
-        list(M.Pa.MF6.glob('HD_OBS_L*.bin'))[0] if Pa_Bin is None else Path(Pa_Bin)
+        list(M.Pa.MF6.rglob('HD_OBS_L*.bin'))[0] if Pa_Bin is None else Path(Pa_Bin)
     )  # Assumes 1 file fits the bill.
 
     # %% Read MF6 observation binary header
@@ -331,7 +333,7 @@ def o_HD_OBS_L_Bin(
         raise ValueError('Expected all observation names to match HD_<layer>_<row>_<column>.')
     lrc = lrc.astype('int32')
 
-    if l_L is not None:
+    if l_L != 'all':
         keep = lrc['L'].isin(l_L).to_numpy()
         lrc = lrc.loc[keep].reset_index(drop=True)
         data_cols = np.flatnonzero(keep) + 1

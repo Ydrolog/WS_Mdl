@@ -4,7 +4,6 @@ from datetime import datetime as DT
 from os import makedirs as MDs
 from os.path import basename as PBN
 from os.path import join as PJ
-from pathlib import Path
 
 import imod
 import numpy as np
@@ -26,7 +25,7 @@ def HD_Bin_GXG_to_MBTIF(
     end_year: str = 'from_INI',
     IDT: str = 'from_INI',
     GVG: bool = False,
-    l_Ls: list = [1, 3, 5, 7, 9],
+    l_Ls: list = 'all', # [1, 3, 5, 7, 9],
 ):
     """
     - start_year: 'YYYY' (inclusive) or 'from_INI' to read from INI file
@@ -51,6 +50,7 @@ def HD_Bin_GXG_to_MBTIF(
     DA_HD = imod.mf6.open_hds(hds_path=M.Pa.HD_Out_Bin, grb_path=M.Pa.GRB)
     dates = pd.date_range(start=str(start_year), periods=DA_HD.time.size, freq=f'{IDT}D')
     DA_HD = DA_HD.assign_coords(time=dates)  # Assign to DA_HD
+    l_Ls = list(DA_HD.layer.values) if l_Ls == 'all' else l_Ls
     DA_HD = DA_HD.where(DA_HD.time.dt.year.isin(l_years), drop=True).sel(layer=l_Ls)  # Select specific years and layers
     sprint(f' 🟢🟢 - Loaded HD file from {M.Pa.HD_Out_Bin}')
 
