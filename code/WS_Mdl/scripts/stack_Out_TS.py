@@ -112,7 +112,7 @@ def stack_Out_TS(
         if MdlN not in d_DF['SFR'].columns:
             try:
                 DF = pd.read_csv(
-                    M.Pa.Sim_In / f'{MdlN}.SFR6.obs.output.csv',
+                    M.Pa.Sim_In / f'{MdlN}.SFR.obs.output.csv',
                     usecols=['time', 'OUTLET_DOWNSTREAM-FLOW'],
                 )
                 DF['date'] = DT.strptime(str(M.INI.SDATE), '%Y%m%d') + pd.to_timedelta(DF['time'] - 1, unit='D')

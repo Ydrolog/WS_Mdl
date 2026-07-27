@@ -4,13 +4,13 @@ from WS_Mdl.core.mdl import Mdl_N
 from WS_Mdl.core.style import sprint
 from WS_Mdl.core.text import r_Txt_Lns
 
-__all__ = ['SFR_PkgD_to_DF', 'SFR_ConnD_to_DF', 'reach_to_cell_id', 'reach_to_XY', 'get_SFR_OBS_Out_Pas']
+__all__ = ['SFR_ConnD_to_DF', 'SFR_PkgD_to_DF', 'get_SFR_OBS_Out_Pas', 'reach_to_XY', 'reach_to_cell_id']
 
 
 def SFR_PkgD_to_DF(MdlN: str, Pa_SFR: str = None, Calc_Cond=True, iMOD5: bool = None) -> pd.DataFrame:
     """
-    Reads SFR6 PACKAGE DATA block from a .SFR6 file, from MdlN folder, and returns it as a pandas DataFrame.
-    Pa_SFR: Path to the SFR6 file. If None, default MdlN SFR file will be used.
+    Reads SFR PACKAGE DATA block from a .SFR file, from MdlN folder, and returns it as a pandas DataFrame.
+    Pa_SFR: Path to the SFR file. If None, default MdlN SFR file will be used.
     iMOD5: Boolean indicating whether to use the imod5 folder structure. If None, it will be determined automatically.
     """
     M = Mdl_N(MdlN, iMOD5=iMOD5)
@@ -58,7 +58,7 @@ def SFR_PkgD_to_DF(MdlN: str, Pa_SFR: str = None, Calc_Cond=True, iMOD5: bool = 
 
 def SFR_ConnD_to_DF(MdlN: str, Pa_SFR: str = None, iMOD5: bool = None) -> pd.DataFrame:
     """
-    Reads SFR6 connection data from a .SFR6 file and returns it as a pandas DataFrame.
+    Reads SFR connection data from a .SFR file and returns it as a pandas DataFrame.
     """
     M = Mdl_N(MdlN, iMOD5=iMOD5)
 

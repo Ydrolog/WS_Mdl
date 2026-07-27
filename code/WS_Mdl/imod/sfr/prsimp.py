@@ -698,7 +698,7 @@ def Pkgs_to_SFR_via_MVR(M: Mdl_N, Pkgs: list | str, Pa_Shp: str | Path):  # 666 
     DF_w['value'] = 1
 
     # %% Write MVR file
-    Pa_MVR = M.Pa.Sim_In / f'{M.MdlN}.MVR6'
+    Pa_MVR = M.Pa.Sim_In / f'{M.MdlN}.MVR'
     with open(Pa_MVR, 'w') as f:
         f.write(f"""BEGIN OPTIONS
 END OPTIONS
@@ -721,7 +721,7 @@ BEGIN PERIOD 1""")
     with open(M.Pa.NAM_Mdl, 'r') as f1:
         l_Lns_NAM = f1.readlines()
 
-    l_Lns_NAM.insert(-1, f'  MVR6 imported_model/{Pa_MVR.name} MVR\n')
+    l_Lns_NAM.insert(-1, f'  MVR imported_model/{Pa_MVR.name} MVR\n')
 
     with open(M.Pa.NAM_Mdl, 'w') as f2:
         f2.writelines(l_Lns_NAM)

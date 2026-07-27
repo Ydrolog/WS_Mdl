@@ -11,7 +11,7 @@ from WS_Mdl.core.style import Sep, Sep_2, green, set_verbose, sprint, style_rese
 
 # %% End of default imports
 
-__all__ = ['c_Stg_AVGs', 'SFR_CBC_to_DS', 'SFR_CBC_Par_to_TIF']
+__all__ = ['SFR_CBC_Par_to_TIF', 'SFR_CBC_to_DS', 'c_Stg_AVGs']
 
 
 def c_Stg_Pctl(MdlN: str, Pctls: list = [5, 10, 50, 90, 95]):  # 666 Finish it off and add to Smk procedure
@@ -19,7 +19,7 @@ def c_Stg_Pctl(MdlN: str, Pctls: list = [5, 10, 50, 90, 95]):  # 666 Finish it o
     M = Mdl_N(MdlN)
 
     # %% Load + Prep DF
-    Pa_SFR_Out = M.Pa.Sim_In / f'{M.MdlN}.SFR6.obs.output.csv'
+    Pa_SFR_Out = M.Pa.Sim_In / f'{M.MdlN}.SFR.obs.output.csv'
     DF_ = pd.read_csv(Pa_SFR_Out)
 
     date = M.SP_1st_DT + pd.to_timedelta(DF_['time'] - 1, unit='D')
@@ -78,7 +78,7 @@ def c_Stg_AVGs(MdlN, start_year: str = 'from_INI', end_year: str = 'from_INI'):
     end_year = M.SP_last_DT.year if end_year == 'from_INI' else int(end_year)
 
     # %% Load + Prep DF
-    Pa_SFR_Out = M.Pa.Sim_In / f'{M.MdlN}.SFR6.obs.output.csv'  # 666 Need to move to Bin at some point
+    Pa_SFR_Out = M.Pa.Sim_In / f'{M.MdlN}.SFR.obs.output.csv'  # 666 Need to move to Bin at some point
     DF_ = pd.read_csv(Pa_SFR_Out)
 
     date = M.SP_1st_DT + pd.to_timedelta(DF_['time'] - 1, unit='D')
@@ -718,7 +718,7 @@ def SFR_CBC_to_DS(MdlN: str, Pa_CBC: str = None) -> xra.Dataset:
     from WS_Mdl.imod.sfr.info import SFR_ConnD_to_DF, SFR_PkgD_to_DF
 
     M = Mdl_N(MdlN)
-    Pa_CBC = M.Pa.MF6 / f'{M.MdlN}.SFR6.cbc' if Pa_CBC is None else Pa_CBC
+    Pa_CBC = M.Pa.MF6 / f'{M.MdlN}.SFR.cbc' if Pa_CBC is None else Pa_CBC
     headers = read_cbc_headers(Pa_CBC)
 
     DF_SFR = SFR_PkgD_to_DF(MdlN, Calc_Cond=False)
