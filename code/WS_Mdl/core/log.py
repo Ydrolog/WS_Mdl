@@ -72,7 +72,10 @@ def Up_log(MdlN: str, d_Up: dict, Pa_log_Out=Pa_log_Out):  # Pa_log_Out=PJ(Pa_WS
         DF = pd.read_csv(Pa_log_Out, index_col=0, dtype=str)  # Assumes log_Out.csv exists.
 
         for key, value in d_Up.items():  # Update the relevant cells
-            if isinstance(value, Path):
+            # ``dtype=str`` creates strict pandas string columns.  Convert all
+            # non-missing values, not just Paths, before assigning (for
+            # example, Snakemake rules commonly pass integer flags such as 1).
+            if not pd.isna(value):
                 value = str(value)
             DF.at[MdlN, key] = value
 
