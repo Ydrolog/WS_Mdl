@@ -10,21 +10,28 @@ from WS_Mdl.core.defaults import CRS
 from WS_Mdl.core.mdl import Mdl_N
 from WS_Mdl.core.runtime import timed_Exe
 from WS_Mdl.core.style import Sep, green, sprint
-from WS_Mdl.core.text import replace_MdlN
 from WS_Mdl.imod.idf import HD_Out_to_DF
 from WS_Mdl.imod.prj import r_with_OBS
 from WS_Mdl.xr.convert import to_TIF
 
-__all__ = ['HD_IDF_Agg_to_TIF', 'HD_Pctl_Diffs', 'c_HD_Bin_AVGs', 'c_HD_Bin_Pctls', 'c_HD_Pctls', 'p_HD_OBS_TS']
+__all__ = [
+    'HD_IDF_Agg_to_TIF',
+    # 'HD_Pctl_Diffs',
+    'c_HD_Bin_AVGs',
+    'c_HD_Bin_GXGs',
+    'c_HD_Bin_Pctls',
+    'c_HD_Pctls',
+    'p_HD_OBS_TS',
+]
 
 
 # %%
 def HD_IDF_Agg_to_TIF(
     MdlN: str,
     rules=None,
-    N_cores: int = None,
+    N_cores: int | None = None,
     CRS: str = CRS,
-    Gp: list[str] = ['year', 'month'],
+    Gp: tuple[str, str] = ('year', 'month'),
     Agg_F: str = 'mean',
 ):
     """
@@ -45,12 +52,12 @@ def HD_IDF_Agg_to_TIF(
         Number of worker processes for parallel execution. By default: None → use (cpu_count() - 2).
     CRS : str
         Coordinate reference system for the output TIFs. By default: G.CRS.
-    Gp : list of str
+    Gp : tuple of str
         Which DataFrame columns to group by. Common examples:
-        - ['year','month']        → monthly aggregates
-        - ['season_year','season']→ seasonal aggregates
-        - ['Hy_year']             → hydrological-year aggregates
-        - ['year','quarter']      → quarterly aggregates
+        - ('year', 'month')        → monthly aggregates
+        - ('season_year', 'season')→ seasonal aggregates
+        - ('Hy_year',)             → hydrological-year aggregates
+        - ('year', 'quarter')      → quarterly aggregates
     agg_func : str
         Name of the aggregation method to call on the xarray.DataArray (e.g. 'mean','min','max','median').
         This must exactly match a DataArray method (e.g. XA.mean(dim='time')).
@@ -214,12 +221,12 @@ def p_HD_OBS_TS(MdlN, MdlN_B=True, MdlN_Pa_MF6=None, MdlN_B_Pa_MF6=None):
 
     # %% 3. Read modelled HDs
     DF_M = pd.read_csv(
-        list(M.Pa.MF6.rglob('HD_OBS_Pnt*.csv'))[0], index_col='time'
+        next(iter(M.Pa.MF6.rglob('HD_OBS_Pnt*.csv'))), index_col='time'
     )  # Read CSV file containing modelled HDs. Assumes 1 matching file
     DF_M.index = pd.to_datetime(M.SP_1st) + pd.to_timedelta(DF_M.index, unit='D')
     if MB:
         DF_MB = pd.read_csv(
-            list(MB.Pa.MF6.rglob('HD_OBS_Pnt*.csv'))[0], index_col='time'
+            next(iter(MB.Pa.MF6.rglob('HD_OBS_Pnt*.csv'))), index_col='time'
         )  # Read CSV file containing modelled HDs for B. Assumes 1 matching file
         DF_MB.index = pd.to_datetime(MB.SP_1st) + pd.to_timedelta(DF_MB.index, unit='D')
     sprint('🟢')
@@ -712,9 +719,9 @@ def p_HD_OBS_TS(MdlN, MdlN_B=True, MdlN_Pa_MF6=None, MdlN_B_Pa_MF6=None):
 def c_HD_Pctls(
     MdlN: str,
     full_years: bool = True,
-    l_Pct: list = [0.05, 0.10, 0.50, 0.90, 0.95],
-    l_L: list = [1, 3, 5],  # List of layers to include in the analysis (1-based indexing)
-    Pa_CSV: str | Path = None,
+    l_Pct: list = (0.05, 0.10, 0.50, 0.90, 0.95),
+    l_L: list = (1, 3, 5),  # List of layers to include in the analysis (1-based indexing)
+    Pa_CSV: str | Path | None = None,
 ):
     """
     Calculate specified Pctls of GW HD data from a CSV file (MF6 OBS Out) and save the results as single-band TIFF files.
@@ -835,36 +842,12 @@ def c_HD_Pctls(
     return DF, DA_q
 
 
-def HD_Pctl_Diffs(MdlN_S: str, MdlN_B: str):
-    """
-    Calculate percentiles of the differences in GW HD between two models (S and B) and save as single-band TIFF files.
-    """  # 666 needs progress reportng.
-    import rioxarray
-
-    M = Mdl_N(MdlN_S)
-    MB = Mdl_N(MdlN_B)
-
-    for F in (M.Pa.PoP_Out_MdlN / 'GW_HD_Pct').glob('GW_HD_L*_P*.tif'):
-        DA_S = rioxarray.open_rasterio(F)
-        Pa_B = replace_MdlN(F, M.MdlN, MB.MdlN)
-        print(Pa_B)
-        DA_B = rioxarray.open_rasterio(Pa_B)
-        DA_Diff = DA_S - DA_B
-
-        Pa_Out = F.parent / replace_MdlN(F.name, M.MdlN, f'{M.MdlN}m{MB.N}')
-        Pa_Out.parent.mkdir(parents=True, exist_ok=True)
-
-        print(f'Saving {Pa_Out.name} ', end='')
-        DA_Diff.rio.to_raster(Pa_Out)
-        print('🟢')
-
-
 def c_HD_Bin_Pctls(  # 666 date and layer selection should be moved to the o_HD_OBS_L_Bin function. Do the same for c_HD_Bin_AVGs.
     MdlN: str,
     full_years: bool = True,  # 666 This is not used properly.
-    l_Pct: list = [0.01, 0.05, 0.10, 0.25, 0.50, 0.75, 0.90, 0.95, 0.99],
+    l_Pct: list | tuple = (0.01, 0.05, 0.10, 0.25, 0.50, 0.75, 0.90, 0.95, 0.99),
     l_Ls: list = 'all',  # List of layers to include in the analysis (1-based indexing)
-    Pa_Bin: str | Path = None,
+    Pa_Bin: str | Path | None = None,
     start_year: str = 'from_INI',
     end_year: str = 'from_INI',
     IDT: str = 'from_INI',
@@ -886,6 +869,7 @@ def c_HD_Bin_Pctls(  # 666 date and layer selection should be moved to the o_HD_
 
     # %% Load Bin
     DA = o_HD_OBS_L_Bin(MdlN, l_L=l_Ls, start_time=M.SP_1st_DT)
+    l_Ls = DA.layer.values if l_Ls == 'all' else l_Ls  # If 'all', use all layers present in the data
     DA = DA.where(DA.time.dt.year.isin(l_years), drop=True).sel(layer=l_Ls)  # Select specific years and layers
     sprint('🟢')
 
@@ -900,8 +884,11 @@ def c_HD_Bin_Pctls(  # 666 date and layer selection should be moved to the o_HD_
     # %% Saving to TIF
     Pa_Dir = M.Pa.PoP_Out_MdlN / 'GW_HD_Pct'
     sprint(f' -- Saving to TIF in {Pa_Dir}')
-    Pa_Dir.mkdir(parents=True, exist_ok=True)
     DA_q = DA_q.rio.set_spatial_dims(x_dim='x', y_dim='y').rio.write_crs('EPSG:28992')
+
+    Pa_Bin = (
+        next(iter(M.Pa.MF6.rglob('HD_OBS_L*.bin'))) if Pa_Bin is None else Path(Pa_Bin)
+    )  # Assumes 1 file fits the bill.
     metadata = {
         'model': M.MdlN,
         'created from:': str(Pa_Bin),
@@ -910,7 +897,7 @@ def c_HD_Bin_Pctls(  # 666 date and layer selection should be moved to the o_HD_
 
     for q in l_Pct:
         for L in l_Ls:
-            Pa_Out = Pa_Dir / f'GW_HD_L{L}_P{int(q * 100):02d}_{MdlN}.tif'
+            Pa_Out = Pa_Dir / f'{L}/GW_HD_L{L}_P{int(q * 100):02d}_{MdlN}.tif'
 
             sprint(f'  - {Pa_Out.name} ', end='')
             DA_i = DA_q.sel(quantile=q, layer=L)
@@ -937,7 +924,7 @@ def c_HD_Bin_AVGs(
     MdlN: str,
     full_years: bool = True,  # 666 This is not used properly.
     l_Ls: list = 'all',  # [1, 3, 5],  # List of layers to include in the analysis (1-based indexing)
-    Pa_Bin: str | Path = None,
+    Pa_Bin: str | Path | None = None,
     start_year: str = 'from_INI',
     end_year: str = 'from_INI',  # inclussive
     IDT: str = 'from_INI',
@@ -1015,3 +1002,100 @@ def c_HD_Bin_AVGs(
     sprint('🟢🟢🟢')
     print(Sep)
     return DA
+
+
+def c_HD_Bin_GXGs(
+    MdlN: str,
+    start_year: str = 'from_INI',
+    end_year: str = 'from_INI',
+    IDT: str = 'from_INI',
+    GVG: bool = False,
+    l_Ls: list[int] | str = 'all',
+    Pa_Bin: str | Path | None = None,
+):
+    """
+    Calculate GXGs from an ``HD_OBS_L`` binary and save single-band TIFs.
+
+    The GXG calculation is the same as in ``HD_Bin_GXG_to_MBTIF``. Unlike
+    that function, this function loads the continuous OBS binary with
+    ``o_HD_OBS_L_Bin`` and writes a separate TIF for every variable and layer.
+    """
+    sprint('----- c_HD_Bin_GXGs initiated -----', style=green)
+    sprint('--- Loading extra packages...', end='', verbose_out=False, set_time=True)
+    import rioxarray  # Noqa: F401 # activates the .rio accessor
+    import xarray as xra
+    from WS_Mdl.imod.mf6.obs import o_HD_OBS_L_Bin
+
+    sprint('🟢', print_time=True)
+
+    # %% Load and select the requested period and layers
+    sprint('--- Loading data...', end='', set_time=True)
+    M = Mdl_N(MdlN)
+    start_year = M.SP_1st_DT.year if start_year == 'from_INI' else int(start_year)
+    end_year = M.SP_last_DT.year if end_year == 'from_INI' else int(end_year)
+    IDT = int(M.INI.IDT) if IDT == 'from_INI' else int(IDT)
+
+    DA = o_HD_OBS_L_Bin(
+        MdlN,
+        Pa_Bin=Pa_Bin,
+        l_L=l_Ls,
+        start_time=M.SP_1st_DT,
+        min_date=f'{start_year}-01-01',
+        max_date=f'{end_year}-12-31',
+    )
+    l_Ls = list(DA.layer.values)
+    sprint('🟢', print_time=True)
+
+    # %% Calculate and save GXGs
+    Pa_Dir = M.Pa.PoP_Out_MdlN / 'GXG'
+    metadata = {
+        'model': M.MdlN,
+        'created from': str(Pa_Bin),
+        'period': f'{start_year}-{end_year}',
+        'created by': (
+            f'c_HD_Bin_GXGs(MdlN={MdlN}, start_year={start_year}, '
+            f'end_year={end_year}, IDT={IDT}, GVG={GVG}, '
+            f'l_Ls={l_Ls}, Pa_Bin={Pa_Bin})'
+        ),
+    }
+    d_GXG = {}
+
+    sprint(f' -- Calculating GXGs & Saving to TIF in {Pa_Dir}')
+    for L in l_Ls:
+        Pa_Out_L = Pa_Dir / f'L{L}'
+        Pa_Out_L.mkdir(parents=True, exist_ok=True)
+
+        GXG = imod.evaluate.calculate_gxg(DA.sel(layer=L)).load()
+        GXG = GXG.rename_vars({var: var.upper() for var in GXG.data_vars})
+        N_years_GXG = np.unique(GXG.N_YEARS_GXG.values).max()
+        N_years_GVG = np.unique(GXG.N_YEARS_GVG.values).max()
+
+        GXG['GHG_m_GLG'] = GXG['GHG'] - GXG['GLG']
+        variables = ['GHG', 'GLG', 'GHG_m_GLG', 'GVG'] if GVG else ['GHG', 'GLG', 'GHG_m_GLG']
+
+        for variable in variables:
+            DA_i = GXG[variable].rio.set_spatial_dims(x_dim='x', y_dim='y').rio.write_crs('EPSG:28992')
+            Pa_Out = Pa_Out_L / f'{variable}_L{L}_{MdlN}.tif'
+            n_years = N_years_GVG if variable == 'GVG' else N_years_GXG
+
+            sprint(f'  - {Pa_Out.name} ', end='')
+            DA_i.rio.to_raster(
+                Pa_Out,
+                tags={
+                    'variable': variable,
+                    'layer': str(L),
+                    'N_years': str(n_years),
+                    'AVG': str(float(DA_i.mean().values)),
+                }
+                | metadata,
+            )
+            d_GXG.setdefault(variable, []).append(DA_i)
+            sprint('🟢')
+
+    d_GXG = {variable: xra.concat(arrays, dim=xra.IndexVariable('layer', l_Ls)) for variable, arrays in d_GXG.items()}
+    with open(Pa_Dir / 'metadata.txt', 'w') as f:
+        f.writelines(f'{key}: {value}\n' for key, value in metadata.items())
+
+    sprint('🟢🟢🟢')
+    print(Sep)
+    return d_GXG

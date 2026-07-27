@@ -190,8 +190,8 @@ rule GXG:
     output:
         touch(log_GXG)
     run:
-        from WS_Mdl.imod.pop.gxg import HD_Bin_GXG_to_MBTIF
-        HD_Bin_GXG_to_MBTIF(MdlN) # Calculate GXG and save as TIFs
+        from WS_Mdl.imod.pop.hd import c_HD_Bin_GXGs
+        c_HD_Bin_GXGs(MdlN) # Calculate GXG and save as TIFs
         Up_log(MdlN, {  'GXG':   1})
 
 rule p_HD_Pctls:
@@ -211,7 +211,7 @@ rule Diff_PoP_Par:
     output:
         touch(log_Diff)
     run:
-        from WS_Mdl.xr.compare import Diff_PoP_Par
+        from WS_Mdl.imod.pop.diff import Diff_PoP_Par
         for P in l_Diff_PoP_Par:
             Diff_PoP_Par(MdlN, M.B, P)
         Up_log(MdlN, {'Diff_PoP_Par' :   ", ".join(l_Diff_PoP_Par)})

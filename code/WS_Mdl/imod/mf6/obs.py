@@ -248,7 +248,7 @@ def add_L_HD_OBS(MdlN: str, l_L: int, Opt: str = 'BEGIN OPTIONS\n  DIGITS 5\nEND
 
 def o_HD_OBS_L_Bin(
     MdlN: str,
-    Pa_Bin: str | Path = None,
+    Pa_Bin: str | Path | None = None,
     l_L: list[int] | str = 'all',
     start_time=None,
     min_date=None,
@@ -269,7 +269,7 @@ def o_HD_OBS_L_Bin(
     # %% Resolve model and file paths
     M = Mdl_N(MdlN)
     Pa_Bin = (
-        list(M.Pa.MF6.rglob('HD_OBS_L*.bin'))[0] if Pa_Bin is None else Path(Pa_Bin)
+        next(iter(M.Pa.MF6.rglob('HD_OBS_L*.bin'))) if Pa_Bin is None else Path(Pa_Bin)
     )  # Assumes 1 file fits the bill.
 
     # %% Read MF6 observation binary header
