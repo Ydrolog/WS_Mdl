@@ -11,7 +11,7 @@ from WS_Mdl.core.style import Sep, sprint
 from WS_Mdl.imod.mf6.nam import add_Pkg
 
 
-def add_GWL_OBS(MdlN: str = None, M: Mdl_N = None, Opt: str = 'BEGIN OPTIONS\nEND OPTIONS'):
+def add_GWL_OBS(MdlN: str | None = None, M: Mdl_N = None, Opt: str = 'BEGIN OPTIONS\nEND OPTIONS'):
     """
     Adds OBS file(s) from PRJ file OBS block to Mdl Sim (which iMOD can't do). Thus the OBS file needs to be written, and then a link to the OBS file needs to be created within the NAM file.
     Assumes OBS IPF file contains the following parameters/columns: 'Id', 'L', 'x', 'y'
@@ -36,9 +36,9 @@ def add_GWL_OBS(MdlN: str = None, M: Mdl_N = None, Opt: str = 'BEGIN OPTIONS\nEN
         Pa_OBS_IPF = (M.Pa.PRJ.parent / path).resolve()  # path of IPF file. To be read.
         OBS_IPF_Fi = Pa_OBS_IPF.name  # Filename of OBS file to be added to Sim (to be added without ending)
         if i == 0:
-            Pa_OBS = M.Pa.Sim_In / f'{M.MdlN}_GWL.OBS6'  # path of OBS file. To be written.
+            Pa_OBS = M.Pa.Sim_In / f'{M.MdlN}_GWL.OBS'  # path of OBS file. To be written.
         else:
-            Pa_OBS = M.Pa.Sim_In / f'{M.MdlN}_GWL_N{i}.OBS6'  # path of OBS file. To be written.
+            Pa_OBS = M.Pa.Sim_In / f'{M.MdlN}_GWL_N{i}.OBS'  # path of OBS file. To be written.
 
         DF_OBS_IPF = as_DF(
             Pa_OBS_IPF
@@ -73,7 +73,7 @@ def add_GWL_OBS(MdlN: str = None, M: Mdl_N = None, Opt: str = 'BEGIN OPTIONS\nEN
             f.write('END CONTINUOUS\n')
 
         Pa_OBS_Rel = Path(Pa_OBS).relative_to(M.Pa.NAM_Sim.parent)
-        add_Pkg(M.MdlN, f'  OBS6 .\\{Pa_OBS_Rel} GWHD_OBS_Pnt')  # Add to NAM
+        add_Pkg(M.MdlN, f'  OBS .\\{Pa_OBS_Rel} GWHD_OBS_Pnt')  # Add to NAM
 
         sprint(f'🟢 - {Pa_OBS} has been added successfully!')
     sprint(Sep)
@@ -176,7 +176,7 @@ def add_within_polygon(
             DF_w['obstype'] = Pkg
             DF_w['id'] = GDF.apply(lambda row: f'{int(row["k"])} {int(row["i"])} {int(row["j"])}', axis=1)
 
-            Fi = f'{MdlN}.{S}.OBS6'
+            Fi = f'{MdlN}.{S}.OBS'
             with open(M.Pa.Sim_In / Fi, 'w') as f:
                 f.write(Opt)
                 f.write(f'BEGIN CONTINUOUS FILEOUT ./Out/{Pkg}_OBS_Sys_{Sys}.CSV\n')
@@ -185,9 +185,7 @@ def add_within_polygon(
 
             # Add to MF_In
             text = (
-                f' OBS6 FILEIN ./imported_model/{Fi}'
-                if M.V == 'imod_python'
-                else f' OBS6 FILEIN ./GWF_1/MODELINPUT/{Fi}'
+                f' OBS FILEIN ./imported_model/{Fi}' if M.V == 'imod_python' else f' OBS FILEIN ./GWF_1/MODELINPUT/{Fi}'
             )
             Pa = (
                 M.Pa.Sim_In / f'{S}.{Pkg.lower()}'
@@ -233,7 +231,7 @@ def add_L_HD_OBS(MdlN: str, l_L: int, Opt: str = 'BEGIN OPTIONS\n  DIGITS 5\nEND
 
     DF = pd.DataFrame({'obsname': LRC.map(lambda x: 'HD_' + x.replace(' ', '_')), 'obstype': 'HEAD', 'id': LRC})
 
-    Pa_OBS = M.Pa.Sim_In / f'L_HD_OBS_{MdlN}.OBS6'
+    Pa_OBS = M.Pa.Sim_In / f'L_HD_OBS_{MdlN}.OBS'
 
     with open(Pa_OBS, 'w') as f:
         f.write(f'# created with {M.Pa_B.GRB}\n')
@@ -243,7 +241,7 @@ def add_L_HD_OBS(MdlN: str, l_L: int, Opt: str = 'BEGIN OPTIONS\n  DIGITS 5\nEND
         f.write('END CONTINUOUS\n')
 
     Pa_OBS_Rel = Path(Pa_OBS).relative_to(M.Pa.NAM_Sim.parent)
-    add_Pkg(M.MdlN, f'  OBS6 .\\{Pa_OBS_Rel} GWHD_OBS_L')  # Add to NAM
+    add_Pkg(M.MdlN, f'  OBS .\\{Pa_OBS_Rel} GWHD_OBS_L')  # Add to NAM
 
 
 def o_HD_OBS_L_Bin(
@@ -260,7 +258,7 @@ def o_HD_OBS_L_Bin(
     """
     Read MF6 continuous binary observation output written for HD_L_R_C observations.
 
-    This is for files such as ``HD_OBS_L.bin`` written from an OBS6 block, not for
+    This is for files such as ``HD_OBS_L.bin`` written from an OBS block, not for
     regular MODFLOW head-save files. Regular head-save files should still be read
     with ``imod.mf6.open_hds``.
     """
