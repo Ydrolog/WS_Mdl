@@ -18,6 +18,7 @@ class Sim:
     Bin_Ins: bool = True
     save_budget: str = 'last'  # 'last', 'all', None, or number specifying frequency
     save_head: str = 'last'  # 'last', 'all', None, or number specifying frequency
+    # save_CBC: bool = False  # Save CBC file (binary) for debugging purposes. This is a large file and should be used with caution.
 
 
 class Mdl_N:
@@ -25,7 +26,7 @@ class Mdl_N:
     Class representing a Model Number (MdlN). Spelled as Mdl_N to avoid confict with MdlN argument used in most other functions.
     """
 
-    __slots__ = {
+    __slots__ = {  # noqa: RUF023
         'MdlN': 'str: Model Number (e.g., "NBr21")',
         'alias': 'str: Alias part of the Model Number (e.g., "NBr")',
         'N': 'int: Numeric part of the Model Number (e.g., 21)',

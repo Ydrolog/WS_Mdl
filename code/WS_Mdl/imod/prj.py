@@ -682,6 +682,9 @@ def PrSimP(
 
     # Pass the Sim components to objects.
     MF6_Mdl = Sim_MF6['imported_model']
+    for Pkg in MF6_Mdl.values():
+        if 'save_flows' in Pkg.dataset:
+            Pkg.dataset['save_flows'] = bool(M.Sim.save_budget)
     MF6_Mdl['oc'] = mf6.OutputControl(save_head=M.Sim.save_head, save_budget=M.Sim.save_budget)
     Sim_MF6['ims'] = moderate_settings() if getattr(M, 'IMS_settings', None) is None else M.IMS_settings
     MF6_DIS = MF6_Mdl['dis']

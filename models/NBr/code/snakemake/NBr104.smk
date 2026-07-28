@@ -30,7 +30,7 @@ M.Sim.Bin_Ins = False
 M.Sim.save_head = None # We use OBS instead, which reduces Out size significantly.
 
 # SFR Options
-Pa_SFR_GPkg         = M.Pa.In / 'SFR/NBr103/WBD_detail_SW_NW_cleaned_NBr103.gpkg'
+Pa_SFR_GPkg         =   M.Pa.In / 'SFR/NBr103/WBD_detail_SW_NW_cleaned_NBr103.gpkg'
 Pa_SW_Cond_A        =   M.Pa.WS / r"models\NBr\In\RIV\RIV_Cond_DETAILWATERGANGEN_NBr1.IDF"
 Pa_SW_Cond_B        =   M.Pa.WS / r"models\NBr\In\RIV\RIV_Cond_DRN_NBr1.IDF"
 Pa_SFR_OBS_In       =   M.Pa.In / 'OBS/SFR/NBr73/NBr73_SFR_OBS_Pnt.csv'
