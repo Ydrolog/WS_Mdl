@@ -30,11 +30,13 @@ M.Sim.Bin_Ins   = False
 M.Sim.save_head = None # We use OBS instead, which reduces Out size significantly.
 
 MdlN_HD_OBS         =   'NBr107'
-Pa_HD_OBS_Src       =   M.Pa.In / f'OBS/HD/{MdlN_HD_OBS}/HD_{MdlN_HD_OBS}.OBS6'
-Pa_HD_OBS_Dst       =   M.Pa.Sim_In / f'HD_{MdlN}.OBS6'
-Pa_Shp_catchment    =   M.Pa.WS / r'models\NBr\PoP\common\Pgn\Chaamse_beek\catchment_chaamsebeek_ulvenhout.shp'
+Pa_HD_OBS_Src       =   M.Pa.In / f'OBS/HD/{MdlN_HD_OBS}/HD_{MdlN_HD_OBS}.OBS'
+Pa_HD_OBS_Dst       =   M.Pa.Sim_In / f'HD_{MdlN}.OBS'
+
+# PoP Options
 PoP_end_year        =   2001
 l_Diff_PoP_Par      =   ['GW_HD_AVGs/L1']
+Pa_Shp_catchment    =   M.Pa.PoP / r'common\Pgn\Chaamse_beek\catchment_chaamsebeek_ulvenhout.shp'
 
 ## Temp files (for completion validation)
 Pa_temp             =   M.Pa.Smk.parent / 'temp'
@@ -47,6 +49,7 @@ log_PRJ_to_TIF      =   Pa_temp / f"Log_PRJ_to_TIF_{MdlN}"
 log_HD_AVGs         =   Pa_temp / f"Log_HD_AVGs_{MdlN}"
 log_GXG             =   Pa_temp / f"Log_GXG_{MdlN}"
 log_HD_Pctls        =   Pa_temp / f"Log_HD_Pctls_{MdlN}"
+log_Outlet_TS       =   Pa_temp / f"Log_Outlet_TS_{MdlN}"
 log_Diff            =   Pa_temp / f"Log_Diff_PoP_Par_{MdlN}"
 log_WB              =   Pa_temp / f"Log_WB_{MdlN}"
 log_upload          =   Pa_temp / f"Log_upload_{MdlN}"
@@ -99,7 +102,7 @@ rule add_HD_OBS_copy: # Copying so I can manually make a file that contains OBS 
     run:
         from WS_Mdl.imod.mf6.nam import add_Pkg
         sh.copy2(Pa_HD_OBS_Src, Pa_HD_OBS_Dst) # Copy the file to create a new one with the same content.
-        add_Pkg(MdlN, fr'  OBS6 .\imported_model\HD_{MdlN}.OBS6 HD_OBS')  # Add to NAM
+        add_Pkg(MdlN, fr'  OBS6 .\imported_model\HD_{MdlN}.OBS HD_OBS')  # Add to NAM
 
 
 rule add_RIV_OBS:
@@ -216,6 +219,16 @@ rule Diff_PoP_Par:
             Diff_PoP_Par(MdlN, M.B, P)
         Up_log(MdlN, {'Diff_PoP_Par' :   ", ".join(l_Diff_PoP_Par)})
 
+rule Outlet_TS:
+    input:
+        log_Sim
+    output:
+        touch(log_Outlet_TS)
+    run:
+        from WS_Mdl.imod.pop.ts import Agg_outlet_TS
+        Agg_outlet_TS(MdlN, Pa_Shp_catchment)
+        Up_log(MdlN, {'Agg_outlet_TS' :   1})
+
 rule Up_MM:
     input:
         log_PRJ_to_TIF,
@@ -224,6 +237,7 @@ rule Up_MM:
         log_GXG,
         log_HD_Pctls,
         log_Diff,
+        log_Outlet_TS
     output:
         touch(M.Pa.MM)
     run:

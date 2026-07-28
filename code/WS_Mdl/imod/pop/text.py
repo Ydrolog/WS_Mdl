@@ -22,7 +22,9 @@ def Agg_OBS(MdlN, Pkg, save=True, overwrite=False, MF6_NaN_to_zero=True):
             DF_ = pd.read_csv(Pa)
             if MF6_NaN_to_zero:
                 DF_ = DF_.replace(3.0e30, 0)
-            DF_['date'] = start_date + pd.to_timedelta(DF_['time'] - 1, unit='D')
+            DF_['date'] = start_date + pd.to_timedelta(
+                DF_['time'] - 1, unit='D'
+            )  # 666 this could be made into a function
             DF_ = DF_.drop(columns=['time'])
 
             Cols_no_date = [i for i in DF_.columns if i != 'date']

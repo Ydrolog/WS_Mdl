@@ -7,7 +7,7 @@ from WS_Mdl.core.defaults import Pa_WS
 from WS_Mdl.core.style import sprint
 from WS_Mdl.core.text import replace_MdlN
 
-__all__ = ['Pa_WS', 'Pa_RunLog', 'Pa_log_Out', 'Pa_log_Cfg', 'MdlN_Pa', 'imod_V', 'get_Mdl']
+__all__ = ['MdlN_Pa', 'Pa_RunLog', 'Pa_WS', 'Pa_log_Cfg', 'Pa_log_Out', 'get_Mdl', 'imod_V']
 
 
 Pa_RunLog = Pa_WS / 'Mng/RunLog.xlsm'
@@ -115,7 +115,7 @@ def MdlN_Pa(
         d_Pa['NAM_Sim'] = d_Pa['MF6'] / 'mfsim.nam' if not iMOD5 else d_Pa['MdlN'] / 'MFSIM.NAM'  # Sim NAM file
         d_Pa['NAM_Mdl'] = d_Pa['Sim_In'] / 'imported_model.NAM' if not iMOD5 else d_Pa['MdlN'] / f'GWF_1/{MdlN}.NAM'
         d_Pa['Sim_Out'] = d_Pa['MF6'] / 'Out' if not iMOD5 else d_Pa['MdlN'] / 'GWF_1/MODELOUTPUT'
-        d_Pa['SFR'] = d_Pa['Sim_In'] / f'{MdlN}.SFR6' if not iMOD5 else d_Pa['MdlN'] / f'GWF_1/MODELINPUT/{MdlN}.SFR6'
+        d_Pa['SFR'] = d_Pa['Sim_In'] / f'{MdlN}.SFR' if not iMOD5 else d_Pa['MdlN'] / f'GWF_1/MODELINPUT/{MdlN}.SFR'
 
         # Post-run
         d_Pa['HD_Out_IDF'] = d_Pa['MdlN'] / 'GWF_1/MODELOUTPUT/HEAD' if iMOD5 else None
@@ -149,7 +149,7 @@ def MdlN_Pa(
 class MdlN_PaView:
     """Makes MdlN_Pa dict keys accessible through MdlN, e.g. MdlN.Pa.INI instead of MdlN.Pa['INI']."""
 
-    __slots__ = ('_d', '_MdlN', '__dict__')
+    __slots__ = ('_MdlN', '__dict__', '_d')
 
     def __init__(self, MdlN: str, MdlN_B: str | None = None, iMOD5: bool | None = None):
         self._MdlN = MdlN
