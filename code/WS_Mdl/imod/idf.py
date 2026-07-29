@@ -3,7 +3,6 @@ import os
 import re
 from datetime import datetime as DT
 from pathlib import Path
-from typing import Dict, Optional
 
 import imod
 import pandas as pd
@@ -87,7 +86,7 @@ def stack_to_DF(S_Pa_IDF):
     return DF
 
 
-def to_TIF(Pa_IDF: str, Pa_TIF: Optional[str] = None, MtDt: Optional[Dict] = None, CRS=CRS):
+def to_TIF(Pa_IDF: str, Pa_TIF: str | None = None, MtDt: dict | None = None, CRS=CRS):
     """Converts IDF file to TIF file.
     If Pa_TIF is not provided, it'll be the same as Pa_IDF, except for the file type ending.
     CRS (coordinate reference system) is set to the Amerfoot CRS by default, but can be changed for other projects."""
@@ -145,7 +144,7 @@ def to_TIF(Pa_IDF: str, Pa_TIF: Optional[str] = None, MtDt: Optional[Dict] = Non
     sprint(Sep)
 
 
-def to_MBTIF(l_IDF, Pa_TIF: Optional[str] = None, MtDt: Optional[Dict] = None, CRS=CRS):
+def to_MBTIF(l_IDF, Pa_TIF: str | None = None, MtDt: dict | None = None, CRS=CRS):
     """
     Converts multiple IDF files to a single multi-band TIF file with proper layer ordering.
 
@@ -214,7 +213,7 @@ def to_MBTIF(l_IDF, Pa_TIF: Optional[str] = None, MtDt: Optional[Dict] = None, C
                 d_MtDt[filename] = {
                     'origin_path': idf_file,
                     'conversion_time': DT.now().strftime('%Y-%m-%d %H:%M:%S'),
-                    'error': f'Could not read IDF metadata: {str(e)}',
+                    'error': f'Could not read IDF metadata: {e!s}',
                 }
 
             da_list.append(da_single)
