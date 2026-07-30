@@ -26,8 +26,9 @@ M           =   Mdl_N(MdlN, iMOD5=iMOD5)
 workdir:        M.Pa.Mdl
 
 # MF6 Options
-M.Sim.Bin_Ins   = False
-M.Sim.save_head = None # We use OBS instead, which reduces Out size significantly.
+M.Sim.Bin_Ins       =   False
+M.Sim.save_head     =   None # We use OBS instead, which reduces Out size significantly.
+M.Sim.save_budget   =   ['2010-01-01', '2011-01-01', '2017-01-01'] # 2010: average year. Then off till 2017. Then 2017 wet, 2018 dry.
 
 MdlN_HD_OBS         =   'NBr107'
 Pa_HD_OBS_Src       =   M.Pa.In / f'OBS/HD/{MdlN_HD_OBS}/HD_{MdlN_HD_OBS}.OBS'

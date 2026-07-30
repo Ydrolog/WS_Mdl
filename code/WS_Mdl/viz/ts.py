@@ -7,6 +7,8 @@ import plotly.graph_objects as go
 
 from WS_Mdl.core.style import sprint
 
+__all__ = ['SFR_reach_TS', 'range']
+
 
 def SFR_reach_TS(sub_title, X_axis, d_plot, Pa_Out, include_plotlyjs='directory', auto_open=True):
     fig = go.Figure()

@@ -59,7 +59,7 @@ def Sim_Cfg(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
     sprint(Sep)
 
 
-def o_LSTs(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
+def o_LSTs(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):  # 666 o_ makes this redundant
     sprint(Sep)
     sprint('Opening LST files (Mdl+Sim) for specified runs with the default program.\n')
     sprint(
@@ -76,7 +76,7 @@ def o_LSTs(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
     sprint(Sep)
 
 
-def o_NAMs(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):
+def o_NAMs(*l_MdlN, Pa_NP=r'C:\Program Files\Notepad++\notepad++.exe'):  # 666 o_ makes this redundant
     sprint(Sep)
     sprint('Opening NAM files (Mdl+Sim) for specified runs with the default program.\n')
     sprint(

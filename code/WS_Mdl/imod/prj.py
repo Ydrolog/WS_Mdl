@@ -612,6 +612,27 @@ def to_TIF(MdlN, iMOD5=False):
     sprint(Sep)
 
 
+def _save_budget_control(save_budget, times):
+    """Convert date switches to alternating MF6 budget output settings."""
+    if not (isinstance(save_budget, list) and all(isinstance(date, str) for date in save_budget)):
+        return save_budget
+    if not save_budget:
+        raise ValueError('M.Sim.save_budget must contain at least one date when provided as a list.')
+
+    timeline = pd.DatetimeIndex(times)
+    switch_dates = pd.DatetimeIndex(pd.to_datetime(save_budget))
+    indices = timeline.get_indexer(switch_dates)
+
+    if (indices < 0).any():
+        missing = [date for date, index in zip(save_budget, indices) if index < 0]
+        raise ValueError(f'M.Sim.save_budget dates do not match simulation stress periods: {missing}')
+    if not switch_dates.is_monotonic_increasing or switch_dates.has_duplicates:
+        raise ValueError('M.Sim.save_budget dates must be unique and in chronological order.')
+
+    settings = np.array(['last' if i % 2 == 0 else 999 for i in range(len(indices))], dtype=object)
+    return xra.DataArray(settings, coords={'time': timeline[indices]}, dims='time')
+
+
 def PrSimP(
     M: Mdl_N,
 ):
@@ -685,7 +706,10 @@ def PrSimP(
     for Pkg in MF6_Mdl.values():
         if 'save_flows' in Pkg.dataset:
             Pkg.dataset['save_flows'] = bool(M.Sim.save_budget)
-    MF6_Mdl['oc'] = mf6.OutputControl(save_head=M.Sim.save_head, save_budget=M.Sim.save_budget)
+    save_budget = _save_budget_control(M.Sim.save_budget, times)
+    MF6_Mdl['oc'] = mf6.OutputControl(
+        save_head=M.Sim.save_head, save_budget=save_budget, budget_file=M.Pa.Sim_Out / f'{M.MdlN}.CBC'
+    )
     Sim_MF6['ims'] = moderate_settings() if getattr(M, 'IMS_settings', None) is None else M.IMS_settings
     MF6_DIS = MF6_Mdl['dis']
 

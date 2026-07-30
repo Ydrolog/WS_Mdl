@@ -71,7 +71,9 @@ def HD_Out_to_DF(
     return DF
 
 
-def stack_to_DF(S_Pa_IDF):
+def stack_to_DF(
+    S_Pa_IDF,
+):  # 666 Feels a bit silly. Why not just use imod.idf.read directly? But maybe it's useful for some reason.
     """Reads all .IDF Fis listed in a S_Fi_IDF into DF['IDF']. Returns the DF containing Fi_names and the IDF contents.
     Pa_Fo is the path of the Fo where th files are stored in."""
 
