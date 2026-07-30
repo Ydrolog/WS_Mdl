@@ -16,7 +16,7 @@ DF = DF.loc[(DF['Date'] >= date_start) & (DF['Date'] <= date_end)].reset_index(d
 DF['Year'] = DF['Date'].dt.year
 DF['Month'] = DF['Date'].dt.month
 DF['Day'] = DF['Date'].dt.day
-DF_14 = DF.loc[DF['Day'] == 14]
+DF_14 = DF.loc[(DF['Day'] == 14) | (DF['Day'] == 28)]
 N_entries = DF_14.shape[0]
 
 
