@@ -30,7 +30,7 @@ M.Sim.Bin_Ins = False
 M.Sim.save_head = None # We use OBS instead, which reduces Out size significantly.
 
 # SFR Options
-Pa_SFR_GPkg         =   M.Pa.In / 'SFR/NBr103/WBD_detail_SW_NW_cleaned_NBr103.gpkg'
+Pa_SFR_GPkg         =   M.Pa.In / 'SFR/NBr104/WBD_detail_SW_NW_cleaned_NBr104.gpkg'
 Pa_SW_Cond_A        =   M.Pa.WS / r"models\NBr\In\RIV\RIV_Cond_DETAILWATERGANGEN_NBr1.IDF"
 Pa_SW_Cond_B        =   M.Pa.WS / r"models\NBr\In\RIV\RIV_Cond_DRN_NBr1.IDF"
 Pa_SFR_OBS_In       =   M.Pa.In / 'OBS/SFR/NBr73/NBr73_SFR_OBS_Pnt.csv'
@@ -41,7 +41,8 @@ SFR_options         =   [f'OBS6 FILEIN {M.Pa.Sim_In / (MdlN + ".SFR6.obs")}',
                         f'BUDGET FILEOUT {MdlN}.SFR6.cbc', # 666 Remove this if it doesn't contain any useful info
                         # 'AUXILIARY line_id',
                         # f'STAGE FILEOUT SFR_Stg_{MdlN}.bin', # unnecessary because we have OBS for all reaches
-                        f'PACKAGE_CONVERGENCE FILEOUT SFR_convergence_{MdlN}.CSV']
+                        f'PACKAGE_CONVERGENCE FILEOUT SFR_convergence_{MdlN}.CSV',
+                        'SAVE_FLOWS']
 SFR_one_reach_per_cell: bool = True
 # Pa_SFR_Stg_Init = M.Pa.In / f'SFR/Stg_Init/{MdlN}/Stg_Init_{MdlN}.csv'
 
