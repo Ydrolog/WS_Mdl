@@ -708,7 +708,7 @@ def PrSimP(
             Pkg.dataset['save_flows'] = bool(M.Sim.save_budget)
     save_budget = _save_budget_control(M.Sim.save_budget, times)
     MF6_Mdl['oc'] = mf6.OutputControl(
-        save_head=M.Sim.save_head, save_budget=save_budget, budget_file=M.Pa.Sim_Out / f'{M.MdlN}.CBC'
+        save_head=M.Sim.save_head, save_budget=save_budget, budget_file=str(M.Pa.Sim_Out / f'{M.MdlN}.CBC')
     )
     Sim_MF6['ims'] = moderate_settings() if getattr(M, 'IMS_settings', None) is None else M.IMS_settings
     MF6_DIS = MF6_Mdl['dis']
@@ -754,14 +754,11 @@ def PrSimP(
     # clip_box doesn't clip the packages clipped with regrid, but it clips non raster-like packages like WEL and removes packages that are not in the AoI.
     sprint('🟢', verbose_in=True, verbose_out=M.Sim.verbose, print_time=True)
 
-    # %% ----- Load models into memory
-    sprint('  - Loading models into memory ...', end='', verbose_in=True, verbose_out=M.Sim.verbose, set_time=True)
+    # %% ----- Sort model layers
+    sprint('  - Sorting model layers ...', end='', verbose_in=True, verbose_out=M.Sim.verbose, set_time=True)
     for pkg in MF6_Mdl_AoI.values():
         if 'layer' in pkg.dataset.coords and pkg.dataset['layer'].ndim == 1:
             pkg.dataset = pkg.dataset.sortby('layer')
-        pkg.dataset.load()
-    for pkg in MSW_Mdl_AoI.values():
-        pkg.dataset.load()
     sprint('🟢', verbose_in=True, verbose_out=M.Sim.verbose, print_time=True)
 
     # %%  ----- Create mask from current regridded model (not the old one)

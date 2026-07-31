@@ -65,8 +65,7 @@ onerror: fail
 
 rule all: # Final rule
     input:
-        M.Pa.MM,
-        # log_upload # 666 make this the only output.
+        log_upload
 
 ## -- PrP --
 rule log_Init: # Sets status to running, and writes other info about therun. Has to complete before anything else.
