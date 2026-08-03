@@ -865,12 +865,18 @@ def c_HD_Bin_Pctls(  # 666 date and layer selection should be moved to the o_HD_
     start_year = M.SP_1st_DT.year if start_year == 'from_INI' else int(start_year)
     end_year = M.SP_last_DT.year if end_year == 'from_INI' else int(end_year)
     IDT = int(M.INI.IDT) if IDT == 'from_INI' else int(IDT)
-    l_years = [i for i in range(start_year, end_year + 1)]
-
     # %% Load Bin
-    DA = o_HD_OBS_L_Bin(MdlN, l_L=l_Ls, start_time=M.SP_1st_DT)
-    l_Ls = DA.layer.values if l_Ls == 'all' else l_Ls  # If 'all', use all layers present in the data
-    DA = DA.where(DA.time.dt.year.isin(l_years), drop=True).sel(layer=l_Ls)  # Select specific years and layers
+    DA = o_HD_OBS_L_Bin(
+        MdlN,
+        Pa_Bin=Pa_Bin,
+        l_L=l_Ls,
+        start_time=M.SP_1st_DT,
+        min_date=f'{start_year}-01-01',
+        max_date=f'{end_year}-12-31',
+    )
+    l_Ls = DA.layer.values if l_Ls == 'all' else l_Ls
+    # Dask quantile needs the reduced dimension in one chunk. Spatial chunks remain bounded, so this does not combine the complete model in memory.
+    DA = DA.chunk({'time': -1})
     sprint('🟢')
 
     # %% Calculate percentiles
@@ -946,11 +952,16 @@ def c_HD_Bin_AVGs(
     start_year = M.SP_1st_DT.year if start_year == 'from_INI' else int(start_year)
     end_year = M.SP_last_DT.year if end_year == 'from_INI' else int(end_year)
     IDT = int(M.INI.IDT) if IDT == 'from_INI' else int(IDT)
-    l_years = [i for i in range(start_year, end_year + 1)]
-
     # %% Load Bin
-    DA = o_HD_OBS_L_Bin(MdlN, l_L=l_Ls, start_time=M.SP_1st_DT)
-    DA = DA.where(DA.time.dt.year.isin(l_years), drop=True).sel(layer=l_Ls)  # Select specific years and layers
+    DA = o_HD_OBS_L_Bin(
+        MdlN,
+        Pa_Bin=Pa_Bin,
+        l_L=l_Ls,
+        start_time=M.SP_1st_DT,
+        min_date=f'{start_year}-01-01',
+        max_date=f'{end_year}-12-31',
+    )
+    l_Ls = DA.layer.values if l_Ls == 'all' else l_Ls
     sprint('🟢')
 
     # %% Saving to TIF
@@ -965,17 +976,18 @@ def c_HD_Bin_AVGs(
     summer = (3 < DA.time.dt.month) & (DA.time.dt.month < 10)
     winter = ~summer
     for L in l_Ls:
-        d_DAs = {
-            'winter_AVG': DA.sel(layer=L).where(winter, drop=True).mean(dim='time'),
-            'summer_AVG': DA.sel(layer=L).where(summer, drop=True).mean(dim='time'),
-            'AVG': DA.sel(layer=L).mean(dim='time'),
-            **{
-                f'{y}_AVG': DA.sel(layer=L).where(DA.time.dt.year == y, drop=True).mean(dim='time')
-                for y in np.unique(DA.time.dt.year)
-            },
-        }
+        DA_L = DA.sel(layer=L)
+        averages = [
+            ('winter_AVG', DA_L.where(winter, drop=True).mean(dim='time')),
+            ('summer_AVG', DA_L.where(summer, drop=True).mean(dim='time')),
+            ('AVG', DA_L.mean(dim='time')),
+        ]
+        averages.extend(
+            (f'{y}_AVG', DA_L.where(DA.time.dt.year == y, drop=True).mean(dim='time'))
+            for y in np.unique(DA.time.dt.year)
+        )
 
-        for k, DA_i in d_DAs.items():
+        for k, DA_i in averages:
             Pa_Out = (
                 Pa_Dir / f'L{L}/GW_HD_L{L}_{k}_{MdlN}.tif'
                 if k in ['winter_AVG', 'summer_AVG', 'AVG']

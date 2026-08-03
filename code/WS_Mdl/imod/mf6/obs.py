@@ -255,7 +255,9 @@ def o_HD_OBS_L_Bin(
     max_date=None,
     time_unit: str = 'D',
     dtype: str = 'float32',
-    time_chunk: int = 25,
+    time_chunk: int = 100,
+    y_chunk: int = 172,
+    x_chunk: int = 160,
 ):
     """
     Read MF6 continuous binary observation output written for HD_L_R_C observations.
@@ -264,13 +266,17 @@ def o_HD_OBS_L_Bin(
     regular MODFLOW head-save files. Regular head-save files should still be read
     with ``imod.mf6.open_hds``.
     """
+    import dask.array as da
     import xarray as xra
+    from dask import delayed
 
     # %% Resolve model and file paths
     M = Mdl_N(MdlN)
     Pa_Bin = (
         next(iter(M.Pa.MF6.rglob('HD_OBS_L*.bin'))) if Pa_Bin is None else Path(Pa_Bin)
     )  # Assumes 1 file fits the bill.
+    if min(time_chunk, y_chunk, x_chunk) <= 0:
+        raise ValueError('time_chunk, y_chunk, and x_chunk must be positive integers.')
 
     # %% Read MF6 observation binary header
     with Pa_Bin.open('rb') as f:
@@ -342,17 +348,61 @@ def o_HD_OBS_L_Bin(
 
     # Convert 1-based MODFLOW L/R/C indices to xarray/numpy indices.
     layers = np.sort(lrc['L'].unique())
-    layer_i = pd.Index(layers).get_indexer(lrc['L'])
     row_i = lrc['R'].to_numpy() - 1
     col_i = lrc['C'].to_numpy() - 1
+    obs_layer = lrc['L'].to_numpy()
 
-    # %% Fill dense DataArray with sparse observation values
-    # Start as NaN everywhere; only observed active cells are filled.
-    arr = np.full((len(time_rows), len(layers), len(M.Ys), len(M.Xs)), np.nan, dtype=dtype)
+    # %% Build a lazy dense grid
+    # Do not allocate the complete (time, layer, y, x) grid here. Each delayed
+    # task reopens the memmap and materializes only one bounded output chunk.
+    # This keeps the DataArray lazy all the way through xarray selections and
+    # reductions; a writer or an explicit compute/load becomes the compute point.
+    out_dtype = np.dtype(dtype)
+
+    def read_block(rows, layer, y0, y1, x0, x1):
+        block = np.full((len(rows), 1, y1 - y0, x1 - x0), np.nan, dtype=out_dtype)
+        in_block = (obs_layer == layer) & (row_i >= y0) & (row_i < y1) & (col_i >= x0) & (col_i < x1)
+        if not in_block.any():
+            return block
+
+        block_data = np.memmap(
+            Pa_Bin,
+            dtype=value_dtype,
+            mode='r',
+            offset=data_offset,
+            shape=(n_time, n_obs + 1),
+        )
+        cols = data_cols[in_block]
+        values = np.asarray(block_data[np.ix_(rows, cols)], dtype=out_dtype)
+        block[:, 0, row_i[in_block] - y0, col_i[in_block] - x0] = values
+        return block
+
+    time_blocks = []
     for i0 in range(0, len(time_rows), time_chunk):
-        i1 = min(i0 + time_chunk, len(time_rows))
-        rows = time_rows[i0:i1]
-        arr[i0:i1, layer_i, row_i, col_i] = np.asarray(data[np.ix_(rows, data_cols)], dtype=dtype)
+        rows = time_rows[i0 : i0 + time_chunk]
+        layer_blocks = []
+        for layer in layers:
+            y_blocks = []
+            for y0 in range(0, len(M.Ys), y_chunk):
+                x_blocks = []
+                y1 = min(y0 + y_chunk, len(M.Ys))
+                for x0 in range(0, len(M.Xs), x_chunk):
+                    x1 = min(x0 + x_chunk, len(M.Xs))
+                    task = delayed(read_block)(rows, layer, y0, y1, x0, x1)
+                    x_blocks.append(
+                        da.from_delayed(task, shape=(len(rows), 1, y1 - y0, x1 - x0), dtype=out_dtype)
+                    )
+                y_blocks.append(da.concatenate(x_blocks, axis=3))
+            layer_blocks.append(da.concatenate(y_blocks, axis=2))
+        time_blocks.append(da.concatenate(layer_blocks, axis=1))
+
+    if not time_blocks:
+        arr = da.from_array(
+            np.empty((0, len(layers), len(M.Ys), len(M.Xs)), dtype=out_dtype),
+            chunks=(1, 1, y_chunk, x_chunk),
+        )
+    else:
+        arr = da.concatenate(time_blocks, axis=0)
 
     # %% Return xarray object
     return xra.DataArray(
