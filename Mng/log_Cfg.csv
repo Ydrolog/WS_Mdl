@@ -193,8 +193,8 @@ Realised budget doesn't contain stages, so I tried to produce both CSV OBS and B
 106,NBr,106,NBr106,102,NBr102,MK,Test,RIV #6.2 (SFR Stg (NBr104)): Compare against NBr101 -> Differences in data. Compare against 104 -> Differences in methods.,Development,
 107,NBr,107,NBr107,101,NBr101,MK,Test,"RIV #5.3.1 (RIV Stg): Long Sim
 - 2010-2019
-- CBC Out for 2010 (average), 2017 (wet), 2018 (dry).",Queued,0
-0,,,,,,,,0,,
+- CBC Out for 2010 (average), 2017 (wet), 2018 (dry).",Development,0
+108,NBr,108,NBr108,100,NBr100,MK,Test,SFRmaker #4.7: Testing latest imod python version: 1.0.0.post1,Queued,
 0,,,,,,,,0,,
 0,,,,,,,,0,,
 0,,,,,,,,0,,

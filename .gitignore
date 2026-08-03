@@ -73,3 +73,7 @@ $RECYCLE.BIN/
 # System Volume Information - Windows system folder
 **/System Volume Information/
 **/pagefile.sys
+
+# imod-python testing folder
+code/imod-python/
+code/imod-python/**

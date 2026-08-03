@@ -17,63 +17,68 @@ os.environ["PYTHONUNBUFFERED"] = "1"        # Set Python to unbuffered mode (out
 # --- Variables ---
 
 ## Options
-MdlN        =   'NBr104'
-MdlN_MM_B   =   'NBr103'
-iMOD5       =   False
+MdlN            =   'NBr108'
+MdlN_SFR_GPkg   = 'NBr96'
+MdlN_MM_B       =   'NBr104'
+iMOD5           =   False
 
 ## Paths
 M           =   Mdl_N(MdlN, iMOD5=iMOD5)
 workdir:        M.Pa.Mdl
 
 # MF6 Options
-M.Sim.Bin_Ins = False
-M.Sim.save_head = None # We use OBS instead, which reduces Out size significantly.
+M.Sim.Bin_Ins       =   False
+M.Sim.save_head     =   None # We use OBS instead, which reduces Out size significantly.
+M.Sim.save_budget   =   ['2000-01-01', '2000-03-01', '2000-04-01']
 
 # SFR Options
-Pa_SFR_GPkg         =   M.Pa.In / 'SFR/NBr104/WBD_detail_SW_NW_cleaned_NBr104.gpkg'
-Pa_SW_Cond_A        =   M.Pa.WS / r"models\NBr\In\RIV\RIV_Cond_DETAILWATERGANGEN_NBr1.IDF"
-Pa_SW_Cond_B        =   M.Pa.WS / r"models\NBr\In\RIV\RIV_Cond_DRN_NBr1.IDF"
-Pa_SFR_OBS_In       =   M.Pa.In / 'OBS/SFR/NBr73/NBr73_SFR_OBS_Pnt.csv'
-SFR_connect_Pkgs    =   ('DRN', 'RIV')
-Pa_Shp_catchment    =   M.Pa.WS / r'models\NBr\PoP\common\Pgn\Chaamse_beek\catchment_chaamsebeek_ulvenhout.shp'
-SFR_OBS_all         =   ['stage'] # ['sfr', 'downstream-flow', 'inflow', 'stage', 'from-mvr']
-SFR_options         =   [f'OBS6 FILEIN {M.Pa.Sim_In / (MdlN + ".SFR6.obs")}',
-                        f'BUDGET FILEOUT {MdlN}.SFR6.cbc', # 666 Remove this if it doesn't contain any useful info
-                        # 'AUXILIARY line_id',
-                        # f'STAGE FILEOUT SFR_Stg_{MdlN}.bin', # unnecessary because we have OBS for all reaches
-                        f'PACKAGE_CONVERGENCE FILEOUT SFR_convergence_{MdlN}.CSV',
-                        'SAVE_FLOWS']
+Pa_SFR_GPkg             =   M.Pa.In / f'SFR/{MdlN_SFR_GPkg}/WBD_1ry_SW_NW_cleaned_{MdlN_SFR_GPkg}.gpkg'
+Pa_SW_Cond_A            =   M.Pa.WS / r"models\NBr\In\RIV\RIV_Cond_DETAILWATERGANGEN_NBr1.IDF"
+Pa_SW_Cond_B            =   M.Pa.WS / r"models\NBr\In\RIV\RIV_Cond_DRN_NBr1.IDF"
+Pa_SFR_OBS_In           =   M.Pa.In / 'OBS/SFR/NBr73/NBr73_SFR_OBS_Pnt.csv'
+SFR_connect_Pkgs        =   ('DRN', 'RIV')
+Pa_Shp_catchment        =   M.Pa.PoP / r'common\Pgn\Chaamse_beek\catchment_chaamsebeek_ulvenhout.shp'
+SFR_OBS_all             =   ['sfr', 'downstream-flow', 'inflow', 'stage', 'from-mvr']
+SFR_options             =   [f'OBS6 FILEIN {M.Pa.Sim_In / (MdlN + ".SFR6.obs")}', 
+                             f'BUDGET FILEOUT {MdlN}.SFR6.cbc', # 666 Remove this if it doesn't contain any useful info
+                             # 'AUXILIARY line_id',
+                             # f'STAGE FILEOUT SFR_Stg_{MdlN}.bin', # unnecessary because we have OBS for all reaches
+                             f'PACKAGE_CONVERGENCE FILEOUT SFR_convergence_{MdlN}.CSV',
+                             'SAVE_FLOWS']
 SFR_one_reach_per_cell: bool = True
 # Pa_SFR_Stg_Init = M.Pa.In / f'SFR/Stg_Init/{MdlN}/Stg_Init_{MdlN}.csv'
 
 # OBS Options
-MdlN_HD_OBS   =   'NBr99'
-Pa_HD_OBS_Src =   M.Pa.In / f'OBS/HD/{MdlN_HD_OBS}/GWHD_{MdlN_HD_OBS}.OBS6'
-Pa_HD_OBS_Dst = M.Pa.Sim_In / f'GWHD_{MdlN}.OBS6'
+MdlN_HD_OBS             =   'NBr107'
+Pa_HD_OBS_Src           =   M.Pa.In / f'OBS/HD/{MdlN_HD_OBS}/HD_{MdlN_HD_OBS}.OBS'
+Pa_HD_OBS_Dst           =   M.Pa.Sim_In / f'HD_{MdlN}.OBS'
 
 # SFR PoP
-l_SFR_Par_to_Rst = ['k', 'rwid', 'rgrd', 'rtp', 'rbth', 'rhk', 'man', 'ncon', 'cond']
-Pa_p_SFR_In = M.Pa.PoP / f'In/SFR/{MdlN}/SFR_{MdlN}.gpkg' # Last file produced by that rule -> shows rule finshed 
-MdlN_RIV_Vs = 'NBr101'
-Pa_RIV_Stg_Vs_winter = Path(r'G:/models/NBr/In/RIV/NBr49/RIV_Stg_main_winter_NBr49.IDF')
-Pa_RIV_Stg_Vs_summer = Path(r'G:/models/NBr/In/RIV/NBr49/RIV_Stg_main_summer_NBr49.IDF')
+l_SFR_Par_to_Rst        =   ['k', 'rwid', 'rgrd', 'rtp', 'rbth', 'rhk', 'man', 'ncon', 'cond']
+Pa_p_SFR_In             =   M.Pa.PoP / f'In/SFR/{MdlN}/SFR_{MdlN}.gpkg' # Last file produced by that rule -> shows rule finshed 
+MdlN_RIV_Vs             =   'NBr101'
+Pa_RIV_Stg_Vs_winter    =   Path(r'G:/models/NBr/In/RIV/NBr49/RIV_Stg_main_winter_NBr49.IDF')
+Pa_RIV_Stg_Vs_summer    =   Path(r'G:/models/NBr/In/RIV/NBr49/RIV_Stg_main_summer_NBr49.IDF')
 
-PoP_end_year = 2001
-l_Diff_PoP_Par = ['SFR/Stg', 'SFR/from-mvr', 'SFR/downstream-flow', 'SFR/gwf', 'GW_HD_AVGs/L1']
+l_Diff_PoP_Par          =   ['SFR/Stg', 'SFR/from-mvr', 'SFR/downstream-flow', 'SFR/gwf', 'GW_HD_AVGs/L1']
+PoP_end_year            =   2001
 
-## Completion validation. If you want to re-run a rule, delete the coresponding temp file.
-Pa_temp             =   M.Pa.Smk.parent / 'temp'
-log_Init            =   Pa_temp / f"Log_init_{MdlN}"
-log_fix_MSW_area    =   Pa_temp / f"Log_fix_MSW_area_{MdlN}"
-log_add_SFR_OBS     =   Pa_temp / f"Log_add_SFR_OBS_all_reaches_{MdlN}"
-log_Sim             =   Pa_temp / f"Log_Sim_{MdlN}"
-log_PRJ_to_TIF      =   Pa_temp / f"Log_PRJ_to_TIF_{MdlN}"
-log_HD_AVGs         =   Pa_temp / f"Log_HD_AVGs_{MdlN}"
-log_SFR_CBC         =   Pa_temp / f"Log_SFR_CBC_{MdlN}"
-log_SFR_Stg         =   Pa_temp / f"Log_SFR_Stg_{MdlN}"
-log_Diff            =   Pa_temp / f"Log_Diff_PoP_Par_{MdlN}"
-log_WB              =   Pa_temp / f"Log_WB_{MdlN}"
-log_upload          =   Pa_temp / f"Log_upload_{MdlN}"
+## Temp files - for completion validation. To re-run a rule, delete the coresponding temp file.
+Pa_temp                 =   M.Pa.Smk.parent / 'temp'
+log_Init                =   Pa_temp / f"Log_init_{MdlN}"
+log_fix_MSW_area        =   Pa_temp / f"Log_fix_MSW_area_{MdlN}"
+log_add_SFR_OBS         =   Pa_temp / f"Log_add_SFR_OBS_all_reaches_{MdlN}"
+log_Sim                 =   Pa_temp / f"Log_Sim_{MdlN}"
+log_PRJ_to_TIF          =   Pa_temp / f"Log_PRJ_to_TIF_{MdlN}"
+log_SFR_CBC             =   Pa_temp / f"Log_SFR_CBC_{MdlN}"
+log_SFR_Stg             =   Pa_temp / f"Log_SFR_Stg_{MdlN}"
+log_HD_AVGs             =   Pa_temp / f"Log_HD_AVGs_{MdlN}"
+log_GXG                 =   Pa_temp / f"Log_GXG_{MdlN}"
+log_HD_Pctls            =   Pa_temp / f"Log_HD_Pctls_{MdlN}"
+log_Outlet_TS           =   Pa_temp / f"Log_Outlet_TS_{MdlN}"
+log_Diff                =   Pa_temp / f"Log_Diff_PoP_Par_{MdlN}"
+log_WB                  =   Pa_temp / f"Log_WB_{MdlN}"
+log_upload              =   Pa_temp / f"Log_upload_{MdlN}"
 
 # --- Rules ---
 
@@ -94,13 +99,13 @@ rule log_Init: # Sets status to running, and writes other info about therun. Has
     run:
         import socket
         device = socket.gethostname()
-        Up_log(MdlN, {  'End Status':       'Running',
-                        'PrP start DT':     DT.now().strftime("%Y-%m-%d %H:%M:%S"),
-                        'Sim device name':  device,
-                        'Sim Dir':          M.Pa.MdlN,
-                        '1st SP date':      DT.strptime(M.INI.SDATE, "%Y%m%d").strftime("%Y-%m-%d"),
-                        'last SP date':     DT.strptime(M.INI.EDATE, "%Y%m%d").strftime("%Y-%m-%d")})
-        
+        Up_log(MdlN, {  'End Status'        :   'Running',
+                        'PrP start DT'      :   DT.now().strftime("%Y-%m-%d %H:%M:%S"),
+                        'Sim device name'   :   device,
+                        'Sim Dir'           :   M.Pa.MdlN,
+                        '1st SP date'       :   DT.strptime(M.INI.SDATE, "%Y%m%d").strftime("%Y-%m-%d"),
+                        'last SP date'      :   DT.strptime(M.INI.EDATE, "%Y%m%d").strftime("%Y-%m-%d")})
+
 rule Mdl_Prep: # Prepares Sim Ins (from Ins) via BAT file.
     input:
         log_Init,
@@ -111,7 +116,7 @@ rule Mdl_Prep: # Prepares Sim Ins (from Ins) via BAT file.
         M.Pa.NAM_Sim
     run:
         from imod.mf6.ims import SolutionPresetComplex
-        M.IMS_settings = SolutionPresetComplex(['imported_model']) # Set the IMS settings to a simple preset.
+        M.IMS_settings = SolutionPresetComplex(['imported_model']) # Set the IMS settings to a preset.
         from WS_Mdl.imod.sfr.prsimp import SFR_settings
         from WS_Mdl.imod.prep import Sim
         SFR_Cfg = SFR_settings( Pa_Cond_A           = Pa_SW_Cond_A,
@@ -136,7 +141,7 @@ rule add_HD_OBS_copy: # Copying so I can manually make a file that contains OBS 
     run:
         from WS_Mdl.imod.mf6.nam import add_Pkg
         sh.copy2(Pa_HD_OBS_Src, Pa_HD_OBS_Dst) # Copy the file to create a new one with the same content.
-        add_Pkg(MdlN, fr'  OBS6 .\imported_model\GWHD_{MdlN}.OBS6 GWHD_OBS')  # Add to NAM
+        add_Pkg(MdlN, fr'  OBS6 .\imported_model\HD_{MdlN}.OBS HD_OBS')  # Add to NAM
 
 rule add_SFR_OBS_all_reaches: # Add OBS for all reaches to the NAM file. This should evntually be moved inside Sim
     input:
@@ -154,11 +159,11 @@ rule add_SFR_OBS_all_reaches: # Add OBS for all reaches to the NAM file. This sh
                                             'rno': DF_SFR_PkgD['rno']}) # Prepare for writing to OBS file's CONTINUOUTS FILOUT BLOCK
 
             with open(list(M.Pa.Sim_In.glob('*sfr*obs'))[0], 'a') as f: # Append to the OBS file (assumes 1)
-                f.write(f"\nBEGIN CONTINUOUS FILEOUT ../Stg_{MdlN}.SFR6.bin BINARY")
+                f.write(f"\nBEGIN CONTINUOUS FILEOUT ./Out/{Par}_{MdlN}.SFR6.bin BINARY")
                 f.write('\n# --- Added by Snakemake ---\n')
                 f.write(DF_SFR_PkgD_w.ws.to_MF_block())
                 f.write('END CONTINUOUS\n')
-                
+
 rule fix_MSW_area:
     input:
         M.Pa.NAM_Sim
@@ -179,7 +184,8 @@ rule Sim: # Runs the simulation via BAT file.
         os.chdir(M.Pa.MdlN) # Change directory to the model folder.
         DT_Sim_Start = DT.now()
         Up_log(MdlN, {  'Sim start DT'  :   DT_Sim_Start.strftime("%Y-%m-%d %H:%M:%S")})
-        sp.run([M.Pa.coupler_Exe, M.Pa.TOML], shell=True, check=True) 
+        M.Pa.Sim_Out.mkdir(parents=True, exist_ok=True) # Create Out folder
+        sp.run([M.Pa.coupler_Exe, M.Pa.TOML], shell=True, check=True)
         Up_log(MdlN, {  'Sim end DT'    :   DT.now().strftime("%Y-%m-%d %H:%M:%S"),
                         'Sim Dur'       :   get_elapsed_time_str(DT_Sim_Start),
                         'End Status'    :   'Completed'})
@@ -189,7 +195,7 @@ rule PRJ_to_TIF:
     input:
         log_Sim
     output:
-        touch(temp(log_PRJ_to_TIF))
+        touch(log_PRJ_to_TIF)
     run:
         from WS_Mdl.imod.prj import to_TIF as PRJ_to_TIF
         PRJ_to_TIF(MdlN, iMOD5=iMOD5) # Convert PRJ to TIFs
@@ -213,7 +219,6 @@ rule p_SFR_CBC:
     run:
         from WS_Mdl.imod.pop.sfr import SFR_CBC_Par_to_TIF
         SFR_CBC_Par_to_TIF(MdlN)
-
 
 rule p_SFR_Stg:
     input:
@@ -267,6 +272,25 @@ rule p_HD_OBS_TS:
         p_HD_OBS_TS(MdlN)
         Up_log(MdlN, {'p_HD_OBS_TS' :   1})
 
+rule GXG:
+    input:
+        log_Sim
+    output:
+        touch(log_GXG)
+    run:
+        from WS_Mdl.imod.pop.hd import c_HD_Bin_GXGs
+        c_HD_Bin_GXGs(MdlN) # Calculate GXG and save as TIFs
+        Up_log(MdlN, {  'GXG':   1})
+rule p_HD_Pctls:
+    input:
+        log_Sim
+    output:
+        touch(log_HD_Pctls)
+    run:
+        from WS_Mdl.imod.pop.hd import c_HD_Bin_Pctls
+        c_HD_Bin_Pctls(MdlN)
+        Up_log(MdlN, {  'HD_Pctls':   1})
+
 rule Diff_PoP_Par:
     input:
         log_SFR_Stg,
@@ -275,17 +299,30 @@ rule Diff_PoP_Par:
     output:
         touch(log_Diff)
     run:
-        from WS_Mdl.xr.compare import Diff_PoP_Par
+        from WS_Mdl.imod.pop.diff import Diff_PoP_Par
         for P in l_Diff_PoP_Par:
             Diff_PoP_Par(MdlN, M.B, P)
         Up_log(MdlN, {'Diff_PoP_Par' :   ", ".join(l_Diff_PoP_Par)})
 
+rule Outlet_TS:
+    input:
+        log_Sim
+    output:
+        touch(log_Outlet_TS)
+    run:
+        from WS_Mdl.imod.pop.ts import Agg_outlet_TS
+        Agg_outlet_TS(MdlN, Pa_Shp_catchment)
+        Up_log(MdlN, {'Agg_outlet_TS' :   1})
+
 rule Up_MM:
     input:
-        log_HD_AVGs,
         log_PRJ_to_TIF,
+        log_HD_AVGs,
+        M.Pa.PoP_Out_MdlN / f'GW_HD_OBS/metadata.txt',
+        log_GXG,
+        log_HD_Pctls,
         log_Diff,
-        M.Pa.PoP_Out_MdlN / f'GW_HD_OBS/metadata.txt'
+        log_Outlet_TS
     output:
         M.Pa.MM
     run:
@@ -304,12 +341,12 @@ rule WB:
         from WS_Mdl.imod.pop.wb import Diff_to_xlsx
         Diff_to_xlsx(MdlN, M.B)
 
-rule Upl_MdlN_PoP_Out: # Uploads the PoP Out files to iBridges. This is the final step of the workflow.
+rule Upl: # Uploads the PoP Out files to iBridges. This is the final step of the workflow.
     input:
         M.Pa.MM,
         log_WB
     output:
         touch(log_upload)
     run:
-        from WS_Mdl.io.ibridges import Upl_MdlN_PoP_Out
-        Upl_MdlN_PoP_Out(MdlN)
+        from WS_Mdl.io.ibridges import Upl_Sim_Out
+        Upl_Sim_Out(MdlN)

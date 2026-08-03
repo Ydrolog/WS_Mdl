@@ -13,8 +13,8 @@ Pa_template = Pa_WS / r'code\WS_Mdl\Auxi\WB_Diff_NET_sum_Pkg_TEMPLATExlsx.xlsx'
 
 def Diff_to_xlsx(
     MdlN: str,
-    MdlN_B: str = None,
-    date: str = None,
+    MdlN_B: str | None = None,
+    date: str | None = None,
     cumulative=True,
     sum_Pkg: bool = True,
     net_only: bool = True,

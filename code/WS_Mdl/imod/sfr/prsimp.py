@@ -566,6 +566,11 @@ def connect_SFR_lines_to_MF6(M: Mdl_N, debug_sfr: bool = True):
     print('SFR_data type:', type(SFR_data))
     SFR_data.write_package(str(M.Pa.SFR), version='mf6', options=M.SFR_options, run_diagnostics=False)
 
+    if len(SFR_data.observations) > 0:
+        SFR_data.write_mf6_sfr_obsfile(
+            sfr_output_filename=M.Pa.Sim_Out / f'{M.MdlN}.SFR6.obs.output.csv'
+        )
+
     if M.SFR_Stg_Init is not None:
         DF_Stg_Init = pd.read_csv(M.SFR_Stg_Init)
         with open(M.Pa.SFR, 'a') as f:
@@ -721,7 +726,7 @@ BEGIN PERIOD 1""")
     with open(M.Pa.NAM_Mdl, 'r') as f1:
         l_Lns_NAM = f1.readlines()
 
-    l_Lns_NAM.insert(-1, f'  MVR imported_model/{Pa_MVR.name} MVR\n')
+    l_Lns_NAM.insert(-1, f'  MVR6 imported_model/{Pa_MVR.name} MVR\n')
 
     with open(M.Pa.NAM_Mdl, 'w') as f2:
         f2.writelines(l_Lns_NAM)
