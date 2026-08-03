@@ -853,14 +853,14 @@ def c_HD_Bin_Pctls(  # 666 date and layer selection should be moved to the o_HD_
     IDT: str = 'from_INI',
 ):
     sprint('----- c_Pctl_HD_OBS_L initiated -----', style=green)
-    sprint('--- Loading extra packages...', end='', verbose_out=False)
+    sprint('--- Loading extra packages...', end='', set_time=True)
     import rioxarray  # Noqa: F401 # activates the .rio accessor
     from WS_Mdl.imod.mf6.obs import o_HD_OBS_L_Bin
 
-    sprint('🟢')
+    sprint('🟢', print_time=True)
 
     # %% Basics
-    sprint('--- Loading data...', end='')
+    sprint('--- Loading data...', end='', set_time=True)
     M = Mdl_N(MdlN)
     start_year = M.SP_1st_DT.year if start_year == 'from_INI' else int(start_year)
     end_year = M.SP_last_DT.year if end_year == 'from_INI' else int(end_year)
@@ -877,7 +877,7 @@ def c_HD_Bin_Pctls(  # 666 date and layer selection should be moved to the o_HD_
     l_Ls = DA.layer.values if l_Ls == 'all' else l_Ls
     # Dask quantile needs the reduced dimension in one chunk. Spatial chunks remain bounded, so this does not combine the complete model in memory.
     DA = DA.chunk({'time': -1})
-    sprint('🟢')
+    sprint('🟢', print_time=True)
 
     # %% Calculate percentiles
     DA_q = timed_Exe(
