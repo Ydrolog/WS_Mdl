@@ -18,7 +18,7 @@ os.environ["PYTHONUNBUFFERED"] = "1"        # Set Python to unbuffered mode (out
 
 ## Options
 MdlN            =   'NBr108'
-MdlN_SFR_GPkg   = 'NBr96'
+MdlN_SFR_GPkg   =   'NBr96'
 MdlN_MM_B       =   'NBr104'
 iMOD5           =   False
 

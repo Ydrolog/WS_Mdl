@@ -1065,7 +1065,7 @@ def c_HD_Bin_GXGs(
         Pa_Out_L = Pa_Dir / f'L{L}'
         Pa_Out_L.mkdir(parents=True, exist_ok=True)
 
-        GXG = imod.evaluate.calculate_gxg(DA.sel(layer=L)).load()
+        GXG = imod.evaluate.calculate_gxg(DA.sel(layer=L))  # .load()
         GXG = GXG.rename_vars({var: var.upper() for var in GXG.data_vars})
         N_years_GXG = np.unique(GXG.N_YEARS_GXG.values).max()
         N_years_GVG = np.unique(GXG.N_YEARS_GVG.values).max()
