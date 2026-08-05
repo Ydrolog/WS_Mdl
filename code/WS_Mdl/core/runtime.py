@@ -1,5 +1,6 @@
 import importlib
-import time
+from threading import Thread
+from time import perf_counter, sleep
 
 from WS_Mdl.core.style import sprint
 
@@ -9,9 +10,9 @@ def timed_import(module):
     if not isinstance(module, str):
         module = module.__name__
 
-    start = time.perf_counter()
+    start = perf_counter()
     mod = importlib.import_module(module)
-    end = time.perf_counter()
+    end = perf_counter()
 
     sprint(f'{module} imported in {end - start:.3f}s')
     return mod
@@ -27,9 +28,9 @@ def timed_Exe(func, *args, pre=None, post='🟢', verbose_in=True, verbose_out=T
     else:
         sprint(f'{pre} ', verbose_in=verbose_in, verbose_out=verbose_out, end='')
 
-    start = time.perf_counter()
+    start = perf_counter()
     result = func(*args, **kwargs)
-    end = time.perf_counter()
+    end = perf_counter()
 
     sprint(f'{post} [{end - start:.2f}s]', verbose_in=verbose_in, verbose_out=verbose_out)
 
@@ -38,8 +39,27 @@ def timed_Exe(func, *args, pre=None, post='🟢', verbose_in=True, verbose_out=T
 
 def timed_class_init(cls, *args, **kwargs):
     """e.g. from WS_Mdl import core as C; C.timed_class_init(C.Mdl_N, MdlN)"""
-    start = time.perf_counter()
+    start = perf_counter()
     instance = cls(*args, **kwargs)
-    end = time.perf_counter()
+    end = perf_counter()
     sprint(f'{cls.__name__} instance created in {end - start:.2f}s')
     return instance
+
+
+def watch_execution(func, *args, dt=0.1, Msg='Elapsed: ', **kwargs):
+    result = {}
+
+    def run():
+        result['value'] = func(*args, **kwargs)
+
+    t = Thread(target=run)
+    t0 = perf_counter()
+    t.start()
+
+    while t.is_alive():
+        print(f'\r{Msg}{perf_counter() - t0:6.1f} s', end='', flush=True)
+        sleep(dt)
+
+    t.join()
+    print(f'\r{Msg}{perf_counter() - t0:6.1f} s')
+    return result['value']
