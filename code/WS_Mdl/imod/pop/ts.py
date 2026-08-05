@@ -23,7 +23,9 @@ def Agg_outlet_TS(MdlN: str, Pa_clip: str, save: bool = True, overwrite: bool = 
         sprint('🟢', print_time=True)
 
     # %% SFR
-    DF['SFR_outlet'] = pd.read_csv(next(iter(M.Pa.Sim_Out.glob('*SFR*.csv'))))['OUTLET_DOWNSTREAM-FLOW'] * (-1)
+    Pa_SFR = next(iter(M.Pa.Sim_Out.glob('*SFR*.csv')), None)
+    if Pa_SFR:
+        DF['SFR_outlet'] = pd.read_csv(Pa_SFR)['OUTLET_DOWNSTREAM-FLOW'] * (-1)
 
     # MSW qrun
     import geopandas as gpd

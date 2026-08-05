@@ -36,7 +36,6 @@ Pa_HD_OBS_Dst       =   M.Pa.Sim_In / f'HD_{MdlN}.OBS'
 
 # PoP Options
 PoP_end_year        =   2001
-l_Diff_PoP_Par      =   ['GW_HD_AVGs/L1']
 Pa_Shp_catchment    =   M.Pa.PoP / r'common\Pgn\Chaamse_beek\catchment_chaamsebeek_ulvenhout.shp'
 
 ## Temp files (for completion validation)
@@ -51,8 +50,6 @@ log_HD_AVGs         =   Pa_temp / f"Log_HD_AVGs_{MdlN}"
 log_GXG             =   Pa_temp / f"Log_GXG_{MdlN}"
 log_HD_Pctls        =   Pa_temp / f"Log_HD_Pctls_{MdlN}"
 log_Outlet_TS       =   Pa_temp / f"Log_Outlet_TS_{MdlN}"
-log_Diff            =   Pa_temp / f"Log_Diff_PoP_Par_{MdlN}"
-log_WB              =   Pa_temp / f"Log_WB_{MdlN}"
 log_upload          =   Pa_temp / f"Log_upload_{MdlN}"
 
 # --- Rules ---
@@ -184,7 +181,7 @@ rule p_HD_OBS_TS:
         touch(M.Pa.PoP_Out_MdlN / f'GW_HD_OBS/metadata.txt')
     run:
         from WS_Mdl.imod.pop.hd import p_HD_OBS_TS
-        p_HD_OBS_TS(MdlN)
+        p_HD_OBS_TS(MdlN, MdlN_B=False)
         Up_log(MdlN, {'p_HD_OBS_TS' :   1})
 
 rule GXG:
@@ -207,18 +204,6 @@ rule p_HD_Pctls:
         c_HD_Bin_Pctls(MdlN)
         Up_log(MdlN, {  'HD_Pctls':   1})
 
-
-rule Diff_PoP_Par:
-    input:
-        log_HD_AVGs
-    output:
-        touch(log_Diff)
-    run:
-        from WS_Mdl.imod.pop.diff import Diff_PoP_Par
-        for P in l_Diff_PoP_Par:
-            Diff_PoP_Par(MdlN, M.B, P)
-        Up_log(MdlN, {'Diff_PoP_Par' :   ", ".join(l_Diff_PoP_Par)})
-
 rule Outlet_TS:
     input:
         log_Sim
@@ -236,7 +221,6 @@ rule Up_MM:
         M.Pa.PoP_Out_MdlN / f'GW_HD_OBS/metadata.txt',
         log_GXG,
         log_HD_Pctls,
-        log_Diff,
         log_Outlet_TS
     output:
         touch(M.Pa.MM)
@@ -247,19 +231,9 @@ rule Up_MM:
                         'End Status':   'PoPed',
                         'Up_MM'     :   1}) # Update log
 
-rule WB:
-    input:
-        log_Sim
-    output:
-        touch(log_WB)
-    run:
-        from WS_Mdl.imod.pop.wb import Diff_to_xlsx
-        Diff_to_xlsx(MdlN, M.B)
-
 rule Upl: # Uploads the PoP Out files to iBridges. This is the final step of the workflow.
     input:
-        M.Pa.MM,
-        log_WB
+        M.Pa.MM
     output:
         touch(log_upload)
     run:

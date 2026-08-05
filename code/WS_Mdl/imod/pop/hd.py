@@ -203,7 +203,7 @@ def p_HD_OBS_TS(MdlN, MdlN_B=True, MdlN_Pa_MF6=None, MdlN_B_Pa_MF6=None):
     from WS_Mdl.core.metrics import Vld_Mtc
 
     M = Mdl_N(MdlN)
-    MB = Mdl_N(MdlN_B) if isinstance(MdlN_B, str) else Mdl_N(M.B) if MdlN_B is True else M.copy()
+    MB = Mdl_N(MdlN_B) if isinstance(MdlN_B, str) else Mdl_N(M.B) if MdlN_B is True else M
     if MdlN_Pa_MF6:
         M.Pa.MF6 = Path(MdlN_Pa_MF6)
     if MdlN_B_Pa_MF6:
@@ -634,11 +634,30 @@ def p_HD_OBS_TS(MdlN, MdlN_B=True, MdlN_Pa_MF6=None, MdlN_B_Pa_MF6=None):
     d_Mtc = {}
     for ID in DF_M.columns:  # [n : n + 1]:
         # Merge OBS with Mdl of S and B
-        DF = DF_OBS.loc[(DF_OBS['Id'] == ID)].merge(right=DF_M[ID], how='outer', left_on='datetime', right_index=True)
-        DF.rename(columns={ID: M.MdlN}, inplace=True)
-        DF = DF.merge(right=DF_MB[ID].rename(index=MB.MdlN), how='outer', left_on='datetime', right_index=True)
-        DF.index = pd.to_datetime(DF['datetime'])  # Set datetime as the index now that it's unique (per ID)
-        DF_notNA = DF.loc[DF['head'].notna() & DF[M.MdlN].notna() & DF[MB.MdlN].notna()]
+        DF = DF_OBS.loc[DF_OBS['Id'] == ID].merge(
+            right=DF_M[ID].rename(M.MdlN),
+            how='outer',
+            left_on='datetime',
+            right_index=True,
+        )
+
+        if MdlN_B and MB.MdlN != M.MdlN:
+            DF = DF.merge(
+                right=DF_MB[ID].rename(MB.MdlN),
+                how='outer',
+                left_on='datetime',
+                right_index=True,
+            )
+
+        DF['datetime'] = pd.to_datetime(DF['datetime'])
+        DF.set_index('datetime', inplace=True)
+
+        rule_notNA = DF[['head', M.MdlN]].notna().all(axis=1)
+
+        if MdlN_B and MB.MdlN != M.MdlN:
+            rule_notNA &= DF[MB.MdlN].notna()
+
+        DF_notNA = DF.loc[rule_notNA]
 
         # Compute
         Obs = DF_notNA['head'] if not DF_notNA['head'].empty else np.nan
@@ -903,7 +922,8 @@ def c_HD_Bin_Pctls(  # 666 date and layer selection should be moved to the o_HD_
 
     for q in l_Pct:
         for L in l_Ls:
-            Pa_Out = Pa_Dir / f'{L}/GW_HD_L{L}_P{int(q * 100):02d}_{MdlN}.tif'
+            Pa_Out = Pa_Dir / f'L{L}/GW_HD_L{L}_P{int(q * 100):02d}_{MdlN}.tif'
+            Pa_Out.parent.mkdir(parents=True, exist_ok=True)
 
             sprint(f'  - {Pa_Out.name} ', end='')
             DA_i = DA_q.sel(quantile=q, layer=L)
