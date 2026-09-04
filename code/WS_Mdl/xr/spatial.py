@@ -24,7 +24,7 @@ def get_value(A, X, Y, dx, dy, L=None, method='nearest', validate=True):
     return value
 
 
-def clip_Mdl_area(A, MdlN):
+def clip_Mdl_area(A, MdlN, buffer: float = 0):
     """
     - Clips xarray DataArray A to the model area defined by MdlN's INI.window.
     - Returns the clipped DataArray.
@@ -37,5 +37,5 @@ def clip_Mdl_area(A, MdlN):
         A = A.reindex(y=A.y[::-1])
         sprint('🟡 - Reversed y-axis of DataArray to match model area orientation.')
 
-    A_clipped = A.sel(x=slice(Xmin, Xmax), y=slice(Ymin, Ymax))
+    A_clipped = A.sel(x=slice(Xmin - buffer, Xmax + buffer), y=slice(Ymin - buffer, Ymax + buffer))
     return A_clipped
