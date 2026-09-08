@@ -37,7 +37,12 @@ CHD1 = clip_Mdl_area(imod.idf.open(l_Pa_CHD1, pattern='{name}_{time}_L{layer}_NB
 CHD2 = clip_Mdl_area(imod.idf.open(l_Pa_CHD2, pattern='{name}_{time}_L{layer}_NBr5'), MdlN_B, buffer=1000)
 
 # %% Load old CHDs - Merge
-CHD1 = CHD1.interp_like(CHD2, method='nearest')
+# Match CHD2's spatial grid while preserving CHD1's own time coordinates.
+CHD1 = CHD1.interp(
+    x=CHD2.x,
+    y=CHD2.y,
+    method='nearest',
+)
 CHD = xra.concat([CHD1, CHD2], dim='time').sortby('time')
 
 # %% Load OBS
@@ -70,12 +75,6 @@ for k, v in GRB.items():
         except:
             print()
     print('-----')
-
-# %%
-CHD.x.values, CHD.y.values
-
-# %% LHM
-HD.x.values, HD.y.values
 
 
 # Map each CHD layer to the LHM layer with the nearest vertical midpoint.
@@ -110,8 +109,8 @@ HD_ = xra.concat(l_HD_L, dim='layer')
 HD_ = HD_.where(GRB['idomain'].sel(layer=CHD.layer) > 0)
 
 # %% Trim time
-CHD = CHD.sel(time=slice(DF_OBS.datetime.min(), DF_OBS.datetime.max()))
-HD_ = HD_.sel(time=slice(DF_OBS.datetime.min(), DF_OBS.datetime.max()))
+CHD_trim = CHD.sel(time=slice(DF_OBS.datetime.min(), DF_OBS.datetime.max()))
+HD_trim = HD_.sel(time=slice(DF_OBS.datetime.min(), DF_OBS.datetime.max()))
 
 # %% Prepare one location per observation ID
 DF_Points = DF_OBS.drop_duplicates('Id').set_index('Id')
@@ -139,14 +138,14 @@ L_Indexer = xra.DataArray(
 )
 
 # Vectorized selection: result dimensions are (time, point)
-CHD_Points = CHD.sel(
+CHD_Points = CHD_trim.sel(
     x=X_Indexer,
     y=Y_Indexer,
     layer=L_Indexer,
     method='nearest',
 )
 
-HD_Points = HD_.sel(
+HD_Points = HD_trim.sel(
     x=X_Indexer,
     y=Y_Indexer,
     layer=L_Indexer,
@@ -159,7 +158,9 @@ CHD_Points.load()
 HD_Points.load()
 sprint('🟢', print_time=True)
 
-# %% Save plots for each OBS
+
+# Save plots for each OBS
+# %% Def functions
 
 
 def model_at_observation_times(Model_HD, Obs_Times):
@@ -192,24 +193,26 @@ def paired_rmse_at_observation_times(CHD_HD, LHM_HD, DF):
     Obs = Obs.dropna().sort_values('datetime')
 
     if Obs.empty:
-        return np.nan, np.nan, np.nan, np.nan, 0
+        return np.nan, np.nan, np.nan, np.nan, 0, pd.NaT, pd.NaT
 
     CHD_At_Obs = model_at_observation_times(CHD_HD, Obs.datetime)
     LHM_At_Obs = model_at_observation_times(LHM_HD, Obs.datetime)
     Shared = np.isfinite(CHD_At_Obs) & np.isfinite(LHM_At_Obs)
     if not Shared.any():
-        return np.nan, np.nan, np.nan, np.nan, 0
+        return np.nan, np.nan, np.nan, np.nan, 0, pd.NaT, pd.NaT
 
     Observed = Obs['head'].to_numpy()[Shared]
+    Shared_Dates = Obs['datetime'].iloc[np.flatnonzero(Shared)]
     Error_CHD = CHD_At_Obs[Shared] - Observed
     Error_LHM = LHM_At_Obs[Shared] - Observed
     RMSE_CHD = np.sqrt(np.mean(Error_CHD**2))
     RMSE_LHM = np.sqrt(np.mean(Error_LHM**2))
-    ME_CHD = np.mean(Error_CHD)
-    ME_LHM = np.mean(Error_LHM)
-    return RMSE_CHD, RMSE_LHM, ME_CHD, ME_LHM, int(Shared.sum())
+    RME_CHD = np.mean(Error_CHD)
+    RME_LHM = np.mean(Error_LHM)
+    return RMSE_CHD, RMSE_LHM, RME_CHD, RME_LHM, int(Shared.sum()), Shared_Dates.min(), Shared_Dates.max()
 
 
+# %% Plot
 RMSE_Rows = []
 
 for Id in Ids:
@@ -223,7 +226,7 @@ for Id in Ids:
     CHD_ = CHD_Points.sel(point=Id)
     HD__ = HD_Points.sel(point=Id)
 
-    RMSE_CHD, RMSE_LHM, ME_CHD, ME_LHM, N = paired_rmse_at_observation_times(CHD_, HD__, DF)
+    RMSE_CHD, RMSE_LHM, RME_CHD, RME_LHM, N, Date_Min, Date_Max = paired_rmse_at_observation_times(CHD_, HD__, DF)
     RMSE_Rows.append(
         {
             'Id': Id,
@@ -232,9 +235,11 @@ for Id in Ids:
             'Y': Y,
             'RMSE_CHD': RMSE_CHD,
             'RMSE_LHM': RMSE_LHM,
-            'ME_CHD': ME_CHD,
-            'ME_LHM': ME_LHM,
+            'RME_CHD': RME_CHD,
+            'RME_LHM': RME_LHM,
             'N': N,
+            'Date_Min': Date_Min,
+            'Date_Max': Date_Max,
         }
     )
 
@@ -270,7 +275,12 @@ for Id in Ids:
 
     fig.update_layout(
         title=dict(
-            text=f'Id: {Id} | L: {L:g} | X: {X:,.0f} | Y: {Y:,.0f}',
+            text=(
+                f'Id: {Id} | L: {L:g} | X: {X:,.0f} | Y: {Y:,.0f}'
+                f'<br><sup>RMSE — CHD: {RMSE_CHD:.2f} m | LHM: {RMSE_LHM:.2f} m'
+                f' &nbsp; | &nbsp; RME — CHD: {RME_CHD:+.2f} m | LHM: {RME_LHM:+.2f} m'
+                f'<br>RMSE period: {Date_Min:%d-%b-%Y} to {Date_Max:%d-%b-%Y} (N={N})</sup>'
+            ),
             x=0.5,
             xanchor='center',
         ),
@@ -296,7 +306,63 @@ for Id in Ids:
 DF_RMSE = pd.DataFrame(RMSE_Rows)
 
 DF_RMSE['link'] = DF_RMSE.Id.apply(lambda x: f'=HYPERLINK("{Path("plots").resolve() / (x + ".html")}", "{x}")')
-DF_RMSE.to_csv('plots/RMSE.csv', index=False)
+DF_RMSE.to_csv('plots/RMSE.csv', index=False, date_format='%Y-%m-%d')
+
+# %% Save OBS min max dates for each Id
+DF_OBS_MinMax = DF_OBS.groupby('Id').agg(Date_Min=('datetime', 'min'), Date_Max=('datetime', 'max')).reset_index()
+DF_OBS_MinMax.sort_values('Date_Min', inplace=True)
+DF_OBS_MinMax.to_excel('plots/OBS_MinMax.xlsx', index=False)
+
+
+# %% Save LHM HDs for use in NBr
+Pa_Out = M.Pa.In / f'CHD/{MdlN}'
+
+# %% Re-calc LHM vals for NBr Ls
+# One unclipped file supplies the grid extent; reuse the layers already read above.
+CHD_grid = imod.idf.open(l_Pa_CHD2[0], pattern='{name}_{time}_L{layer}_NBr5')
+
+# %% Build 250 m cell centres from the full CHD cell edges (the source grid is 100 m).
+Cellsize = 250.0
+X_min = float(CHD_grid.x.min()) - abs(float(CHD_grid.dx)) / 2
+X_max = float(CHD_grid.x.max()) + abs(float(CHD_grid.dx)) / 2
+Y_min = float(CHD_grid.y.min()) - abs(float(CHD_grid.dy)) / 2
+Y_max = float(CHD_grid.y.max()) + abs(float(CHD_grid.dy)) / 2
+X_250 = X_min + Cellsize * (np.arange(int(np.ceil((X_max - X_min) / Cellsize))) + 0.5)
+Y_250 = Y_max - Cellsize * (np.arange(int(np.ceil((Y_max - Y_min) / Cellsize))) + 0.5)
+
+HD_full = imod.idf.open(M.Pa.In / 'CHD/LHM/heads/head_*_l*.idf', pattern='{name}_{time}_l{layer}')
+TOP_LHM = imod.idf.open(M.Pa.In / 'CHD/LHM/top/TOP_L*.idf', pattern='{name}_L{layer}')
+BOT_LHM = imod.idf.open(M.Pa.In / 'CHD/LHM/bot/BOT_L*.idf', pattern='{name}_L{layer}')
+TOP_NBr = imod.idf.open(MB.Pa.In / 'TOP/TOP_L*_NBr1.idf', pattern='{name}_L{layer}_NBr1')
+BOT_NBr = imod.idf.open(MB.Pa.In / 'BOT/BOT_L*_NBr1.idf', pattern='{name}_L{layer}_NBr1')
+
+# %% Use the original layer geometry to cover CHD cells outside the simulation GRB.
+NBr_mid_250 = ((TOP_NBr + BOT_NBr) / 2).sel(layer=CHD.layer).interp(x=X_250, y=Y_250, method='nearest')
+LHM_mid_250 = ((TOP_LHM + BOT_LHM) / 2).sel(layer=HD_full.layer).interp(x=X_250, y=Y_250, method='nearest')
+HD_src_250 = HD_full.interp(x=X_250, y=Y_250, method='nearest')
+
+# Apply the same nearest-vertical-midpoint mapping as in the comparison above.
+l_HD_LHM = []
+for L in CHD.layer.values:
+    Dist = abs(LHM_mid_250 - NBr_mid_250.sel(layer=L))
+    Has_source = Dist.notnull().any('layer')
+    Src_i = Dist.fillna(float('inf')).argmin('layer')
+    HD_L = sum(
+        HD_src_250.sel(layer=Src_L).where(Src_i == Src_i_Val, 0)
+        for Src_i_Val, Src_L in enumerate(HD_src_250.layer.values)
+    ).where(Has_source)
+    l_HD_LHM.append(HD_L.expand_dims(layer=[L]))
+
+HD_LHM = xra.concat(l_HD_LHM, dim='layer').assign_coords(dx=250.0, dy=-250.0)
+HD_LHM.name = 'LHM_HD'
 
 
 # %%
+l_Ls = range(1, 37 + 1, 2)
+Pa_Out.mkdir(parents=True, exist_ok=True)
+imod.idf.save(Pa_Out / HD_LHM.name, HD_LHM.sel(layer=l_Ls), pattern=f'{{name}}_{{time:%Y%m%d}}_L{{layer}}_{MdlN}.idf')
+
+# %% --- Save all Ls for 19991228 to use as SHD
+imod.idf.save(
+    Pa_Out / HD_LHM.name, HD_LHM.sel(time='1999-12-28'), pattern=f'{{name}}_{{time:%Y%m%d}}_L{{layer}}_{MdlN}.idf'
+)
