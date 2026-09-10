@@ -1,0 +1,2 @@
+LHM outputs receceived from Rianne Meeusen. Read email (RE LHM GW head output request.msg) for more info.
+Storing here instead of an individual model folder, cause these cover the whole of the NL.

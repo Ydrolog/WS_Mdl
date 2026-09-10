@@ -54,7 +54,9 @@ DF_OBS = DF_OBS.ws.XY_to_RC(MB, x='X', y='Y')
 
 # %% Load LHM HDs, TOP & BOT
 HD = clip_Mdl_area(
-    imod.idf.open(M.Pa.In / 'CHD/LHM/heads/head_*_l*.idf', pattern='{name}_{time}_l{layer}'), MdlN_B, buffer=1000
+    imod.idf.open(M.Pa.WS / 'data/LHM_HD_1990-2025/heads/head_*_l*.idf', pattern='{name}_{time}_l{layer}'),
+    MdlN_B,
+    buffer=1000,
 )
 TOP = clip_Mdl_area(imod.idf.open(M.Pa.In / 'CHD/LHM/top/TOP_L*.idf', pattern='{name}_L{layer}'), MdlN_B, buffer=1000)
 BOT = clip_Mdl_area(imod.idf.open(M.Pa.In / 'CHD/LHM/bot/BOT_L*.idf', pattern='{name}_L{layer}'), MdlN_B, buffer=1000)

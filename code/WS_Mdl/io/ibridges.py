@@ -9,7 +9,7 @@ from WS_Mdl.core.defaults import Pa_WS
 from WS_Mdl.core.mdl import Mdl_N
 from WS_Mdl.core.style import VERBOSE, Sep, Sep_2, blue, bold, green, sprint, style_reset, warn
 
-__all__ = ['get_Pw', 'Dl', 'Dl_MdlN_PoP_Out']
+__all__ = ['Dl', 'Dl_MdlN_PoP_Out', 'get_Pw']
 
 
 def l_Fis_Exc(Pa: Path | str, l_exceptions=['.7z', '.aux', '.xml'], verbose: bool = True):
@@ -98,7 +98,7 @@ def Upl(
     print(f'Uploading from: {Pa_Loc}')
     if Pa_Loc.is_file():
         if l_Fi_data:
-            Target = CWD / Path(F).relative_to(Pa_base)
+            Target = CWD / Pa_Loc.relative_to(Pa_base)
             print(f'Uploading to:   {Target}')
             if not Target.parent.exists():
                 Target.parent.create_collection()
