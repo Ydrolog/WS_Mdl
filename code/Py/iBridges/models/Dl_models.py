@@ -3,9 +3,9 @@ from WS_Mdl.io.ibridges import Dl, iB_session
 
 print(Sep)
 
-l_F = ['models/NBr/code', 'models/NBr/doc', 'models/NBr/In', 'models/NBr/PoP/Chaamse_beek']
+l_F = ['models/NBr/code', 'models/NBr/doc', 'models/NBr/In']
 
-print(f'Downloading "{l_F}" to from iBridges...\n')
+print(f'Downloading "{l_F}" from iBridges...\n')
 
 S = iB_session()
 

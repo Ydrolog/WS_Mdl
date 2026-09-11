@@ -1,5 +1,6 @@
 import os
 import tarfile
+import warnings
 from pathlib import Path
 
 from ibridges import IrodsPath as iPa
@@ -120,9 +121,68 @@ def Upl(
             sprint(Sep_2, indent=1)
 
 
+def _extract_archive(file_path, overwrite=False, on_error='warn'):
+    """Retain successful archives; only mark extraction complete after all members finish."""
+    file_path = Path(file_path)
+    marker = file_path.with_name(file_path.name + '.extracted')
+    signature = f'{file_path.stat().st_size}:{file_path.stat().st_mtime_ns}'
+    if not overwrite and marker.is_file() and marker.read_text() == signature:
+        print(f'Skipping already extracted archive: {file_path}')
+        return
+
+    print(f'Decompressing {file_path}...')
+    skipped = 0
+    try:
+        marker.unlink(missing_ok=True)
+        with tarfile.open(file_path, 'r:gz') as tar:
+            members = tar.getmembers()
+            with tqdm(total=len(members), desc=f'Extracting {file_path.name}', unit='file') as pbar:
+                for member in members:
+                    # Validate even skipped members before resolving their destination.
+                    safe_member = tarfile.data_filter(member, str(file_path.parent))
+                    if safe_member is None:
+                        raise ValueError(f'Archive member rejected: {member.name}')
+                    target = file_path.parent / safe_member.name
+                    if not overwrite and target.exists():
+                        if not ((member.isdir() and target.is_dir()) or
+                                (member.isfile() and target.is_file() and not target.is_symlink()
+                                 and target.stat().st_size == member.size)):
+                            raise FileExistsError(f'Existing archive destination conflicts: {target}')
+                        skipped += 1
+                    else:
+                        existed = target.exists()
+                        try:
+                            tar.extract(member, path=file_path.parent, filter='data')
+                        except Exception:
+                            # Do not leave a new, incomplete file that blocks a retry.
+                            if not existed and member.isfile() and target.is_file():
+                                target.unlink()
+                            raise
+                    pbar.update(1)
+        marker.write_text(signature)
+        print(f'Extraction complete: {file_path} ({skipped} existing entries skipped)')
+    except Exception as exc:
+        cleanup_errors = []
+        for path in (marker, file_path):
+            try:
+                path.unlink(missing_ok=True)
+            except OSError as cleanup_exc:
+                cleanup_errors.append(f'Could not remove {path}: {cleanup_exc}')
+        message = f'Failed to decompress {file_path}: {exc}. '
+        message += (' '.join(cleanup_errors) if cleanup_errors else
+                    'Archive removed so the next run can download it again.')
+        if on_error == 'raise':
+            raise RuntimeError(message) from exc
+        warnings.warn(message, RuntimeWarning, stacklevel=2)
+
+
 def Dl(F: str, S: iB_session, on_error='warn', overwrite=False, subdir='research-ws-imod', decompress: bool = True):
     """
     Downloads an iBridges file/folder, e.g.: Dl('models/NBr/code/snakemake/log', S, overwrite=True)
+
+    Successful archives are retained with a .extracted completion marker. With
+    overwrite=False, existing downloads and completed extractions are skipped.
+    Failed extraction removes the archive for retry on the next download.
     """
 
     Pa_Rmt = iPa(S, '~') / subdir / F
@@ -132,7 +192,10 @@ def Dl(F: str, S: iB_session, on_error='warn', overwrite=False, subdir='research
         if not Pa_Loc.parent.exists():
             Pa_Loc.parent.mkdir(parents=True, exist_ok=True)
         print('1/1', Pa_Loc)
-        download(Pa_Rmt, Pa_Loc, overwrite=overwrite, on_error=on_error)
+        if overwrite or not Pa_Loc.exists():
+            download(Pa_Rmt, Pa_Loc, overwrite=overwrite, on_error=on_error)
+        else:
+            print(f'Skipping existing file: {Pa_Loc}')
 
     elif Pa_Rmt.collection_exists():
         Dest = Pa_Loc.parent
@@ -148,20 +211,9 @@ def Dl(F: str, S: iB_session, on_error='warn', overwrite=False, subdir='research
     # Post-process: Decompress .tar.gz files
     if decompress and Pa_Loc.exists():
 
-        def decompress_and_clean(file_path):  # Helper to decompress and remove .tar.gz files
+        def decompress_and_clean(file_path):
             if str(file_path).endswith('.tar.gz'):
-                print(f'Decompressing {file_path}...')
-                try:
-                    with tarfile.open(file_path, 'r:gz') as tar:
-                        members = tar.getmembers()
-                        pbar = tqdm(total=len(members), desc=f'Extracting {file_path.name}', unit='file')
-                        for member in members:
-                            tar.extract(member, path=file_path.parent)
-                            pbar.update(1)
-                        pbar.close()
-                    os.remove(file_path)
-                except Exception as e:
-                    print(f'{warn}Failed to decompress {file_path}: {e}')
+                _extract_archive(file_path, overwrite=overwrite, on_error=on_error)
 
         if Pa_Loc.is_file():
             decompress_and_clean(Pa_Loc)

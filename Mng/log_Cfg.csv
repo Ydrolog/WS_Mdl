@@ -197,7 +197,7 @@ Realised budget doesn't contain stages, so I tried to produce both CSV OBS and B
 "108","NBr","108","NBr108","100","NBr100","MK","Test","SFRmaker #4.7.1: Testing latest imod python version: 1.0.0.post1","Queued","Stopped Manually"
 "109","NBr","109","NBr109","108","NBr108","MK","Test","SFRmaker #4.7.2: SS","Queued","Stopped Manually"
 "110","NBr","110","NBr110","101","NBr101","MK","Test","SS RIV Sim 2000","Queued","Running"
-"111","NBr","111","NBr111","101","NBr101","MK","Test","LHM CHDs instead","Queued","Running"
+"111","NBr","111","NBr111","101","NBr101","MK","Test","LHM CHDs instead","Queued","Failed"
 "112","NBr","112","NBr112","111","NBr111","MK","Test","","Development",""
 "","","","","","","","","","",""
 "","","","","","","","","","",""
