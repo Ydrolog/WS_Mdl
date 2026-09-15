@@ -617,7 +617,7 @@ def p_HD_OBS_TS(MdlN, MdlN_B=True, MdlN_Pa_MF6=None, MdlN_B_Pa_MF6=None):
         )
 
         sprint(f'Saving {Id:<20}', end='', indent=2)
-        fig.write_html(Pa_Fo_HTML / f'{Id}.HTML')
+        fig.write_html(Pa_Fo_HTML / f'{Id}.HTML', include_plotlyjs='directory')
         sprint('🟢')
 
     Pa_Fo_HTML_1 = M.Pa.PoP_Out_MdlN / 'GW_HD_OBS'
