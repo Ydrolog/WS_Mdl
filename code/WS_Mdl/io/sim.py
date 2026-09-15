@@ -184,12 +184,12 @@ def RunMng(cores=None, DAG: bool = True, Cct_Sims=None, no_temp: bool = True, fr
             if len(result) == 2:
                 model_id, success = result
                 if success:
-                    sprint(f'🟢🟢 Model {model_id} completed successfully')
+                    sprint(f'🟢🟢 {model_id} finished successfully')
                 else:
-                    sprint(f'🔴🔴 Model {model_id} failed')
+                    sprint(f'🔴🔴 {model_id} failed')
             else:
                 model_id, success, error = result
-                sprint(f'🔴🔴 Model {model_id} failed: {error}')
+                sprint(f'🔴🔴 {model_id} failed: {error}')
 
         if freeze_env == 'after':
             all_success = all(result[1] for result in results)

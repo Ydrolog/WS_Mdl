@@ -10,7 +10,7 @@ from WS_Mdl.core.defaults import Pa_WS
 from WS_Mdl.core.mdl import Mdl_N
 from WS_Mdl.core.style import VERBOSE, Sep, Sep_2, blue, bold, green, sprint, style_reset, warn
 
-__all__ = ['Dl', 'Dl_MdlN_PoP_Out', 'get_Pw']
+__all__ = ['Dl', 'Dl_Sim_Out', 'get_Pw']
 
 
 def l_Fis_Exc(Pa: Path | str, l_exceptions=['.7z', '.aux', '.xml'], verbose: bool = True):
@@ -144,9 +144,15 @@ def _extract_archive(file_path, overwrite=False, on_error='warn'):
                         raise ValueError(f'Archive member rejected: {member.name}')
                     target = file_path.parent / safe_member.name
                     if not overwrite and target.exists():
-                        if not ((member.isdir() and target.is_dir()) or
-                                (member.isfile() and target.is_file() and not target.is_symlink()
-                                 and target.stat().st_size == member.size)):
+                        if not (
+                            (member.isdir() and target.is_dir())
+                            or (
+                                member.isfile()
+                                and target.is_file()
+                                and not target.is_symlink()
+                                and target.stat().st_size == member.size
+                            )
+                        ):
                             raise FileExistsError(f'Existing archive destination conflicts: {target}')
                         skipped += 1
                     else:
@@ -169,8 +175,9 @@ def _extract_archive(file_path, overwrite=False, on_error='warn'):
             except OSError as cleanup_exc:
                 cleanup_errors.append(f'Could not remove {path}: {cleanup_exc}')
         message = f'Failed to decompress {file_path}: {exc}. '
-        message += (' '.join(cleanup_errors) if cleanup_errors else
-                    'Archive removed so the next run can download it again.')
+        message += (
+            ' '.join(cleanup_errors) if cleanup_errors else 'Archive removed so the next run can download it again.'
+        )
         if on_error == 'raise':
             raise RuntimeError(message) from exc
         warnings.warn(message, RuntimeWarning, stacklevel=2)
