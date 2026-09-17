@@ -3,7 +3,7 @@ authors = ["Marios Karampasis <marios.karampasis@uu.nl>"]
 channels = ["conda-forge", "bioconda"]
 description = "Initially created by JoerivanEngelen <joeri.vanengelen@deltares.nl, so that I can run imod_coupler. I then added more libs to be able to run WS_Mdl functions."
 name = "pixi"
-platforms = ["win-64"]
+platforms = ["win-64", "osx-arm64"]
 version = "0.2.0"
 
 [tasks]
@@ -29,6 +29,7 @@ sfrmaker = "*"
 xlsxwriter = ">=3.2.9,<4"
 openpyxl = ">=3.1.5,<4"
 imod = "==1.0.0.post1"
+dvc = ">=3.67.1,<4"
 
 [pypi-dependencies]
 snakemake = "*" # imod = { path = "./code/imod-python", editable = true }

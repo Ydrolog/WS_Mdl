@@ -1,0 +1,6 @@
+outs:
+- md5: 481b5c1746235431ae36e314797d78ce.dir
+  size: 2906856925
+  nfiles: 7
+  hash: md5
+  path: pr

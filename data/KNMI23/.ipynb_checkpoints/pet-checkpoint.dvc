@@ -1,0 +1,6 @@
+outs:
+- md5: da0473abf7563509e4fa1a326cb572c8.dir
+  size: 2906856756
+  nfiles: 7
+  hash: md5
+  path: pet
