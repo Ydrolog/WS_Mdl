@@ -10,7 +10,7 @@ from WS_Mdl.core.defaults import Pa_WS
 from WS_Mdl.core.mdl import Mdl_N
 from WS_Mdl.core.style import VERBOSE, Sep, Sep_2, blue, bold, green, sprint, style_reset, warn
 
-__all__ = ['Dl', 'Dl_Sim_Out', 'get_Pw']
+__all__ = ['Dl', 'Dl_Sim_Out', 'extract_archive', 'get_Pw']
 
 
 def l_Fis_Exc(Pa: Path | str, l_exceptions=['.7z', '.aux', '.xml'], verbose: bool = True):
@@ -121,7 +121,7 @@ def Upl(
             sprint(Sep_2, indent=1)
 
 
-def _extract_archive(file_path, overwrite=False, on_error='warn'):
+def extract_archive(file_path, overwrite=False, on_error='warn'):
     """Retain successful archives; only mark extraction complete after all members finish."""
     file_path = Path(file_path)
     marker = file_path.with_name(file_path.name + '.extracted')
@@ -220,7 +220,7 @@ def Dl(F: str, S: iB_session, on_error='warn', overwrite=False, subdir='research
 
         def decompress_and_clean(file_path):
             if str(file_path).endswith('.tar.gz'):
-                _extract_archive(file_path, overwrite=overwrite, on_error=on_error)
+                extract_archive(file_path, overwrite=overwrite, on_error=on_error)
 
         if Pa_Loc.is_file():
             decompress_and_clean(Pa_Loc)
