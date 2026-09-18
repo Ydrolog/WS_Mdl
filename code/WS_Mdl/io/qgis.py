@@ -1,6 +1,8 @@
 import re
 import shutil as sh
 import sys
+from pathlib import Path
+from tempfile import TemporaryDirectory
 import xml.etree.ElementTree as ET
 import zipfile as ZF
 
@@ -68,55 +70,60 @@ def Up_MM(MdlN, MdlN_B=None, MdlN_MM_B=None):
     sh.copy(M_MM_B.Pa.MM, M.Pa.MM)  # Copy the QGIS file
     sprint(f'Copied QGIS project from {M_MM_B.Pa.MM} to {M.Pa.MM}.\nUpdating layer path ...')
 
-    Pa_temp = M.Pa.MM.parent / 'temp'  # Path to temporarily extract QGZ contents
-    Pa_temp.mkdir(parents=True, exist_ok=True)
+    with TemporaryDirectory(prefix='mm-', dir=M.Pa.MM.parent) as temp_dir:
+        Pa_temp = Path(temp_dir)
+        with ZF.ZipFile(M_MM_B.Pa.MM, 'r') as zip_ref:
+            projects = [
+                name for name in zip_ref.namelist()
+                if name.lower().endswith('.qgs')
+            ]
+            if len(projects) != 1:
+                raise ValueError(
+                    f'Expected one .qgs project in {M_MM_B.Pa.MM}, '
+                    f'found {len(projects)}: {projects}'
+                )
+            zip_ref.extractall(Pa_temp)
 
-    with ZF.ZipFile(M_MM_B.Pa.MM, 'r') as zip_ref:  # Unzip .qgz
-        zip_ref.extractall(Pa_temp)
+        # The internal project name can differ from the outer archive name.
+        Pa_QGS = Pa_temp / projects[0]
+        tree = ET.parse(Pa_QGS)
+        root = tree.getroot()
 
-    Pa_QGS = Pa_temp / M_MM_B.Pa.MM.name.replace('.qgz', '.qgs')
-    # PJ(
-    #     Pa_temp, LD(Pa_temp)[0]
-    # )  # Path to the unzipped QGIS project file. This used to be: Pa_QGS = PJ(Pa_temp, PBN(M.Pa.MM).replace('.qgz', '.qgs')), but the extracted file name may vary.
-    tree = ET.parse(Pa_QGS)
-    root = tree.getroot()
+        parent_by_child = {child: parent for parent in root.iter() for child in parent}
 
-    parent_by_child = {child: parent for parent in root.iter() for child in parent}
+        # Update datasource paths, suffixes, and linked QGIS layer names.
+        for DS in root.iter('datasource'):
+            DS_text = DS.text
 
-    # Update datasource paths, suffixes, and linked QGIS layer names.
-    for DS in root.iter('datasource'):
-        DS_text = DS.text
+            if not DS_text:
+                continue
 
-        if not DS_text:
-            continue
+            if '|' in DS_text:
+                path, suffix = DS_text.split('|', 1)
+            else:
+                path, suffix = DS_text, ''
 
-        if '|' in DS_text:
-            path, suffix = DS_text.split('|', 1)
-        else:
-            path, suffix = DS_text, ''
+            Pa_X = replace_reference(path)
+            suffix_X = replace_reference(suffix)
+            if (Pa_X, suffix_X) == (path, suffix):
+                continue
 
-        Pa_X = replace_reference(path)
-        suffix_X = replace_reference(suffix)
-        if (Pa_X, suffix_X) == (path, suffix):
-            continue
+            Pa_full = (M.Pa.MM.parent / Pa_X).absolute()
+            if Pa_full.exists():
+                DS.text = f'{Pa_X}|{suffix_X}' if suffix_X else Pa_X
+                maplayer = parent_by_child.get(DS)
+                if maplayer is not None and maplayer.tag == 'maplayer':
+                    _Up_L_references(root, maplayer, replace_reference, DS.text)
+                sprint(f'  - 🟢 Updated {MdlN_MM_B} → {MdlN} in {Pa_full}')
 
-        Pa_full = (M.Pa.MM.parent / Pa_X).absolute()
-        if Pa_full.exists():
-            DS.text = f'{Pa_X}|{suffix_X}' if suffix_X else Pa_X
-            maplayer = parent_by_child.get(DS)
-            if maplayer is not None and maplayer.tag == 'maplayer':
-                _Up_L_references(root, maplayer, replace_reference, DS.text)
-            sprint(f'  - 🟢 Updated {MdlN_MM_B} → {MdlN} in {Pa_full}')
+        tree.write(Pa_QGS, encoding='utf-8', xml_declaration=True)  # Save the modified .qgs file
 
-    tree.write(Pa_QGS, encoding='utf-8', xml_declaration=True)  # Save the modified .qgs file
+        with ZF.ZipFile(M.Pa.MM, 'w', ZF.ZIP_DEFLATED) as zipf:  # Zip back into .qgz
+            # Mirror the old os.walk behavior: include every file under temp with relative arcname.
+            for filepath in Pa_temp.rglob('*'):
+                if filepath.is_file():
+                    arcname = filepath.relative_to(Pa_temp)
+                    zipf.write(filepath, arcname)
 
-    with ZF.ZipFile(M.Pa.MM, 'w', ZF.ZIP_DEFLATED) as zipf:  # Zip back into .qgz
-        # Mirror the old os.walk behavior: include every file under temp with relative arcname.
-        for filepath in Pa_temp.rglob('*'):
-            if filepath.is_file():
-                arcname = filepath.relative_to(Pa_temp)
-                zipf.write(filepath, arcname)
-
-    sh.rmtree(Pa_temp)  # Remove the temporary folder
     sprint(f'\n🟢🟢🟢 | MM for {MdlN} has been updated.')
     sprint(Sep)
