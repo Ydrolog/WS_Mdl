@@ -76,4 +76,4 @@ $RECYCLE.BIN/
 
 # imod-python testing folder
 code/imod-python/
-code/imod-python/**
+code/imod-python/**.DS_Store
