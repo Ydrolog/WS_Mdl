@@ -17,7 +17,6 @@ This guide explains how to use **pixi** to create, reproduce, and share the soft
 
 ## 2. Clone env.
 If you don't have the files for this project, you'll need to **clone** the repo.
-
 You're strongly advised to create a drive (G:) for this project, as it makes paths shorter and guarantees they you won't have to make any path fixes in configuration files later on.
 Relative paths used in this or other guides start from the repo root (G:) unless specified otherwise.
 
@@ -52,14 +51,17 @@ git restore --source <sha_or_tag> --pathspec-from-file=G:\code\Env\pixi_env_Fis.
 5. Change directory
 cd G: # if cd G: didn't work, try pushd G:
 
-6. **Re-build** env:
+6.	Clone the imod-python dependency, if you don't already have it. pixi.toml references it as a local editable package at ./code/imod-python, so pixi install will fail with an "error extracting extension" message if it isn't there yet:
+git clone https://github.com/Deltares/imod-python.git G:\code\imod-python
+
+7. **Re-build** env:
 pixi install --frozen # This uses both the pixi.lock and pixi.toml files to ensure reinstallation of locked package versions.
 pixi run install # This executes our .toml file task (install coupler/primod). I believe primod is not available via conda or pypi, that's why we do it that way.
 
 alternatively, 
 pixi install # Will install dependencies, but won't ensure identical package versions. This is probably faster and gives a more "modern build", but it's not as secure as pixi install --frozen
 
-7. Optional: **WS_Mdl refresh**:
+8. Optional: **WS_Mdl refresh**:
 pixi run --manifest-path G:/pixi.toml --frozen --no-install pip install -e G:/ # (pip install -e G:\code (--use-pep517 --no-build-isolation) could also work) # This might be redundant, i.e. updates are reflected imedeately.
 Run this whenever you want to update WS_Mdl. It's in edit mode, so any small changes (e.g. code in exiting files) are updated automatically. I use this when I make a new terminal tool and I want to add it to path. If you're adding a new function (e.g. to be accessed via WS_Mdl <function> <args>, or in scripts), you don't need to update WS_Mdl.
 
@@ -71,11 +73,16 @@ This needs to be run inside the repo folder. It can be run in downstream folders
 
 ## 4. Download & install software
 (only iMOD5 is essential, but the rest will make your life much easier)
-You'll need to copy y:\research-ws-imod\Auxi\.irods\ to C:\Users\<user>\ and add paste a password to Pw.txt (instructions in folder)
+
+If you don't already have the Y: drive mapped: in Windows Explorer, right-click "This PC" → "Map network drive" → drive letter Y: → folder https://geo.data.uu.nl/ . If the connection hangs, check that the Windows "WebClient" service is running (services.msc → WebClient → Automatic → Start) — it's often disabled by default and is required for WebDAV drives. Log in with your full university email address (not your Solis-ID) and a data-access password generated via the YoDa portal.
+
+You'll need to copy y:\research-ws-imod\Auxi.irods\ to C:\Users<user>\ and paste a password to Pw.txt (instructions in folder). If you copied irods_environment.json rather than generating your own, check the irods_user_name field — it may still contain their email rather than yours, which causes a PasswordError that looks like a wrong password but isn't. Data-access passwords expire after a month; if login fails and the username/password look right, try generating a fresh one from the YoDa portal.
+
 pixi shell # (if not activated already)
 python g:\code\Py\iBridges\software\Dl_installers.py
 g:\code\build\install_MSI.ps1
 python g:\code\Py\iBridges\software\Dl_iMOD5.py
+
 for Double Commander, feel free to copy settings from:
 g:\code\build\doublecmd_settings\
 to:

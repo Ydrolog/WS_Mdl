@@ -51,6 +51,7 @@
 **/temp/**
 **/ipynb_checkpoints/
 **/ipynb_checkpoints/**
+**/.ipynb_checkpoints/
 
 # Lock files.
 ~$*.xls*
@@ -77,3 +78,6 @@ $RECYCLE.BIN/
 # imod-python testing folder
 code/imod-python/
 code/imod-python/**
+
+# Everything opened by Finder on Mac will be ignored
+**/.DS_Store
