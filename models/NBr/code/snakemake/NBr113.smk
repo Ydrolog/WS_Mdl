@@ -18,11 +18,10 @@ os.environ["PYTHONUNBUFFERED"] = "1"        # Set Python to unbuffered mode (out
 
 ## Options
 MdlN        =   'NBr113'
-iMOD5       =   False
 MdlN_MM_B   =   'NBr104'
 
 ## Paths
-M           =   Mdl_N(MdlN, iMOD5=iMOD5)
+M           =   Mdl_N(MdlN)
 workdir:        M.Pa.Mdl
 
 # MF6 Options
@@ -49,6 +48,7 @@ log_PRJ_to_TIF      =   Pa_temp / f"Log_PRJ_to_TIF_{MdlN}"
 log_HD_AVGs         =   Pa_temp / f"Log_HD_AVGs_{MdlN}"
 log_GXG             =   Pa_temp / f"Log_GXG_{MdlN}"
 log_Diff            =   Pa_temp / f"Log_Diff_PoP_Par_{MdlN}"
+log_WB              =   Pa_temp / f"Log_WB_{MdlN}"
 log_upload          =   Pa_temp / f"Log_upload_{MdlN}"
 
 # --- Rules ---
@@ -164,7 +164,7 @@ rule PRJ_to_TIF:
         touch(log_PRJ_to_TIF)
     run:
         from WS_Mdl.imod.prj import to_TIF as PRJ_to_TIF
-        PRJ_to_TIF(MdlN, iMOD5=iMOD5) # Convert PRJ to TIFs
+        PRJ_to_TIF(MdlN) # Convert PRJ to TIFs
         Up_log(MdlN, {  'PRJ_to_TIF':   1})
 
 rule p_HD_AVGs: # Process HD OBS Out Bin data into TIF files with AVG heads. Then Calc Diff to B

@@ -21,7 +21,7 @@ MdlN            =   'NBr114'
 MdlN_SFR_GPkg   =   'NBr96'
 
 ## Paths
-M           =   Mdl_N(MdlN, iMOD5=iMOD5)
+M           =   Mdl_N(MdlN)
 workdir:        M.Pa.Mdl
 
 # MF6 Options
@@ -198,7 +198,7 @@ rule PRJ_to_TIF:
         touch(log_PRJ_to_TIF)
     run:
         from WS_Mdl.imod.prj import to_TIF as PRJ_to_TIF
-        PRJ_to_TIF(MdlN, iMOD5=iMOD5) # Convert PRJ to TIFs
+        PRJ_to_TIF(MdlN) # Convert PRJ to TIFs
         Up_log(MdlN, {  'PRJ_to_TIF':   1})
 
 rule p_SFR_In:
