@@ -11,14 +11,14 @@
  1,1, 001,   1.000000    ,   0.000000    ,   25.00000    ,'' ### maximale beregeningscapaciteit
  1,2, 001,   1.000000    ,   0.000000    ,  0.1000000e+21,'..\..\In\CAP\WTA\WTA_NBr1.idf'
  1,2, 001,   1.000000    ,   0.000000    ,  0.1000000e+21,'..\..\In\CAP\UBA\UBA_NBr1.idf'
- 1,1, 001,   1.000000    ,   0.000000    ,  9999.0,'' ### Ponding depth urban area
- 1,1, 001,   1.000000    ,   0.000000    ,  9999.0,'' ### Ponding depth rural area
+ 1,1, 001,   1.000000    ,   0.000000    ,  0.002,'' ### Ponding depth urban area
+ 1,1, 001,   1.000000    ,   0.000000    ,  0.002,'' ### Ponding depth rural area
  1,1, 001,   1.000000    ,   0.000000    ,   1.000000    ,''  ### runof resistance urban area
  1,1, 001,   1.000000    ,   0.000000    ,   1.000000    ,''  ### runof resistance rural area
  1,1, 001,   1.000000    ,   0.000000    ,   1.000000    ,''  ### runon resistance urban area
  1,1, 001,   1.000000    ,   0.000000    ,   1.000000    ,''  ### runon resistance rural area
  1,1, 001,   1.000000    ,   0.000000    ,   0.000000    ,''  ### QINFBASIC Urban Area
- 1,1, 001,   1.000000    ,   0.000000    ,   1.050000    ,''  ### QINFBASIC Rural Area
+ 1,1, 001,   1.000000    ,   0.000000    ,   1.050000    ,''  ### QINFBASIC Urban Area
  1,1, 001,   1.000000    ,   0.000000    ,  -9999.000    ,''  ### PWT Level
  1,1, 001,   1.000000    ,   0.000000    ,   1.000000    ,''  ### Soil Moisture Factor
  1,1, 001,   1.000000    ,   0.000000    ,   1.000000    ,''  ### Conductivity Factor
@@ -524,7 +524,7 @@ winter
 004,005
 1,2,     0,   1.000000    ,   0.000000  , -999.990,  '..\..\In\RIV\RIV_Cond_DETAILWATERGANGEN_NBr1.IDF'
 1,2,     0,   1.000000    ,   0.000000  , -999.990,  '..\..\In\RIV\RIV_Cond_RIV_NBr1.IDF'
-1,2,     0,   1.000000    ,   0.000000  , -999.990,  '..\..\In\RIV\NBr54\RIV_Cond_main_DRN_NBr54.IDF'
+1,2,     0,   1.000000    ,   0.000000  , -999.990,  '..\..\In\RIV\RIV_Cond_DRN_NBr1.IDF'
 1,2,     0,   1.000000    ,   0.000000  , -999.990,  '..\..\In\RIV\RIV_Cond_Maas_NBr1.IDF'
 1,2,     0,   1.000000    ,   0.000000  , -999.990,  '..\..\In\RIV\RIV_Cond_Polderpeil_NBr1.IDF'
 1,2,     0,   1.000000    ,   0.200000  , -999.990,  '..\..\In\RIV\RIV_Stg_Detailwatergangen_NBr1.IDF'
@@ -546,7 +546,7 @@ summer
 004,005
 1,2    0,   1.000000    ,   0.000000  , -999.990  ,'..\..\In\RIV\RIV_Cond_DETAILWATERGANGEN_NBr1.IDF'
 1,2    0,   1.000000    ,   0.000000  , -999.990  ,'..\..\In\RIV\RIV_Cond_RIV_NBr1.IDF'
-1,2    0,   1.000000    ,   0.000000  , -999.990  ,'..\..\In\RIV\NBr54\RIV_Cond_main_DRN_NBr54.IDF'
+1,2    0,   1.000000    ,   0.000000  , -999.990  ,'..\..\In\RIV\RIV_Cond_DRN_NBr1.IDF'
 1,2    0,   1.000000    ,   0.000000  , -999.990  ,'..\..\In\RIV\RIV_Cond_Maas_NBr1.IDF'
 1,2    0,   1.000000    ,   0.000000  , -999.990  ,'..\..\In\RIV\RIV_Cond_Polderpeil_NBr1.IDF'
 1,2    0,   1.000000    ,   0.200000  , -999.990  ,'..\..\In\RIV\RIV_Stg_Detailwatergangen_NBr1.IDF'
