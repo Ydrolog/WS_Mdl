@@ -202,7 +202,7 @@ Realised budget doesn't contain stages, so I tried to produce both CSV OBS and B
 "113","NBr","113","NBr113","111","NBr111","MK","Test","High ponding depth to route surface runoff through DRN. RIV Sim","Queued","PoPed"
 "114","NBr","114","NBr114","108","NBr108","MK","Test","High ponding depth to route surface runoff through DRN->MVR->SFR.","Queued","PoPed"
 "115","NBr","115","NBr115","111","NBr111","LL","Test","Testrun. Riverheight +0.2m","Queued","PoPed"
-"116","NBr","116","NBr116","111","NBr111","MK","Test","SFR initial stages","Development",""
+"116","NBr","116","NBr116","108","NBr108","MK","Test","SFR Storage added (with MF6.7 from NBr112). LHM CHDs used (from 112).","Queued",""
 "","","","","","","","","","",""
 "","","","","","","","","","",""
 "","","","","","","","","","",""
