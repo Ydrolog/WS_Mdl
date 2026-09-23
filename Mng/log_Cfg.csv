@@ -198,7 +198,7 @@ Realised budget doesn't contain stages, so I tried to produce both CSV OBS and B
 "109","NBr","109","NBr109","108","NBr108","MK","Test","SFRmaker #4.7.2: SS","Queued","Stopped Manually"
 "110","NBr","110","NBr110","101","NBr101","MK","Test","SS RIV Sim 2000","Queued","Stopped Manually"
 "111","NBr","111","NBr111","101","NBr101","MK","Test","LHM CHDs instead","Queued","Removed Output"
-"112","NBr","112","NBr112","111","NBr111","MK","Test","MF6.7 test (to allow for SFR initial stages)","Queued","Failed"
+"112","NBr","112","NBr112","111","NBr111","MK","Test","MF6.7 test (to allow for SFR initial stages)","Queued",""
 "113","NBr","113","NBr113","111","NBr111","MK","Test","High ponding depth to route surface runoff through DRN. RIV Sim","Queued","PoPed"
 "114","NBr","114","NBr114","108","NBr108","MK","Test","High ponding depth to route surface runoff through DRN->MVR->SFR.","Queued","PoPed"
 "115","NBr","115","NBr115","111","NBr111","LL","Test","Testrun. Riverheight +0.2m","Queued","PoPed"

@@ -23,6 +23,7 @@ MdlN_SFR_GPkg   =   'NBr96'
 ## Paths
 M           =   Mdl_N(MdlN)
 workdir:        M.Pa.Mdl
+MdlN_MM_B	=	'NBr104'
 
 # MF6 Options
 M.Sim.Bin_Ins       =   False
