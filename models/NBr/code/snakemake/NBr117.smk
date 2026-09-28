@@ -17,7 +17,7 @@ os.environ["PYTHONUNBUFFERED"] = "1"        # Set Python to unbuffered mode (out
 # --- Variables ---
 
 ## Options
-MdlN            =   'NBr116'
+MdlN            =   'NBr117'
 MdlN_SFR_GPkg   =   'NBr96'
 MdlN_MM_B       =   'NBr114'
 
@@ -46,7 +46,8 @@ SFR_options             =   [f'OBS6 FILEIN {M.Pa.Sim_In / (MdlN + ".SFR6.obs")}'
                              # 'AUXILIARY line_id',
                              # f'STAGE FILEOUT SFR_Stg_{MdlN}.bin', # unnecessary because we have OBS for all reaches
                              f'PACKAGE_CONVERGENCE FILEOUT SFR_convergence_{MdlN}.CSV',
-                             'SAVE_FLOWS']
+                             'SAVE_FLOWS',
+                             'STORAGE']
 SFR_one_reach_per_cell: bool = True
 # Pa_SFR_Stg_Init = M.Pa.In / f'SFR/Stg_Init/{MdlN}/Stg_Init_{MdlN}.csv'
 
