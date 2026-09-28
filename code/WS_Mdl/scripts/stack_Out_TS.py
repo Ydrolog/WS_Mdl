@@ -30,7 +30,7 @@ Pa_clip = (
     Pa_WS / r'models\NBr\PoP\common\Pgn\Chaamse_beek\catchment_chaamsebeek_ulvenhout.shp'
 )  # Area to clip MSW qrun to; this should be the catchment boundary of the outlet we're analyzing.
 
-l_Sims = ['NBr100', 'NBr101', 'NBr102', 'NBr103']
+l_Sims = ['NBr111', 'NBr113', 'NBr100', 'NBr114']
 
 X_outlet, Y_outlet = 114213.79, 394950.96  # To get P for correct cell.
 
@@ -60,6 +60,7 @@ def stack_Out_TS(
 
     # %% Initialize empty DataFrames for each component
     d_DF = {}
+    print('------------')
     for i in ['DRN', 'RIV', 'SFR', 'qrun']:
         try:
             d_DF[i] = pd.read_csv(Pa_Out / f'Chaamse_Beek_Outlet-{i}_flows.csv', parse_dates=['date'])
@@ -77,94 +78,118 @@ def stack_Out_TS(
     # %% Iterate over Sims and append
     start_time = time()
     for MdlN in l_Sims[:]:
+        print(f'\n----- Processing {MdlN}... -----')
         print(MdlN, f'start time: {round(time() - start_time, 2)} s')
         M = Mdl_N(MdlN)
 
-        # DRN + RIV
-        for Pkg in ['DRN', 'RIV']:
-            if MdlN not in d_DF[Pkg].columns:  # If this Sim's OBS haven't been appended yet
-                try:
-                    Pa_OBS_Agg = (M.Pa.MdlN if M.V == 'imod5' else M.Pa.MF6) / f'OBS_Agg/{Pkg}_OBS_Agg_{MdlN}.csv'
-                    if Pa_OBS_Agg.exists():
-                        DF = pd.read_csv(Pa_OBS_Agg, parse_dates=['date'])[['date', 'SUM']]
-                        method = 'Load'
-                    else:  # If Agg file doesn't exist, create it from Out.
-                        DF = Agg_OBS(MdlN, Pkg, True, True)[['date', 'SUM']]
-                        method = 'Agg_OBS'
-
-                    DF['date'] = pd.to_datetime(DF['date'], format='%d/%m/%Y', errors='coerce')
-                    DF.rename(columns={'SUM': MdlN}, inplace=True)
-                    DF[MdlN] = DF[MdlN] * (-1)  # Correct sign
-                    if d_DF[Pkg].empty:
-                        d_DF[Pkg] = DF
+        if (M.Pa.PoP_Out_MdlN / f'outlet_TS_{MdlN}.csv').exists():
+            DF = pd.read_csv(M.Pa.PoP_Out_MdlN / f'outlet_TS_{MdlN}.csv', parse_dates=['date'])
+            DF['date'] = pd.to_datetime(DF['date'], format='%d/%m/%Y', errors='coerce')
+            for Par in ['DRN', 'RIV', 'SFR', 'qrun']:
+                Cols = [i for i in DF.columns if Par in i]
+                print(Cols)
+                if Cols:
+                    if MdlN not in d_DF[Par].columns:
+                        DF_Cols = pd.DataFrame({'date': DF['date'], MdlN: DF[Cols].sum(axis=1)})
+                        if d_DF[Par].empty:
+                            d_DF[Par] = DF_Cols
+                        else:
+                            d_DF[Par] = d_DF[Par].merge(DF_Cols, on='date', how='outer')
+                        sprint(f'  🟢 - Sucessfully appended {MdlN} {Par}.')
                     else:
-                        d_DF[Pkg] = d_DF[Pkg].merge(DF, on='date', how='outer')
-                    sprint(
-                        f'🟢 - Sucessfully appended {MdlN} {Pkg}. Method: {method} + Merge.',
-                        indent=1,
+                        sprint(f'  ⚪️ - {MdlN} {Par} already exists, skipping.')
+                else:
+                    sprint(f'  ⚪️ - {MdlN} {Par} not found in outlet_TS_{MdlN}.csv, skipping.')
+
+        else:
+            # DRN + RIV
+            for Pkg in ['DRN', 'RIV']:
+                if MdlN not in d_DF[Pkg].columns:  # If this Sim's OBS haven't been appended yet
+                    try:
+                        Pa_OBS_Agg = (
+                            M.Pa.MdlN if M.V == 'imod5' else M.Pa.Sim_Out
+                        ) / f'OBS_Agg/{Pkg}_OBS_Agg_{MdlN}.csv'
+                        if Pa_OBS_Agg.exists():
+                            DF = pd.read_csv(Pa_OBS_Agg, parse_dates=['date'])[['date', 'SUM']]
+                            method = 'Load'
+                        else:  # If Agg file doesn't exist, create it from Out.
+                            DF = Agg_OBS(MdlN, Pkg, True, True)[['date', 'SUM']]
+                            method = 'Agg_OBS'
+
+                        DF['date'] = pd.to_datetime(DF['date'], format='%d/%m/%Y', errors='coerce')
+                        DF.rename(columns={'SUM': MdlN}, inplace=True)
+                        DF[MdlN] = DF[MdlN] * (-1)  # Correct sign
+                        if d_DF[Pkg].empty:
+                            d_DF[Pkg] = DF
+                        else:
+                            d_DF[Pkg] = d_DF[Pkg].merge(DF, on='date', how='outer')
+                        sprint(
+                            f'🟢 - Sucessfully appended {MdlN} {Pkg}. Method: {method} + Merge.',
+                            indent=1,
+                        )
+                    except Exception as e:
+                        DF = pd.DataFrame({'date': [], MdlN: []})
+                        DF['date'] = pd.to_datetime(DF['date'], format='%d/%m/%Y', errors='coerce')
+                        sprint(f'  🔴 - Failed to read {MdlN} {Pkg}. Error:\n{e}')
+
+            # SFR
+            if MdlN not in d_DF['SFR'].columns:
+                try:
+                    DF = pd.read_csv(
+                        M.Pa.Sim_Out / f'{MdlN}.SFR6.obs.output.csv',
+                        usecols=['time', 'OUTLET_DOWNSTREAM-FLOW'],
                     )
+                    DF['date'] = DT.strptime(str(M.INI.SDATE), '%Y%m%d') + pd.to_timedelta(DF['time'] - 1, unit='D')
+                    DF.rename(columns={'OUTLET_DOWNSTREAM-FLOW': MdlN}, inplace=True)
+                    DF[MdlN] = DF[MdlN] * (-1)
+                    DF = DF[['date', MdlN]]
+                    if d_DF['SFR'].empty:
+                        d_DF['SFR'] = DF
+                    else:
+                        d_DF['SFR'] = d_DF['SFR'].merge(DF, on='date', how='outer')
+                    sprint(f'  🟢 - Sucessfully appended {MdlN} SFR')
                 except Exception as e:
-                    DF = pd.DataFrame({'date': [], 'SUM': []})
-                    DF['date'] = pd.to_datetime(DF['date'], format='%d/%m/%Y', errors='coerce')
-                    sprint(f'  🔴 - Failed to read {MdlN} {Pkg}. Error:\n{e}')
+                    sprint(f'  🔴 - Failed to read {MdlN} SFR. Error:\n{e}')
+            else:
+                sprint(f'  ⚪️ - {MdlN} SFR already exists, skipping.')
 
-        # SFR
-        if MdlN not in d_DF['SFR'].columns:
-            try:
-                DF = pd.read_csv(
-                    M.Pa.Sim_In / f'{MdlN}.SFR.obs.output.csv',
-                    usecols=['time', 'OUTLET_DOWNSTREAM-FLOW'],
-                )
-                DF['date'] = DT.strptime(str(M.INI.SDATE), '%Y%m%d') + pd.to_timedelta(DF['time'] - 1, unit='D')
-                DF.rename(columns={'OUTLET_DOWNSTREAM-FLOW': MdlN}, inplace=True)
-                DF[MdlN] = DF[MdlN] * (-1)
-                DF = DF[['date', MdlN]]
-                if d_DF['SFR'].empty:
-                    d_DF['SFR'] = DF
-                else:
-                    d_DF['SFR'] = d_DF['SFR'].merge(DF, on='date', how='outer')
-                sprint(f'  🟢 - Sucessfully appended {MdlN} SFR')
-            except Exception as e:
-                sprint(f'  🔴 - Failed to read {MdlN} SFR. Error:\n{e}')
-        else:
-            sprint(f'  ⚪️ - {MdlN} SFR already exists, skipping.')
+            # MSW qrun
+            if MdlN not in d_DF['qrun'].columns:
+                try:
+                    # Load qrun IDFs to xarray
+                    A = imod.idf.open(M.Pa.MSW / 'bdgqrun/area_L1.IDF')  # Area array
+                    DA_qrun = imod.idf.open(M.Pa.MSW / 'bdgqrun/bdgqrun_*_L*.IDF')
+                    DA_qrun = DA_qrun * A * (-1)
 
-        # MSW qrun
-        if MdlN not in d_DF['qrun'].columns:
-            try:
-                # Load qrun IDFs to xarray
-                A = imod.idf.open(M.Pa.MSW / 'bdgqrun/area_L1.IDF')  # Area array
-                DA_qrun = imod.idf.open(M.Pa.MSW / 'bdgqrun/bdgqrun_*_L*.IDF')
-                DA_qrun = DA_qrun * A * (-1)
+                    # Expose X/Y as spatial dimensions for rioxarray; this is needed for clipping.
+                    DA_Qrun_Rio = DA_qrun.rio.set_spatial_dims(x_dim='x', y_dim='y', inplace=False)
 
-                # Expose X/Y as spatial dimensions for rioxarray; this is needed for clipping.
-                DA_Qrun_Rio = DA_qrun.rio.set_spatial_dims(x_dim='x', y_dim='y', inplace=False)
+                    # Ensure CRS compatibility # If CRS metadata is missing, use default
+                    if DA_Qrun_Rio.rio.crs != CRS:
+                        DA_Qrun_Rio.rio.write_crs(CRS, inplace=True)
 
-                # Ensure CRS compatibility # If CRS metadata is missing, use default
-                if DA_Qrun_Rio.rio.crs != CRS:
-                    DA_Qrun_Rio.rio.write_crs(CRS, inplace=True)
+                    # Clip while preserving the original x/y grid shape; outside the polygon becomes NaN.
+                    DA_qrun_clip = DA_Qrun_Rio.rio.clip(GDF_CB.geometry, CRS, drop=False)
 
-                # Clip while preserving the original x/y grid shape; outside the polygon becomes NaN.
-                DA_qrun_clip = DA_Qrun_Rio.rio.clip(GDF_CB.geometry, CRS, drop=False)
+                    # Sum and append
+                    DA_qrun_clip_sum = DA_qrun_clip.sum(dim=('layer', 'x', 'y'))
+                    DF = pd.DataFrame(
+                        {
+                            'date': DA_qrun_clip_sum['time'].values,
+                            f'{MdlN}': DA_qrun_clip_sum.values,
+                        }
+                    )  # Convert from m3/s to m3/d
+                    if d_DF['qrun'].empty:
+                        d_DF['qrun'] = DF
+                    else:
+                        d_DF['qrun'] = d_DF['qrun'].merge(DF, on='date', how='outer')
 
-                # Sum and append
-                DA_qrun_clip_sum = DA_qrun_clip.sum(dim=('layer', 'x', 'y'))
-                DF = pd.DataFrame(
-                    {
-                        'date': DA_qrun_clip_sum['time'].values,
-                        f'{MdlN}': DA_qrun_clip_sum.values,
-                    }
-                )  # Convert from m3/s to m3/d
-                if d_DF['qrun'].empty:
-                    d_DF['qrun'] = DF
-                else:
-                    d_DF['qrun'] = d_DF['qrun'].merge(DF, on='date', how='outer')
-
-                sprint(f'  🟢 - Sucessfully appended {MdlN} MSW qrun')
-            except Exception as e:
-                sprint(f'  🔴 - Failed to read {MdlN} MSW qrun. Error:\n{e}')
-        else:
-            sprint(f'  ⚪️ - {MdlN} MSW qrun already exists, skipping.')
+                    sprint(f'  🟢 - Sucessfully appended {MdlN} MSW qrun')
+                except Exception as e:
+                    sprint(f'  🔴 - Failed to read {MdlN} MSW qrun. Error:\n{e}')
+            else:
+                sprint(f'  ⚪️ - {MdlN} MSW qrun already exists, skipping.')
+        print('----------')
 
     # %% Save individual component CSVs
     for i in ['DRN', 'RIV', 'SFR', 'qrun']:
