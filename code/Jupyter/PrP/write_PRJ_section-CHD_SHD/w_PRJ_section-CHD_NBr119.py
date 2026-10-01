@@ -4,9 +4,9 @@ from datetime import datetime as DT
 import pandas as pd
 
 # %% Options
-MdlN = 'NBr111'
-date_start = '2000-01-01'
-date_end = '2004-12-31'
+MdlN = 'NBr119'
+date_start = '1991-01-01'
+date_end = '2020-12-31'
 MdlN_CHD = 'NBr111'
 name = 'LHM_HD'
 

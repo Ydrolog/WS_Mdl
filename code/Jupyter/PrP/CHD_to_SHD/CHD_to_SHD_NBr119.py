@@ -18,16 +18,16 @@ from WS_Mdl.core import Mdl_N
 # %% Options
 MdlN = 'NBr111'
 MdlN_CHD = 'NBr111'
-date_B = '19991228'
-date_S = '20000101'
+date_B = '19901228'
+date_S = '19910101'
 M = Mdl_N(MdlN)
-Pa_CHD = M.Pa.WS / rf'models\NBr\In\CHD\{MdlN_CHD}'
-Pa_SHD = M.Pa.WS / rf'models\NBr\In\SHD\{MdlN}'
+Pa_CHD = M.Pa.WS / rf'models/NBr/In/CHD/{MdlN_CHD}'
+Pa_SHD = M.Pa.WS / rf'models/NBr/In/SHD/{MdlN}'
 name = 'LHM_HD'
 
 # %% Read CHD, fill (interpolate), save as SHD
 l_CHD = list(Pa_CHD.glob(f'{name}_{date_B}*.idf'))
-DA_CHD = imod.formats.idf.open(l_CHD, pattern=f'{{name}}_{date_B}_L{{layer}}_NBr1')
+DA_CHD = imod.formats.idf.open(l_CHD, pattern=f'{{name}}_{date_B}_L{{layer}}_NBr111')
 
 # %% Sort coordinates to allow interpolation
 reversed_y = not np.all(np.diff(DA_CHD.y.values) > 0)
