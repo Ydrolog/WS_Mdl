@@ -718,7 +718,7 @@ def SFR_CBC_to_DS(MdlN: str, Pa_CBC: str = None) -> xra.Dataset:
     from WS_Mdl.imod.sfr.info import SFR_ConnD_to_DF, SFR_PkgD_to_DF
 
     M = Mdl_N(MdlN)
-    Pa_CBC = M.Pa.MF6 / f'{M.MdlN}.SFR6.cbc' if Pa_CBC is None else Pa_CBC
+    Pa_CBC = M.Pa.Sim_Out / f'{M.MdlN}.SFR6.cbc' if Pa_CBC is None else Pa_CBC
     headers = read_cbc_headers(Pa_CBC)
 
     DF_SFR = SFR_PkgD_to_DF(MdlN, Calc_Cond=False)
