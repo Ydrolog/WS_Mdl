@@ -16,7 +16,8 @@ _MdlN_pattern = re.compile(r'^(?P<alias>[A-Za-z]+)(?P<N>\d+)$')
 class Sim:
     verbose: bool = False
     Bin_Ins: bool = True
-    save_budget: str = 'last'  # 'last', 'all', None, or number specifying frequency
+    # Date lists alternate saving on/off at stress-period starts, beginning with on.
+    save_budget: str | int | bool | list[str] | None = 'last'
     save_head: str = 'last'  # 'last', 'all', None, or number specifying frequency
     # save_CBC: bool = False  # Save CBC file (binary) for debugging purposes. This is a large file and should be used with caution.
 

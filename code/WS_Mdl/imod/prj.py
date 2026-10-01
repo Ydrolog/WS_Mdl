@@ -613,7 +613,12 @@ def to_TIF(MdlN, iMOD5=False):
 
 
 def _save_budget_control(save_budget, times):
-    """Convert date switches to alternating MF6 budget output settings."""
+    """Convert on/off switch dates to a time-indexed iMOD OutputControl array.
+
+    Saving starts at the first date, stops at the second, and so on. The
+    integer frequency 999 suppresses output for our one-step stress periods.
+    An object array preserves both the string settings and integer frequencies.
+    """
     if save_budget is True:
         return 'last'
     if save_budget is False:
@@ -712,7 +717,6 @@ def PrSimP(
         if 'save_flows' in Pkg.dataset:
             Pkg.dataset['save_flows'] = bool(M.Sim.save_budget)
     save_budget = _save_budget_control(M.Sim.save_budget, times)
-    save_budget = 'last' if M.Sim.save_budget is True else M.Sim.save_budget
     MF6_Mdl['oc'] = mf6.OutputControl(
         save_head=M.Sim.save_head, save_budget=save_budget, budget_file=str(M.Pa.Sim_Out / f'{M.MdlN}.CBC')
     )

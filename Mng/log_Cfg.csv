@@ -198,14 +198,21 @@ Realised budget doesn't contain stages, so I tried to produce both CSV OBS and B
 "109","NBr","109","NBr109","108","NBr108","MK","Test","SFRmaker #4.7.2: SS","Queued","Stopped Manually"
 "110","NBr","110","NBr110","101","NBr101","MK","Test","SS RIV Sim 2000","Queued","Stopped Manually"
 "111","NBr","111","NBr111","101","NBr101","MK","Test","LHM CHDs instead","Queued","Removed Output"
-"112","NBr","112","NBr112","111","NBr111","MK","Test","MF6.7 test (to allow for SFR initial stages)","Queued",""
+"112","NBr","112","NBr112","111","NBr111","MK","Test","MF6.7 test (to allow for SFR initial stages)","Queued","Stopped Manually"
 "113","NBr","113","NBr113","111","NBr111","MK","Test","High ponding depth to route surface runoff through DRN. RIV Sim","Queued","PoPed"
 "114","NBr","114","NBr114","108","NBr108","MK","Test","High ponding depth to route surface runoff through DRN->MVR->SFR.","Queued","PoPed"
 "115","NBr","115","NBr115","111","NBr111","LL","Test","Testrun. Riverheight +0.2m","Queued","PoPed"
+<<<<<<< HEAD
 "116","NBr","116","NBr116","108","NBr108","MK","Test","SFR (with MF6.7 from NBr112, so STORAGE can be added next). LHM CHDs used (from 112).","Development",""
 "117","NBr","117","NBr117","116","NBr116","MK","Test","STORAGE added.","Development",""
 "","","","","","","","","","",""
 "119","NBr","119","NBr119","111","NBr111","MK","Test","Baseline scenario, ensemble 1. One year test run","Queued",""
+=======
+"116","NBr","116","NBr116","108","NBr108","MK","Test","SFR (with MF6.7 from NBr112, so STORAGE can be added next). LHM CHDs used (from 112).","Queued",""
+"117","NBr","117","NBr117","116","NBr116","MK","Test","STORAGE added.","Queued",""
+"118","NBr","118","NBr118","112","NBr112","MK","Test","1991-2020 RIV Sim","Development",""
+"119","NBr","119","NBr119","112","NBr112","MK","Test","1991-2020 RIV Sim 50x50","Development",""
+>>>>>>> origin
 "","","","","","","","","","",""
 "","","","","","","","","","",""
 "","","","","","","","","","",""
