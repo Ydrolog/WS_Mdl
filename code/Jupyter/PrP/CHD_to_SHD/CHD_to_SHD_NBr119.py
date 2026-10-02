@@ -16,7 +16,7 @@ import xarray as xr
 from WS_Mdl.core import Mdl_N
 
 # %% Options
-MdlN = 'NBr111'
+MdlN = 'NBr119'
 MdlN_CHD = 'NBr111'
 date_B = '19901228'
 date_S = '19910101'
