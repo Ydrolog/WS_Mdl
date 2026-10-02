@@ -27,7 +27,7 @@ name = 'LHM_HD'
 
 # %% Read CHD, fill (interpolate), save as SHD
 l_CHD = list(Pa_CHD.glob(f'{name}_{date_B}*.idf'))
-DA_CHD = imod.formats.idf.open(l_CHD, pattern=f'{{name}}_{date_B}_L{{layer}}_NBr1')
+DA_CHD = imod.formats.idf.open(l_CHD, pattern=f'{{name}}_{date_B}_L{{layer}}_NBr111')
 
 # %% Sort coordinates to allow interpolation
 reversed_y = not np.all(np.diff(DA_CHD.y.values) > 0)
