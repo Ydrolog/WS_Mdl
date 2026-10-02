@@ -18,7 +18,7 @@
  1,1, 001,   1.000000    ,   0.000000    ,   1.000000    ,''  ### runon resistance urban area
  1,1, 001,   1.000000    ,   0.000000    ,   1.000000    ,''  ### runon resistance rural area
  1,1, 001,   1.000000    ,   0.000000    ,   0.000000    ,''  ### QINFBASIC Urban Area
- 1,1, 001,   1.000000    ,   0.000000    ,   1.050000    ,''  ### QINFBASIC Urban Area
+ 1,1, 001,   1.000000    ,   0.000000    ,   1.050000    ,''  ### QINFBASIC Rural Area
  1,1, 001,   1.000000    ,   0.000000    ,  -9999.000    ,''  ### PWT Level
  1,1, 001,   1.000000    ,   0.000000    ,   1.000000    ,''  ### Soil Moisture Factor
  1,1, 001,   1.000000    ,   0.000000    ,   1.000000    ,''  ### Conductivity Factor
