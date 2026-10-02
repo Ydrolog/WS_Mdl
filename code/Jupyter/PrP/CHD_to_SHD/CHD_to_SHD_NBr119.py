@@ -16,13 +16,13 @@ import xarray as xr
 from WS_Mdl.core import Mdl_N
 
 # %% Options
-MdlN = 'NBr111'
+MdlN = 'NBr119'
 MdlN_CHD = 'NBr111'
 date_B = '19901228'
 date_S = '19910101'
 M = Mdl_N(MdlN)
-Pa_CHD = M.Pa.WS / rf'models\NBr\In\CHD\{MdlN_CHD}'
-Pa_SHD = M.Pa.WS / rf'models\NBr\In\SHD\{MdlN}'
+Pa_CHD = M.Pa.WS / rf'models/NBr/In/CHD/{MdlN_CHD}'
+Pa_SHD = M.Pa.WS / rf'models/NBr/In/SHD/{MdlN}'
 name = 'LHM_HD'
 
 # %% Read CHD, fill (interpolate), save as SHD

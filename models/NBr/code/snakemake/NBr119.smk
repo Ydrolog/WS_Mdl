@@ -22,8 +22,11 @@ iMOD5       =   False
 MdlN_MM_B   =   'NBr104'
 
 ## Paths
-M           =   Mdl_N(MdlN)
-workdir:        M.Pa.Mdl
+M                   =   Mdl_N(MdlN)
+workdir:                M.Pa.Mdl
+M.Pa.coupler_Exe    =   (M.Pa.MdlN / M.INI.COUPLER).resolve()
+M.Pa.MF6_DLL        =   M.Pa.coupler_Exe.parent / './modflow6/libmf6.dll'
+M.Pa.MSW_DLL        =   M.Pa.coupler_Exe.parent / './metaswap/MetaSWAP.dll'
 
 # MF6 Options
 M.Sim.Bin_Ins       =   False
@@ -48,7 +51,10 @@ log_Sim             =   Pa_temp / f"Log_Sim_{MdlN}"
 log_PRJ_to_TIF      =   Pa_temp / f"Log_PRJ_to_TIF_{MdlN}"
 log_HD_AVGs         =   Pa_temp / f"Log_HD_AVGs_{MdlN}"
 log_GXG             =   Pa_temp / f"Log_GXG_{MdlN}"
+log_HD_Pctls            =   Pa_temp / f"Log_HD_Pctls_{MdlN}"
+log_Outlet_TS           =   Pa_temp / f"Log_Outlet_TS_{MdlN}"
 log_Diff            =   Pa_temp / f"Log_Diff_PoP_Par_{MdlN}"
+log_WB                  =   Pa_temp / f"Log_WB_{MdlN}"
 log_upload          =   Pa_temp / f"Log_upload_{MdlN}"
 
 # --- Rules ---
@@ -196,6 +202,15 @@ rule GXG:
         from WS_Mdl.imod.pop.hd import c_HD_Bin_GXGs
         c_HD_Bin_GXGs(MdlN) # Calculate GXG and save as TIFs
         Up_log(MdlN, {  'GXG':   1})
+rule p_HD_Pctls:
+    input:
+        log_Sim
+    output:
+        touch(log_HD_Pctls)
+    run:
+        from WS_Mdl.imod.pop.hd import c_HD_Bin_Pctls
+        c_HD_Bin_Pctls(MdlN)
+        Up_log(MdlN, {  'HD_Pctls':   1})
 
 rule Diff_PoP_Par:
     input:
@@ -208,13 +223,25 @@ rule Diff_PoP_Par:
             Diff_PoP_Par(MdlN, M.B, P)
         Up_log(MdlN, {'Diff_PoP_Par' :   ", ".join(l_Diff_PoP_Par)})
 
+rule Outlet_TS:
+    input:
+        log_Sim
+    output:
+        touch(log_Outlet_TS)
+    run:
+        from WS_Mdl.imod.pop.ts import Agg_outlet_TS
+        Agg_outlet_TS(MdlN, Pa_Shp_catchment)
+        Up_log(MdlN, {'Agg_outlet_TS' :   1})
+
 rule Up_MM:
     input:
         log_PRJ_to_TIF,
         log_HD_AVGs,
         M.Pa.PoP_Out_MdlN / f'GW_HD_OBS/metadata.txt',
         log_GXG,
-        log_Diff
+        log_HD_Pctls,
+        log_Diff,
+        log_Outlet_TS
     output:
         M.Pa.MM
     run:
@@ -224,9 +251,19 @@ rule Up_MM:
                         'End Status':   'PoPed',
                         'Up_MM'     :   1}) # Update log
 
+rule WB:
+    input:
+        log_Sim
+    output:
+        touch(log_WB)
+    run:
+        from WS_Mdl.imod.pop.wb import Diff_to_xlsx
+        Diff_to_xlsx(MdlN, M.B)
+
 rule Upl: # Uploads the PoP Out files to iBridges. This is the final step of the workflow.
     input:
-        M.Pa.MM
+        M.Pa.MM,
+        log_WB
     output:
         touch(log_upload)
     run:
