@@ -70,7 +70,8 @@ if reversed_x:
 
 # %% Expand dimensions and save
 DA_CHD_interp = DA_CHD_interp.expand_dims(name=[f"SHD_{date_S}"])
-imod.idf.save(Pa_SHD / "dummy.idf", DA_CHD_interp, pattern=f"{{name}}_L{{layer}}_{MdlN}.IDF")
+imod.idf.save(
+    Pa_SHD / "dummy.idf", DA_CHD_interp, pattern=f"{{name}}_L{{layer}}_{MdlN}.IDF")
 
 # %% Write SHD block
 for i in range(37):
@@ -81,5 +82,13 @@ for i in range(37):
 # %% Write metadata file in the same folder
 with open(Pa_SHD / "_metadata.txt    ", "w") as f:
     f.write(
-        rf"This file was produced by 'G:\code\PrP\CHD_to_SHD\CHD_to_SHD_{MdlN}.py' cause significant differences were spotted between the CHD (of the 1st SP) and SHDs of NBr38.)"
+        rfrf"This file was produced by 'G:\code\PrP\CHD_to_SHD\CHD_to_SHD_{MdlN}.py'. The 30 year LHM HD data, provided by Deltares, lead to better model performance regarding matching the OBS HDs. They also provide a 30 year period for Sims. Hence those CHD/SHD files will be used from now on. "
     )
+
+# %% Copy odd layers to even layers
+for L in DA_CHD_interp.layer.values:
+    sh.copy2(
+        Pa_SHD / f"SHD_{date_S}_L{L}_{MdlN}.IDF",
+        Pa_SHD / f"SHD_{date_S}_L{L + 1}_{MdlN}.IDF",
+    )
+    
