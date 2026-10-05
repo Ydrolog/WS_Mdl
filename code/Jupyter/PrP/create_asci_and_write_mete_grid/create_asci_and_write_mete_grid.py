@@ -43,8 +43,8 @@ def write_asc(path, arr, grid):
     """ Write one 2D array as an ESRI ASCII grid file (.asc)."""
     arr = np.where(np.isnan(arr), NODATA, arr)
     header = (f"ncols {grid['ncols']}\nnrows {grid['nrows']}\n"
-              f"xllcorner {grid['xll']}\nyllcorner {grid['yll']}\n"
-              f"cellsize {grid['cellsize']}\nNODATA_value {NODATA}")
+          f"xllcorner {grid['xll']:.12f}\nyllcorner {grid['yll']:.12f}\n"
+          f"cellsize {grid['cellsize']:.12f}\nNODATA_value {NODATA}")
     np.savetxt(path, arr, header=header, comments="", fmt="%.4f")
  
  
@@ -133,7 +133,7 @@ grid = dict(xll=0, yll=300000, ncols=300, nrows=325,
 d_p = convert(P_FILE, P_VAR, ENS, "P", MODELRUN, OUT_DIR, grid, n_days=N_DAYS)
 d_pet = convert(PET_FILE, PET_VAR, ENS, "PET", MODELRUN, OUT_DIR, grid, n_days=N_DAYS)
 assert d_p == d_pet, "P en PET hebben verschillende datums!"
-write_index(d_p, MODELRUN, INDEX, rel_root=r"..\..")
+write_index(d_p, MODELRUN, INDEX, rel_root=r"..\..\In\CAP")
  
 make_archive(os.path.join(OUT_DIR, "P", MODELRUN),
              os.path.join(OUT_DIR, "P", f"{MODEL_NAME}_CAP_P_{MODELRUN}.tar.gz"))

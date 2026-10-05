@@ -24,9 +24,6 @@ MdlN_MM_B   =   'NBr104'
 ## Paths
 M                   =   Mdl_N(MdlN)
 workdir:                M.Pa.Mdl
-M.Pa.coupler_Exe    =   (M.Pa.MdlN / M.INI.COUPLER).resolve()
-M.Pa.MF6_DLL        =   M.Pa.coupler_Exe.parent / './modflow6/libmf6.dll'
-M.Pa.MSW_DLL        =   M.Pa.coupler_Exe.parent / './metaswap/MetaSWAP.dll'
 
 # MF6 Options
 M.Sim.Bin_Ins       =   False
