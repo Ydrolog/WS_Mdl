@@ -41,10 +41,10 @@ SFR_connect_Pkgs        =   ('DRN', 'RIV')
 Pa_Shp_catchment        =   M.Pa.PoP / r'common\Pgn\Chaamse_beek\catchment_chaamsebeek_ulvenhout.shp'
 SFR_OBS_all             =   ['sfr', 'downstream-flow', 'inflow', 'stage', 'from-mvr']
 SFR_options             =   [f'OBS6 FILEIN {M.Pa.Sim_In / (MdlN + ".SFR6.obs")}', 
-                             f'BUDGET FILEOUT {MdlN}.SFR6.cbc', # 666 Remove this if it doesn't contain any useful info
+                             f'BUDGET FILEOUT Out/{MdlN}.SFR6.cbc', # 666 Remove this if it doesn't contain any useful info
                              # 'AUXILIARY line_id',
                              # f'STAGE FILEOUT SFR_Stg_{MdlN}.bin', # unnecessary because we have OBS for all reaches
-                             f'PACKAGE_CONVERGENCE FILEOUT SFR_convergence_{MdlN}.CSV',
+                             f'PACKAGE_CONVERGENCE FILEOUT Out/SFR_convergence_{MdlN}.CSV',
                              'SAVE_FLOWS']
 SFR_one_reach_per_cell: bool = True
 # Pa_SFR_Stg_Init = M.Pa.In / f'SFR/Stg_Init/{MdlN}/Stg_Init_{MdlN}.csv'
