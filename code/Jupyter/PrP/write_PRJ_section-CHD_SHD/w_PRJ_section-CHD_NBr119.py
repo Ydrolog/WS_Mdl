@@ -6,7 +6,7 @@ import pandas as pd
 # %% Options
 MdlN = 'NBr119'
 date_start = '1991-01-01'
-date_end = '1991-12-31'
+date_end = '2020-12-31'
 MdlN_CHD = 'NBr111'
 name = 'LHM_HD'
 

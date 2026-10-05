@@ -5,8 +5,13 @@ Some layers are inactive (not due to IBOUND, but cause Thk=0) in large parts of 
 This script can be improved when I have time. Then I should convert it to a .py file.
 """
 
+"""
+Even layers were missing from the folder. I created them just for the SHD file creation, but put them in a Ss folder so they don't cause confusion, e.g. when counting the files.
+"""
+
 # %%. Libraries
 import shutil as sh
+
 import imod
 import numpy as np
 import xarray as xr
@@ -18,8 +23,8 @@ MdlN_CHD = "NBr111"
 date_B = "19901228"
 date_S = "19910101"
 M = Mdl_N(MdlN)
-Pa_CHD = M.Pa.WS / rf"models\NBr\In\CHD/{MdlN_CHD}"
-Pa_SHD = M.Pa.WS / rf"models\NBr\In\SHD/{MdlN}"
+Pa_CHD = M.Pa.WS / rf"models\NBr\In\CHD\{MdlN_CHD}"
+Pa_SHD = M.Pa.WS / rf"models\NBr\In\SHD\{MdlN}"
 name = "LHM_HD"
 
 # %% Read CHD, fill (interpolate), save as SHD
@@ -54,8 +59,8 @@ for i in range(DA_CHD.sizes["layer"]):
         )
     DA_CHD_interp_list.append(filled.assign_coords(layer=DA_CHD.layer.isel(layer=i)))
 
-DA_CHD_interp = xr.concat(DA_CHD_interp_list, dim='layer')
-DA_CHD_interp['layer'] = DA_CHD['layer']
+DA_CHD_interp = xr.concat(DA_CHD_interp_list, dim="layer")
+DA_CHD_interp["layer"] = DA_CHD["layer"]
 
 # %% Reverse coords back to original orientation
 if reversed_y:
