@@ -24,7 +24,7 @@ MdlN_MM_B   =   'NBr104'
 ## Paths
 M                   =   Mdl_N(MdlN)
 workdir:                M.Pa.Mdl
-M.Pa.coupler_Exe    =   (M.Pa.MdlN / M.INI.COUPLER).resolve()
+M.Pa.coupler_Exe    =   Path(M.INI.COUPLER)
 M.Pa.MF6_DLL        =   M.Pa.coupler_Exe.parent / './modflow6/libmf6.dll'
 M.Pa.MSW_DLL        =   M.Pa.coupler_Exe.parent / './metaswap/MetaSWAP.dll'
 
@@ -40,6 +40,7 @@ Pa_HD_OBS_Dst           =   M.Pa.Sim_In / f'HD_{MdlN}.OBS'
 ## Other PoP Options
 l_Diff_PoP_Par          =   ['GW_HD_AVGs/L1']
 PoP_end_year            =   2001
+Pa_Shp_catchment        =   M.Pa.PoP / r'common\Pgn\Chaamse_beek\catchment_chaamsebeek_ulvenhout.shp'
 
 ## Temp files - for completion validation. To re-run a rule, delete the coresponding temp file.
 Pa_temp             =   M.Pa.Smk.parent / 'temp'
@@ -199,9 +200,16 @@ rule GXG:
     output:
         touch(log_GXG)
     run:
-        from WS_Mdl.imod.pop.hd import c_HD_Bin_GXGs
-        c_HD_Bin_GXGs(MdlN) # Calculate GXG and save as TIFs
-        Up_log(MdlN, {  'GXG':   1})
+        GXG_start = max(DT(M.SP_1st_DT.year, 4, 1), M.SP_1st_DT)
+        GXG_end = min(DT(M.SP_last_DT.year, 4, 1), M.SP_last_DT)
+        
+        if (GXG_end - GXG_start).days > 365:
+            from WS_Mdl.imod.pop.hd import c_HD_Bin_GXGs
+            c_HD_Bin_GXGs(MdlN) # Calculate GXG and save as TIFs
+            Up_log(MdlN, {  'GXG':   1})
+        else:
+            print('Not enough days to calculate GXG')
+
 rule p_HD_Pctls:
     input:
         log_Sim
