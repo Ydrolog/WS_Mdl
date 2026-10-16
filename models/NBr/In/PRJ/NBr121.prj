@@ -26,9 +26,9 @@
 ..\..\In\CAP\fact_svat\NBr1\fact_svat.inp
 ..\..\In\CAP\luse_svat\NBr1\luse_svat.inp
 ..\..\In\CAP\mete_grid\NBr121\mete_grid.inp
-..\..\In\CAP\para_sim\NBr120\para_sim.inp
+..\..\In\CAP\para_sim\NBr121\para_sim.inp
 ..\..\In\CAP\init_svat\NBr1\init_svat.inp
-..\..\In\CAP\tiop_sim\NBr120\tiop_sim.inp
+..\..\In\CAP\tiop_sim\NBr121\tiop_sim.inp
 ..\..\In\CAP\sel_key_svat_per\NBr1\sel_key_svat_per.inp
 
 1,(OBS),0,  OBSERVATION PACKAGE
