@@ -115,12 +115,12 @@ def make_archive(folder, archive_path):
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.normpath(os.path.join(SCRIPT_DIR, "../../../.."))
  
-P_FILE   = os.path.join(PROJECT_ROOT, "models/NBr/In/CAP/P/pr_ref_interp.nc") # the .nc file of the precipitation needed for the conversion
-PET_FILE = os.path.join(PROJECT_ROOT, "models/NBr/In/CAP/PET/pet_ref_interp.nc") # the .nc file of the PET needed for the conversion
+P_FILE   = os.path.join(PROJECT_ROOT, "models/NBr/In/CAP/P/pr_Hd_2050_interp.nc") # the .nc file of the precipitation needed for the conversion
+PET_FILE = os.path.join(PROJECT_ROOT, "models/NBr/In/CAP/PET/pet_Hd_2050_interp.nc") # the .nc file of the PET needed for the conversion
 P_VAR    = "pr"
 PET_VAR  = "pet"
-ENS      = 1 # the chosen ensemble member from the bunch
-MODELRUN = "NBr119" # this needs to be adjusted according to the modelrun number that is going to be used
+ENS      = 2 # the chosen ensemble member from the bunch
+MODELRUN = "NBr121" # this needs to be adjusted according to the modelrun number that is going to be used
 MODEL_NAME = "NBr" # used for the archive filename
 CAP_ROOT = os.path.join(PROJECT_ROOT, "models/NBr/In/CAP")
 OUT_DIR  = CAP_ROOT
