@@ -39,7 +39,7 @@ Pa_HD_OBS_Dst           =   M.Pa.Sim_In / f'HD_{MdlN}.OBS'
 
 ## Other PoP Options
 l_Diff_PoP_Par          =   ['GW_HD_AVGs/L1']
-PoP_end_year            =   2065
+#PoP_end_year            =   2065
 
 ## Temp files - for completion validation. To re-run a rule, delete the coresponding temp file.
 Pa_temp             =   M.Pa.Smk.parent / 'temp'
@@ -180,7 +180,7 @@ rule p_HD_AVGs: # Process HD OBS Out Bin data into TIF files with AVG heads. The
         touch(log_HD_AVGs)
     run:
         from WS_Mdl.imod.pop.hd import c_HD_Bin_AVGs
-        c_HD_Bin_AVGs(MdlN, end_year=PoP_end_year)
+        c_HD_Bin_AVGs(MdlN)
         Up_log(MdlN, {'p_HD_AVGs' :   1})
 
 rule p_HD_OBS_TS:
