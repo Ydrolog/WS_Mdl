@@ -247,7 +247,7 @@ rule Up_MM:
         M.Pa.PoP_Out_MdlN / f'GW_HD_OBS/metadata.txt',
         log_GXG,
         log_HD_Pctls,
-#        log_Diff,
+        log_Diff,
         log_Outlet_TS
     output:
         M.Pa.MM
@@ -270,7 +270,7 @@ rule WB:
 rule Upl: # Uploads the PoP Out files to iBridges. This is the final step of the workflow.
     input:
         M.Pa.MM,
-#        log_WB
+        log_WB
     output:
         touch(log_upload)
     run:
