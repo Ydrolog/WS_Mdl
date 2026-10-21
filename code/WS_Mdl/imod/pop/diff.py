@@ -2,6 +2,8 @@ from WS_Mdl.core.mdl import Mdl_N
 from WS_Mdl.core.text import replace_MdlN
 from WS_Mdl.xr.compare import Diff_MBTIF, Diff_TIF
 
+__all__ = ['Diff_PoP_Par']
+
 
 def Diff_PoP_Par(
     MdlN,

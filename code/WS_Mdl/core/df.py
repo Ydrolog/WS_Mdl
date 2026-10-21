@@ -54,8 +54,7 @@ class DFAccessor:
         for i in range(0, 100, percentile_step):
             start_idx = int(i / 100 * n_cols)
             end_idx = int((i + percentile_step) / 100 * n_cols)
-            if end_idx > n_cols:
-                end_idx = n_cols
+            end_idx = min(end_idx, n_cols)
             if start_idx == end_idx and end_idx < n_cols:
                 end_idx += 1
 
@@ -100,7 +99,7 @@ class DFAccessor:
 
         return df_r
 
-    def clip_Mdl_area(self, Pa_INI: str | Path = None, M: Mdl_N = None) -> pd.DataFrame:
+    def clip_Mdl_area(self, Pa_INI: str | Path | None = None, M: Mdl_N = None) -> pd.DataFrame:
         """Limits the DataFrame to the model area defined in the INI file."""
         verbose = get_verbose()
         set_verbose(False)  # Suppress sprint from Mdl_Dmns
