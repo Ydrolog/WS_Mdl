@@ -18,7 +18,6 @@ os.environ["PYTHONUNBUFFERED"] = "1"        # Set Python to unbuffered mode (out
 
 ## Options
 MdlN        =   'NBr120'
-iMOD5       =   False
 MdlN_MM_B   =   'NBr104'
 
 ## Paths
@@ -33,13 +32,12 @@ M.Sim.Bin_Ins       =   False
 M.Sim.save_head     =   None # We use OBS instead, which reduces Out size significantly.
 
 # OBS Options
-MdlN_HD_OBS             =   'NBr120'
+MdlN_HD_OBS             =   'NBr107'
 Pa_HD_OBS_Src           =   M.Pa.In / f'OBS/HD/{MdlN_HD_OBS}/HD_{MdlN_HD_OBS}.OBS'
 Pa_HD_OBS_Dst           =   M.Pa.Sim_In / f'HD_{MdlN}.OBS'
 
 ## Other PoP Options
 l_Diff_PoP_Par          =   ['GW_HD_AVGs/L1']
-PoP_end_year            =   2020
 
 ## Temp files - for completion validation. To re-run a rule, delete the coresponding temp file.
 Pa_temp             =   M.Pa.Smk.parent / 'temp'

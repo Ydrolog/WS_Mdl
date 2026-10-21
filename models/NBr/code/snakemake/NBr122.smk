@@ -39,7 +39,6 @@ Pa_HD_OBS_Dst           =   M.Pa.Sim_In / f'HD_{MdlN}.OBS'
 
 ## Other PoP Options
 l_Diff_PoP_Par          =   ['GW_HD_AVGs/L1']
-#PoP_end_year            =   2020
 
 ## Temp files - for completion validation. To re-run a rule, delete the coresponding temp file.
 Pa_temp             =   M.Pa.Smk.parent / 'temp'
