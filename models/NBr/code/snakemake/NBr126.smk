@@ -32,7 +32,7 @@ M.Sim.Bin_Ins       =   False
 M.Sim.save_head     =   None # We use OBS instead, which reduces Out size significantly.
 
 # OBS Options
-MdlN_HD_OBS             =   'NBr107'
+MdlN_HD_OBS             =   'NBr126'
 Pa_HD_OBS_Src           =   M.Pa.In / f'OBS/HD/{MdlN_HD_OBS}/HD_{MdlN_HD_OBS}.OBS'
 Pa_HD_OBS_Dst           =   M.Pa.Sim_In / f'HD_{MdlN}.OBS'
 
@@ -107,31 +107,31 @@ rule add_HD_OBS_copy: # Copying so I can manually make a file that contains OBS 
         sh.copy2(Pa_HD_OBS_Src, Pa_HD_OBS_Dst) # Copy the file to create a new one with the same content.
         add_Pkg(MdlN, fr'  OBS6 .\imported_model\HD_{MdlN}.OBS HD_OBS')  # Add to NAM
 
-rule add_RIV_OBS:
-    input:
-        M.Pa.NAM_Sim,
-    output:
-        log_RIV_OBS
-    run:
-        from WS_Mdl.imod.mf6.obs import add_within_polygon
-        add_within_polygon(Pa_Shp =  r'G:\models\NBr\PoP\common\Pgn\Chaamse_beek\catchment_chaamsebeek_ulvenhout.shp',
-            MdlN = MdlN,
-            Pkg = 'RIV',
-            Opt = """BEGIN OPTIONS\n  DIGITS 4\n  PRINT_INPUT\nEND OPTIONS\n\n""")
-        Path(output[0]).touch() # Create the file to mark the rule as done.
+# rule add_RIV_OBS:
+#     input:
+#         M.Pa.NAM_Sim,
+#     output:
+#         log_RIV_OBS
+#     run:
+#         from WS_Mdl.imod.mf6.obs import add_within_polygon
+#         add_within_polygon(Pa_Shp =  r'G:\models\NBr\PoP\common\Pgn\Chaamse_beek\catchment_chaamsebeek_ulvenhout.shp',
+#             MdlN = MdlN,
+#             Pkg = 'RIV',
+#             Opt = """BEGIN OPTIONS\n  DIGITS 4\n  PRINT_INPUT\nEND OPTIONS\n\n""")
+#         Path(output[0]).touch() # Create the file to mark the rule as done.
 
-rule add_DRN_OBS:
-    input:
-        M.Pa.NAM_Sim
-    output:
-        log_DRN_OBS
-    run:
-        from WS_Mdl.imod.mf6.obs import add_within_polygon
-        add_within_polygon(Pa_Shp =  r'G:\models\NBr\PoP\common\Pgn\Chaamse_beek\catchment_chaamsebeek_ulvenhout.shp',
-            MdlN = MdlN,
-            Pkg = 'DRN',
-            Opt = """BEGIN OPTIONS\n DIGITS 4\n  PRINT_INPUT\nEND OPTIONS\n\n""")
-        Path(output[0]).touch() # Create the file to mark the rule as done.
+# rule add_DRN_OBS:
+#     input:
+#         M.Pa.NAM_Sim
+#     output:
+#         log_DRN_OBS
+#     run:
+#         from WS_Mdl.imod.mf6.obs import add_within_polygon
+#         add_within_polygon(Pa_Shp =  r'G:\models\NBr\PoP\common\Pgn\Chaamse_beek\catchment_chaamsebeek_ulvenhout.shp',
+#             MdlN = MdlN,
+#             Pkg = 'DRN',
+#             Opt = """BEGIN OPTIONS\n DIGITS 4\n  PRINT_INPUT\nEND OPTIONS\n\n""")
+#         Path(output[0]).touch() # Create the file to mark the rule as done.
 
 rule fix_MSW_area:
     input:
@@ -145,8 +145,8 @@ rule fix_MSW_area:
 rule Sim: # Runs the simulation via BAT file.
     input:
         Pa_HD_OBS_Dst,
-        log_RIV_OBS,
-        log_DRN_OBS,
+        # log_RIV_OBS,
+        # log_DRN_OBS,
         log_fix_MSW_area
     output:
         touch(log_Sim)
