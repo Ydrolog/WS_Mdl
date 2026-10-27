@@ -16,7 +16,7 @@ from WS_Mdl.core.runtime import timed_Exe
 from WS_Mdl.core.style import Sep, set_verbose, sprint
 from WS_Mdl.imod.ini import CeCes, Mdl_Dmns
 from WS_Mdl.imod.mf6.solution import moderate_settings
-from WS_Mdl.imod.msw.mete_grid import Cvt_to_AbsPa, add_missing_Cols
+from WS_Mdl.imod.msw.mete_grid import Cvt_to_AbsPa, add_missing_Cols, patch_imod_meteo_mapping
 from WS_Mdl.xr.convert import to_MBTIF as xr_to_MBTIF
 from WS_Mdl.xr.convert import to_TIF as xr_to_TIF
 
@@ -726,6 +726,7 @@ def PrSimP(
     # %% ----- Load MSW Simulation
     PRJ_MSW = {'cap': PRJ_regrid.copy()['cap'], 'extra': PRJ_regrid.copy()['extra']}  # Isolate MSW keys from PRJ.
     PRJ_MSW['extra']['paths'][2][0] = Cvt_to_AbsPa(M.Pa.PRJ, PRJ)  # mete_grid.inp relative paths fix
+    patch_imod_meteo_mapping()
     MSW_Mdl = timed_Exe(
         msw.MetaSwapModel.from_imod5_data,
         PRJ_MSW,

@@ -1,4 +1,5 @@
 from pathlib import Path
+from textwrap import dedent
 
 import pandas as pd
 from WS_Mdl.core import sprint
@@ -39,6 +40,37 @@ def add_missing_Cols(Pa, Pa_Out=None):
         for col in range(DF_mete_grid.shape[1], 11):
             DF_mete_grid[col] = 'NoValue'  # Add missing columns with default value 'NoValue'
         DF_mete_grid.to_csv(Pa_Out, header=False, index=False, quoting=2)  # quoting=2 so that strings are quoted
+
+
+def patch_imod_meteo_mapping():
+    """!!!AI geerated!!!: Patch imod's mete_grid reader to trim CSV field whitespace."""
+    import imod
+    from imod.msw import meteo_mapping
+
+    if getattr(meteo_mapping, '_ws_mdl_meteo_mapping_patched', False):
+        return
+
+    def open_first_meteo_grid(mete_grid_path, column_nr):
+        if column_nr not in [2, 3]:
+            raise ValueError('Column nr should be 2 or 3')
+
+        mete_grid_path = Path(mete_grid_path)
+        with open(mete_grid_path, 'r') as f:
+            lines = f.readlines()
+
+        potential_paths = [line.split(',')[column_nr].replace('"', '').strip() for line in lines]
+        for potential_path in potential_paths:
+            if meteo_mapping._is_parsable_and_existing_path(potential_path, mete_grid_path):
+                resolved_path = mete_grid_path / '..' / Path(potential_path)
+                return imod.rasterio.open(resolved_path)
+
+        error_message = dedent(f"""\
+        Did not find parsable path to existing .ASC file in column {column_nr}. Got
+        values (printing first 10): {potential_paths[:10]}.""")
+        raise ValueError(error_message)
+
+    meteo_mapping.open_first_meteo_grid = open_first_meteo_grid
+    meteo_mapping._ws_mdl_meteo_mapping_patched = True
 
 
 def Cvt_to_AbsPa(Pa_PRJ: Path | str, PRJ: dict = None):
