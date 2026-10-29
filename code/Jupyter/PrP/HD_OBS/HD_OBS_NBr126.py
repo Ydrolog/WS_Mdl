@@ -3,6 +3,7 @@
 # %% Imports
 import imod
 import pandas as pd
+import WS_Mdl.core.df  # noqa: F401
 from WS_Mdl.core.mdl import Mdl_N
 
 # %% Options
@@ -88,7 +89,7 @@ with open(Pa_Prv, 'r') as f:
 block_to_copy = Prv.split('END CONTINUOUS', 1)[0].split('BEGIN CONTINUOUS', 1)[1]
 
 # %% Write OBS file
-Pa_OBS = M.Pa.In / f'OBS/HD/{MdlN}/HD_{M.MdlN}.OBS6'
+Pa_OBS = M.Pa.In / f'OBS/HD/{MdlN}/HD_{M.MdlN}.OBS'
 Pa_OBS.parent.mkdir(parents=True, exist_ok=True)
 with open(Pa_OBS, 'w') as f:
     f.write(f'# created by {__file__} using: {M.Pa_B.GRB}\n')

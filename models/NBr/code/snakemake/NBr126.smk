@@ -38,6 +38,7 @@ Pa_HD_OBS_Dst           =   M.Pa.Sim_In / f'HD_{MdlN}.OBS'
 
 ## Other PoP Options
 l_Diff_PoP_Par          =   ['GW_HD_AVGs/L1']
+Pa_MSW_area_fix         =   M.Pa.In / f'CAP/area_svat_patch/{MdlN}/area_svat.inp'
 
 ## Temp files - for completion validation. To re-run a rule, delete the coresponding temp file.
 Pa_temp             =   M.Pa.Smk.parent / 'temp'
@@ -139,7 +140,7 @@ rule fix_MSW_area:
     output:
         touch(log_fix_MSW_area)
     run:
-        sh.copy2(r"G:\models\NBr\In\CAP\area_svat_fix\NBr125\AREA_SVAT.INP", M.Pa.MSW / "area_svat.inp")
+        sh.copy2(Pa_MSW_area_fix, M.Pa.MSW / "area_svat.inp")
 
 ## -- Sim ---
 rule Sim: # Runs the simulation via BAT file.
