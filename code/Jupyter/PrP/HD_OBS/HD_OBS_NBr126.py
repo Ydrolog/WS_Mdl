@@ -79,14 +79,14 @@ LRC = (
 # %% Create DF for OBS file
 DF = pd.DataFrame({'obsname': LRC.map(lambda x: 'HD_' + x.replace(' ', '_')), 'obstype': 'HEAD', 'id': LRC})
 
-# %% Read Prvious OBS file to copy OBS Pnt block
-MdlN_Prv = 'NBr107'
-Pa_Prv = next((M.Pa.In / f'OBS/HD/{MdlN_Prv}').glob('*.OBS*'))
+# # %% Read Prvious OBS file to copy OBS Pnt block
+# MdlN_Prv = 'NBr107'
+# Pa_Prv = next((M.Pa.In / f'OBS/HD/{MdlN_Prv}').glob('*.OBS*'))
 
-with open(Pa_Prv, 'r') as f:
-    Prv = f.read()
+# with open(Pa_Prv, 'r') as f:
+#     Prv = f.read()
 
-block_to_copy = Prv.split('END CONTINUOUS', 1)[0].split('BEGIN CONTINUOUS', 1)[1]
+# block_to_copy = Prv.split('END CONTINUOUS', 1)[0].split('BEGIN CONTINUOUS', 1)[1]
 
 # %% Write OBS file
 Pa_OBS = M.Pa.In / f'OBS/HD/{MdlN}/HD_{M.MdlN}.OBS'
@@ -94,9 +94,9 @@ Pa_OBS.parent.mkdir(parents=True, exist_ok=True)
 with open(Pa_OBS, 'w') as f:
     f.write(f'# created by {__file__} using: {M.Pa_B.GRB}\n')
     f.write(Opt)  # write optional block
-    f.write('\nBEGIN CONTINUOUS')
-    f.write(block_to_copy)  # write OBS Pnt block
-    f.write('END CONTINUOUS\n')
+    # f.write('\nBEGIN CONTINUOUS')
+    # f.write(block_to_copy)  # write OBS Pnt block
+    # f.write('END CONTINUOUS\n')
     f.write('\nBEGIN CONTINUOUS FILEOUT ./Out/HD_OBS_L.bin BINARY\n')
     f.write(DF.ws.to_MF_block())
     f.write('END CONTINUOUS\n')
