@@ -30,6 +30,7 @@ M.Pa.MSW_DLL        =   M.Pa.coupler_Exe.parent / './metaswap/MetaSWAP.dll'
 # MF6 Options
 M.Sim.Bin_Ins       =   False
 M.Sim.save_head     =   None # We use OBS instead, which reduces Out size significantly.
+M.save_budget		= 	False
 
 # OBS Options
 MdlN_HD_OBS             =   'NBr138'

@@ -30,15 +30,16 @@ M.Pa.MSW_DLL        =   M.Pa.coupler_Exe.parent / './metaswap/MetaSWAP.dll'
 # MF6 Options
 M.Sim.Bin_Ins       =   False
 M.Sim.save_head     =   None # We use OBS instead, which reduces Out size significantly.
+M.save_budget		= 	False
 
 # OBS Options
-MdlN_HD_OBS             =   'NBr126'
+MdlN_HD_OBS             =   'NBr138'
 Pa_HD_OBS_Src           =   M.Pa.In / f'OBS/HD/{MdlN_HD_OBS}/HD_{MdlN_HD_OBS}.OBS'
 Pa_HD_OBS_Dst           =   M.Pa.Sim_In / f'HD_{MdlN}.OBS'
 
 ## Other PoP Options
 l_Diff_PoP_Par          =   ['GW_HD_AVGs/L1']
-MdlN_area_fix           =   'NBr126'
+MdlN_area_fix           =   'NBr138'
 Pa_MSW_area_fix         =   M.Pa.In / f'CAP/area_svat_patch/{MdlN_area_fix}/area_svat.inp'
 
 ## Temp files - for completion validation. To re-run a rule, delete the coresponding temp file.

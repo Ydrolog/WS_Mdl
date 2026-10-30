@@ -227,11 +227,11 @@ Run via Mdl_Prep_NBr125.bat. Not via RunMng/Smk.","Queued","Stopped Manually"
 "136","NBr","136","NBr136","130","NBr130","IvdL","Sc","KNMI23' CC 2050 Hn (2036-2065) - Ensembe |C|","Development",""
 "137","NBr","137","NBr137","125","NBr125","IvdL","Sc","iMOD5 to extend model domain - NBr+2Km. Only running this to create metaswap area_svat.inp, as imod python has a bug that causes it to calcualte it incorecty.
 Run via Mdl_Prep_NBr125.bat. Not via RunMng/Smk.","Queued","Stopped Manually"
-"138","NBr","138","NBr138","126","NBr126","IvdL","Sc","Back to imod python.","Queued","Failed"
+"138","NBr","138","NBr138","126","NBr126","IvdL","Sc","Back to imod python.","Queued",""
 "139","NBr","139","NBr139","127","NBr127","IvdL","Sc","CHD sensitivity test: +0.5m CHDs","Queued",""
 "140","NBr","140","NBr140","137","NBr137","IvdL","Sc","iMOD5 to extend model domain - NBr+3Km. Only running this to create metaswap area_svat.inp, as imod python has a bug that causes it to calcualte it incorecty.
 Run via Mdl_Prep_NBr125.bat. Not via RunMng/Smk.","Queued","Stopped Manually"
-"141","NBr","141","NBr141","138","NBr138","IvdL","Sc","Back to imod python.","Queued","Failed"
+"141","NBr","141","NBr141","138","NBr138","IvdL","Sc","Back to imod python.","Queued",""
 "142","NBr","142","NBr142","139","NBr139","IvdL","Sc","CHD sensitivity test: +0.5m CHDs","Queued",""
 "","","","","","","","","","",""
 "","","","","","","","","","",""
