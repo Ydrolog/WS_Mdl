@@ -30,7 +30,7 @@ M.Pa.MSW_DLL        =   M.Pa.coupler_Exe.parent / './metaswap/MetaSWAP.dll'
 # MF6 Options
 M.Sim.Bin_Ins       =   False
 M.Sim.save_head     =   None # We use OBS instead, which reduces Out size significantly.
-M.save_budget		= 	False
+M.Sim.save_budget		= 	False
 
 # OBS Options
 MdlN_HD_OBS             =   'NBr141'
@@ -181,18 +181,18 @@ rule p_HD_AVGs: # Process HD OBS Out Bin data into TIF files with AVG heads. The
         touch(log_HD_AVGs)
     run:
         from WS_Mdl.imod.pop.hd import c_HD_Bin_AVGs
-        c_HD_Bin_AVGs(MdlN, end_year=PoP_end_year)
+        c_HD_Bin_AVGs(MdlN) #, end_year=PoP_end_year)
         Up_log(MdlN, {'p_HD_AVGs' :   1})
 
-rule p_HD_OBS_TS:
-    input:
-        log_Sim
-    output:
-        touch(M.Pa.PoP_Out_MdlN / f'GW_HD_OBS/metadata.txt')
-    run:
-        from WS_Mdl.imod.pop.hd import p_HD_OBS_TS
-        p_HD_OBS_TS(MdlN)
-        Up_log(MdlN, {'p_HD_OBS_TS' :   1})
+#rule p_HD_OBS_TS:
+#    input:
+#        log_Sim
+#    output:
+#        touch(M.Pa.PoP_Out_MdlN / f'GW_HD_OBS/metadata.txt')
+#    run:
+#        from WS_Mdl.imod.pop.hd import p_HD_OBS_TS
+#        p_HD_OBS_TS(MdlN)
+#        Up_log(MdlN, {'p_HD_OBS_TS' :   1})
 
 rule GXG:
     input:
@@ -231,25 +231,25 @@ rule Diff_PoP_Par:
             Diff_PoP_Par(MdlN, M.B, P)
         Up_log(MdlN, {'Diff_PoP_Par' :   ", ".join(l_Diff_PoP_Par)})
 
-rule Outlet_TS:
-    input:
-        log_Sim
-    output:
-        touch(log_Outlet_TS)
-    run:
-        from WS_Mdl.imod.pop.ts import Agg_outlet_TS
-        Agg_outlet_TS(MdlN, Pa_Shp_catchment)
-        Up_log(MdlN, {'Agg_outlet_TS' :   1})
+#rule Outlet_TS:
+#    input:
+#        log_Sim
+#    output:
+#        touch(log_Outlet_TS)
+#    run:
+#        from WS_Mdl.imod.pop.ts import Agg_outlet_TS
+#        Agg_outlet_TS(MdlN, Pa_Shp_catchment)
+#        Up_log(MdlN, {'Agg_outlet_TS' :   1})
 
 rule Up_MM:
     input:
         log_PRJ_to_TIF,
         log_HD_AVGs,
-        M.Pa.PoP_Out_MdlN / f'GW_HD_OBS/metadata.txt',
+#        M.Pa.PoP_Out_MdlN / f'GW_HD_OBS/metadata.txt',
         log_GXG,
         log_HD_Pctls,
         log_Diff,
-        log_Outlet_TS
+#        log_Outlet_TS
     output:
         M.Pa.MM
     run:
