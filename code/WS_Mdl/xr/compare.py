@@ -7,10 +7,11 @@ from rasterio.enums import Resampling
 from rasterio.transform import from_origin
 from rasterio.warp import reproject, transform_bounds
 
+from WS_Mdl.core.defaults import CRS
 from WS_Mdl.core.style import set_verbose, sprint
 from WS_Mdl.xr.convert import to_MBTIF
 
-__all__ = ['Diff_MBTIF', 'Diff_PoP_Par', 'Diff_TIF']
+__all__ = ['Diff_MBTIF', 'Diff_TIF']  # , 'Diff_PoP_Par'
 
 
 def Diff_TIF(Pa_TIF1, Pa_TIF2, Pa_TIF_Out=None, band_name='Diff', resampling='nearest', verbose=True):
@@ -42,17 +43,19 @@ def Diff_TIF(Pa_TIF1, Pa_TIF2, Pa_TIF_Out=None, band_name='Diff', resampling='ne
     with rasterio.open(Pa_TIF1) as src1, rasterio.open(Pa_TIF2) as src2:
         if src1.count != 1 or src2.count != 1:
             raise ValueError(f'Diff_TIF requires single-band inputs; got {src1.count} and {src2.count} bands.')
+        crs1 = src1.crs or CRS
+        crs2 = src2.crs or CRS
         if src1.crs is None or src2.crs is None:
-            raise ValueError('Both input TIFFs must have a CRS.')
+            sprint('Default CRS was applied to input(s) without CRS metadata.')
 
-        bounds2 = transform_bounds(src2.crs, src1.crs, *src2.bounds, densify_pts=21)
+        bounds2 = transform_bounds(crs2, crs1, *src2.bounds, densify_pts=21)
         area1 = (src1.bounds.right - src1.bounds.left) * (src1.bounds.top - src1.bounds.bottom)
         area2 = (bounds2[2] - bounds2[0]) * (bounds2[3] - bounds2[1])
         template = src1 if area1 >= area2 else src2
-        target_crs = template.crs
+        target_crs = crs1 if template is src1 else crs2
 
-        bounds1 = transform_bounds(src1.crs, target_crs, *src1.bounds, densify_pts=21)
-        bounds2 = transform_bounds(src2.crs, target_crs, *src2.bounds, densify_pts=21)
+        bounds1 = transform_bounds(crs1, target_crs, *src1.bounds, densify_pts=21)
+        bounds2 = transform_bounds(crs2, target_crs, *src2.bounds, densify_pts=21)
         left = min(bounds1[0], bounds2[0])
         bottom = min(bounds1[1], bounds2[1])
         right = max(bounds1[2], bounds2[2])
@@ -75,7 +78,7 @@ def Diff_TIF(Pa_TIF1, Pa_TIF2, Pa_TIF_Out=None, band_name='Diff', resampling='ne
                 source=rasterio.band(src, 1),
                 destination=data,
                 src_transform=src.transform,
-                src_crs=src.crs,
+                src_crs=crs1 if src is src1 else crs2,
                 src_nodata=src.nodata,
                 dst_transform=transform,
                 dst_crs=target_crs,

@@ -1,0 +1,32 @@
+1. Check/edit disk drive letters.
+
+2. Open PS7.
+Navigate to G:\code\build
+.install_MSI.ps1
+.install_
+
+3. Open DoubleCMD
+
+4. Copy Double CMD settings from:
+G:\code\build\doulecmd_settings
+to
+C:\Users\mkarampasi\AppData\Roaming\doublecmd
+
+5. Restart Double CMD
+Pin Double CMD to task bar
+
+6. In Double CMD, go to Configuration/Options/Terminal and change the last Command option to:
+g:\code\build\launch_PS_pixi_noWT.bat
+
+7. While in G: in Double DMD, hit F9 to start PS7 with pixi.
+git init
+git config --global --add safe.directory G:/ # tells git that G: is safe (otherwise next step fails)
+git remote add origin https://github.com/Ydrolog/WS_Mdl.git
+git fetch origin
+git checkout -t origin/main
+git pull
+
+
+
+Useful commands to use after:
+WS_Mdl RunMng cores=7 freeze_env=off
