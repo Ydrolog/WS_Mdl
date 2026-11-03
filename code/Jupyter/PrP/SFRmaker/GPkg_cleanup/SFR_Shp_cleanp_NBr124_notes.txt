@@ -1,0 +1,4 @@
+Percentage of unconnected:
+v1: 11.5 %
+v2: 8%
+v3: 
