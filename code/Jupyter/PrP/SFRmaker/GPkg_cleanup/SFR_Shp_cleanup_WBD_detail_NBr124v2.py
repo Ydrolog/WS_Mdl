@@ -486,7 +486,8 @@ d_min_Dist_within = print_segments_per_min_Dist(A4_w, l_Vals)
 
 # %% [markdown] Conclusion
 # A QGIS review of segments follows:
-# Segments that can get fixed by connecting them to the closest end are marked with "-|""
+# Segments that can get fixed by connecting them to the closest end are marked with: -|
+# -/ means that connecting to closest (within cell-length/2 radius) end only works if the polylines are split into lines first. Thinking about this again, this is a bad idea, as it will create a lot of small segments further away from the end of the disconnected segment. Check 58223 to understand what I mean.
 # CE: clipping error
 #
 # ---
@@ -510,24 +511,24 @@ d_min_Dist_within = print_segments_per_min_Dist(A4_w, l_Vals)
 # - 19440: UStr of 19365. -|
 # - 18685: Dstr segment didn't break properly. One segment's line's end is close to the middle of the other segment's line, not the end. But -|
 # - 42780: -|
-# - 18986: Didn't breat as end of segment meets lines of DStr segment in the middle and even then, there is a small gap. This is an upstreamost segment. I'd say it's not a big deal,but it covers a lot (~10 cells). Connecting it to the closest end might still work though. Let's see, then review later.
+# - 18986: Didn't break as end of segment meets lines of DStr segment in the middle and even then, there is a small gap. This is an upstreamost segment. I'd say it's not a big deal,but it covers a lot (~10 cells). Connecting it to the closest end might still work though. Let's see, then review later.
 # - 21991: -|
 # ---
 # 10 - 100 m:
 # - 5642: Didn't break properly. -|
 # - 43413: Didn't break properly. -|
-# - 58223: DStr segment has opposite direction and isn't connected to anything. -| (both it and the DStr segment)
-# - 18023: This one is problematic, as connecting to the closest end might mess up the routing completely. Let's try connecting to the closest end, and review how bad it is.
-# - 14492: Problematic... But it gave me the idea that they need to be connected to the segmnents where one of it's lines' (not the whole polyline) ends is closest. "-|" means that (line end instead of polline end)
-# - 16874: Lake! -|
-# - 19754: CE "-|"
+# - 58223: DStr segment has opposite direction and isn't connected to anything. -/
+# - 18023: This one is problematic, as connecting to the closest end might mess up the routing for it and it's UStr segments. Let's try connecting to the closest end, and review how bad it is.
+# - 14492: Problematic... But it gave me the idea that they need to be connected to the segmnents where one of it's lines' (not the whole polyline) ends is closest. -/
+# - 16874: Lake! Shouldn't be connected to anything, which works if connection limit is set to <95m. (of course it needs to be tighter as I'm not gonna review all lakes)
+# - 19754: CE -/
 # ---
 # 100 - 1000 m:
-# - 7314: CE "-|"
-# - 43337: CE "-|"
+# - 7314: CE -/
+# - 43337: CE -/
 # - 16875: Lake. Really unconnected -> Algorithm should be limited to some distance, e.g. a cell length.
-# - 4601: CE "-|"
-# - 12490: Lake. Confirsms limit idea.
+# - 4601: CE -/
+# - 12490: Lake. Confirms limit idea.
 # - 16571: Lake. " " "
 
 # endregion
@@ -535,7 +536,6 @@ d_min_Dist_within = print_segments_per_min_Dist(A4_w, l_Vals)
 # region 7.6 Edit connections
 # %%
 A4_ = A4.copy()
-
 
 # endregion
 

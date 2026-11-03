@@ -152,7 +152,7 @@ def split_lines_by_neighbors(gdf: gpd.GeoDataFrame, tol: float = 0.000001) -> gp
     return gpd.GeoDataFrame(new_rows, columns=other_cols + [geom_col], crs=gdf.crs)
 
 
-A3 = split_lines_by_neighbors(A2, tol=0.01)
+A3 = split_lines_by_neighbors(A2)
 # endregion
 
 # region 6. QA Split
@@ -396,7 +396,7 @@ print(
 )
 
 # %% [markdown]
-# The percentage is still significant, even though the geometry has been precision-adjusted this time.
+# The percentage is still significant (), even though the geometry has been precision-adjusted this time.
 # Let's investigate
 
 # %%
