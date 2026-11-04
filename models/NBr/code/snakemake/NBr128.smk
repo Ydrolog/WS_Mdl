@@ -30,16 +30,15 @@ M.Pa.MSW_DLL        =   M.Pa.coupler_Exe.parent / './metaswap/MetaSWAP.dll'
 # MF6 Options
 M.Sim.Bin_Ins       =   False
 M.Sim.save_head     =   None # We use OBS instead, which reduces Out size significantly.
-M.Sim.save_budget		= 	False
+M.Sim.save_budget	= 	False
 
-# OBS Options
-MdlN_HD_OBS             =   'NBr128'
-Pa_HD_OBS_Src           =   M.Pa.In / f'OBS/HD/{MdlN_HD_OBS}/HD_{MdlN_HD_OBS}.OBS'
-Pa_HD_OBS_Dst           =   M.Pa.Sim_In / f'HD_{MdlN}.OBS'
+# PoP Options
+MdlN_HD_OBS         =   'NBr128'
+Pa_HD_OBS_Src       =   M.Pa.In / f'OBS/HD/{MdlN_HD_OBS}/HD_{MdlN_HD_OBS}.OBS'
+Pa_HD_OBS_Dst       =   M.Pa.Sim_In / f'HD_{MdlN}.OBS'
 
-## Other PoP Options
-l_Diff_PoP_Par          =   ['GW_HD_AVGs/L1']
-Pa_MSW_area_fix         =   M.Pa.In / f'CAP/area_svat_patch/{MdlN}/area_svat.inp'
+MdlN_MSW_area_fix   =   'NBr141'
+Pa_MSW_area_fix     =   M.Pa.In / f'CAP/area_svat_patch/{MdlN_MSW_area_fix}/area_svat.inp'
 
 ## Temp files - for completion validation. To re-run a rule, delete the coresponding temp file.
 Pa_temp             =   M.Pa.Smk.parent / 'temp'
@@ -99,6 +98,7 @@ rule Mdl_Prep: # Prepares Sim Ins (from Ins) via BAT file.
         Sim(M, SFR=False)
 
 ## -- PrSimP --
+
 rule add_HD_OBS_copy: # Copying so I can manually make a file that contains OBS for both OBS Pnts and whole layers.
     input:
         M.Pa.NAM_Sim
@@ -109,31 +109,31 @@ rule add_HD_OBS_copy: # Copying so I can manually make a file that contains OBS 
         sh.copy2(Pa_HD_OBS_Src, Pa_HD_OBS_Dst) # Copy the file to create a new one with the same content.
         add_Pkg(MdlN, fr'  OBS6 .\imported_model\HD_{MdlN}.OBS HD_OBS')  # Add to NAM
 
-# rule add_RIV_OBS:
-#     input:
-#         M.Pa.NAM_Sim,
-#     output:
-#         log_RIV_OBS
-#     run:
-#         from WS_Mdl.imod.mf6.obs import add_within_polygon
-#         add_within_polygon(Pa_Shp =  r'G:\models\NBr\PoP\common\Pgn\Chaamse_beek\catchment_chaamsebeek_ulvenhout.shp',
-#             MdlN = MdlN,
-#             Pkg = 'RIV',
-#             Opt = """BEGIN OPTIONS\n  DIGITS 4\n  PRINT_INPUT\nEND OPTIONS\n\n""")
-#         Path(output[0]).touch() # Create the file to mark the rule as done.
+rule add_RIV_OBS:
+    input:
+        M.Pa.NAM_Sim,
+    output:
+        log_RIV_OBS
+    run:
+        from WS_Mdl.imod.mf6.obs import add_within_polygon
+        add_within_polygon(Pa_Shp =  r'G:\models\NBr\PoP\common\Pgn\Chaamse_beek\catchment_chaamsebeek_ulvenhout.shp',
+            MdlN = MdlN,
+            Pkg = 'RIV',
+            Opt = """BEGIN OPTIONS\n  DIGITS 4\n  PRINT_INPUT\nEND OPTIONS\n\n""")
+        Path(output[0]).touch() # Create the file to mark the rule as done.
 
-# rule add_DRN_OBS:
-#     input:
-#         M.Pa.NAM_Sim
-#     output:
-#         log_DRN_OBS
-#     run:
-#         from WS_Mdl.imod.mf6.obs import add_within_polygon
-#         add_within_polygon(Pa_Shp =  r'G:\models\NBr\PoP\common\Pgn\Chaamse_beek\catchment_chaamsebeek_ulvenhout.shp',
-#             MdlN = MdlN,
-#             Pkg = 'DRN',
-#             Opt = """BEGIN OPTIONS\n DIGITS 4\n  PRINT_INPUT\nEND OPTIONS\n\n""")
-#         Path(output[0]).touch() # Create the file to mark the rule as done.
+rule add_DRN_OBS:
+    input:
+        M.Pa.NAM_Sim
+    output:
+        log_DRN_OBS
+    run:
+        from WS_Mdl.imod.mf6.obs import add_within_polygon
+        add_within_polygon(Pa_Shp =  r'G:\models\NBr\PoP\common\Pgn\Chaamse_beek\catchment_chaamsebeek_ulvenhout.shp',
+            MdlN = MdlN,
+            Pkg = 'DRN',
+            Opt = """BEGIN OPTIONS\n DIGITS 4\n  PRINT_INPUT\nEND OPTIONS\n\n""")
+        Path(output[0]).touch() # Create the file to mark the rule as done.
 
 rule fix_MSW_area:
     input:
@@ -147,8 +147,8 @@ rule fix_MSW_area:
 rule Sim: # Runs the simulation via BAT file.
     input:
         Pa_HD_OBS_Dst,
-        # log_RIV_OBS,
-        # log_DRN_OBS,
+        log_RIV_OBS,
+        log_DRN_OBS,
         log_fix_MSW_area
     output:
         touch(log_Sim)
@@ -183,15 +183,15 @@ rule p_HD_AVGs: # Process HD OBS Out Bin data into TIF files with AVG heads. The
         c_HD_Bin_AVGs(MdlN) #, end_year=PoP_end_year)
         Up_log(MdlN, {'p_HD_AVGs' :   1})
 
-#rule p_HD_OBS_TS:
-#    input:
-#        log_Sim
-#    output:
-#        touch(M.Pa.PoP_Out_MdlN / f'GW_HD_OBS/metadata.txt')
-#    run:
-#        from WS_Mdl.imod.pop.hd import p_HD_OBS_TS
-#        p_HD_OBS_TS(MdlN)
-#        Up_log(MdlN, {'p_HD_OBS_TS' :   1})
+rule p_HD_OBS_TS:
+   input:
+       log_Sim
+   output:
+       touch(M.Pa.PoP_Out_MdlN / f'GW_HD_OBS/metadata.txt')
+   run:
+       from WS_Mdl.imod.pop.hd import p_HD_OBS_TS
+       p_HD_OBS_TS(MdlN)
+       Up_log(MdlN, {'p_HD_OBS_TS' :   1})
 
 rule GXG:
     input:
@@ -230,25 +230,25 @@ rule p_HD_Pctls:
 #             Diff_PoP_Par(MdlN, M.B, P)
 #         Up_log(MdlN, {'Diff_PoP_Par' :   ", ".join(l_Diff_PoP_Par)})
 
-#rule Outlet_TS:
-#    input:
-#        log_Sim
-#    output:
-#        touch(log_Outlet_TS)
-#    run:
-#        from WS_Mdl.imod.pop.ts import Agg_outlet_TS
-#        Agg_outlet_TS(MdlN, Pa_Shp_catchment)
-#        Up_log(MdlN, {'Agg_outlet_TS' :   1})
+rule Outlet_TS:
+   input:
+       log_Sim
+   output:
+       touch(log_Outlet_TS)
+   run:
+       from WS_Mdl.imod.pop.ts import Agg_outlet_TS
+       Agg_outlet_TS(MdlN, Pa_Shp_catchment)
+       Up_log(MdlN, {'Agg_outlet_TS' :   1})
 
 rule Up_MM:
     input:
         log_PRJ_to_TIF,
         log_HD_AVGs,
-#        M.Pa.PoP_Out_MdlN / f'GW_HD_OBS/metadata.txt',
+        M.Pa.PoP_Out_MdlN / f'GW_HD_OBS/metadata.txt',
         log_GXG,
         log_HD_Pctls,
 #        log_Diff,
-#        log_Outlet_TS
+        log_Outlet_TS
     output:
         M.Pa.MM
     run:
