@@ -1,32 +1,32 @@
 1. Check/edit disk drive letters.
 
-2. Open PS7.
+2. Open PS7. Navigate to G. Then:
+git init
+git config --global --add safe.directory G:/ # tells git that G: is safe (otherwise next step fails)
+git remote add origin https://github.com/Ydrolog/WS_Mdl.git
+git fetch origin
+git checkout -t origin/main
+git pull
+
+3. Open PS7.
 Navigate to G:\code\build
 ./install_MSI.ps1
 ./PS_install_Double_Commander.ps1
 ./PS_install_pixi.ps1
 
-3. Open DoubleCMD
+4. Open DoubleCMD
 
-4. Copy Double CMD settings from:
+5. Copy Double CMD settings from:
 g:\code\build\doublecmd_settings
 to
 C:\Users\mkarampasi\AppData\Roaming\doublecmd
 (need to enable hidden files Show->Show Hidden/System Files)
 
-5. Restart Double CMD
+6. Restart Double CMD
 Pin Double CMD to task bar
 
-6. In Double CMD, go to Configuration/Options/Terminal and change the last Command option to:
+7. In Double CMD, go to Configuration/Options/Terminal and change the last Command option to:
 g:\code\build\launch_PS_pixi_noWT.bat
-
-7. While in G: in Double DMD, hit F9 to start PS7 with pixi.
-git init
-git config --global --add safe.directory G:/ # tells git that G: is safe (otherwise next step fails)
-# git remote add origin https://github.com/Ydrolog/WS_Mdl.git
-git fetch origin
-git checkout -t origin/main
-git pull
 
 8. Connect YoDa:
 Copy:
