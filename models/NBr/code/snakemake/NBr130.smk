@@ -33,7 +33,7 @@ M.Sim.save_head     =   None # We use OBS instead, which reduces Out size signif
 M.Sim.save_budget	= 	False
 
 # PoP Options
-MdlN_HD_OBS         =   'NBr129'
+MdlN_HD_OBS         =   'NBr128'
 Pa_HD_OBS_Src       =   M.Pa.In / f'OBS/HD/{MdlN_HD_OBS}/HD_{MdlN_HD_OBS}.OBS'
 Pa_HD_OBS_Dst       =   M.Pa.Sim_In / f'HD_{MdlN}.OBS'
 
@@ -259,18 +259,18 @@ rule Up_MM:
                         'Up_MM'     :   1}) # Update log
 
 rule WB:
-   input:
-       log_Sim
-   output:
-       touch(log_WB)
-   run:
-       from WS_Mdl.imod.pop.wb import Diff_to_xlsx
-       Diff_to_xlsx(MdlN, M.B)
+    input:
+        log_Sim
+    output:
+        touch(log_WB)
+    run:
+        from WS_Mdl.imod.pop.wb import Diff_to_xlsx
+        Diff_to_xlsx(MdlN, M.B)
 
 rule Upl: # Uploads the PoP Out files to iBridges. This is the final step of the workflow.
     input:
         M.Pa.MM,
-       log_WB
+        log_WB
     output:
         touch(log_upload)
     run:
