@@ -42,9 +42,11 @@ Note: some files that are needed during the PrP are to large for Git and need to
 •	git pull
 •	Add files that were created in the PrP and are to large to push to GitHub)
 
-13.	Make sure there is enough space available on the E: drive on the VM and that the output of any potential reference run is still saved on the E: drive (when comparing them).
+13. If this is a new VM, see VM_tasklist.txt on how to set the VM up correctly
+
+14.	Make sure there is enough space available on the E: drive on the VM and that the output of any potential reference run is still saved on the E: drive (when comparing them).
  
-14.	Start the simulation on the VM:
+15.	Start the simulation on the VM:
 •	In Double Commander, navigate to G: and press F9 to open the (configured) PowerShell terminal
 •	Run: WS_Mdl RunMng freeze_env=off
 
