@@ -18,7 +18,6 @@ Navigate to G:\code\Py\iBridges and execute data\Dl_data.py and data\Dl_models.p
 4. Open PS7.
 Navigate to G:\code\build
 ./install_MSI.ps1
-./PS_install_Double_Commander.ps1
 ./PS_install_pixi.ps1
 
 5. Open DoubleCMD
