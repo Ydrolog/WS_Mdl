@@ -8,31 +8,33 @@ git fetch origin
 git checkout -t origin/main
 git pull
 
-3. Open PS7.
+3. Connect YoDa:
+Establish the connection to YoDa, as described in how_to_make_Env.md
+Navigate to G:\code\Py\iBridges and execute data\Dl_data.py and data\Dl_models.py while copying everything from the software
+Furthermore, copy:
+c:\Users\Karam014\.irods
+to
+C:\Users\<User>
+
+4. Open PS7.
 Navigate to G:\code\build
 ./install_MSI.ps1
 ./PS_install_Double_Commander.ps1
 ./PS_install_pixi.ps1
 
-4. Open DoubleCMD
+5. Open DoubleCMD
 
-5. Copy Double CMD settings from:
+6. Copy Double CMD settings from:
 g:\code\build\doublecmd_settings
 to
 C:\Users\mkarampasi\AppData\Roaming\doublecmd
 (need to enable hidden files Show->Show Hidden/System Files)
 
-6. Restart Double CMD
+7. Restart Double CMD
 Pin Double CMD to task bar
 
-7. In Double CMD, go to Configuration/Options/Terminal and change the last Command option to:
+8. In Double CMD, go to Configuration/Options/Terminal and change the last Command option to:
 g:\code\build\launch_PS_pixi_noWT.bat
-
-8. Connect YoDa:
-Copy:
-c:\Users\Karam014\.irods
-to
-C:\Users\<User>
 
 
 Useful commands to use after:
