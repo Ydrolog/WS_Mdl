@@ -8,7 +8,7 @@ git fetch origin
 git checkout -t origin/main
 git pull
 
-2. Copy G:\software to the newly created VM from YoDa or another VM
+2. Copy G:\software to the newly created VM from YoDa or another VM (initially, you will only need the folder installers, before continuing to the next step). 
 
 3. Open PS7.
 Navigate to G:\code\build
