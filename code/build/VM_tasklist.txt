@@ -14,6 +14,7 @@ git pull
 Navigate to G:\code\build
 ./install_MSI.ps1
 ./PS_install_pixi.ps1
+And afterwords run Pixi shell
 
 4. Connect YoDa:
 In Windows Explorer, right-click "This PC" → "Map network drive" → drive letter Y: → folder https://geo.data.uu.nl/ . If the connection hangs, check that the Windows "WebClient" service is running (services.msc → WebClient → Automatic → Start) — it's often disabled by default and is required for WebDAV drives. Log in with your full university email address (not your Solis-ID) and a data-access password generated via the YoDa portal.
