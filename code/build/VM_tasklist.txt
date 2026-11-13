@@ -8,17 +8,20 @@ git fetch origin
 git checkout -t origin/main
 git pull
 
-3. Connect YoDa:
-In Windows Explorer, right-click "This PC" → "Map network drive" → drive letter Y: → folder https://geo.data.uu.nl/ . If the connection hangs, check that the Windows "WebClient" service is running (services.msc → WebClient → Automatic → Start) — it's often disabled by default and is required for WebDAV drives. Log in with your full university email address (not your Solis-ID) and a data-access password generated via the YoDa portal.
+2. Copy G:\software to the newly created VM from YoDa or another VM (initially, you will only need the folder installers, before continuing to the next step). 
 
-You'll need to copy y:\research-ws-imod\Auxi.irods\ to C:\Users\ and paste a password to Pw.txt (instructions in folder). If you copied irods_environment.json rather than generating your own, check the irods_user_name field — it may still contain their email rather than yours, which causes a PasswordError that looks like a wrong password but isn't. Data-access passwords expire after a month; if login fails and the username/password look right, try generating a fresh one from the YoDa portal.
-
-Navigate to G:\code\Py\iBridges and execute data\Dl_data.py and data\Dl_models.py while copying everything from the software folder from YoDa
-
-4. Open PS7.
+3. Open PS7.
 Navigate to G:\code\build
 ./install_MSI.ps1
 ./PS_install_pixi.ps1
+And afterwords run Pixi shell
+
+4. Connect YoDa:
+In Windows Explorer, right-click "This PC" → "Map network drive" → drive letter Y: → folder https://geo.data.uu.nl/ . If the connection hangs, check that the Windows "WebClient" service is running (services.msc → WebClient → Automatic → Start) — it's often disabled by default and is required for WebDAV drives. Log in with your full university email address (not your Solis-ID) and a data-access password generated via the YoDa portal.
+
+You'll need to copy y:\research-ws-imod\Auxi\.irods\ to C:\Users\<User>\ and paste a password to Pw.txt (instructions in folder). If you copied irods_environment.json rather than generating your own, check the irods_user_name field — it may still contain their email rather than yours, which causes a PasswordError that looks like a wrong password but isn't. Data-access passwords expire after a month; if login fails and the username/password look right, try generating a fresh one from the YoDa portal.
+
+Navigate to G:\code\Py\iBridges and execute data\Dl_data.py and models\Dl_models.py while copying everything from the software folder from YoDa
 
 5. Open DoubleCMD
 
