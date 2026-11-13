@@ -211,14 +211,14 @@ Realised budget doesn't contain stages, so I tried to produce both CSV OBS and B
 "122","NBr","122","NBr122","120","NBr120","MK","Test","2036-2065 High Wet Sim (Hw_2050) - RIV","Cancelled",""
 "123","NBr","123","NBr123","120","NBr120","MK","Test","1991-2020 SFR Main
 Initiated with B=117. Then changed for PoP","Development",""
-"124","NBr","124","NBr124","123","NBr123","MK","Test","1991-2020 SFR all","Development",""
+"124","NBr","124","NBr124","117","NBr117","MK","Test","1991-2020 SFR all","Queued","Failed"
 "125","NBr","125","NBr125","120","NBr120","MK","Test","iMOD5 to extend model domain - NBr+1Km. Only running this to create metaswap area_svat.inp, as imod python has a bug that causes it to calcualte it incorecty.
 Run via Mdl_Prep_NBr125.bat. Not via RunMng/Smk.","Queued","Stopped Manually"
 "126","NBr","126","NBr126","125","NBr125","MK","Test","Back to imod python.","Queued","PoPed"
 "127","NBr","127","NBr127","126","NBr126","MK","Test","CHD sensitivity test: +0.5m CHDs","Queued","PoPed"
-"128","NBr","128","NBr128","141","NBr141","MK","Hi","KNMI23' Synthetic Hi (1991-2020) - Ensembe #1","Queued",""
-"129","NBr","129","NBr129","128","NBr128","MK","Hi","KNMI23' Synthetic Hi (1991-2020) - Ensembe #2","Queued",""
-"130","NBr","130","NBr130","128","NBr128","MK","Hi","KNMI23' Synthetic Hi (1991-2020) - Ensembe #7","Queued",""
+"128","NBr","128","NBr128","141","NBr141","MK","Hi","KNMI23' Synthetic Hi (1991-2020) - Ensembe #1","Queued","Running"
+"129","NBr","129","NBr129","128","NBr128","MK","Hi","KNMI23' Synthetic Hi (1991-2020) - Ensembe #2","Queued","Running"
+"130","NBr","130","NBr130","128","NBr128","MK","Hi","KNMI23' Synthetic Hi (1991-2020) - Ensembe #7","Queued","Running"
 "131","NBr","131","NBr131","128","NBr128","LL","Sc","KNMI23' CC 2050 Hd (2036-2065) - Ensembe #1","Development",""
 "132","NBr","132","NBr132","131","NBr131","LL","Sc","KNMI23' CC 2050 Hd (2036-2065) - Ensembe #2","Development",""
 "133","NBr","133","NBr133","131","NBr131","LL","Sc","KNMI23' CC 2050 Hd (2036-2065) - Ensembe #7","Development",""

@@ -19,6 +19,7 @@ os.environ["PYTHONUNBUFFERED"] = "1"        # Set Python to unbuffered mode (out
 ## Options
 MdlN            =   'NBr124'
 MdlN_SFR_GPkg   =   'NBr124'
+MdlN_MM_B       =   'NBr114'
 
 ## Paths
 M                   =   Mdl_N(MdlN)
@@ -30,9 +31,10 @@ M.Pa.MSW_DLL        =   M.Pa.coupler_Exe.parent / './metaswap/MetaSWAP.dll'
 # MF6 Options
 M.Sim.Bin_Ins       =   False
 M.Sim.save_head     =   None # We use OBS instead, which reduces Out size significantly.
+M.Sim.save_budget	= 	False
 
 # SFR Options
-Pa_SFR_GPkg             =   M.Pa.In / f'SFR/{MdlN_SFR_GPkg}/WBD_1ry_SW_NW_cleaned_{MdlN_SFR_GPkg}.gpkg'
+Pa_SFR_GPkg             =   M.Pa.In / f'SFR/{MdlN_SFR_GPkg}/WBD_detail_SW_NW_cleaned_{MdlN_SFR_GPkg}.gpkg'
 Pa_SW_Cond_A            =   M.Pa.WS / r"models\NBr\In\RIV\RIV_Cond_DETAILWATERGANGEN_NBr1.IDF"
 Pa_SW_Cond_B            =   M.Pa.WS / r"models\NBr\In\RIV\RIV_Cond_DRN_NBr1.IDF"
 Pa_SFR_OBS_In           =   M.Pa.In / 'OBS/SFR/NBr73/NBr73_SFR_OBS_Pnt.csv'
@@ -61,12 +63,16 @@ MdlN_RIV_Vs             =   'NBr112'
 Pa_RIV_Stg_Vs_winter    =   Path(r'G:/models/NBr/In/RIV/NBr49/RIV_Stg_main_winter_NBr49.IDF')
 Pa_RIV_Stg_Vs_summer    =   Path(r'G:/models/NBr/In/RIV/NBr49/RIV_Stg_main_summer_NBr49.IDF')
 
-l_Diff_PoP_Par          =   ['GW_HD_AVGs/L1'] # ['SFR/Stg', 'SFR/from-mvr', 'SFR/downstream-flow', 'SFR/gwf', 'GW_HD_AVGs/L1']
+l_Diff_PoP_Par          =   ['SFR/Stg', 'SFR/from-mvr', 'SFR/downstream-flow', 'SFR/gwf', 'GW_HD_AVGs/L1']
+PoP_end_year            =   2001
+
+Pa_MSW_area_fix         =   r"g:\code\Jupyter\PoP\compare_Ins\area_svat_NBr61.inp"
 
 ## Temp files - for completion validation. To re-run a rule, delete the coresponding temp file.
 Pa_temp                 =   M.Pa.Smk.parent / 'temp'
 log_Init                =   Pa_temp / f"Log_init_{MdlN}"
 log_fix_MSW_area        =   Pa_temp / f"Log_fix_MSW_area_{MdlN}"
+log_no_LST_Out          =   Pa_temp / f"log_no_LST_Out_{MdlN}"
 log_add_SFR_OBS         =   Pa_temp / f"Log_add_SFR_OBS_all_reaches_{MdlN}"
 log_Sim                 =   Pa_temp / f"Log_Sim_{MdlN}"
 log_PRJ_to_TIF          =   Pa_temp / f"Log_PRJ_to_TIF_{MdlN}"
@@ -173,7 +179,16 @@ rule fix_MSW_area:
     output:
         touch(log_fix_MSW_area)
     run:
-        sh.copy2(r"g:\code\Jupyter\PoP\compare_Ins\area_svat_NBr61.inp", M.Pa.MSW / "area_svat.inp")
+        sh.copy2(Pa_MSW_area_fix, M.Pa.MSW / "area_svat.inp")
+
+rule no_LST_Out:
+    input:
+        M.Pa.NAM_Sim
+    output:
+        touch(log_no_LST_Out)
+    run:
+        with open(next(M.Pa.Sim_In.glob('*.oc')), 'a') as f:
+            f.write('\nBEGIN PERIOD 1\nEND PERIOD\n')
 
 ## -- Sim ---
 rule Sim: # Runs the simulation via BAT file.
@@ -262,7 +277,7 @@ rule p_HD_AVGs: # Process HD OBS Out Bin data into TIF files with AVG heads. The
         touch(log_HD_AVGs)
     run:
         from WS_Mdl.imod.pop.hd import c_HD_Bin_AVGs
-        c_HD_Bin_AVGs(MdlN, end_year=PoP_end_year)
+        c_HD_Bin_AVGs(MdlN) # , end_year=PoP_end_year)
         Up_log(MdlN, {'p_HD_AVGs' :   1})
 
 rule p_HD_OBS_TS:
@@ -290,7 +305,6 @@ rule GXG:
             Up_log(MdlN, {  'GXG':   1})
         else:
             print('Not enough days to calculate GXG')
-
 rule p_HD_Pctls:
     input:
         log_Sim
@@ -337,7 +351,7 @@ rule Up_MM:
         M.Pa.MM
     run:
         from WS_Mdl.io.qgis import Up_MM
-        Up_MM(MdlN)      # Update MM 
+        Up_MM(MdlN, MdlN_MM_B=MdlN_MM_B)      # Update MM 
         Up_log(MdlN, {  'PoP end DT':   DT.now().strftime("%Y-%m-%d %H:%M:%S"),
                         'End Status':   'PoPed',
                         'Up_MM'     :   1}) # Update log

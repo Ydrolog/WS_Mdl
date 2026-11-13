@@ -1,5 +1,5 @@
-# region Imports
-# %%
+# %% [markdown] 0. Imports
+# ## 0. Imports
 import geopandas as gpd
 import imod
 import numpy as np
@@ -7,16 +7,14 @@ import pandas as pd
 import shapely
 import WS_Mdl.core.df  # noqa: F401
 import xarray as xr
-from shapely.geometry import box
+from shapely.geometry import Point, box
 from shapely.ops import split, unary_union
 from WS_Mdl.core.mdl import Mdl_N
 from WS_Mdl.core.spatial import c_Dist
 from WS_Mdl.core.style import bold, style_reset
 
-# endregion
-
-# region 1. Options
-# %%
+# %% [markdown] 1. Options
+# ## 1. Options
 MdlN = 'NBr124'
 M = Mdl_N(MdlN)
 
@@ -25,16 +23,15 @@ primary = 'LEGGER_VASTGESTELD_WATERLOOP_CATEGORIE_A'
 Pa_Gpkg_In = M.Pa.WS / r'models\NBr\other\BrabantseDelta\acceptatiedatabase.gdb'
 Pa_Out = M.Pa.WS / rf'models\NBr\In\SFR\{MdlN}\WBD_detail_SW_NW_cleaned_{MdlN}.gpkg'
 l_X_Y_Cols = ['Xa', 'Ya', 'Xz', 'Yz']
-# endregion
 
-# region 2. Load GPkg
-# %%
+# %% --------------------------------------------------
+# %% [markdown] 2. Load GPkg
+# ## 2. Load GPkg
 A0 = gpd.read_file(Pa_Gpkg_In, layer=detailed)  # A is the primary Gpkg layer #111
 A0.geometry = A0.geometry.set_precision(0.01)  # Set geometry precision to 1cm to avoid closing errors
-# endregion
 
-# region 3. Calculate X and Y Cols. Discard extra Cols. Rename.
-# %%
+# %% [markdown] 3. Calculate X and Y Cols.
+# ## 3. Calculate X and Y Cols. Discard extra Cols. Rename.
 A1 = A0.ws.Calc_XY_start_end_from_Geom()  # Create X & Y columns
 
 # Keep only the Cols needed for SFRmaker and rename them
@@ -61,16 +58,14 @@ A2 = (
     .copy()
 )
 
-# endregion
-
-# region 4. Assign unique CODEs to any rows with missing CODE values
-# %%
+# %% [markdown] 4. Assign unique CODEs
+# ## 4. Assign unique CODEs to any rows with missing CODE values
 A2.loc[A2['CODE'].isnull(), 'CODE'] = [f'dummy_{i}' for i in range(1, A2['CODE'].isnull().sum() + 1)]
-# endregion
 
 
-# region 5. Split Polylines
-# %%
+# %% --------------------------------------------------
+# %% [markdown] 5. Split Polylines
+# ## 5. Split Polylines
 def split_lines_by_neighbors(GDF: gpd.GeoDataFrame, Tol: float = 0.000001) -> gpd.GeoDataFrame:
     """
     Split each (Multi)LineString where it meets OTHER features in gdf.
@@ -143,9 +138,9 @@ def split_lines_by_neighbors(GDF: gpd.GeoDataFrame, Tol: float = 0.000001) -> gp
 
 
 A3 = split_lines_by_neighbors(A2, Tol=0.01)
-# endregion
 
-# region 6. QA Split
+# %% [markdown] 6. QA Split
+# ## 6. QA Split
 # %% 6.1 Ensure coordinates are preserved for non-split features
 A3_codes = A3['CODE'].value_counts()
 non_split_codes = A3_codes[A3_codes == 1].index  # Codes that weren't split
@@ -221,14 +216,14 @@ A3_split_no_Coo_change[l_Cols1]
 
 # %% [markdown]
 # A few entries seem to have had their coordinates changed for one of the split sub-segments but not for the other. In a lot of cases, there are multiple lines in a polyline with the exact same coordinates. SFRmaker should be able to handle this, so there will be no futher check at this point.
-# %%
-# endregion
 
-# region 7. Recalc/assign some columns
+# %% --------------------------------------------------
+# %% [markdown] 7. Recalc/assign some columns
+# ## 7. Recalc/assign some columns
 
-# region 7.1 Length
-# %% Plot a split segment to inspect length
-A3.loc[A3['CODE'] == 'OVK03536']
+# %% [markdown] 7.1 Length
+# ### 7.1 Length
+A3.loc[A3['CODE'] == 'OVK03536']  # Plot a split segment to inspect length
 
 # %% [markdown]
 # Length needs to be recalculated after the split, based on the new geometries. As you can see above, all lengths for split segments are currently the same as the original segment length.
@@ -246,10 +241,9 @@ A4['length'] = A4.geometry.length
 # %% [markdown]
 # The length sum isn't exactly identical, but I'll move forward for now. #666 can come back to this later.
 
-# %%
-# endregion
-
-# region 7.2 Coordinates
+# %% --------------------------------------------------
+# %% [markdown] 7.2 Coordinates
+# ### 7.2 Coordinates
 # %%
 Bool_Coo_changed = A4[l_X_Y_Cols].sum(axis=1) != A4[l_X_Y_Cols_].sum(axis=1)
 A4.loc[Bool_Coo_changed, l_X_Y_Cols] = A4.loc[Bool_Coo_changed, l_X_Y_Cols_].values
@@ -258,21 +252,22 @@ A4.loc[Bool_Coo_changed, l_X_Y_Cols] = A4.loc[Bool_Coo_changed, l_X_Y_Cols_].val
 # %% [markdown]
 # All values from the newly calculated coordinates have been assigned to the main GDF.
 
-# %%
 # %% Drop extra coordinate columns
 A4.drop(columns=l_X_Y_Cols_, inplace=True)
-# endregion
 
-# region 7.3 Width
+# %% --------------------------------------------------
+# %% [markdown] 7.3 Width
+# ### 7.3 Width
 # %% Investigate
 A4.describe(include='all')
 
 # %% Set width to 1m where missing
 # Width will be set to 1m where missing. This is very simplistic, but a good start. #666
 A4.loc[A4['width'].isnull(), 'width'] = 1.0
-# endregion
 
-# region 7.4 Elv
+# %% --------------------------------------------------
+# %% [markdown] 7.4 Elv: Fill NaNs from TOP/BOT
+# ### 7.4 Elv: Fill NaNs from TOP/BOT
 # %% [markdown]
 # Elevations will be assigned based on the thickest layer from 0.75-1.5m from the surface - standard drainage (ditch) depth in the Netherlands.
 
@@ -363,9 +358,9 @@ A4.loc[A4['Elv_UStr'].isna() | A4['Elv_DStr'].isna()].ws.clip_Mdl_area(M=M)
 # %% [markdown]
 # Checking in QGIS confirms that the Elvs were assigned properly.
 
-# endregion
-
-# region 7.5. Calculate routing
+# %% --------------------------------------------------
+# %% [markdown] 7.5. Calculate routing
+# ### 7.5. Calculate routing
 # %% Create ID Col & Identify downstream
 A4['ID'] = range(1, len(A4) + 1)
 Coo_to_id = {(R.Xa, R.Ya): (R.CODE, R.ID) for R in A4.itertuples()}  # lookup d_ from coordinates to CODE
@@ -387,13 +382,13 @@ print(
 )
 
 # %% Calculate UStr_IDs for each ID
-upstream = A4.groupby('DStr_ID')['ID'].agg(list)
-A4['UStr_IDs'] = A4['ID'].map(upstream).apply(lambda ids: ids if isinstance(ids, list) else [])
+UStr = A4.groupby('DStr_ID')['ID'].agg(list)
+A4['UStr_IDs'] = A4['ID'].map(UStr).apply(lambda ids: ids if isinstance(ids, list) else [])
 print("🟢 'UStr_IDs' column calculated.")
 print(f'{round((A4["UStr_IDs"].str.len() > 0).sum() / A4.shape[0] * 100, 2)} % of segments have upstream IDs.')
 
 # %% [markdown]
-# We'll drop the segments that are smaller than 1m and don't have a DStr_ID. Those usually are protrusions, and they won't matter anyway as segments with no DStr ID will be connected to the closest end within 1m.
+# We'll drop the segments that are smaller than 1m and don't have a DStr_ID. Those usually are protrusions, and don't have anything upstream, so no water will be lost.
 
 # %% Drop segments with length < 1m and no DStr_ID. Then plot segments with no connection.
 A4 = A4.loc[~(A4['length'] < 1) | (A4['DStr_ID'] != 0)].copy()
@@ -403,24 +398,91 @@ print(
     f'{round(A4["DStr_code"].value_counts().max() / A4.shape[0] * 100, 2)} % of DStrs are 0 (i.e. no start Coos match the end Coos of the current node).'
 )
 
-# %% [markdown]
-# The percentage is still significant, even though the geometry has been precision-adjusted this time.
-# Let's investigate
 
-# %%
-Pa_Out_A4 = M.Pa.In / 'SFR' / M.MdlN / f'WBD_detail_SW_NW_cleaned_A4_{M.MdlN}.gpkg'
-Pa_Out_A4.parent.mkdir(parents=True, exist_ok=True)
-A4.to_file(Pa_Out_A4, layer='WBD_detail_SW_NW_cleaned', driver='GPKG')
-A4['DStr_ID'].value_counts()
+# %% [markdown]
+# #### Connect to closest end, including intermediate segments
+def connect_intermediary_same_cell(A4):
+    """
+    Connect segments without a DStr match to the nearest line crossing the
+    model cell containing their downstream endpoint.
+    """
+    A4 = A4.copy()
+    unresolved = A4['DStr_ID'].fillna(0).eq(0)  # Filter for unconnected
+    if not unresolved.any():
+        return A4
+
+    for i, row in A4.loc[unresolved].iterrows():
+        C = int(np.floor((row['Xz'] - M.Xmin) / M.cellsize))
+        R = int(np.floor((M.Ymax - row['Yz']) / M.cellsize))
+        cell = box(
+            M.Xmin + C * M.cellsize,
+            M.Ymax - (R + 1) * M.cellsize,
+            M.Xmin + (C + 1) * M.cellsize,
+            M.Ymax - R * M.cellsize,
+        )  # Define cell geometry
+
+        current_position = A4.index.get_loc(i)
+        candidate_indices = list(A4.sindex.query(cell, predicate='intersects'))  # make list of intersecting indices
+        candidate_indices = [j for j in candidate_indices if j != current_position]  # exclude itself
+        if not candidate_indices:
+            continue
+
+        candidate_distances = A4.iloc[candidate_indices]['geometry'].distance(
+            Point(row['Xz'], row['Yz'])
+        )  # calculate distances to candidates
+        candidate_index = candidate_distances.sort_values(kind='stable').index[
+            0
+        ]  # Select closest. Stable makes sorting deterministic according to existing order
+        candidate = A4.loc[candidate_index]
+
+        A4.loc[i, 'DStr_code'] = candidate['CODE']
+        A4.loc[i, 'DStr_ID'] = candidate['ID']
+
+    UStr = A4.groupby('DStr_ID')['ID'].agg(list)
+    A4['UStr_IDs'] = A4['ID'].map(UStr).apply(lambda ids: ids if isinstance(ids, list) else [])
+    return A4
+
+
+A5 = connect_intermediary_same_cell(A4)
+
+print("🟢 'DStr' columns calculated.")
+print(
+    f'{round(A5["DStr_code"].value_counts().max() / A5.shape[0] * 100, 2)} % of DStrs are 0 (i.e. no start Coos match the end Coos of the current node).'
+)
+
+# %% [markdown]
+# This reduced the DStr=0 to 1.35%. Let's review them.
+
+# %% First check how many are connected to the same ID after fix
+Pa_Out_A5 = M.Pa.In / 'SFR' / M.MdlN / f'WBD_detail_SW_NW_cleaned_A5_{M.MdlN}.gpkg'
+Pa_Out_A5.parent.mkdir(parents=True, exist_ok=True)
+A5.to_file(Pa_Out_A5, layer='WBD_detail_SW_NW_cleaned_v3', driver='GPKG')
+A5['DStr_ID'].value_counts()
 
 # %% [markdown]
 # No more than 5 segments are connected to the same DStr_ID - reasonable.
 
 # %% Calculate min distance from start to any reach's end and investigate no matches.
-A4['min_Dist'] = 0.0
-A4.loc[A4['DStr_code'] == 0, 'min_Dist'] = A4.loc[A4['DStr_code'] == 0].apply(
-    lambda row: c_Dist(row['Xz'], row['Yz'], A4['Xa'], A4['Ya']).min(), axis=1
-)  # c_ min Dist for segments with no match
+A5['min_Dist'] = np.nan
+A5['closest_ID'] = pd.Series(pd.NA, index=A5.index, dtype='Int64')
+
+
+def get_closest_end(row):
+    candidates = A5.loc[A5['ID'] != row['ID']]
+    distances = c_Dist(row['Xz'], row['Yz'], candidates['Xa'], candidates['Ya'])
+    closest_index = distances.idxmin()
+    return distances.loc[closest_index], candidates.loc[closest_index, 'ID']
+
+
+unresolved = A5['DStr_code'] == 0
+closest_results = A5.loc[unresolved].apply(
+    get_closest_end,
+    axis=1,
+    result_type='expand',
+)
+A5.loc[unresolved, 'min_Dist'] = closest_results.iloc[:, 0].to_numpy(dtype=float)
+A5.loc[unresolved, 'closest_ID'] = closest_results.iloc[:, 1].to_numpy(dtype='int64')
+A5['closest_ID'] = A5['closest_ID'].astype('Int64')
 
 l_Vals = [0.001, 0.1, 1, 10, 100, 1000, 10000]
 
@@ -438,14 +500,17 @@ def print_segments_per_min_Dist(DF, l_Vals):
         P_below = round(N_below / N_no_match * 100, 2)
 
         code_min_Dist = (
-            DF.loc[(DF['min_Dist'] > Val_Prv) & (DF['min_Dist'] <= v), ['ID', 'min_Dist']]
+            DF.loc[
+                (DF['DStr_code'] == 0) & (DF['min_Dist'] > Val_Prv) & (DF['min_Dist'] <= v),
+                ['ID', 'min_Dist'],
+            ]
             .sort_values(by='min_Dist')
             .apply(lambda R: f'{R["ID"].astype(int)}: {R["min_Dist"]:8.4f}', axis=1)
             .tolist()
         )
 
         print(
-            f'-{Val_Prv:6} < min_Dist <= {v:5} |N: {N_below:6} (+ {(N_below - N_below_Prv):4}) ({round(P_below, 1):5} %) | Codes: {code_min_Dist[:5] + code_min_Dist[-5:]}\n'
+            f'-{Val_Prv:6} < min_Dist <= {v:5} |N: {N_below:6} (+ {(N_below - N_below_Prv):4}) ({round(P_below, 1):5} %) | Codes: {code_min_Dist}\n'  # [:10] + code_min_Dist[-10:]}\n'
         )
 
         d_Vals[v] = {
@@ -462,7 +527,7 @@ def print_segments_per_min_Dist(DF, l_Vals):
     return d_Vals
 
 
-d_min_Dist = print_segments_per_min_Dist(A4, l_Vals)
+d_min_Dist = print_segments_per_min_Dist(A5, l_Vals)
 
 # %% [markdown]
 # The total number of non matching segments has decreased a lot. They're still too many to manually connect. But if the splitting algortithm is improved, so it splits lines when they cross, it may drop even more.
@@ -470,110 +535,78 @@ d_min_Dist = print_segments_per_min_Dist(A4, l_Vals)
 
 
 # %% Review segments in model area
-A4_w = A4.loc[A4.within(box(M.Xmin, M.Ymin, M.Xmax, M.Ymax))]
+A5_w = A5.loc[A5.within(box(M.Xmin, M.Ymin, M.Xmax, M.Ymax))]
 
-d_min_Dist_within = print_segments_per_min_Dist(A4_w, l_Vals)
+d_min_Dist_within = print_segments_per_min_Dist(A5_w, l_Vals)
 
 # %% [markdown] Conclusion
-# A QGIS review of segments follows:
-# Segments that can get fixed by connecting them to the closest end are marked with: -|
-# -/ means that connecting to closest (within cell-length/2 radius) end only works if the polylines are split into lines first. Thinking about this again, this is a bad idea, as it will create a lot of small segments further away from the end of the disconnected segment. Check 58223 to understand what I mean.
-# CE: clipping error
+# A QGIS review of segments follows:<br>
+# ||: connecting to closest cell end within 25m (outside of cell) fixes it.<br>
+# ~||: same as above, but with caveats<br>
+# NP: No problem if we lose it. Maily for UStr-most segments with smallish width.<br>
 #
-# ---
-# 0.001 - 0.1 m:
-# - 7246 | 18780 | 41621 : 3 segments arriving at confluence with no outlet. -|
-# - 34500: CE. -|
-# - 8528:  CE. -|
-# - 32400: CE. -|
-#
-# ---
-# 0.1 - 1 m:
-# - 18189: CE. -|
-# - 22508: CE. -|
-# - 21358: CE. -|
-# - 42528: CE. -|
-# - 18384: CE. -|
-#
-# ---
-# 1 - 10 m:
-# - 16581: reverse (length=min_Dist). -|
-# - 19440: UStr of 19365. -|
-# - 18685: Dstr segment didn't break properly. One segment's line's end is close to the middle of the other segment's line, not the end. But -|
-# - 42780: -|
-# - 18986: Didn't break as end of segment meets lines of DStr segment in the middle and even then, there is a small gap. This is an upstreamost segment. I'd say it's not a big deal,but it covers a lot (~10 cells). Connecting it to the closest end might still work though. Let's see, then review later.
-# - 21991: -|
 # ---
 # 10 - 100 m:
-# - 5642: Didn't break properly. -|
-# - 43413: Didn't break properly. -|
-# - 58223: DStr segment has opposite direction and isn't connected to anything. -/
-# - 18023: This one is problematic, as connecting to the closest end might mess up the routing for it and it's UStr segments. Let's try connecting to the closest end, and review how bad it is.
-# - 14492: Problematic... But it gave me the idea that they need to be connected to the segmnents where one of it's lines' (not the whole polyline) ends is closest. -/
-# - 16874: Lake! Shouldn't be connected to anything, which works if connection limit is set to <95m. (of course it needs to be tighter as I'm not gonna review all lakes)
-# - 19754: CE -/
+# -  6296 (21.8 m): barely outside the cell boundary of another segment's end. ||
+# -  6167 (23.4 m): ||
+# - 48451 (26.4 m): ~||: Closest end 26 m away (25m cutoff wouldn't work). Honestly, the ditch direction seems reversed.
+# - 35958 (26.6 m): " " "
+# - 24103 (28.9 m): ~||: Closest not the right one, but no big Diff, especially since it is the UStr-most segment.
+# - 59124 (31.2 m): ~||
+# - 35068 (31.2 m): ~||
+# - 18900 (31.7 m): NP
+# - 54121 (44.7 m): ~||
+# - 13213 (45.1 m): NP
+# -  6065 (48.2 m): ~||
+# - 16493 (58.2 m): ~||: Not small, not UStr-most. Would lose decent chunch of water if not connected.
+# - 45225 (60.8 m): NP: UStr-most. Connectin to closest end would be incorrect, but no big deal.
+# - 18221 (79.5 m): NP: Not small, but UStr-most, and looks like some weird ditch into urban chanel configuration.
+# - 42857 (85.7 m): NP
+# - 16690 (96.9 m): Lake
 # ---
 # 100 - 1000 m:
-# - 7314: CE -/
-# - 43337: CE -/
-# - 16875: Lake. Really unconnected -> Algorithm should be limited to some distance, e.g. a cell length.
-# - 4601: CE -/
-# - 12490: Lake. Confirms limit idea.
-# - 16571: Lake. " " "
+# -  5298 (139.8 m): NP: Reversed. Min_Dist~=length
+# - 16978 (145.6 m): Lake (tiny, pond)
+# -  4500 (147.0 m): Lake
+# - 16691 (157.6 m): Lake
+# - 16979 (163.7 m): Lake
+# - 20521 (171.2 m): NP: Reverse. Long, but UStr-most.
+# - 19829 (184.2 m): NP: Should be connected as it's not UStr-most, but it's not clear from QGIS which should be it's DStr. And UStr area is not that big.
+# - 17255 (206.7 m): Lake
+# -  6037 (245.3 m): Lake
+# - 12349 (257.9 m): Lake
+# - 20521 (171.2 m): NP: Reverse. Long, but UStr-most.
+# - 35129 (264.5 m): Lake
+# -  1563 (302.9 m): NP: Cant' determine DStr from QGIS.
+# - 17365 (328.3 m): Lake
+# - 45190 (427.9 m): Lake
+# - 16390 (745.8 m): Lake
 
-# endregion
+# Conclusion: UStr-most segments don't need to be connected - they're either lakes, or we don't lose much water.
+# But, those that have UStr should be connected to the closest within 100m even IMO.
 
-# region 7.6 Edit connections
-# %%
-A4_ = A4.copy()
 
-# endregion
+# %% [markdown] 7.6. Assign unconnected with UStr_IDs to closest end within 100m
+# ### 7.6. Assign unconnected with UStr_IDs to closest end within 100m
+A6 = A5.copy()
 
-# region
-# %%
-A4_w = A4.loc[A4.within(box(M.Xmin, M.Ymin, M.Xmax, M.Ymax))]
-A4_w.loc[A4_w['multiple_close'] != '', ['CODE', 'multiple_close']].sort_values(by='multiple_close', ascending=False)
-A4.loc[
-    (A4['multiple_close'] == '') & (A4['ID'] == A4['DStr_ID']),
-    ['CODE', 'DStr_code', 'ID', 'DStr_ID', 'min_Dist', 'multiple_close'],
+A6.loc[(A6['DStr_ID'] == 0) & (A6['UStr_IDs']) & (A6['min_Dist'] < 100), 'DStr_ID'] = A6.loc[
+    (A6['DStr_ID'] == 0) & (A6['UStr_IDs']) & (A6['min_Dist'] < 100), 'closest_ID'
 ]
-# endregion
+print(
+    'Percentage of segments with DStr_ID=0 after connecting to closest end within 100m:',
+    round((A6['DStr_ID'] == 0).sum() / len(A6) * 100, 2),
+    '%',
+)
 
-# region
-# %%
-A4.columns
-# endregion
 
-# region
-# %%
-A4.loc[A4['CODE'].isin(A4_w['CODE']) & (A4['multiple_close'] != ''), 'multiple_close']
-# endregion
+# %% --------------------------------------------------
 
-# region
-# %%
-A4.loc[A4['CODE'].isin(A4_w['CODE']), ['DStr_code', 'DStr_ID']].shape
-# endregion
 
-# region
-# %%
-within_and_multiple = A4['CODE'].isin(A4_w['CODE']) & (A4['multiple_close'] != '')
-# A4.loc[ within_and_multiple.index, 'DStr_code']= A4.loc[ within_and_multiple , 'multiple_close'].str.split(', ').str[0]
-# endregion
-
-# region  Check for any missing DStr_ID values after assignment
-# %%
-missing_dstr_id = A4.loc[within_and_multiple, 'DStr_ID'].isna().sum()
-print(f'Number of segments with missing DStr_ID after assignment: {missing_dstr_id}')
-
-if missing_dstr_id > 0:
-    print('Segments with missing DStr_ID:')
-    print(A4.loc[within_and_multiple & A4['DStr_ID'].isna(), ['CODE', 'DStr_code', 'DStr_ID']])
-# endregion
-
-# region 2.6 Correct Elv_UStr and Elv_DStr
+# region 7.7 Correct Elvs for split segments (1ry SW Nw)
 # %%
 #### Prep
-l_A4_Cols = [
+l_A5_Cols = [
     'ID',
     'CODE',
     'width',
@@ -590,7 +623,7 @@ l_A4_Cols = [
     'split',
 ]
 l_success, l_infinite_loop, l_closing_error = [], [], []
-A5 = A4.copy()[
+A6 = A5.copy()[
     [
         'ID',
         'DStr_ID',
@@ -608,11 +641,11 @@ A5 = A4.copy()[
         'split',
     ]
 ]
-A5.describe()
+A6.describe()
 A2.describe()
-A2.shape, A4.shape, A5.shape
-A5.sort_values('CODE')
-A5.loc[
+A2.shape, A5.shape, A6.shape
+A6.sort_values('CODE')
+A6.loc[
     A3['Elv_UStr'].isna() | A3['Elv_DStr'].isna(),
     ['CODE', 'ID', 'DStr_ID', 'Elv_UStr', 'Elv_DStr'],
 ].sort_values('CODE')
@@ -621,12 +654,12 @@ A5.loc[
 # region [markdown]
 # %%
 # Elvs were inherited from the original segments when they were split. This is incorrect, except for the UStr_Elv of the UStr-most segment and the DStr_Elv of the DStr-most segment.
-# But, in A4 (therefore A5 as well), NA Elvs were filled for split sements. So those don't need to be corrected.
+# But, in A5 (therefore A6 as well), NA Elvs were filled for split sements. So those don't need to be corrected.
 # endregion
 
-# region Fill A3_ Elv NaNs from A5_ values
+# region Fill A3_ Elv NaNs from A6_ values
 # %%
-# We filled all NA values of A4
+# We filled all NA values of A5
 # A2_ Elv columns need to be filled
 # endregion
 
@@ -636,14 +669,14 @@ A2_ = A2.copy()
 A2_Elv_NaN_codes = A2_.loc[
     A2_['Elv_UStr'].isnull() | A2_['Elv_DStr'].isnull(), 'CODE'
 ].unique()  # list of codes where Elv is NaN
-A4_Elv_NaN_in_A2 = A4.loc[A4['CODE'].isin(A2_Elv_NaN_codes), ['CODE', 'Elv_UStr', 'Elv_DStr']]  # DF for those codes
-A4_Elv_UStr_max = A4_Elv_NaN_in_A2.groupby(['CODE'])['Elv_UStr'].max()
-A4_Elv_DStr_min = A4_Elv_NaN_in_A2.groupby(['CODE'])['Elv_DStr'].min()
+A5_Elv_NaN_in_A2 = A5.loc[A5['CODE'].isin(A2_Elv_NaN_codes), ['CODE', 'Elv_UStr', 'Elv_DStr']]  # DF for those codes
+A5_Elv_UStr_max = A5_Elv_NaN_in_A2.groupby(['CODE'])['Elv_UStr'].max()
+A5_Elv_DStr_min = A5_Elv_NaN_in_A2.groupby(['CODE'])['Elv_DStr'].min()
 A2_.loc[A2_['CODE'].isin(A2_Elv_NaN_codes), 'Elv_UStr'] = A2_.loc[A2_['CODE'].isin(A2_Elv_NaN_codes), 'CODE'].map(
-    A4_Elv_UStr_max
+    A5_Elv_UStr_max
 )
 A2_.loc[A2_['CODE'].isin(A2_Elv_NaN_codes), 'Elv_DStr'] = A2_.loc[A2_['CODE'].isin(A2_Elv_NaN_codes), 'CODE'].map(
-    A4_Elv_DStr_min
+    A5_Elv_DStr_min
 )
 # endregion
 
@@ -684,16 +717,16 @@ A2_[['CODE', 'Elv_UStr', 'Elv_DStr']].describe()
 # region Correct Elvs
 # %%
 n = 1
-for i in A4.loc[
-    (~A4['CODE'].isin(A3.loc[A3['Elv_UStr'].isna() & A3['Elv_DStr'].isna(), 'CODE'])) & (A4['split'] == 1),
+for i in A5.loc[
+    (~A5['CODE'].isin(A3.loc[A3['Elv_UStr'].isna() & A3['Elv_DStr'].isna(), 'CODE'])) & (A5['split'] == 1),
     'CODE',
 ].unique():  # [::-1]: # [26:27]: #[n:n+1]:
     print(
         f'{i} - {n:4}/{
             len(
-                A4.loc[
-                    (~A4["CODE"].isin(A3.loc[A3["Elv_UStr"].isna() & A3["Elv_DStr"].isna(), "CODE"]))
-                    & (A4["split"] == 1),
+                A5.loc[
+                    (~A5["CODE"].isin(A3.loc[A3["Elv_UStr"].isna() & A3["Elv_DStr"].isna(), "CODE"]))
+                    & (A5["split"] == 1),
                     "CODE",
                 ].unique()
             ):4}',
@@ -702,7 +735,7 @@ for i in A4.loc[
     n += 1
 
     # Prep GDF and Se for CODE
-    GDF = A4.loc[A4['CODE'] == i, l_A4_Cols]  # Create GDF for the current CODE
+    GDF = A5.loc[A5['CODE'] == i, l_A5_Cols]  # Create GDF for the current CODE
     Se = A2_.loc[A2_['CODE'] == i]
     Coo_a = (Se['Xa'].values[0], Se['Ya'].values[0])
     Coo_z = (Se['Xz'].values[0], Se['Yz'].values[0])
@@ -774,8 +807,8 @@ for i in A4.loc[
     else:
         print('Elvs calculated correctly.')
         l_success.append(i)
-        A5.loc[A5['CODE'] == i, 'Elv_UStr'] = GDF['Elv_UStr'].values
-        A5.loc[A5['CODE'] == i, 'Elv_DStr'] = GDF['Elv_DStr'].values
+        A6.loc[A6['CODE'] == i, 'Elv_UStr'] = GDF['Elv_UStr'].values
+        A6.loc[A6['CODE'] == i, 'Elv_DStr'] = GDF['Elv_DStr'].values
 
 Tot = len(l_success) + len(l_infinite_loop) + len(l_closing_error)
 print(f'Successful: {len(l_success)} ({round(len(l_success) * 100 / Tot, 2)} %)')
@@ -796,11 +829,11 @@ Pa_Out
 # region Save
 # %%
 Pa_Out.parent.mkdir(parents=True, exist_ok=True)
-A5_out = A5.copy()
-A5_out['DStr_code'] = A5_out['DStr_code'].astype('string')
-A5_out['DStr_ID'] = A5_out['DStr_ID'].astype('Int64')
-A5_out['split'] = A5_out['split'].astype('Int64')
-A5_out = A5_out[
+A6_out = A6.copy()
+A6_out['DStr_code'] = A6_out['DStr_code'].astype('string')
+A6_out['DStr_ID'] = A6_out['DStr_ID'].astype('Int64')
+A6_out['split'] = A6_out['split'].astype('Int64')
+A6_out = A6_out[
     [
         'ID',
         'DStr_ID',
@@ -820,9 +853,21 @@ A5_out = A5_out[
 ].copy()
 if Pa_Out.exists():
     Pa_Out.unlink()
-A5_out.to_file(Pa_Out, driver='GPKG', engine='fiona', index=False)
+A6_out.to_file(Pa_Out, driver='GPKG', engine='fiona', index=False)
 # endregion
 
 # region
 # %%
 # endregion
+
+
+# %% [markdown]
+# # Junkyard
+A2.iloc[0].geometry
+
+print(A2.iloc[0].geometry)
+
+a = A2.iloc[0].geometry
+
+for i in list(a.geoms):
+    print(i)
