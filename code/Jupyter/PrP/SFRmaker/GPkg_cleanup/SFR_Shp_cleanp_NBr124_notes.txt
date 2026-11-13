@@ -1,4 +1,4 @@
 Percentage of unconnected:
-v1: 11.5 %
+v1: 11.5%
 v2: 8%
-v3: 
+v3-connect to closest segment within the same cell: 1.35% 

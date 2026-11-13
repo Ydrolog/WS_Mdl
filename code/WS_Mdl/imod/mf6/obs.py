@@ -79,9 +79,7 @@ def add_GWL_OBS(MdlN: str | None = None, M: Mdl_N = None, Opt: str = 'BEGIN OPTI
     sprint(Sep)
 
 
-def add_within_polygon(
-    Pa_Shp: str | Path, MdlN: str, Pkg: str, Opt="""BEGIN OPTIONS\n  DIGITS 4\n  PRINT_INPUT\nEND OPTIONS\n\n"""
-):
+def add_within_polygon(Pa_Shp: str | Path, MdlN: str, Pkg: str, Opt="""BEGIN OPTIONS\n  DIGITS 4\nEND OPTIONS\n\n"""):
     """Adds all Pkg elements within a polygon (shapefile) as OBS to the Sim in the steps below:
     -"""
     # Init
@@ -389,9 +387,7 @@ def o_HD_OBS_L_Bin(
                 for x0 in range(0, len(M.Xs), x_chunk):
                     x1 = min(x0 + x_chunk, len(M.Xs))
                     task = delayed(read_block)(rows, layer, y0, y1, x0, x1)
-                    x_blocks.append(
-                        da.from_delayed(task, shape=(len(rows), 1, y1 - y0, x1 - x0), dtype=out_dtype)
-                    )
+                    x_blocks.append(da.from_delayed(task, shape=(len(rows), 1, y1 - y0, x1 - x0), dtype=out_dtype))
                 y_blocks.append(da.concatenate(x_blocks, axis=3))
             layer_blocks.append(da.concatenate(y_blocks, axis=2))
         time_blocks.append(da.concatenate(layer_blocks, axis=1))

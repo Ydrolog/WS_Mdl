@@ -3,7 +3,7 @@ from WS_Mdl.io.ibridges import Dl, iB_session
 
 print(Sep)
 
-l_F = ['data/KNMI23', 'data/MetaSWAP_DB']
+l_F = ['data/KNMI23', 'data/MSW_DB.tar.gz']
 
 print(f'Downloading "{l_F}" to from iBridges...\n')
 

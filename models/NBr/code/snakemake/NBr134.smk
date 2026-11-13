@@ -46,6 +46,7 @@ log_Init            =   Pa_temp / f"Log_init_{MdlN}"
 log_RIV_OBS         =   Pa_temp / f"Log_RIV_OBS_{MdlN}"
 log_DRN_OBS         =   Pa_temp / f"Log_DRN_OBS_{MdlN}"
 log_fix_MSW_area    =   Pa_temp / f"Log_fix_MSW_area_{MdlN}"
+log_no_LST_Out      =   Pa_temp / f"log_no_LST_Out_{MdlN}"
 log_Sim             =   Pa_temp / f"Log_Sim_{MdlN}"
 log_PRJ_to_TIF      =   Pa_temp / f"Log_PRJ_to_TIF_{MdlN}"
 log_HD_AVGs         =   Pa_temp / f"Log_HD_AVGs_{MdlN}"
@@ -143,13 +144,23 @@ rule fix_MSW_area:
     run:
         sh.copy2(Pa_MSW_area_fix, M.Pa.MSW / "area_svat.inp")
 
+rule no_LST_Out:
+    input:
+        M.Pa.NAM_Sim
+    output:
+        touch(log_no_LST_Out)
+    run:
+        with open(next(M.Pa.Sim_In.glob('*.oc')), 'a') as f:
+            f.write('\nBEGIN PERIOD 1\nEND PERIOD\n')
+
 ## -- Sim ---
 rule Sim: # Runs the simulation via BAT file.
     input:
         Pa_HD_OBS_Dst,
         log_RIV_OBS,
         log_DRN_OBS,
-        log_fix_MSW_area
+        log_fix_MSW_area,
+        log_no_LST_Out
     output:
         touch(log_Sim)
     run:
