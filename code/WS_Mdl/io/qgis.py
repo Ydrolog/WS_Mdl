@@ -12,7 +12,7 @@ from WS_Mdl.core.text import replace_MdlN
 
 sys.excepthook = sys.__excepthook__
 
-__all__ = ['Up_MM']
+__all__ = ['Up_MM', 'Up_MM_ScN']
 
 
 def _Up_L_references(root, maplayer, replace_reference, datasource):
@@ -127,3 +127,66 @@ def Up_MM(MdlN, MdlN_B=None, MdlN_MM_B=None):
 
     sprint(f'\n🟢🟢🟢 | MM for {MdlN} has been updated.')
     sprint(Sep)
+
+
+def Up_MM_ScN(ScN: str, ScN_B: str, MdlN_T: str):
+    """
+    Copy the QGIS project of template model MdlN_T into a project for scenario ScN, pointing to PoP/Out/<ScN>.
+    ScN_B: reference scenario used in the Diff layer names (<ScN>m<ScN_B>).
+    Run this AFTER the hd and diff steps: layers whose new file doesn't exist keep their old reference (reported at the end).
+    Returns the path of the new project.
+    """
+    sprint(Sep)
+    sprint(f' *****   Creating MM for scenario {ScN}   ***** ')
+
+    M_T = Mdl_N(MdlN_T)
+    Pa_T = M_T.Pa.MM
+    Pa_new = Pa_T.parent / f'{ScN}{Pa_T.suffix}'  # same folder, so the relative datasource paths stay valid
+    comparison_pattern = re.compile(rf'{re.escape(MdlN_T)}m(?:{re.escape(M_T.alias)})?\d+(?!\d)')
+
+    def replace_reference(value):
+        value = comparison_pattern.sub(lambda _: f'{ScN}m{ScN_B}', value)
+        return value.replace(MdlN_T, ScN)
+
+    with TemporaryDirectory(prefix='mm-', dir=Pa_T.parent) as temp_dir:
+        Pa_temp = Path(temp_dir)
+        with ZF.ZipFile(Pa_T, 'r') as zip_ref:
+            projects = [n for n in zip_ref.namelist() if n.lower().endswith('.qgs')]
+            if len(projects) != 1:
+                raise ValueError(f'Expected one .qgs project in {Pa_T}, found {len(projects)}: {projects}')
+            zip_ref.extractall(Pa_temp)
+
+        Pa_QGS = Pa_temp / projects[0]
+        tree = ET.parse(Pa_QGS)
+        root = tree.getroot()
+        parent_by_child = {child: parent for parent in root.iter() for child in parent}
+
+        for DS in root.iter('datasource'):
+            if not DS.text:
+                continue
+            path, suffix = DS.text.split('|', 1) if '|' in DS.text else (DS.text, '')
+            Pa_X, suffix_X = replace_reference(path), replace_reference(suffix)
+            if (Pa_X, suffix_X) == (path, suffix):
+                continue
+            if (Pa_T.parent / Pa_X).absolute().exists():
+                DS.text = f'{Pa_X}|{suffix_X}' if suffix_X else Pa_X
+                maplayer = parent_by_child.get(DS)
+                if maplayer is not None and maplayer.tag == 'maplayer':
+                    _Up_L_references(root, maplayer, replace_reference, DS.text)
+            else:
+                sprint(f'  - 🔴 Not found, left unchanged: {Pa_X}')
+
+        stale = [DS.text for DS in root.iter('datasource') if DS.text and MdlN_T in DS.text]
+        if stale:
+            sprint(f'🟡 {len(stale)} layer(s) still point to {MdlN_T}; remove them in QGIS or they show the wrong model:')
+            sprint(*stale, sep='\n')
+
+        tree.write(Pa_QGS, encoding='utf-8', xml_declaration=True)
+        with ZF.ZipFile(Pa_new, 'w', ZF.ZIP_DEFLATED) as zipf:
+            for filepath in Pa_temp.rglob('*'):
+                if filepath.is_file():
+                    zipf.write(filepath, filepath.relative_to(Pa_temp))
+
+    sprint(f'\n🟢🟢🟢 | MM for scenario {ScN} written to {Pa_new}.')
+    sprint(Sep)
+    return Pa_new

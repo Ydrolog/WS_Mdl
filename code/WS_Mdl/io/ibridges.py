@@ -263,6 +263,30 @@ def Upl_Sim_Out(MdlN):
     sprint(Sep)
 
 
+def Upl_Scn_Out(l_ScN: list[str], MdlN: str, l_extra: list[str] | None = None):
+    """
+    Uploads the PoPed scenario Out folders (PoP/Out/<ScN>, incl. the Diff TIFs) and optional extra folders/files.
+    MdlN only supplies the model alias (any member). l_extra: paths relative to Pa_WS, e.g. the QGIS folder.
+    """
+    sprint(Sep)
+    sprint(f'--- Upl_Scn_Out({l_ScN}) ... ', style=green)
+    S = iB_session()
+    M = Mdl_N(MdlN)
+
+    sprint(' -- Uploading PoP Out files per scenario ...', set_time=True)
+    for ScN in l_ScN:
+        Upl(f'models/{M.alias}/PoP/Out/{ScN}', S, overwrite=True)
+    Upl(f'models/{M.alias}/PoP/In', S, overwrite=True)
+    sprint('🟢', print_time=True)
+
+    for F in l_extra or []:
+        sprint(f' -- Uploading {F} ...', set_time=True)
+        Upl(F, S, overwrite=True)
+        sprint('🟢', print_time=True)
+
+    sprint(Sep)
+
+
 def Dl_Sim_Out(MdlN):
     """
     Downloads PoPed Out and Smk related files (log, temp files, DAG) for a given MdlN.
