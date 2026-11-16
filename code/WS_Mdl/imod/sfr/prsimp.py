@@ -590,7 +590,7 @@ def Pkgs_to_SFR_via_MVR(M: Mdl_N, Pkgs: list | str, Pa_Shp: str | Path):  # 666 
     - Pa_Shp: shapefile containing the outer boundaries to clip the Pkg elements within, e.g. if only elements in a catchment need to be connected.
     """
 
-    from scipy.spatial.distance import cdist
+    from scipy.spatial import cKDTree
     from shapely.geometry import LineString
 
     # %% Load Ins as DFs and combine them into one GDF
@@ -642,14 +642,14 @@ def Pkgs_to_SFR_via_MVR(M: Mdl_N, Pkgs: list | str, Pa_Shp: str | Path):  # 666 
 
     coords = GDF[['x', 'y']].values
     reach_coords = DF_reach[['x', 'y']].values
-    distances = cdist(coords, reach_coords, metric='euclidean')
-    min_indices = np.argmin(distances, axis=1)
+    reach_tree = cKDTree(reach_coords)
+    distances, min_indices = reach_tree.query(coords, k=1)
 
     # %% Add matched reach data to DRN DataFrame
     matched_reach_data = DF_reach.iloc[min_indices].reset_index(drop=True)
     DF_match = GDF.drop(columns='geometry').copy()
     DF_match['Rcv_ID'] = matched_reach_data['rno'].values
-    DF_match['distance_to_match'] = distances[np.arange(len(coords)), min_indices]
+    DF_match['distance_to_match'] = distances
 
     sprint(
         f'Combined {len(GDF):,} points ({Pkgs}) from {len(d_DF)} DataFrames',
