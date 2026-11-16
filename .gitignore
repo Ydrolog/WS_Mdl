@@ -81,3 +81,6 @@ code/imod-python/**
 
 # Everything opened by Finder on Mac will be ignored
 **/.DS_Store
+
+# Clean up  of the repo. Added specific data types to the ignore list.
+*.ipynb
