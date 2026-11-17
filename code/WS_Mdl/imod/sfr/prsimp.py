@@ -367,11 +367,15 @@ def connect_SFR_lines_to_MF6(M: Mdl_N, debug_sfr: bool = True):
     sprint('🟢', verbose_in=True, verbose_out=M.Sim.verbose, print_time=True)
 
     # %% Assign and Review SFRdata
+    # Work around SFRmaker's routing cache returning None after it invalidates _routing.
+    M.lines._routing = None
+    M.lines._paths = None
+    M.lines._current_df_routing = None
     SFR_data = M.lines.to_sfr(
         grid=SFR_grid_L1,
         one_reach_per_cell=M.SFR_one_reach_per_cell,
         minimum_reach_length=M.SFR_minimum_reach_length,
-        consolidate_conductane=M.SFR_consolidate_conductance,
+        consolidate_conductance=M.SFR_consolidate_conductance,
     )
 
     SFR_data.reach_data.sort_values(by=['i', 'j'])
@@ -567,9 +571,7 @@ def connect_SFR_lines_to_MF6(M: Mdl_N, debug_sfr: bool = True):
     SFR_data.write_package(str(M.Pa.SFR), version='mf6', options=M.SFR_options, run_diagnostics=False)
 
     if len(SFR_data.observations) > 0:
-        SFR_data.write_mf6_sfr_obsfile(
-            sfr_output_filename=M.Pa.Sim_Out / f'{M.MdlN}.SFR6.obs.output.csv'
-        )
+        SFR_data.write_mf6_sfr_obsfile(sfr_output_filename=M.Pa.Sim_Out / f'{M.MdlN}.SFR6.obs.output.csv')
 
     if M.SFR_Stg_Init is not None:
         DF_Stg_Init = pd.read_csv(M.SFR_Stg_Init)

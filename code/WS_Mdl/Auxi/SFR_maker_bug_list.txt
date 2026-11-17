@@ -1,0 +1,18 @@
+1. SFRmaker 0.13.1 routing cache can return None during to_sfr()
+
+   When Lines.to_sfr() removes short reaches and/or non-dominant reaches,
+   SFRmaker may invalidate Lines._routing by setting it to None. The
+   Lines.routing property can then return this None value through its
+   timestamp-based cache shortcut instead of rebuilding the routing dictionary.
+   Lines.paths subsequently calls routing.keys(), causing:
+
+       AttributeError: 'NoneType' object has no attribute 'keys'
+
+   The input DataFrame index is not the cause; routing is based on the id and
+   toid columns. Clearing _routing, _paths, and _current_df_routing before
+   calling to_sfr() forces the routing dictionary to be rebuilt and avoids the
+   error.
+
+   The likely SFRmaker fix is to ensure the timestamp shortcut only returns
+   the cached value when _routing is not None. WS_Mdl applies the workaround in
+   imod/sfr/prsimp.py.

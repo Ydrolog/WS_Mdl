@@ -2,3 +2,5 @@ Percentage of unconnected:
 v1: 11.5%
 v2: 8%
 v3-connect to closest segment within the same cell: 1.35% 
+v4-snap to 5cm: 
+v5: Realised same CODE connection forcing causes infinite loops, so went back on that
