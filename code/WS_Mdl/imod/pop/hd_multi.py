@@ -21,6 +21,7 @@ __all__ = [
     'c_HD_Bin_AVGs',
     'c_HD_Bin_Daily',
     'c_HD_Bin_Yearly',
+    'c_HD_Yearly_Pctls',
     'c_HD_Bin_Monthly',
     'c_HD_Bin_GXGs',
     'c_HD_Bin_Pctls',
@@ -28,6 +29,7 @@ __all__ = [
     'o_HD_Bin_Multi',
     'p_HD_OBS_TS',
     'L_PCT',
+    'L_PCT_SHORT',
 ]
 
 
@@ -42,7 +44,8 @@ def _make_l_Pct(lo: int = 25, hi: int = 75, step_mid: int = 5) -> tuple:
     return tuple(p / 100 for p in pct)
 
 
-L_PCT = _make_l_Pct()
+L_PCT = _make_l_Pct()  # full list (59 levels): c_HD_Bin_Pctls, c_HD_Pctls
+L_PCT_SHORT = (0.01, 0.05, 0.10, 0.25, 0.50, 0.75, 0.90, 0.95, 0.99)  # 9 levels: daily, monthly, yearly
 
 
 def _P_label(q: float) -> str:
@@ -946,7 +949,14 @@ def o_HD_Bin_Multi(
     # The members of 1 scenario are simulated over the same period, so the time coords must match.
     for MdlN, DA in zip(l_MdlN[1:], l_DA[1:]):
         if not np.array_equal(DA.time.values, l_DA[0].time.values):
-            raise ValueError(f'{MdlN} does not have the same time coordinates as {l_MdlN[0]}.')
+            periods = '\n  '.join(
+                f'{m}: {str(d.time.values[0])[:10]} - {str(d.time.values[-1])[:10]} ({d.sizes["time"]} steps)'
+                for m, d in zip(l_MdlN, l_DA)
+            )
+            raise ValueError(
+                f'{MdlN} does not have the same time coordinates as {l_MdlN[0]}:\n  {periods}\n'
+                'Set end_year to a year that all members have completed.'
+            )
 
     return xra.concat(l_DA, dim=xra.IndexVariable('sim', l_MdlN)), l_Pa_Bin
 
@@ -968,7 +978,7 @@ def c_HD_Bin_Pctls(  # 666 date and layer selection should be moved to the o_HD_
     IDT: str = 'from_INI',
     skip_years: int = 0,  # drop the first N years of every member (spin-up from the starting heads)
 ):
-    sprint('----- c_Pctl_HD_OBS_L initiated -----', style=green)
+    sprint('----- c_HD_Bin_Pctls initiated -----', style=green)
     sprint('--- Loading extra packages...', end='', set_time=True)
     import rioxarray  # Noqa: F401 # activates the .rio accessor
 
@@ -1143,7 +1153,6 @@ def c_HD_Bin_Yearly(
     Per simulated year AND per member: the mean head of that year, of its summer (Apr-Sep) and of its winter
     (Oct-Mar). The members are different weather realisations of the same period, so year 2040 of member 1 and of
     member 2 are different years and are never averaged together: 3 members x 30 years = 90 yearly values per cell.
-    Statistics over these yearly values are calculated elsewhere (e.g. c_HD_Yearly_vs_Ref).
 
     Winter runs from October to March, so it spans 2 calendar years. A winter is labelled with the year in which it
     starts (winter 2040 = Oct 2040 - Mar 2041). Incomplete winters at the start (only Jan-Mar of the 1st year) and at
@@ -1232,10 +1241,84 @@ def c_HD_Bin_Yearly(
     return d_Out
 
 
+def c_HD_Yearly_Pctls(
+    ScN: str,  # scenario name, as used by c_HD_Bin_Yearly
+    MdlN: str,  # any member of the scenario, only supplies the paths
+    l_Pct: list | tuple = L_PCT_SHORT,  # P01, P05, P10, P25, P50, P75, P90, P95, P99
+    l_Ls: list | str = 'all',  # 'all' = every L<L> folder that c_HD_Bin_Yearly wrote
+    l_k: tuple = ('AVG', 'summer_AVG', 'winter_AVG'),  # yearly, summer and winter values
+):
+    """
+    Percentiles over the yearly mean heads. Reads the TIFs per year and member written by c_HD_Bin_Yearly
+    (GW_HD_Yearly/yearly_<k>/L<L>/years/) and calculates per cell the percentiles over all of them pooled
+    (3 members x 30 years = 90 values; 87 for winter). Run c_HD_Bin_Yearly first.
+
+    These are percentiles of HEAD: a low percentile is a dry year (P10 = the 1-in-10 dry year).
+
+    Saves 1 TIF per percentile: GW_HD_Yearly/yearly_<k>/L<L>/Pctls/GW_HD_L<L>_yearly_<k>_<Pxx>_<ScN>.tif
+    (not in years/, so Diff_PoP_ScN does diff them). Returns a dict {(k, L): DA(quantile, y, x)}.
+    """
+    sprint('----- c_HD_Yearly_Pctls initiated -----', style=green)
+    import rioxarray  # Noqa: F401 # activates the .rio accessor
+    import xarray as xra
+
+    M = Mdl_N(MdlN)
+    Pa_Dir = _ScN_Pa_Dir(M, ScN, 'GW_HD_Yearly')
+    d_Out = {}
+
+    for k in l_k:
+        Pa_k = Pa_Dir / f'yearly_{k}'
+        if not Pa_k.exists():
+            sprint(f'  ! {Pa_k} does not exist, skipped. Run c_HD_Bin_Yearly with this period first.')
+            continue
+        l_L = sorted(int(p.name[1:]) for p in Pa_k.glob('L*') if p.is_dir()) if l_Ls == 'all' else list(l_Ls)
+
+        for L in l_L:
+            l_Fi = sorted((Pa_k / f'L{L}/years').glob(f'GW_HD_L{L}_*_{k}_{ScN}.tif'))
+            if not l_Fi:
+                raise FileNotFoundError(f'🔴 - No yearly TIFs in {Pa_k / f"L{L}/years"}. Run c_HD_Bin_Yearly first.')
+
+            sprint(f' -- {k}, L{L}: percentiles over {len(l_Fi)} yearly values...')
+            l_DA = [rioxarray.open_rasterio(Fi, masked=True).squeeze('band', drop=True) for Fi in l_Fi]
+            crs = l_DA[0].rio.crs
+            DA_q = xra.concat(
+                [d.drop_vars('spatial_ref', errors='ignore') for d in l_DA], dim='n'
+            ).quantile(l_Pct, dim='n')
+
+            Pa_Out_Dir = Pa_k / f'L{L}/Pctls'
+            Pa_Out_Dir.mkdir(parents=True, exist_ok=True)
+            metadata = {
+                'scenario': str(ScN),
+                'created from': str(Pa_k / f'L{L}/years'),
+                'created by': f'c_HD_Yearly_Pctls(ScN={ScN}, MdlN={MdlN}, l_Pct={l_Pct}, l_Ls={l_Ls}, l_k={l_k})',
+            }
+            for q in l_Pct:
+                Pa_Out = Pa_Out_Dir / f'GW_HD_L{L}_yearly_{k}_{_P_label(q)}_{ScN}.tif'
+                sprint(f'  - {Pa_Out.name} ', end='')
+                DA_q.sel(quantile=q, drop=True).rio.set_spatial_dims(x_dim='x', y_dim='y').rio.write_crs(
+                    crs
+                ).rio.to_raster(
+                    Pa_Out,
+                    tags={
+                        'variable': f'yearly_{k}',
+                        'percentile': _P_label(q),
+                        'layer': str(L),
+                        'N yearly values': str(len(l_Fi)),
+                    }
+                    | metadata,
+                )
+                sprint('🟢')
+            d_Out[(k, L)] = DA_q
+
+    sprint('🟢🟢🟢')
+    print(Sep)
+    return d_Out
+
+
 def c_HD_Bin_Monthly(
     l_MdlN: list[str] | str,  # 1 MdlN or a list of MdlNs (the members of 1 scenario)
     ScN: str | None = None,  # scenario name used in the Out dir and file names. Defaults to the MdlN.
-    l_Pct: list | tuple = L_PCT,  # P01-P24, every 5 % from P25 to P75, P76-P99
+    l_Pct: list | tuple = L_PCT_SHORT,  # P01, P05, P10, P25, P50, P75, P90, P95, P99
     l_Ls: list = 'all',  # [1, 3, 5], List of layers to include in the analysis (1-based indexing)
     Pa_Bin: list | str | Path | None = None,
     start_year: str = 'from_INI',
@@ -1324,7 +1407,7 @@ def c_HD_Bin_Monthly(
 def c_HD_Bin_Daily(
     l_MdlN: list[str] | str,  # 1 MdlN or a list of MdlNs (the members of 1 scenario)
     ScN: str | None = None,  # scenario name used in the Out dir and file names. Defaults to the MdlN.
-    l_Pct: list | tuple = L_PCT,  # P01-P24, every 5 % from P25 to P75, P76-P99
+    l_Pct: list | tuple = L_PCT_SHORT,  # P01, P05, P10, P25, P50, P75, P90, P95, P99
     l_Ls: list | tuple | str = (1,),  # layer 1 by default: the output is large (see the size estimate it prints)
     Pa_Bin: list | str | Path | None = None,
     start_year: str = 'from_INI',
@@ -1339,8 +1422,8 @@ def c_HD_Bin_Daily(
     drop_leap_day=False keeps 29 Feb as day 60 of a 366-day calendar; that day then only has the leap years.
 
     Saves 1 TIF per calendar day and statistic: GW_HD_Daily/L<L>/<stat>/GW_HD_L<L>_D<ddd>_<stat>_<ScN>.tif,
-    stat = AVG, P01, ..., P99. With the default percentiles that is 365 x 60 = 21,900 TIFs per layer, so pass a
-    shorter l_Pct if you don't need them all. Each day is calculated and written before the next, so only the values
+    stat = AVG and the percentiles in l_Pct. With the default 9 percentiles that is 365 x 10 = 3,650 TIFs per layer. Pass a
+    different l_Pct to change that. Each day is calculated and written before the next, so only the values
     of 1 day have to fit in memory. The number of values behind each day is in the TIF tags ('N values').
     Returns a pandas Series with that number per calendar day.
     """
