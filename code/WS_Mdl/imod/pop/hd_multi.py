@@ -1,4 +1,4 @@
-﻿
+
 # %% Imports
 import os
 from concurrent.futures import ProcessPoolExecutor as PPE
@@ -19,13 +19,37 @@ __all__ = [
     'HD_IDF_Agg_to_TIF',
     # 'HD_Pctl_Diffs',
     'c_HD_Bin_AVGs',
+    'c_HD_Bin_Daily',
+    'c_HD_Bin_Yearly',
     'c_HD_Bin_Monthly',
     'c_HD_Bin_GXGs',
     'c_HD_Bin_Pctls',
     'c_HD_Pctls',
-    'o_HD_Bin_Multi', 
+    'o_HD_Bin_Multi',
     'p_HD_OBS_TS',
+    'L_PCT',
 ]
+
+
+# %% Percentile levels (shared by every function that calculates percentiles)
+def _make_l_Pct(lo: int = 25, hi: int = 75, step_mid: int = 5) -> tuple:
+    """
+    Percentile levels as fractions: every 1 % below `lo` and above `hi`, every `step_mid` % in between
+    (lo and hi included). Built from whole percentages, so there is no floating-point drift.
+    Default: P01-P24, P25, P30, ..., P70, P75, P76-P99 (59 levels).
+    """
+    pct = list(range(1, lo)) + list(range(lo, hi + 1, step_mid)) + list(range(hi + 1, 100))
+    return tuple(p / 100 for p in pct)
+
+
+L_PCT = _make_l_Pct()
+
+
+def _P_label(q: float) -> str:
+    """0.29 -> 'P29'. Uses round(), because int(0.29 * 100) gives 28 (0.29 * 100 = 28.999...)."""
+    return f'P{round(q * 100):02d}'
+
+
 
 
 # %%
@@ -741,7 +765,7 @@ def p_HD_OBS_TS(MdlN, MdlN_B=True, MdlN_Pa_MF6=None, MdlN_B_Pa_MF6=None):
 def c_HD_Pctls(
     MdlN: str,
     full_years: bool = True,
-    l_Pct: list = (0.05, 0.10, 0.50, 0.90, 0.95),
+    l_Pct: list | tuple = L_PCT,
     l_L: list = (1, 3, 5),  # List of layers to include in the analysis (1-based indexing)
     Pa_CSV: str | Path | None = None,
 ):
@@ -841,14 +865,14 @@ def c_HD_Pctls(
 
     for q in l_Pct:
         for L in l_L:
-            Pa_Out = Pa_Dir / f'GW_HD_L{L}_P{int(q * 100):02d}_{MdlN}.tif'
+            Pa_Out = Pa_Dir / f'GW_HD_L{L}_{_P_label(q)}_{MdlN}.tif'
 
             sprint(f'  - {Pa_Out.name} ', end='')
             DA_i = DA_q.sel(quantile=q, L=L).rio.set_spatial_dims(x_dim='X', y_dim='Y')
             DA_i.rio.to_raster(
                 Pa_Out,
                 tags={
-                    'percentile': f'P{int(q * 100):02d}',
+                    'percentile': _P_label(q),
                     'layer': str(L),
                 }
                 | metadata,
@@ -870,6 +894,7 @@ def o_HD_Bin_Multi(
     Pa_Bin: list | str | Path | None = None,
     start_year: int | str = 'from_INI',
     end_year: int | str = 'from_INI',
+    skip_years: int = 0,  # drop the first N years of every member (counted from start_year)
 ):
     """
     multi: Loads the HD_OBS_L Bin of one or more MdlNs (the members of 1 scenario) and
@@ -897,7 +922,7 @@ def o_HD_Bin_Multi(
     l_DA, l_Pa_Bin = [], []
     for MdlN in l_MdlN:
         M = Mdl_N(MdlN)
-        Y0 = M.SP_1st_DT.year if start_year == 'from_INI' else int(start_year)
+        Y0 = (M.SP_1st_DT.year if start_year == 'from_INI' else int(start_year)) + skip_years
         Y1 = M.SP_last_DT.year if end_year == 'from_INI' else int(end_year)
 
         sprint(f'  - {MdlN} ({Y0}-{Y1}) ', end='')
@@ -935,12 +960,13 @@ def c_HD_Bin_Pctls(  # 666 date and layer selection should be moved to the o_HD_
     l_MdlN: list[str] | str,  
     ScN: str | None = None,  
     full_years: bool = True,  # 666 This is not used properly.
-    l_Pct: list | tuple = (0.01, 0.05, 0.10, 0.25, 0.50, 0.75, 0.90, 0.95, 0.99),
+    l_Pct: list | tuple = L_PCT,  # P01-P24, every 5 % from P25 to P75, P76-P99
     l_Ls: list = 'all',  # List of layers to include in the analysis (1-based indexing)
-    Pa_Bin: list | str | Path | None = None,  
+    Pa_Bin: list | str | Path | None = None,
     start_year: str = 'from_INI',
     end_year: str = 'from_INI',
     IDT: str = 'from_INI',
+    skip_years: int = 0,  # drop the first N years of every member (spin-up from the starting heads)
 ):
     sprint('----- c_Pctl_HD_OBS_L initiated -----', style=green)
     sprint('--- Loading extra packages...', end='', set_time=True)
@@ -953,7 +979,7 @@ def c_HD_Bin_Pctls(  # 666 date and layer selection should be moved to the o_HD_
     l_MdlN = [l_MdlN] if isinstance(l_MdlN, str) else list(l_MdlN) # if there is one member or multiple
     M = Mdl_N(l_MdlN[0])  # the 1st member supplies the paths and the grid
     ScN = M.MdlN if ScN is None else ScN 
-    start_year = M.SP_1st_DT.year if start_year == 'from_INI' else int(start_year)
+    start_year = (M.SP_1st_DT.year if start_year == 'from_INI' else int(start_year)) + skip_years  # skip spin-up years
     end_year = M.SP_last_DT.year if end_year == 'from_INI' else int(end_year)
     IDT = int(M.INI.IDT) if IDT == 'from_INI' else int(IDT)
     # %% Load Bin
@@ -970,15 +996,15 @@ def c_HD_Bin_Pctls(  # 666 date and layer selection should be moved to the o_HD_
     sprint('🟢', print_time=True)
 
     # %% Calculate percentiles
+    # .compute() once here. Otherwise the lazy dask result is recalculated for every TIF that is written below.
     DA_q = timed_Exe(
-        DA.quantile,
-        l_Pct,
-        dim=('time', 'sim'),
+        DA.quantile(l_Pct, dim=('time', 'sim')).compute,
         pre=' -- Calculating percentiles...',
     )
 
     # %% Saving to TIF
     Pa_Dir = _ScN_Pa_Dir(M, ScN, 'GW_HD_Pct')  # per scenario when several members are used
+    Pa_Dir.mkdir(parents=True, exist_ok=True)
     sprint(f' -- Saving to TIF in {Pa_Dir}')
     DA_q = DA_q.rio.set_spatial_dims(x_dim='x', y_dim='y').rio.write_crs('EPSG:28992')
 
@@ -991,7 +1017,7 @@ def c_HD_Bin_Pctls(  # 666 date and layer selection should be moved to the o_HD_
 
     for q in l_Pct:
         for L in l_Ls:
-            Pa_Out = Pa_Dir / f'L{L}/GW_HD_L{L}_P{int(q * 100):02d}_{ScN}.tif'
+            Pa_Out = Pa_Dir / f'L{L}/GW_HD_L{L}_{_P_label(q)}_{ScN}.tif'
             Pa_Out.parent.mkdir(parents=True, exist_ok=True)
 
             sprint(f'  - {Pa_Out.name} ', end='')
@@ -999,7 +1025,7 @@ def c_HD_Bin_Pctls(  # 666 date and layer selection should be moved to the o_HD_
             DA_i.rio.to_raster(
                 Pa_Out,
                 tags={
-                    'percentile': f'P{int(q * 100):02d}',
+                    'percentile': _P_label(q),
                     'layer': str(L),
                 }
                 | metadata,
@@ -1025,13 +1051,15 @@ def c_HD_Bin_AVGs(
     start_year: str = 'from_INI',
     end_year: str = 'from_INI',  # inclussive
     IDT: str = 'from_INI',
-    yearly: bool = True,  # False with several members: the year labels mix different weather years
+    skip_years: int = 0,  # drop the first N years of every member (spin-up from the starting heads)
 ):
     """
-    Loads Bin OBS Out data (usually all HDs per L). Calculates summer/winter AVG, yearly AVG, etc. Saves to TIF files. Returns the DA with all data.
+    Loads Bin OBS Out data (usually all HDs per L). Calculates the AVG, summer AVG (Apr-Sep) and winter AVG over the
+    whole period (all years and members pooled). Saves to TIF files. Returns the DA with all data.
+    Per-year values and their percentiles: see c_HD_Bin_Yearly.
     """
     # %%
-    sprint('----- c_Pctl_HD_OBS_L initiated -----', style=green)
+    sprint('----- c_HD_Bin_AVGs initiated -----', style=green)
     sprint('--- Loading extra packages...', end='', verbose_out=False)
     import rioxarray  # Noqa: F401 # activates the .rio accessor
 
@@ -1042,7 +1070,7 @@ def c_HD_Bin_AVGs(
     l_MdlN = [l_MdlN] if isinstance(l_MdlN, str) else list(l_MdlN)
     M = Mdl_N(l_MdlN[0])
     ScN = M.MdlN if ScN is None else ScN
-    start_year = M.SP_1st_DT.year if start_year == 'from_INI' else int(start_year)
+    start_year = (M.SP_1st_DT.year if start_year == 'from_INI' else int(start_year)) + skip_years  # skip spin-up years
     end_year = M.SP_last_DT.year if end_year == 'from_INI' else int(end_year)
     IDT = int(M.INI.IDT) if IDT == 'from_INI' else int(IDT)
     # %% Load Bin
@@ -1063,7 +1091,7 @@ def c_HD_Bin_AVGs(
         'scenario': str(ScN),
         'model': ', '.join(l_MdlN),
         'created from:': ' | '.join(str(p) for p in l_Pa_Bin),
-        'created by': f'c_HD_Bin_AVGs(l_MdlN={l_MdlN}, ScN={ScN}, start_year={start_year}, end_year={end_year}, full_years={full_years}, IDT={IDT}, Pa_Bin={Pa_Bin}, l_Ls={l_Ls}, yearly={yearly})',
+        'created by': f'c_HD_Bin_AVGs(l_MdlN={l_MdlN}, ScN={ScN}, start_year={start_year}, end_year={end_year}, full_years={full_years}, IDT={IDT}, Pa_Bin={Pa_Bin}, l_Ls={l_Ls})',
     }
 
     summer = (3 < DA.time.dt.month) & (DA.time.dt.month < 10)
@@ -1075,18 +1103,9 @@ def c_HD_Bin_AVGs(
             ('summer_AVG', DA_L.where(summer, drop=True).mean(dim=('time', 'sim'))),
             ('AVG', DA_L.mean(dim=('time', 'sim'))),
         ]
-        if yearly:
-            averages.extend(
-                (f'{y}_AVG', DA_L.where(DA.time.dt.year == y, drop=True).mean(dim=('time', 'sim')))
-                for y in np.unique(DA.time.dt.year)
-            )
 
         for k, DA_i in averages:
-            Pa_Out = (
-                Pa_Dir / f'L{L}/GW_HD_L{L}_{k}_{ScN}.tif'
-                if k in ['winter_AVG', 'summer_AVG', 'AVG']
-                else Pa_Dir / f'yearly_AVGs/L{L}/GW_HD_L{L}_{k}_{ScN}.tif'
-            )
+            Pa_Out = Pa_Dir / f'L{L}/GW_HD_L{L}_{k}_{ScN}.tif'
             Pa_Out.parent.mkdir(parents=True, exist_ok=True)
 
             sprint(f'  - {Pa_Out.name} ', end='')
@@ -1109,14 +1128,119 @@ def c_HD_Bin_AVGs(
     print(Sep)
     return DA
 
+
+def c_HD_Bin_Yearly(
+    l_MdlN: list[str] | str,  # 1 MdlN or a list of MdlNs (the members of 1 scenario)
+    ScN: str | None = None,  # scenario name used in the Out dir and file names. Defaults to the MdlN.
+    l_Ls: list = 'all',  # List of layers to include in the analysis (1-based indexing)
+    Pa_Bin: list | str | Path | None = None,
+    start_year: str = 'from_INI',
+    end_year: str = 'from_INI',  # inclusive
+    l_Per: tuple = ('year', 'summer', 'winter'),  # calendar year, summer (Apr-Sep), winter (Oct-Mar)
+    skip_years: int = 0,  # drop the first N years of every member (spin-up from the starting heads)
+):
+    """
+    Per simulated year AND per member: the mean head of that year, of its summer (Apr-Sep) and of its winter
+    (Oct-Mar). The members are different weather realisations of the same period, so year 2040 of member 1 and of
+    member 2 are different years and are never averaged together: 3 members x 30 years = 90 yearly values per cell.
+    Statistics over these yearly values are calculated elsewhere (e.g. c_HD_Yearly_vs_Ref).
+
+    Winter runs from October to March, so it spans 2 calendar years. A winter is labelled with the year in which it
+    starts (winter 2040 = Oct 2040 - Mar 2041). Incomplete winters at the start (only Jan-Mar of the 1st year) and at
+    the end (only Oct-Dec of the last year) are dropped, so 30 simulated years give 29 winters per member.
+
+    Saves 1 TIF per year and member, per period k ('AVG' for the year, 'summer_AVG', 'winter_AVG'):
+      GW_HD_Yearly/yearly_<k>/L<L>/years/GW_HD_L<L>_<year>_<member>_<k>_<ScN>.tif
+    Returns a dict {k: DA(year, sim, layer, y, x)} with the yearly values.
+    """
+    sprint('----- c_HD_Bin_Yearly initiated -----', style=green)
+    sprint('--- Loading extra packages...', end='', verbose_out=False)
+    import rioxarray  # Noqa: F401 # activates the .rio accessor
+
+    sprint('🟢')
+
+    # %% Basics
+    sprint('--- Loading data...')
+    l_MdlN = [l_MdlN] if isinstance(l_MdlN, str) else list(l_MdlN)
+    M = Mdl_N(l_MdlN[0])  # the 1st member supplies the paths and the grid
+    ScN = M.MdlN if ScN is None else ScN
+    start_year = (M.SP_1st_DT.year if start_year == 'from_INI' else int(start_year)) + skip_years  # skip spin-up years
+    end_year = M.SP_last_DT.year if end_year == 'from_INI' else int(end_year)
+    DA, l_Pa_Bin = o_HD_Bin_Multi(
+        l_MdlN,
+        Pa_Bin=Pa_Bin,
+        l_Ls=l_Ls,
+        start_year=start_year,
+        end_year=end_year,
+    )
+    l_Ls = list(DA.layer.values) if l_Ls == 'all' else list(l_Ls)
+    sprint('🟢')
+
+    Pa_Dir = _ScN_Pa_Dir(M, ScN, 'GW_HD_Yearly')
+    metadata = {
+        'scenario': str(ScN),
+        'model': ', '.join(l_MdlN),
+        'created from:': ' | '.join(str(p) for p in l_Pa_Bin),
+        'created by': f'c_HD_Bin_Yearly(l_MdlN={l_MdlN}, ScN={ScN}, start_year={start_year}, end_year={end_year}, Pa_Bin={Pa_Bin}, l_Ls={l_Ls}, l_Per={l_Per}, skip_years={skip_years})',
+    }
+
+    summer = (3 < DA.time.dt.month) & (DA.time.dt.month < 10)
+    d_Per = {}  # k -> lazy yearly means per member, dims (year, sim, layer, y, x)
+    if 'year' in l_Per:
+        d_Per['AVG'] = DA.groupby('time.year').mean(dim='time')
+    if 'summer' in l_Per:
+        d_Per['summer_AVG'] = DA.where(summer, drop=True).groupby('time.year').mean(dim='time')
+    if 'winter' in l_Per:
+        DA_w = DA.where(~summer, drop=True)
+        w_year = (DA_w.time.dt.year - (DA_w.time.dt.month < 4).astype(int)).values  # Jan-Mar belong to the previous winter
+        y0, y1 = int(DA.time.dt.year.min()), int(DA.time.dt.year.max())
+        complete = (w_year >= y0) & (w_year <= y1 - 1)  # drop the incomplete 1st and last winter
+        DA_w = DA_w.isel(time=np.flatnonzero(complete)).assign_coords(w_year=('time', w_year[complete]))
+        d_Per['winter_AVG'] = DA_w.groupby('w_year').mean(dim='time').rename(w_year='year')
+
+    d_Out = {}
+    for k, DA_k in d_Per.items():
+        # %% Yearly values per member. .load() once, so the TIFs below don't each recalculate the groupby.
+        DA_Y = timed_Exe(DA_k.load, pre=f' -- Calculating yearly {k} per member...')
+        DA_Y = DA_Y.transpose('year', 'sim', ...).rio.set_spatial_dims(x_dim='x', y_dim='y').rio.write_crs('EPSG:28992')
+
+        # %% Save
+        Pa_Dir_k = Pa_Dir / f'yearly_{k}'
+        sprint(f' -- Saving {DA_Y.sizes["year"]} years x {DA_Y.sizes["sim"]} members to {Pa_Dir_k}')
+        for L in l_Ls:
+            Pa_L = Pa_Dir_k / f'L{L}/years'
+            Pa_L.mkdir(parents=True, exist_ok=True)
+            DA_YL = DA_Y.sel(layer=L)
+            for sim in DA_YL.sim.values:
+                for y in DA_YL.year.values:
+                    Pa_Out = Pa_L / f'GW_HD_L{L}_{y}_{sim}_{k}_{ScN}.tif'
+                    sprint(f'  - {Pa_Out.name} ', end='')
+                    DA_YL.sel(sim=sim, year=y).rio.to_raster(
+                        Pa_Out,
+                        tags={'variable': f'yearly_{k}', 'year': str(y), 'member': str(sim), 'layer': str(L)}
+                        | metadata,
+                    )
+                    sprint('🟢')
+
+        d_Out[k] = DA_Y
+
+    # %% Write metadata and finish
+    with open(Pa_Dir / 'metadata.txt', 'w') as f:
+        f.writelines(f'{k}: {v}\n' for k, v in metadata.items())
+    sprint('🟢🟢🟢')
+    print(Sep)
+    return d_Out
+
+
 def c_HD_Bin_Monthly(
     l_MdlN: list[str] | str,  # 1 MdlN or a list of MdlNs (the members of 1 scenario)
     ScN: str | None = None,  # scenario name used in the Out dir and file names. Defaults to the MdlN.
-    l_Pct: list | tuple = (0.05, 0.10, 0.25, 0.50, 0.75, 0.90, 0.95, 0.99),
+    l_Pct: list | tuple = L_PCT,  # P01-P24, every 5 % from P25 to P75, P76-P99
     l_Ls: list = 'all',  # [1, 3, 5], List of layers to include in the analysis (1-based indexing)
     Pa_Bin: list | str | Path | None = None,
     start_year: str = 'from_INI',
     end_year: str = 'from_INI',  # inclusive
+    skip_years: int = 0,  # drop the first N years of every member (spin-up from the starting heads)
 ):
     """
     Loads Bin OBS Out data and calculates, per calendar month (1-12):
@@ -1127,15 +1251,15 @@ def c_HD_Bin_Monthly(
     sprint('----- c_HD_Bin_Monthly initiated -----', style=green)
     sprint('--- Loading extra packages...', end='', verbose_out=False)
     import rioxarray  # Noqa: F401 # activates the .rio accessor
- 
+
     sprint('🟢')
- 
+
     # %% Basics
     sprint('--- Loading data...')
     l_MdlN = [l_MdlN] if isinstance(l_MdlN, str) else list(l_MdlN)
     M = Mdl_N(l_MdlN[0])  # the 1st member supplies the paths and the grid
     ScN = M.MdlN if ScN is None else ScN
-    start_year = M.SP_1st_DT.year if start_year == 'from_INI' else int(start_year)
+    start_year = (M.SP_1st_DT.year if start_year == 'from_INI' else int(start_year)) + skip_years  # skip spin-up years
     end_year = M.SP_last_DT.year if end_year == 'from_INI' else int(end_year)
     DA, l_Pa_Bin = o_HD_Bin_Multi(
         l_MdlN,
@@ -1168,8 +1292,8 @@ def c_HD_Bin_Monthly(
         N = int(DA_m.sizes['time'] * DA_m.sizes['sim'])
         DA_out = {'AVG': DA_m.mean(dim=('time', 'sim'))}
         DA_q = DA_m.quantile(l_Pct, dim=('time', 'sim'))
-        DA_out |= {f'P{round(q * 100):02d}': DA_q.sel(quantile=q) for q in l_Pct}
- 
+        DA_out |= {_P_label(q): DA_q.sel(quantile=q, drop=True) for q in l_Pct}
+
         for k, DA_k in DA_out.items():
             DA_k = DA_k.rio.set_spatial_dims(x_dim='x', y_dim='y').rio.write_crs('EPSG:28992')
             for L in l_Ls:
@@ -1188,13 +1312,129 @@ def c_HD_Bin_Monthly(
                     | metadata,
                 )
                 sprint('🟢')
- 
+
     # %% Write metadata and finish
     with open(Pa_Dir / 'metadata.txt', 'w') as f:
         f.writelines(f'{k}: {v}\n' for k, v in metadata.items())
     sprint('🟢🟢🟢')
     print(Sep)
     return DA_M
+
+
+def c_HD_Bin_Daily(
+    l_MdlN: list[str] | str,  # 1 MdlN or a list of MdlNs (the members of 1 scenario)
+    ScN: str | None = None,  # scenario name used in the Out dir and file names. Defaults to the MdlN.
+    l_Pct: list | tuple = L_PCT,  # P01-P24, every 5 % from P25 to P75, P76-P99
+    l_Ls: list | tuple | str = (1,),  # layer 1 by default: the output is large (see the size estimate it prints)
+    Pa_Bin: list | str | Path | None = None,
+    start_year: str = 'from_INI',
+    end_year: str = 'from_INI',  # inclusive
+    drop_leap_day: bool = True,  # drop 29 Feb, so every calendar day has the same number of values (365 days)
+    skip_years: int = 0,  # drop the first N years of every member (spin-up from the starting heads)
+):
+    """
+    Daily climatology: per calendar day (1-365), the mean head and the percentiles over all simulated years
+    and members pooled: 3 members x 30 years = 90 values per day.
+
+    drop_leap_day=False keeps 29 Feb as day 60 of a 366-day calendar; that day then only has the leap years.
+
+    Saves 1 TIF per calendar day and statistic: GW_HD_Daily/L<L>/<stat>/GW_HD_L<L>_D<ddd>_<stat>_<ScN>.tif,
+    stat = AVG, P01, ..., P99. With the default percentiles that is 365 x 60 = 21,900 TIFs per layer, so pass a
+    shorter l_Pct if you don't need them all. Each day is calculated and written before the next, so only the values
+    of 1 day have to fit in memory. The number of values behind each day is in the TIF tags ('N values').
+    Returns a pandas Series with that number per calendar day.
+    """
+    sprint('----- c_HD_Bin_Daily initiated -----', style=green)
+    sprint('--- Loading extra packages...', end='', verbose_out=False)
+    import pandas as pd
+    import rioxarray  # Noqa: F401 # activates the .rio accessor
+
+    sprint('🟢')
+
+    # %% Basics
+    sprint('--- Loading data...')
+    l_MdlN = [l_MdlN] if isinstance(l_MdlN, str) else list(l_MdlN)
+    M = Mdl_N(l_MdlN[0])  # the 1st member supplies the paths and the grid
+    ScN = M.MdlN if ScN is None else ScN
+    start_year = (M.SP_1st_DT.year if start_year == 'from_INI' else int(start_year)) + skip_years  # skip spin-up years
+    end_year = M.SP_last_DT.year if end_year == 'from_INI' else int(end_year)
+    DA, l_Pa_Bin = o_HD_Bin_Multi(
+        l_MdlN,
+        Pa_Bin=Pa_Bin,
+        l_Ls=l_Ls if l_Ls == 'all' else list(l_Ls),
+        start_year=start_year,
+        end_year=end_year,
+    )
+    l_Ls = list(DA.layer.values) if l_Ls == 'all' else list(l_Ls)
+    sprint('🟢')
+
+    # %% Time checks and calendar day
+    t = DA.time.to_index()
+    step = pd.Series(t).diff().median()
+    sprint(f' -- Output step: {step}, {DA.sizes["time"]} time steps x {DA.sizes["sim"]} members.')
+    if step != pd.Timedelta(days=1):
+        sprint('  ! The output step is not 1 day: each calendar day then has fewer values than expected.')
+
+    if drop_leap_day:
+        keep = ~((t.month == 2) & (t.day == 29))
+        DA = DA.isel(time=np.flatnonzero(keep))
+        t = t[keep]
+    ref_year, n_days = (2001, 365) if drop_leap_day else (2000, 366)  # a non-leap or a leap calendar
+    doy = (
+        pd.to_datetime(pd.DataFrame({'year': ref_year, 'month': np.asarray(t.month), 'day': np.asarray(t.day)}))
+        .dt.dayofyear.to_numpy()
+    )
+    days = np.arange(1, n_days + 1)
+
+    l_stat = ['AVG'] + [_P_label(q) for q in l_Pct]
+    sprint(f' -- {n_days} days x {len(l_stat)} statistics = {n_days * len(l_stat)} TIFs per layer.')
+
+    # %% Calculate per layer and save
+    Pa_Dir = _ScN_Pa_Dir(M, ScN, 'GW_HD_Daily')
+    Pa_Dir.mkdir(parents=True, exist_ok=True)
+    metadata = {
+        'scenario': str(ScN),
+        'model': ', '.join(l_MdlN),
+        'created from:': ' | '.join(str(p) for p in l_Pa_Bin),
+        'leap day dropped': str(drop_leap_day),
+        'created by': f'c_HD_Bin_Daily(l_MdlN={l_MdlN}, ScN={ScN}, start_year={start_year}, end_year={end_year}, Pa_Bin={Pa_Bin}, l_Pct={l_Pct}, l_Ls={l_Ls}, drop_leap_day={drop_leap_day})',
+    }
+
+    d_N = {}
+    for L in l_Ls:
+        DA_L = DA.sel(layer=L, drop=True)
+        for s in l_stat:
+            (Pa_Dir / f'L{L}/{s}').mkdir(parents=True, exist_ok=True)
+
+        sprint(f' -- L{L}: calculating and writing per day', end='')
+        for d in days:
+            idx = np.flatnonzero(doy == d)
+            DA_d = DA_L.isel(time=idx).load()  # only the values of this day in memory
+            N = int(DA_d.sizes['time'] * DA_d.sizes['sim'])
+            d_N[d] = N
+
+            DA_q = DA_d.quantile(l_Pct, dim=('time', 'sim'))
+            d_out = {'AVG': DA_d.mean(dim=('time', 'sim'))} | {
+                _P_label(q): DA_q.sel(quantile=q, drop=True) for q in l_Pct
+            }
+            for s, DA_s in d_out.items():
+                DA_s.drop_vars('spatial_ref', errors='ignore').rio.set_spatial_dims(x_dim='x', y_dim='y').rio.write_crs(
+                    'EPSG:28992'
+                ).rio.to_raster(
+                    Pa_Dir / f'L{L}/{s}/GW_HD_L{L}_D{d:03d}_{s}_{ScN}.tif',
+                    tags={'variable': s, 'day of year': str(d), 'layer': str(L), 'N values': str(N)} | metadata,
+                )
+            if d % 30 == 0:
+                sprint('.', end='')
+        sprint(' 🟢')
+
+    # %% Write metadata and finish
+    with open(Pa_Dir / 'metadata.txt', 'w') as f:
+        f.writelines(f'{k}: {v}\n' for k, v in metadata.items())
+    sprint('🟢🟢🟢')
+    print(Sep)
+    return pd.Series(d_N, name='N values').rename_axis('day of year')
+
 
 def c_HD_Bin_GXGs(
     l_MdlN: list[str] | str,
@@ -1204,7 +1444,8 @@ def c_HD_Bin_GXGs(
     IDT: str = 'from_INI',
     GVG: bool = False,
     l_Ls: list[int] | str = 'all',
-    Pa_Bin: list | str | Path | None = None, 
+    Pa_Bin: list | str | Path | None = None,
+    skip_years: int = 0,  # drop the first N years of every member (spin-up from the starting heads)
 ):
     """
     Calculate GXGs from an ``HD_OBS_L`` binary and save single-band TIFs.
@@ -1229,7 +1470,7 @@ def c_HD_Bin_GXGs(
     l_MdlN = [l_MdlN] if isinstance(l_MdlN, str) else list(l_MdlN)  
     M = Mdl_N(l_MdlN[0]) 
     ScN = M.MdlN if ScN is None else ScN 
-    start_year = M.SP_1st_DT.year if start_year == 'from_INI' else int(start_year)
+    start_year = (M.SP_1st_DT.year if start_year == 'from_INI' else int(start_year)) + skip_years  # skip spin-up years
     end_year = M.SP_last_DT.year if end_year == 'from_INI' else int(end_year)
     IDT = int(M.INI.IDT) if IDT == 'from_INI' else int(IDT)
 

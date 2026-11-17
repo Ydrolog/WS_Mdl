@@ -40,7 +40,13 @@ def Diff_PoP_Par(
             print(f'🔴 - Missing/unreadable file(s) for:\n{Fi}:\n {e}', end='------------\n')
 
 
-def Diff_PoP_ScN(ScN: str, ScN_B: str, MdlN: str, Param: str = ''):
+def Diff_PoP_ScN(
+    ScN: str,
+    ScN_B: str,
+    MdlN: str,
+    Param: str = '',
+    exclude_dirs: tuple = ('years',),
+):
     """
     Diff (ScN minus ScN_B) between the TIFs in PoP/Out/<ScN>/<Param> and PoP/Out/<ScN_B>/<Param>.
     MdlN only supplies the paths (any member). The Diff is saved next to the ScN files as ..._<ScN>m<ScN_B>.tif.
@@ -50,9 +56,15 @@ def Diff_PoP_ScN(ScN: str, ScN_B: str, MdlN: str, Param: str = ''):
     Pa_A = M.Pa.PoP / 'Out' / ScN / Param
     Pa_B = M.Pa.PoP / 'Out' / ScN_B / Param
 
-    l_Fi = [i for i in Pa_A.rglob('*.tif') if i.name.endswith(f'_{ScN}.tif')]  # excludes earlier Diff files
+    l_Fi = [
+        i
+        for i in Pa_A.rglob('*.tif')
+        if i.name.endswith(f'_{ScN}.tif')  # excludes earlier Diff files
+        and not set(i.relative_to(Pa_A).parts[:-1]) & set(exclude_dirs)
+    ]
     if not l_Fi:
         raise FileNotFoundError(f"🔴 - No .tif files found for '{ScN}' in: {Pa_A}")
+    print(f' -- {len(l_Fi)} TIFs to diff (skipped folders: {", ".join(exclude_dirs) or "none"})')
 
     for Fi in l_Fi:
         Fi_2 = Pa_B / Fi.parent.relative_to(Pa_A) / Fi.name.replace(f'_{ScN}.tif', f'_{ScN_B}.tif')
