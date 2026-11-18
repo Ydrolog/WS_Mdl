@@ -5,13 +5,14 @@ Each VM runs ONE scenario with all its members (the pooled statistics need the b
 The reference scenario is shared via Yoda.
 
 Order of the steps (switch them on/off in STEPS):
-    hd            Pooled statistics per scenario (AVG, GXG, percentiles, monthly) -> PoP/Out/<ScN>/
+    hd            Pooled statistics per scenario (AVG, yearly, GXG, percentiles, monthly, daily) -> PoP/Out/<ScN>/
     download_ref  Download the reference scenario from Yoda (only needed on a future-scenario VM)
     diff          Diff = future scenario minus reference scenario -> next to the future scenario files
     upload        Upload PoP/Out/<ScN> (incl. Diff files) to Yoda
 
 How to use:
-    1. Set LOCAL (ScN -> members), ScN_ref and l_Ls at the top of the script.
+    1. Set LOCAL (ScN -> members), ScN_ref, l_Ls and SKIP_YEARS at the top of the script.
+       Use the SAME SKIP_YEARS on every VM, otherwise the reference and the future scenario are not comparable.
     2. REF VM:
          STEPS: hd=True, upload=True, rest False
     3. Future-scenario VM, first pass (so the result is on Yoda):
@@ -24,7 +25,8 @@ How to use:
 Checks:
     - The members of a scenario must have the same period and be complete (o_HD_Bin_Multi stops otherwise).
     - Scenario names (ScN) must be identical on all VMs, because they are part of the file names.
-    - After download_ref, check that PoP/Out/<ScN_ref> has all subfolders (GW_HD_AVGs, GXG, GW_HD_Pct, GW_HD_Monthly).
+    - After download_ref, check that PoP/Out/<ScN_ref> has all subfolders
+      (GW_HD_AVGs, GW_HD_Yearly, GXG, GW_HD_Pct, GW_HD_Monthly, and GW_HD_Daily if DAILY is on).
     - Not included: WB (water balance), Outlet_TS, p_HD_OBS_TS, QGIS (Up_MM).
 """
 
@@ -37,22 +39,34 @@ sys.modules['primod'] = types.ModuleType('primod')  # temporary stub, remove whe
 
 from WS_Mdl.core.mdl import Mdl_N
 from WS_Mdl.imod.pop.diff_multi import Diff_PoP_ScN
-from WS_Mdl.imod.pop.hd_multi import c_HD_Bin_AVGs, c_HD_Bin_GXGs, c_HD_Bin_Monthly, c_HD_Bin_Pctls
+from WS_Mdl.imod.pop.hd_multi import (
+    c_HD_Bin_AVGs,
+    c_HD_Bin_Daily,
+    c_HD_Bin_GXGs,
+    c_HD_Bin_Monthly,
+    c_HD_Bin_Pctls,
+    c_HD_Bin_Yearly,
+)
 
 # --- Input (change per VM) ---
 LOCAL = {'Hd_2050': ['NBr131', 'NBr132','NBr133']}  # scenario(s) whose runs are on this VM: ScN -> members
 ScN_ref = 'REF_TEST'  # reference scenario. If it is in LOCAL, no diff is made here
-l_Ls = [1]  # layers; 
+l_Ls = [1]  # layers;
 STEPS = {'hd': False, 'download_ref': False, 'diff': True, 'upload': False}
 start_year = end_year = 'from_INI'  # per scenario taken from the first member's INI
+SKIP_YEARS = 0  # first N years of EVERY member left out (spin-up from the starting heads). Same value on all VMs!
+DAILY = False  # daily climatology (c_HD_Bin_Daily)
 
 
 def run_hd(ScN, l_MdlN):
-    kw = dict(ScN=ScN, l_Ls=l_Ls, start_year=start_year, end_year=end_year)
-    c_HD_Bin_AVGs(l_MdlN, yearly=False, **kw)  # yearly=False: year labels of different members are different weather years
+    kw = dict(ScN=ScN, l_Ls=l_Ls, start_year=start_year, end_year=end_year, skip_years=SKIP_YEARS)
+    c_HD_Bin_AVGs(l_MdlN, **kw) 
+    c_HD_Bin_Yearly(l_MdlN, **kw)  
     c_HD_Bin_GXGs(l_MdlN, **kw)
     c_HD_Bin_Pctls(l_MdlN, **kw)
     c_HD_Bin_Monthly(l_MdlN, **kw)
+    if DAILY:
+        c_HD_Bin_Daily(l_MdlN, **kw)
 
 
 if __name__ == '__main__':
