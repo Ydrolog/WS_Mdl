@@ -46,13 +46,15 @@ from WS_Mdl.imod.pop.hd_multi import (
     c_HD_Bin_Monthly,
     c_HD_Bin_Pctls,
     c_HD_Bin_Yearly,
+    c_HD_Yearly_Pctls, 
 )
 
+
 # --- Input (change per VM) ---
-LOCAL = {'Hd_2050': ['NBr131', 'NBr132','NBr133']}  # scenario(s) whose runs are on this VM: ScN -> members
+LOCAL = {'Historic': ['NBr128', 'NBr129','NBr130']}  # scenario(s) whose runs are on this VM: ScN -> members
 ScN_ref = 'REF_TEST'  # reference scenario. If it is in LOCAL, no diff is made here
-l_Ls = [1]  # layers;
-STEPS = {'hd': False, 'download_ref': False, 'diff': True, 'upload': False}
+l_Ls = "all"  # layers;
+STEPS = {'hd': False, 'yearly_pctls': False, 'download_ref': False, 'diff': False, 'upload': True}
 start_year = end_year = 'from_INI'  # per scenario taken from the first member's INI
 SKIP_YEARS = 0  # first N years of EVERY member left out (spin-up from the starting heads). Same value on all VMs!
 DAILY = False  # daily climatology (c_HD_Bin_Daily)
@@ -60,18 +62,17 @@ DAILY = False  # daily climatology (c_HD_Bin_Daily)
 
 def run_hd(ScN, l_MdlN):
     kw = dict(ScN=ScN, l_Ls=l_Ls, start_year=start_year, end_year=end_year, skip_years=SKIP_YEARS)
-    c_HD_Bin_AVGs(l_MdlN, **kw) 
-    c_HD_Bin_Yearly(l_MdlN, **kw)  
-    c_HD_Bin_GXGs(l_MdlN, **kw)
-    c_HD_Bin_Pctls(l_MdlN, **kw)
-    c_HD_Bin_Monthly(l_MdlN, **kw)
-    if DAILY:
-        c_HD_Bin_Daily(l_MdlN, **kw)
+    c_HD_Yearly_Pctls(l_MdlN, **kw)
 
 
 if __name__ == '__main__':
     MdlN_any = next(iter(LOCAL.values()))[0]  # any local member, only supplies paths/alias
     l_FUT = [ScN for ScN in LOCAL if ScN != ScN_ref]
+
+    if STEPS['yearly_pctls']:
+        for ScN in dict.fromkeys([*LOCAL, ScN_ref]):  
+            print(f'===== yearly percentiles: {ScN} =====')
+            c_HD_Yearly_Pctls(ScN, MdlN_any, l_Ls=l_Ls)
 
     if STEPS['hd']:
         for ScN, l_MdlN in LOCAL.items():
