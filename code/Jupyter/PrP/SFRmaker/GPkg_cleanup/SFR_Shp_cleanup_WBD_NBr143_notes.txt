@@ -1,0 +1,50 @@
+Manual handling of outlets in numerical order of their ID in NBr143. 
+
+Abbreviations for classification:
+-|-: really flows out of catchment - no action required.
+<>: reverse
+<>...: reverse several
+--: Ignore (e.g. hard to fix, unsure how to fix, or small problem)
+->->: extend
+Lake: lakes ... don't need to be fixed
+O: Loop: force downstream for one to resolve it
+C: Confluence: Enforce DStr_ID, so that water moves somewhere 
+
+Outlet|	Code/ID	 :	Outcome
+--------------------------
+11163 |  :	-|-
+11247 | OWL38106 :	<>
+11271 | 986, 985, 975 : <>...
+11272 | : -|-
+11290 | : -|-
+11311 | : -|-
+11324 | : -|-
+11331 | : -|-
+11344 | 840 : <>
+11363 | : -|-
+11370 | : -|-
+11371 | OWL22458 : <> + ->->
+11379 | 764 : ->->
+11382 | OWL22387 : <> + ->->
+11396 | OWL20666 : Lake
+11406 | 564 : <> + ->->  *** experiment: let's see if it'll connect to the correct* reach within the same cell *** *: the one that doesn't create an outlet node
+11415 | OWL22421 : Lake
+11422 | OWL20527 : Lake
+11431 | OWL19541 : <>
+11436 |  : -|-
+11441 | OWL17531 : <>
+11451 | OWL30515 : O
+11470 |  : -|-
+11498 | OWL30779, 473 : Reversed flow of 1 and extended it, then enforced DStr_ID for another 
+11521 |  : -- No SW elements to connect it to anywhere close. Not clear from map where it connects to.
+11533 | OWL30925 : ->->
+11541 | 221 : ->-> 
+11553 | OWL22323 : ->->
+11569 | OWL20430 : Lake
+11581 |  : -|-
+11587 | 5799,5795, 5730 : C
+11592 | OWL23625 : <>
+11602 | OWL57622 : Lake
+11610 | OWL30668 : <>
+11611 |  : CATCHMENT OUTLET
+11628 | OWL30667 : <>
