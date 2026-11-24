@@ -15,7 +15,7 @@ from WS_Mdl.core.mdl import Mdl_N
 from WS_Mdl.core.style import Sep, get_verbose, set_verbose, sprint
 from WS_Mdl.imod.sfr.info import SFR_ConnD_to_DF, SFR_PkgD_to_DF
 
-__all__ = ['SFR_to_GPkg']
+__all__ = ['SFR_Par_to_Rst', 'SFR_to_GPkg']
 
 
 def Par_to_Rst(MdlN: str, Par: str | list, CRS: str = CRS, Pa_SFR=None, iMOD5=False, verbose: bool = True):
@@ -101,6 +101,9 @@ def Par_to_Rst(MdlN: str, Par: str | list, CRS: str = CRS, Pa_SFR=None, iMOD5=Fa
     sprint(Sep)
     set_verbose(verbose_init)
     return A if len(l_Par) == 1 else d_A
+
+
+SFR_Par_to_Rst = Par_to_Rst  # Alias for more robust export
 
 
 def SFR_to_GPkg(MdlN: str, CRS: str = CRS, Pa_SFR=None, radius: float = None, iMOD5=False, verbose: bool = True):
