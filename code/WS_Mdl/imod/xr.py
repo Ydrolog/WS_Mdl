@@ -14,7 +14,7 @@ def clip_Mdl_area(
     x_dim: str = 'x',
     y_dim: str = 'y',
     L_dim: str = 'layer',
-    verbose: bool = False,
+    verbose_in: bool = False,
 ) -> xra.DataArray | xra.Dataset:
     """
     Clips an xarray DataArray or Dataset to the model area defined in an INI file, with optional layer subsetting.
@@ -68,7 +68,7 @@ def clip_Mdl_area(
     if y_dim not in xr_data.coords:
         raise ValueError(f"Y dimension '{y_dim}' not found in data coordinates: {list(xr_data.coords.keys())}")
 
-    sprint(f'Clipping xarray data to model area: X=[{Xmin}, {Xmax}], Y=[{Ymin}, {Ymax}]', verbose=verbose)
+    sprint(f'Clipping xarray data to model area: X=[{Xmin}, {Xmax}], Y=[{Ymin}, {Ymax}]', verbose_in=verbose_in)
 
     # Check y-coordinate order and adjust slice accordingly
     y_coords = xr_data.coords[y_dim].values
