@@ -1,5 +1,4 @@
 # %%
-
 import os
 import re
 from concurrent.futures import ThreadPoolExecutor
@@ -10,41 +9,39 @@ from time import perf_counter
 
 import numpy as np
 import rasterio
-from rasterio.windows import Window, from_bounds, transform as window_transform
 import xarray as xr
+from rasterio.windows import Window, from_bounds
+from rasterio.windows import transform as window_transform
 from WS_Mdl.core.mdl import Mdl_N
 
 # %% [markdown]
 # # Define functions
 
+
 # %%
-def _read_asc_grid(file_path, dtype, window=None, nodata_values=(-999.0, -9999.0)):
+def _read_asc_grid(file_path, dtype, window=None):
     # Each worker opens its own dataset. Avoid scanning the large source directory.
     gdal_dtype = 'Float32' if dtype == np.dtype('float32') else 'Float64'
     with rasterio.Env(GDAL_DISABLE_READDIR_ON_OPEN='TRUE', AAIGRID_DATATYPE=gdal_dtype):
         with rasterio.open(file_path) as src:
-            data = src.read(1, window=window, out_dtype=dtype.name, masked=True).filled(np.nan)
+            data = src.read(1, window=window, out_dtype=dtype.name)
             grid = (src.shape, src.transform, src.crs)
-            # Some meteo rasters contain -999 even though their metadata declares
-            # -9999 or NaN as NoData. Apply these known sentinels explicitly too.
-            for value in nodata_values:
-                data[data == value] = np.nan
-            data[~np.isfinite(data)] = np.nan
+            if src.nodata is not None:
+                data[data == src.nodata] = np.nan
     return data, grid
 
 
-def r_asc(file_path, dtype=np.float32, *, nodata_values=(-999.0, -9999.0)):
-    """Read an ASCII raster, masking declared NoData, extra sentinels, and nonfinite values."""
+def r_asc(file_path, dtype=np.float32):
+    """Read an ASCII raster with GDAL, replacing NoData with NaN."""
     dtype = np.dtype(dtype)
     if dtype not in (np.dtype('float32'), np.dtype('float64')):
         raise ValueError('dtype must be float32 or float64.')
-    return _read_asc_grid(file_path, dtype, nodata_values=nodata_values)[0]
+    return _read_asc_grid(file_path, dtype)[0]
 
 
 # %%
 def combine_asc_files(
-    folder_path, file_names, *, aggregate=None, name=None, max_workers=16, dtype=np.float32, bounds=None,
-    nodata_values=(-999.0, -9999.0),
+    folder_path, file_names, *, aggregate=None, name=None, max_workers=16, dtype=np.float32, bounds=None
 ):
     """Read dated ASC files into an xarray DataArray using bounded parallel reads.
 
@@ -52,8 +49,6 @@ def combine_asc_files(
     aggregate=None returns (time, y, x); aggregate='year' returns (year, y, x)
     without keeping daily grids in memory. Annual sums use float64 accumulators,
     skip NoData, and retain NaN where a cell has no valid observations.
-    Declared raster masks, nodata_values (default: -999 and -9999), and
-    nonfinite values are converted to NaN before storage or summation.
     float32 reads match the source meteo precision; use dtype=np.float64 to
     retain all decimal precision in other ASC inputs. max_workers=1 is serial.
     Annual totals cover the supplied dates only; n_files records year coverage.
@@ -99,10 +94,14 @@ def combine_asc_files(
         if bounds[0] >= bounds[2] or bounds[1] >= bounds[3]:
             raise ValueError('bounds must have xmin < xmax and ymin < ymax.')
         requested = from_bounds(*bounds, transform=transform)
-        edges = np.array([
-            requested.col_off, requested.row_off,
-            requested.col_off + requested.width, requested.row_off + requested.height,
-        ])
+        edges = np.array(
+            [
+                requested.col_off,
+                requested.row_off,
+                requested.col_off + requested.width,
+                requested.row_off + requested.height,
+            ]
+        )
         # Snap floating-point noise at cell edges before rounding outwards.
         nearest = np.rint(edges)
         edges = np.where(np.isclose(edges, nearest, rtol=0, atol=1e-8), nearest, edges)
@@ -117,9 +116,7 @@ def combine_asc_files(
         transform = window_transform(window, transform)
     x = transform.c + (np.arange(shape[1]) + 0.5) * transform.a
     y = transform.f + (np.arange(shape[0]) + 0.5) * transform.e
-    years, year_indices, year_counts = np.unique(
-        [date.year for date in dates], return_inverse=True, return_counts=True
-    )
+    years, year_indices, year_counts = np.unique([date.year for date in dates], return_inverse=True, return_counts=True)
     if aggregate == 'year':
         values = np.zeros((len(years), *shape), dtype=np.float64)
         has_data = np.zeros(values.shape, dtype=bool)
@@ -129,7 +126,7 @@ def combine_asc_files(
 
     workers = min(max_workers, os.cpu_count() or 1, len(paths))
     batch_size = 2 * workers
-    read = partial(_read_asc_grid, dtype=dtype, window=window, nodata_values=tuple(nodata_values))
+    read = partial(_read_asc_grid, dtype=dtype, window=window)
     next_report = 10
     started = perf_counter()
     with ThreadPoolExecutor(max_workers=workers) as executor:
@@ -142,7 +139,7 @@ def combine_asc_files(
                     raise ValueError(f'Raster grid differs from the first file: {paths[index]}')
                 if aggregate == 'year':
                     year_index = year_indices[index]
-                    valid = np.isfinite(data)
+                    valid = ~np.isnan(data)
                     np.add(values[year_index], data, out=values[year_index], where=valid)
                     has_data[year_index] |= valid
                 else:
@@ -188,8 +185,8 @@ def combine_asc_files(
 # %%
 M = Mdl_N('NBr150')
 
-Pa_P = M.Pa.In / 'CAP/P/NBr1'
-Pa_PET = M.Pa.In / 'CAP/PET/NBr1'
+Pa_P = M.Pa.In / 'CAP/P/NBr119'
+Pa_PET = M.Pa.In / 'CAP/PET/NBr119'
 MAX_WORKERS = 16  # Benchmarked on these ASC files; lower this for slower disks.
 BOUNDS = (M.Xmin, M.Ymin, M.Xmax, M.Ymax)
 
@@ -209,9 +206,7 @@ l_PET_Fi = sorted(Pa_PET.glob('PET_*.asc'))
 A_P_year = combine_asc_files(Pa_P, l_P_Fi, aggregate='year', name='P', max_workers=MAX_WORKERS, bounds=BOUNDS)
 
 # %%
-A_PET_year = combine_asc_files(
-    Pa_PET, l_PET_Fi, aggregate='year', name='PET', max_workers=MAX_WORKERS, bounds=BOUNDS
-)
+A_PET_year = combine_asc_files(Pa_PET, l_PET_Fi, aggregate='year', name='PET', max_workers=MAX_WORKERS, bounds=BOUNDS)
 
 # %% [markdown]
 # For daily arrays instead, use the following in place of the annual calls:
