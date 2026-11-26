@@ -18,6 +18,7 @@ os.environ["PYTHONUNBUFFERED"] = "1"        # Set Python to unbuffered mode (out
 
 ## Options
 MdlN            =   'NBr151'
+MdlN_B_PoP      =   'NBr152'
 MdlN_MM_B       =   'NBr114'
 
 ## Paths
@@ -40,6 +41,8 @@ Pa_HD_OBS_Dst           =   M.Pa.Sim_In / f'HD_{MdlN}.OBS'
 l_Diff_PoP_Par          =   ['GW_HD_AVGs/L1']
 
 Pa_MSW_area_fix         =   r"g:\code\Jupyter\PoP\compare_Ins\area_svat_NBr61.inp"
+
+Pa_Shp_catchment        =   M.Pa.PoP / r'common\Pgn\Chaamse_beek\catchment_chaamsebeek_ulvenhout.shp'
 
 ## Temp files - for completion validation. To re-run a rule, delete the coresponding temp file.
 Pa_temp                 =   M.Pa.Smk.parent / 'temp'

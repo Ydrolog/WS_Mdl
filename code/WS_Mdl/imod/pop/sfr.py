@@ -11,10 +11,22 @@ from WS_Mdl.core.style import Sep, Sep_2, green, set_verbose, sprint, style_rese
 
 # %% End of default imports
 
-__all__ = ['SFR_CBC_Par_to_TIF', 'SFR_CBC_to_DS', 'c_Stg_AVGs']
+__all__ = [
+    'SFR_Bin_Par_to_TIF',
+    'SFR_Bin_to_DS',
+    'SFR_CBC_Par_to_TIF',
+    'SFR_CBC_to_DS',
+    'c_Stg_AVGs',
+]
 
 
 def c_Stg_Pctl(MdlN: str, Pctls: list = [5, 10, 50, 90, 95]):  # 666 Finish it off and add to Smk procedure
+    """Prepare SFR stage observations for percentile calculations.
+
+    Reads the SFR observation CSV and derives date and month columns. The
+    percentile calculation and raster export are not currently implemented;
+    ``Pctls`` is therefore unused.
+    """
     # %% Prep
     M = Mdl_N(MdlN)
 
@@ -60,8 +72,11 @@ def c_Stg_Pctl(MdlN: str, Pctls: list = [5, 10, 50, 90, 95]):  # 666 Finish it o
 
 def c_Stg_AVGs(MdlN, start_year: str = 'from_INI', end_year: str = 'from_INI'):
     """
-    Calculated Stg and depth AVGs and saves them as TIFs.
-    start/end_year: inclusive
+    Calculate SFR stage and depth averages and save them as GeoTIFFs.
+
+    Seasonal and full-period averages are calculated for the inclusive year
+    range. A ``from_INI`` bound uses the corresponding simulation date in the
+    model INI file.
     """
     sprint(Sep)
     sprint(f'----- SFR stage & depth AVGs - {MdlN} -----\n', style=green)
@@ -173,7 +188,32 @@ def stage_TS(
     extra_verbose=False,
 ):
     """
-    Generates time series plots of SFR stage data from model output.
+    Generate interactive SFR stage time-series plots for selected reaches.
+
+    Loads SFR, river, drain, head, and optional precipitation data, then prompts
+    for reaches or cells and writes an HTML plot for each selection. Optional
+    model-system numbers are prompted for when omitted.
+
+    Parameters
+    ----------
+    MdlN : str
+        Model providing SFR and related groundwater data.
+    MdlN_RIV : str
+        Model providing river-stage and head data.
+    N_system_RIV, N_system_DRN : int, optional
+        One-based river and drain system numbers to plot.
+    min_date, max_date : str, optional
+        Inclusive date limits for the time series.
+    load_HD, load_HD_RIV, load_P : bool
+        Whether to load main-model heads, river-model heads, and precipitation.
+    SFR_Out_Col_prefix : str
+        Prefix for stage columns in the SFR observation CSV.
+    extra_verbose : bool
+        Enable additional progress output.
+
+    Returns
+    -------
+    None
     """
 
     # %% Inputs for testing
@@ -254,6 +294,7 @@ def stage_TS(
     sfr_by_cell = GDF_SFR.set_index(['k', 'i', 'j'], drop=False)
 
     def _first_sfr_row(row):
+        """Return the first row when a cell lookup matches multiple reaches."""
         return row.iloc[0] if isinstance(row, pd.DataFrame) else row
 
     sprint('🟢', print_time=True, verbose_in=True)
@@ -681,7 +722,11 @@ def _read_SFR_CBC_timestep(
     downstream_pair_codes=None,
     pair_stride=None,
 ):  # vibe-coded
-    """Read one SFR budget record and aggregate its reaches onto the model grid."""
+    """Read one IMETH=6 SFR budget record and aggregate its values by cell.
+
+    When downstream connection codes are provided, retain only those pairs and
+    reverse their sign before aggregation.
+    """
     from imod.mf6.out.cbc import read_imeth6_budgets
 
     table = read_imeth6_budgets(Pa_CBC, header.nlist, dtype, header.pos)
@@ -704,6 +749,22 @@ def _read_SFR_CBC_timestep(
     return out.reshape(shape)
 
 
+def _read_SFR_Bin_timestep(Pa_Bin, row, n_time, n_obs, value_dtype, data_offset, cell_indices, shape):
+    """Read one observation record and aggregate its values onto the model grid."""
+    data = np.memmap(
+        Pa_Bin,
+        dtype=value_dtype,
+        mode='r',
+        offset=data_offset,
+        shape=(n_time, n_obs + 1),
+    )
+    values = data[row, 1:]
+    out = np.full(np.prod(shape), np.nan, dtype=np.float64)
+    out[np.unique(cell_indices)] = 0.0
+    np.add.at(out, cell_indices, values)
+    return out.reshape(shape)
+
+
 def SFR_CBC_to_DS(MdlN: str, Pa_CBC: str = None) -> xra.Dataset:
     """
     Lazily read all SFR CBC parameters into a model-grid Dataset.
@@ -711,6 +772,18 @@ def SFR_CBC_to_DS(MdlN: str, Pa_CBC: str = None) -> xra.Dataset:
     Values are summed when multiple reaches or connections occur in one cell.
     For ``flow-ja-face``, each connection is assigned to its source reach cell.
     CBC elapsed times are converted to dates relative to the model start date.
+
+    Parameters
+    ----------
+    MdlN : str
+        Model whose SFR package data and grid define the output.
+    Pa_CBC : str or path-like, optional
+        CBC file to read. Defaults to the model's ``<MdlN>.SFR6.cbc`` output.
+
+    Returns
+    -------
+    xarray.Dataset
+        Lazily loaded SFR budget variables on the model grid.
     """
     import dask.array as dsa
     from dask import delayed
@@ -812,16 +885,151 @@ def SFR_CBC_to_DS(MdlN: str, Pa_CBC: str = None) -> xra.Dataset:
     ).rio.write_crs('EPSG:28992')
 
 
-def SFR_CBC_Par_to_TIF(MdlN, Par='all'):
+def SFR_Bin_to_DS(MdlN: str) -> xra.Dataset:
+    """
+    Lazily read SFR continuous binary observation files into a model-grid Dataset.
 
-    # %% Read CBC
-    sprint(Sep)
-    sprint('----- Exporting SFR CBC parameters to TIFs -----', style=green)
-    sprint(f'--- Reading {MdlN} CBC DS ... ', end='', set_time=True, verbose_out=False)
+    Each ``<parameter>_<model>.SFR6.bin`` file becomes one data variable. Values
+    from multiple observations in one model cell are summed.
+
+    Parameters
+    ----------
+    MdlN : str
+        Model whose SFR observation files and grid define the output.
+
+    Returns
+    -------
+    xarray.Dataset
+        Lazily loaded observation variables on the model grid, with elapsed
+        times converted to dates from the model start date.
+    """
+    import dask.array as dsa
+    from dask import delayed
+
     M = Mdl_N(MdlN)
+    Pa_Bins = sorted(M.Pa.Sim_Out.glob(f'*_{M.MdlN}.SFR6.bin'))
+    if not Pa_Bins:
+        raise FileNotFoundError(f'No SFR binary observation files found in {M.Pa.Sim_Out}.')
 
-    DS = SFR_CBC_to_DS(MdlN)
+    shape = (M.N_L, M.N_R, M.N_C)
+    suffix = f'_{M.MdlN}.SFR6.bin'
+    data_vars = {}
+    time_values = None
 
+    for Pa_Bin in Pa_Bins:
+        with Pa_Bin.open('rb') as f:
+            descriptor = f.read(100).decode('ascii', errors='strict').strip().lower()
+            descriptor_parts = descriptor.split()
+            if len(descriptor_parts) != 3 or descriptor_parts[0] != 'cont':
+                raise ValueError(f'{Pa_Bin} is not an MF6 continuous binary observation file.')
+
+            precision, name_width_text = descriptor_parts[1:]
+            if precision == 'double':
+                value_dtype = np.dtype('<f8')
+            elif precision == 'single':
+                value_dtype = np.dtype('<f4')
+            else:
+                raise ValueError(f'Unsupported precision {precision!r} in {Pa_Bin}.')
+
+            name_width = int(name_width_text)
+            if name_width <= 0:
+                raise ValueError(f'Invalid observation-name width {name_width} in {Pa_Bin}.')
+
+            n_obs_bytes = f.read(4)
+            if len(n_obs_bytes) != 4:
+                raise ValueError(f'{Pa_Bin} has an incomplete binary observation header.')
+            n_obs = int(np.frombuffer(n_obs_bytes, dtype='<i4', count=1)[0])
+            if n_obs <= 0:
+                raise ValueError(f'{Pa_Bin} contains no observations.')
+
+            raw_names = f.read(n_obs * name_width)
+            if len(raw_names) != n_obs * name_width:
+                raise ValueError(f'{Pa_Bin} has an incomplete binary observation-name table.')
+            obs_names = [
+                name.decode('ascii').strip() for name in np.frombuffer(raw_names, dtype=f'S{name_width}', count=n_obs)
+            ]
+            data_offset = 104 + n_obs * name_width
+
+        lrc = pd.Series(obs_names).str.extract(r'^L(\d+)_R(\d+)_C(\d+)$')
+        if lrc.isna().to_numpy().any():
+            invalid_names = [name for name, valid in zip(obs_names, lrc.notna().all(axis=1)) if not valid]
+            raise ValueError(f'{Pa_Bin} contains observation names that are not SFR cell names: {invalid_names[:5]}.')
+        lrc = lrc.astype(np.int64)
+        layer = lrc[0].to_numpy()
+        row = lrc[1].to_numpy()
+        column = lrc[2].to_numpy()
+        if (
+            (layer < 1).any()
+            or (layer > M.N_L).any()
+            or (row < 1).any()
+            or (row > M.N_R).any()
+            or (column < 1).any()
+            or (column > M.N_C).any()
+        ):
+            raise ValueError(f'{Pa_Bin} contains SFR observation cells outside the model grid.')
+        cell_indices = (layer - 1) * M.N_R * M.N_C + (row - 1) * M.N_C + column - 1
+
+        row_size = (n_obs + 1) * value_dtype.itemsize
+        payload_size = Pa_Bin.stat().st_size - data_offset
+        if payload_size < 0 or payload_size % row_size:
+            raise ValueError(f'{Pa_Bin} has an incomplete binary observation payload.')
+        n_time = payload_size // row_size
+        if n_time == 0:
+            raise ValueError(f'{Pa_Bin} contains no binary observation records.')
+
+        data = np.memmap(
+            Pa_Bin,
+            dtype=value_dtype,
+            mode='r',
+            offset=data_offset,
+            shape=(n_time, n_obs + 1),
+        )
+        Par_time = np.asarray(data[:, 0]).copy()
+        if time_values is None:
+            time_values = Par_time
+        elif not np.array_equal(time_values, Par_time):
+            raise ValueError(f'Time coordinates differ between SFR binary file {Pa_Bin} and other parameters.')
+
+        Par = Pa_Bin.name[: -len(suffix)].lower()
+        data_vars[f'{Par}_sfr'] = (
+            ('time', 'layer', 'y', 'x'),
+            dsa.stack(
+                [
+                    dsa.from_delayed(
+                        delayed(_read_SFR_Bin_timestep)(
+                            str(Pa_Bin), i, n_time, n_obs, value_dtype, data_offset, cell_indices, shape
+                        ),
+                        shape=shape,
+                        dtype=np.float64,
+                    )
+                    for i in range(n_time)
+                ]
+            ),
+        )
+
+    time = M.SP_1st_DT + pd.to_timedelta(time_values - 1, unit='D')
+    return xra.Dataset(
+        data_vars,
+        coords={
+            'time': time,
+            'layer': np.arange(1, M.N_L + 1),
+            'y': M.Ys,
+            'x': M.Xs,
+        },
+        attrs={
+            'source': '; '.join(str(Pa_Bin) for Pa_Bin in Pa_Bins),
+            'aggregation': 'sum per model cell from SFR continuous binary observations',
+        },
+    ).rio.write_crs('EPSG:28992')
+
+
+def _SFR_DS_Par_to_TIF(MdlN, DS, Par, source):
+    """Write selected SFR dataset variables as seasonal and full-period GeoTIFFs.
+
+    ``Par`` may be ``'all'``, one variable name, or an iterable of variable
+    names. ``source`` identifies the input format in progress messages.
+    """
+    M = Mdl_N(MdlN)
     if isinstance(Par, str):
         if Par.lower() == 'all':
             l_Par = list(DS.data_vars)
@@ -841,8 +1049,7 @@ def SFR_CBC_Par_to_TIF(MdlN, Par='all'):
     winter = ~summer
     sprint('🟢', print_time=True, verbose_in=True)
 
-    # %%
-    sprint('--- Exporting SFR CBC parameters to TIFs ... ', set_time2=True)
+    sprint(f'--- Exporting SFR {source} parameters to TIFs ... ', set_time2=True)
     for V in DS.data_vars:
         if (
             DS[V].isel(time=0, layer=0).min().values != DS[V].isel(time=0, layer=0).max().values
@@ -862,3 +1069,29 @@ def SFR_CBC_Par_to_TIF(MdlN, Par='all'):
 
     sprint('--- 🟢🟢🟢', print_time2=True)
     sprint(Sep)
+
+
+def SFR_CBC_Par_to_TIF(MdlN, Par='all'):
+    """Export selected SFR parameters from a CBC file to GeoTIFF averages.
+
+    ``Par`` may be ``'all'``, one dataset variable name, or an iterable of
+    variable names.
+    """
+    sprint(Sep)
+    sprint('----- Exporting SFR CBC parameters to TIFs -----', style=green)
+    sprint(f'--- Reading {MdlN} CBC DS ... ', end='', set_time=True, verbose_out=False)
+    DS = SFR_CBC_to_DS(MdlN)
+    _SFR_DS_Par_to_TIF(MdlN, DS, Par, 'CBC')
+
+
+def SFR_Bin_Par_to_TIF(MdlN, Par='all'):
+    """Export selected SFR parameters from binary observation files to GeoTIFFs.
+
+    ``Par`` may be ``'all'``, one dataset variable name, or an iterable of
+    variable names.
+    """
+    sprint(Sep)
+    sprint('----- Exporting SFR binary parameters to TIFs -----', style=green)
+    sprint(f'--- Reading {MdlN} SFR binary DS ... ', end='', set_time=True, verbose_out=False)
+    DS = SFR_Bin_to_DS(MdlN)
+    _SFR_DS_Par_to_TIF(MdlN, DS, Par, 'binary')
