@@ -75,7 +75,7 @@ log_no_LST_Out          =   Pa_temp / f"log_no_LST_Out_{MdlN}"
 log_add_SFR_OBS         =   Pa_temp / f"Log_add_SFR_OBS_all_reaches_{MdlN}"
 log_Sim                 =   Pa_temp / f"Log_Sim_{MdlN}"
 log_PRJ_to_TIF          =   Pa_temp / f"Log_PRJ_to_TIF_{MdlN}"
-log_SFR_CBC             =   Pa_temp / f"Log_SFR_CBC_{MdlN}"
+log_SFR_Bin             =   Pa_temp / f"Log_SFR_Bin_{MdlN}"
 log_SFR_Stg             =   Pa_temp / f"Log_SFR_Stg_{MdlN}"
 log_HD_AVGs             =   Pa_temp / f"Log_HD_AVGs_{MdlN}"
 log_GXG                 =   Pa_temp / f"Log_GXG_{MdlN}"
@@ -229,14 +229,14 @@ rule p_SFR_In:
         Par_to_Rst(MdlN, l_SFR_Par_to_Rst)
         SFR_to_GPkg(MdlN)
 
-rule p_SFR_CBC:
+rule p_SFR_Bin:
     input:
         Pa_p_SFR_In
     output:
-        touch(log_SFR_CBC)
+        touch(log_SFR_Bin)
     run:
-        from WS_Mdl.imod.pop.sfr import SFR_CBC_Par_to_TIF
-        SFR_CBC_Par_to_TIF(MdlN)
+        from WS_Mdl.imod.pop.sfr import SFR_Bin_Par_to_TIF
+        SFR_Bin_Par_to_TIF(MdlN)
 
 rule p_SFR_Stg:
     input:
@@ -318,7 +318,7 @@ rule p_HD_Pctls:
 rule Diff_PoP_Par:
     input:
         log_SFR_Stg,
-        log_SFR_CBC,
+        log_SFR_Bin,
         log_HD_AVGs
     output:
         touch(log_Diff)
