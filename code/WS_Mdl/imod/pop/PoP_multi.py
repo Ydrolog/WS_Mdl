@@ -51,10 +51,10 @@ from WS_Mdl.imod.pop.hd_multi import (
 
 
 # --- Input (change per VM) ---
-LOCAL = {'Historic': ['NBr128', 'NBr129','NBr130']}  # scenario(s) whose runs are on this VM: ScN -> members
-ScN_ref = 'REF_TEST'  # reference scenario. If it is in LOCAL, no diff is made here
+LOCAL = {'Hd_2050': ['NBr131', 'NBr132','NBr133']}  # scenario(s) whose runs are on this VM: ScN -> members
+ScN_ref = 'Historic'  # reference scenario. If it is in LOCAL, no diff is made here
 l_Ls = "all"  # layers;
-STEPS = {'hd': False, 'yearly_pctls': False, 'download_ref': False, 'diff': False, 'upload': True}
+STEPS = {'hd': False, 'yearly_pctls': False, 'download_ref': True, 'diff': True, 'upload': True}
 start_year = end_year = 'from_INI'  # per scenario taken from the first member's INI
 SKIP_YEARS = 0  # first N years of EVERY member left out (spin-up from the starting heads). Same value on all VMs!
 DAILY = False  # daily climatology (c_HD_Bin_Daily)

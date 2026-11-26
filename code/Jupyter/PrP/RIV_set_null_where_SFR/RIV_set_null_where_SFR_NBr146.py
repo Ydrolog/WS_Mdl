@@ -19,10 +19,11 @@ Pa_SFR = r'G:\models\NBr\PoP\In\SFR\NBr143\SFR_rtp_NBr143.tif'
 
 # %% Loop
 for Pa_IDF in [Pa_IDF_detail, Pa_IDF_main_RIV, Pa_IDF_main_DRN]:
-    Pa_Out = Path(rf'g:\models\NBr\In\RIV\{MdlN}').with_name(f'{Pa_IDF.stem.replace("NBr1", MdlN)}.idf')
+    Pa_Out = Path(rf'g:\models\NBr\In\RIV\{MdlN}') / (f'{Path(Pa_IDF).stem.replace("NBr1", MdlN)}.idf')
+    print(Pa_Out)
     # 2. Load IDF and boundary
     DA_init = imod.idf.open(Pa_IDF)
-    clip_Mdl_area(DA_init, MdlN).plot()
+    # clip_Mdl_area(DA_init, MdlN).plot()
 
     # read polygon
     SFR = rxr.open_rasterio(Pa_SFR)
@@ -30,7 +31,7 @@ for Pa_IDF in [Pa_IDF_detail, Pa_IDF_main_RIV, Pa_IDF_main_DRN]:
 
     # apply mask → inside polygon becomes NaN
     DA = DA_init.where(SFR_full.isnull(), other=np.nan)
-    clip_Mdl_area(DA, MdlN).plot()
+    # clip_Mdl_area(DA, MdlN).plot()
 
     # # %% zoom in to check
     # clip_Mdl_area(DA_init, MdlN).isel(x=slice(120, 130), y=slice(120, 130)).plot()

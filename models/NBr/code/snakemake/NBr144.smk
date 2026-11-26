@@ -18,6 +18,7 @@ os.environ["PYTHONUNBUFFERED"] = "1"        # Set Python to unbuffered mode (out
 
 ## Options
 MdlN            =   'NBr144'
+MdlN_B_PoP      =   'NBr145'
 MdlN_SFR_GPkg   =   'NBr96'
 MdlN_MM_B       =   'NBr114'
 
@@ -363,7 +364,7 @@ rule WB:
         touch(log_WB)
     run:
         from WS_Mdl.imod.pop.wb import Diff_to_xlsx
-        Diff_to_xlsx(MdlN, M.B)
+        Diff_to_xlsx(MdlN, MdlN_B_PoP)
 
 rule Upl: # Uploads the PoP Out files to iBridges. This is the final step of the workflow.
     input:

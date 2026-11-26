@@ -4,6 +4,7 @@ This guide explains how to run a simulation when making use of a VM on the SURF 
 1.	Pull the most recent version of the Git repository on main
 •	In the terminal, change directory  cd G: 
 •	git switch main (to make sure you are in your main branch)
+•   git status (to check whether there are potential conflicts)
 •	git pull
 Note: some files that are needed during the PrP are to large for Git and need to be downloaded from YoDa (e.g. the CHDs)
 

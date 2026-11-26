@@ -1,0 +1,43 @@
+--- 31 points, first 10 years:
+                 ID  L   R   C          name
+   L1_R57_C64_well1  1  57  64    HD_1_57_64
+   L1_R13_C12_well2  1  13  12    HD_1_13_12
+  L1_R38_C118_well3  1  38 118   HD_1_38_118
+ L1_R149_C214_well5  1 149 214  HD_1_149_214
+ L1_R108_C109_well6  1 108 109  HD_1_108_109
+  L1_R71_C113_well7  1  71 113   HD_1_71_113
+   L1_R93_C51_well8  1  93  51    HD_1_93_51
+  L1_R149_C86_well9  1 149  86   HD_1_149_86
+ L1_R62_C173_well10  1  62 173   HD_1_62_173
+  L1_R32_C42_well11  1  32  42    HD_1_32_42
+ L1_R118_C79_well12  1 118  79   HD_1_118_79
+ L1_R103_C83_well13  1 103  83   HD_1_103_83
+   L3_R57_C64_well1  3  57  64    HD_3_57_64
+  L3_R38_C118_well3  3  38 118   HD_3_38_118
+ L3_R149_C214_well5  3 149 214  HD_3_149_214
+   L7_R57_C64_well1  7  57  64    HD_7_57_64
+   L7_R13_C12_well2  7  13  12    HD_7_13_12
+  L7_R38_C118_well3  7  38 118   HD_7_38_118
+ L7_R149_C214_well5  7 149 214  HD_7_149_214
+  L13_R57_C64_well1 13  57  64   HD_13_57_64
+  L13_R13_C12_well2 13  13  12   HD_13_13_12
+ L13_R38_C118_well3 13  38 118  HD_13_38_118
+L13_R149_C214_well5 13 149 214 HD_13_149_214
+  L23_R57_C64_well1 23  57  64   HD_23_57_64
+  L23_R13_C12_well2 23  13  12   HD_23_13_12
+ L23_R38_C118_well3 23  38 118  HD_23_38_118
+L23_R149_C214_well5 23 149 214 HD_23_149_214
+  L37_R57_C64_well1 37  57  64   HD_37_57_64
+  L37_R13_C12_well2 37  13  12   HD_37_13_12
+ L37_R38_C118_well3 37  38 118  HD_37_38_118
+L37_R149_C214_well5 37 149 214 HD_37_149_214
+--- Hd_2050 NBr131: E:\models\NBr\Sim\NBr131\modflow6\Out\HD_OBS_L.bin
+    949,094 observations, 10,958 time steps, <f8
+    read 2036-01-01 - 2045-12-31 (3,653 days)
+--- Hd_2050 NBr132: E:\models\NBr\Sim\NBr132\modflow6\Out\HD_OBS_L.bin
+    949,094 observations, 10,958 time steps, <f8
+    read 2036-01-01 - 2045-12-31 (3,653 days)
+--- Hd_2050 NBr133: E:\models\NBr\Sim\NBr133\modflow6\Out\HD_OBS_L.bin
+    949,094 observations, 10,958 time steps, <f8
+    read 2036-01-01 - 2045-12-31 (3,653 days)
+🟢 Saved to G:\models\NBr\PoP\Out\SpinUp\Hd_2050
