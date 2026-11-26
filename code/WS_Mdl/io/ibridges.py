@@ -287,28 +287,31 @@ def Upl_Scn_Out(l_ScN: list[str], MdlN: str, l_extra: list[str] | None = None):
     sprint(Sep)
 
 
-def Dl_Sim_Out(MdlN):
+def Dl_Sim_Out(MdlN: str | list[str]):
     """
     Downloads PoPed Out and Smk related files (log, temp files, DAG) for a given MdlN.
     """
 
-    sprint(Sep)
-    sprint(f'--- Dl_MdlN_PoP_Out({MdlN}) ... ', style=green)
+    if isinstance(MdlN, str):
+        MdlN = [MdlN]
 
-    S = iB_session()
-    M = Mdl_N(MdlN)
+    for i in MdlN:
+        sprint(Sep)
+        sprint(f'--- Dl_MdlN_PoP_Out({i}) ... ', style=green)
 
-    # PoP files
-    sprint(' -- Downloading PoP Out files ...', set_time=True)
-    Dl(f'models/{M.alias}/PoP/Out/{MdlN}', S, overwrite=True)
-    Dl(f'models/{M.alias}/PoP/In', S, overwrite=True)
-    sprint(' -- 🟢', print_time=True)
+        S = iB_session()
+        M = Mdl_N(i)
 
-    # Smk files
-    sprint(' -- Downloading Smk files ...', set_time=True)
-    Dl(f'models/{M.alias}/code/snakemake/log', S, overwrite=True)
-    Dl(f'models/{M.alias}/code/snakemake/DAG', S, overwrite=True)
-    Dl(f'models/{M.alias}/code/snakemake/temp', S, overwrite=True)
-    sprint(' -- 🟢', print_time=True)
+        # PoP files
+        sprint(' -- Downloading PoP Out files ...', set_time=True)
+        Dl(f'models/{M.alias}/PoP/Out/{i}', S, overwrite=True)
+        Dl(f'models/{M.alias}/PoP/In', S, overwrite=True)
+        sprint(' -- 🟢', print_time=True)
 
-    sprint(Sep)
+        # Smk files
+        sprint(' -- Downloading Smk files ...', set_time=True)
+        Dl(f'models/{M.alias}/code/snakemake/log', S, overwrite=True)
+        Dl(f'models/{M.alias}/code/snakemake/DAG', S, overwrite=True)
+        Dl(f'models/{M.alias}/code/snakemake/temp', S, overwrite=True)
+        sprint(' -- 🟢', print_time=True)
+        sprint(Sep)

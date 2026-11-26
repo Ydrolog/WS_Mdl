@@ -18,6 +18,7 @@ os.environ["PYTHONUNBUFFERED"] = "1"        # Set Python to unbuffered mode (out
 
 ## Options
 MdlN            =   'NBr150'
+MdlN_B_PoP      =   'NBr151'
 MdlN_SFR_GPkg   =   'NBr96'
 MdlN_MM_B       =   'NBr151'
 
@@ -295,7 +296,7 @@ rule p_HD_OBS_TS:
         touch(M.Pa.PoP_Out_MdlN / f'GW_HD_OBS/metadata.txt')
     run:
         from WS_Mdl.imod.pop.hd import p_HD_OBS_TS
-        p_HD_OBS_TS(MdlN)
+        p_HD_OBS_TS(MdlN, MdlN_B_PoP)
         Up_log(MdlN, {'p_HD_OBS_TS' :   1})
 
 rule GXG:
@@ -333,7 +334,7 @@ rule Diff_PoP_Par:
     run:
         from WS_Mdl.imod.pop.diff import Diff_PoP_Par
         for P in l_Diff_PoP_Par:
-            Diff_PoP_Par(MdlN, M.B, P)
+            Diff_PoP_Par(MdlN, MdlN_B_PoP, P)
         Up_log(MdlN, {'Diff_PoP_Par' :   ", ".join(l_Diff_PoP_Par)})
 
 rule Outlet_TS:

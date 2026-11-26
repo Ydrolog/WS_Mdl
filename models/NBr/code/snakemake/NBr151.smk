@@ -181,7 +181,7 @@ rule p_HD_OBS_TS:
         touch(M.Pa.PoP_Out_MdlN / f'GW_HD_OBS/metadata.txt')
     run:
         from WS_Mdl.imod.pop.hd import p_HD_OBS_TS
-        p_HD_OBS_TS(MdlN)
+        p_HD_OBS_TS(MdlN, MdlN_B_PoP)
         Up_log(MdlN, {'p_HD_OBS_TS' :   1})
 
 rule GXG:
@@ -243,7 +243,7 @@ rule WB:
         touch(log_WB)
     run:
         from WS_Mdl.imod.pop.wb import Diff_to_xlsx
-        Diff_to_xlsx(MdlN, M.B)
+        Diff_to_xlsx(MdlN, MdlN_B_PoP)
 
 rule Upl: # Uploads the PoP Out files to iBridges. This is the final step of the workflow.
     input:
