@@ -63,7 +63,7 @@ MdlN_RIV_Vs             =   'NBr145'
 Pa_RIV_Stg_Vs_winter    =   Path(r'G:/models/NBr/In/RIV/NBr49/RIV_Stg_main_winter_NBr49.IDF')
 Pa_RIV_Stg_Vs_summer    =   Path(r'G:/models/NBr/In/RIV/NBr49/RIV_Stg_main_summer_NBr49.IDF')
 
-l_Diff_PoP_Par          =   ['SFR/Stg', 'SFR/from-mvr', 'SFR/downstream-flow', 'SFR/gwf', 'GW_HD_AVGs/L1']
+l_Diff_PoP_Par          =   ['SFR/stage', 'SFR/from-mvr', 'SFR/downstream-flow', 'SFR/sfr', 'GW_HD_AVGs/L1']
 
 Pa_MSW_area_fix         =   r"g:\code\Jupyter\PoP\compare_Ins\area_svat_NBr61.inp"
 
