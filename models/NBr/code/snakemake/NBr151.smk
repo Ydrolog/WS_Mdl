@@ -121,8 +121,16 @@ rule no_LST_Out:
     output:
         touch(log_no_LST_Out)
     run:
-        with open(next(M.Pa.Sim_In.glob('*.oc')), 'a') as f:
-            f.write('\nBEGIN PERIOD 1\nEND PERIOD\n')
+        with open(next(M.Pa.Sim_In.glob('*.oc')), 'r') as f1:
+            OC = f1.read()
+            OC1 = OC.lower().split('end options')[0] + 'end options'
+            OC2 = OC.lower().split('end options')[1]
+            f1.close()
+        with open(next(M.Pa.Sim_In.glob('*.oc')), 'w') as f2:
+            f2.write(OC1)
+            f2.write('\nBEGIN PERIOD 1\nEND PERIOD\n')
+            f2.write(OC2)
+            f2.close()
 
 ## -- Sim ---
 rule Sim: # Runs the simulation via BAT file.
