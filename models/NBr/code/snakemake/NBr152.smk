@@ -19,7 +19,7 @@ os.environ["PYTHONUNBUFFERED"] = "1"        # Set Python to unbuffered mode (out
 ## Options
 MdlN            =   'NBr152'
 MdlN_SFR_GPkg   =   'NBr143'
-MdlN_MM_B       =   'NBr114'
+MdlN_MM_B       =   'NBr151'
 
 ## Paths
 M                   =   Mdl_N(MdlN)
@@ -63,7 +63,7 @@ MdlN_RIV_Vs             =   'NBr145'
 Pa_RIV_Stg_Vs_winter    =   Path(r'G:/models/NBr/In/RIV/NBr49/RIV_Stg_main_winter_NBr49.IDF')
 Pa_RIV_Stg_Vs_summer    =   Path(r'G:/models/NBr/In/RIV/NBr49/RIV_Stg_main_summer_NBr49.IDF')
 
-l_Diff_PoP_Par          =   ['SFR/Stg', 'SFR/from-mvr', 'SFR/downstream-flow', 'SFR/gwf', 'GW_HD_AVGs/L1']
+l_Diff_PoP_Par          =   ['SFR/stage', 'SFR/from-mvr', 'SFR/downstream-flow', 'SFR/sfr', 'GW_HD_AVGs/L1']
 
 Pa_MSW_area_fix         =   r"g:\code\Jupyter\PoP\compare_Ins\area_svat_NBr61.inp"
 
@@ -133,7 +133,7 @@ rule Mdl_Prep: # Prepares Sim Ins (from Ins) via BAT file.
                                 Pa_OBS_In           = Pa_SFR_OBS_In,
                                 connect_Pkgs        = SFR_connect_Pkgs,
                                 Pa_Shp_connect_Pkgs = Pa_Shp_catchment,
-                                OBS_all             = SFR_OBS_all,
+                                OBS_all             = [],
                                 options             = SFR_options,
                                 one_reach_per_cell  = SFR_one_reach_per_cell,
                                 # Stg_Init            = Pa_SFR_Stg_Init
