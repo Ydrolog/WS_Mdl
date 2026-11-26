@@ -134,7 +134,7 @@ rule Mdl_Prep: # Prepares Sim Ins (from Ins) via BAT file.
                                 Pa_OBS_In           = Pa_SFR_OBS_In,
                                 connect_Pkgs        = SFR_connect_Pkgs,
                                 Pa_Shp_connect_Pkgs = Pa_Shp_catchment,
-                                OBS_all             = SFR_OBS_all,
+                                OBS_all             = [],
                                 options             = SFR_options,
                                 one_reach_per_cell  = SFR_one_reach_per_cell,
                                 # Stg_Init            = Pa_SFR_Stg_Init
@@ -288,7 +288,7 @@ rule p_HD_OBS_TS:
         touch(M.Pa.PoP_Out_MdlN / f'GW_HD_OBS/metadata.txt')
     run:
         from WS_Mdl.imod.pop.hd import p_HD_OBS_TS
-        p_HD_OBS_TS(MdlN)
+        p_HD_OBS_TS(MdlN, MdlN_B_PoP)
         Up_log(MdlN, {'p_HD_OBS_TS' :   1})
 
 rule GXG:
@@ -326,7 +326,7 @@ rule Diff_PoP_Par:
     run:
         from WS_Mdl.imod.pop.diff import Diff_PoP_Par
         for P in l_Diff_PoP_Par:
-            Diff_PoP_Par(MdlN, M.B, P)
+            Diff_PoP_Par(MdlN, MdlN_B_PoP, P)
         Up_log(MdlN, {'Diff_PoP_Par' :   ", ".join(l_Diff_PoP_Par)})
 
 rule Outlet_TS:
