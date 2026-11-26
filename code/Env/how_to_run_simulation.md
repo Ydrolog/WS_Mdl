@@ -50,4 +50,5 @@ Note: some files that are needed during the PrP are to large for Git and need to
 15.	Start the simulation on the VM:
 •	In Double Commander, navigate to G: and press F9 to open the (configured) PowerShell terminal
 •	Run: WS_Mdl RunMng freeze_env=off
+•	To run only selected queued Sims: WS_Mdl RunMng Sims=NBr144,NBr145 freeze_env=off
 

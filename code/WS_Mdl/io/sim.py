@@ -111,7 +111,14 @@ def _RunSim(args):
         return (Se_Ln['MdlN'], False, str(e))
 
 
-def RunMng(cores=None, DAG: bool = True, Cct_Sims=None, no_temp: bool = True, freeze_env: str = 'before'):
+def RunMng(
+    cores=None,
+    DAG: bool = True,
+    Cct_Sims=None,
+    no_temp: bool = True,
+    freeze_env: str = 'before',
+    Sims: list[str] | str | None = None,
+):
     """
     Read the RunLog, and for each queued model, run the corresponding Snakemake file.
 
@@ -120,6 +127,7 @@ def RunMng(cores=None, DAG: bool = True, Cct_Sims=None, no_temp: bool = True, fr
         DAG: Whether to generate a DAG visualization
         Cct_Sims: Number of models to run simultaneously (defaults to number of available cores)
         freeze_env: When to freeze env/code snapshot in git. One of: 'before', 'after', 'off'.
+        Sims: Optional list of model names to run, or comma-separated names when called from the CLI.
     """
     os.chdir(Pa_WS)
 
@@ -133,7 +141,7 @@ def RunMng(cores=None, DAG: bool = True, Cct_Sims=None, no_temp: bool = True, fr
         )  # Leave 2 cores free for other tasks. If there aren't enough cores available, set to 1.
 
     sprint(
-        f'{Sep}RunMng initiated on {fg("cyan")}{str(DT.now()).split(".")[0]}{attr("reset")}. All Sims that are queued in the RunLog will be executed.\n'
+        f'{Sep}RunMng initiated on {fg("cyan")}{str(DT.now()).split(".")[0]}{attr("reset")}. Queued Sims selected for this run will be executed.\n'
     )
 
     sprint('Reading RunLog ...', end='')
@@ -142,6 +150,21 @@ def RunMng(cores=None, DAG: bool = True, Cct_Sims=None, no_temp: bool = True, fr
         ((DF['Start Status'] == 'Queued') & ((DF['End Status'].isna()) | (DF['End Status'] == 'Failed')))
     ]  # _q for queued. Only Run Queued runs that aren't running or have finished.
     sprint(' completed!\n')
+
+    if Sims is not None:
+        if isinstance(Sims, str):
+            requested_sims = [name.strip() for name in Sims.split(',') if name.strip()]
+        elif isinstance(Sims, list) and all(isinstance(name, str) for name in Sims):
+            requested_sims = [name.strip() for name in Sims if name.strip()]
+        else:
+            raise TypeError('Sims must be a comma-separated string or a list of model names.')
+
+        requested_sims = list(dict.fromkeys(requested_sims))
+        queued_sims = set(DF_q['MdlN'])
+        not_queued = [name for name in requested_sims if name not in queued_sims]
+        if not_queued:
+            sprint(f'Ignoring selected Sim(s) that are not queued: {", ".join(not_queued)}')
+        DF_q = DF_q.loc[DF_q['MdlN'].isin(requested_sims)]
 
     if not Cct_Sims:
         N_Sims = len(DF_q)
